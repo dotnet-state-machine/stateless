@@ -1,0 +1,162 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SandcastleBuilderConsole</name>
+    </assembly>
+    <members>
+        <member name="T:SandcastleBuilder.ConsoleMode.SandcastleBuilderConsole">
+            <summary>
+            This is the console mode version of the Sandcastle Help File Builder.
+            </summary>
+        </member>
+        <member name="M:SandcastleBuilder.ConsoleMode.SandcastleBuilderConsole.Main(System.String[])">
+            <summary>
+            Main program entry point
+            </summary>
+            <param name="args">The command line arguments.  This should be a
+            list of projects to build and/or optional property overrides.</param>
+            <returns>Zero on success, non-zero on failure</returns>
+        </member>
+        <member name="M:SandcastleBuilder.ConsoleMode.SandcastleBuilderConsole.LoadResponseFile(System.String,System.Collections.Generic.List{SandcastleBuilder.ConsoleMode.OptionInfo})">
+            <summary>
+            Load settings from a response file.
+            </summary>
+            <param name="filename">The response file to load.</param>
+            <param name="options">The option list to which the content is
+            added.</param>
+            <remarks>Nested response files are supported.  Blank lines and
+            lines starting with '#' (comments) are ignored.</remarks>
+        </member>
+        <member name="M:SandcastleBuilder.ConsoleMode.SandcastleBuilderConsole.AddApiFilter(SandcastleBuilder.Utils.SandcastleProject,SandcastleBuilder.ConsoleMode.OptionInfo,System.Boolean)">
+            <summary>
+            This is used to add an <b>ApiFilter</b> entry.
+            </summary>
+            <param name="project">The current project to which the API filter
+            entries are added</param>
+            <param name="option">The command line option information</param>
+            <param name="isExposed">True if it is an include entry or false if
+            it is an exclude entry.</param>
+        </member>
+        <member name="M:SandcastleBuilder.ConsoleMode.SandcastleBuilderConsole.ShowHelp(System.Boolean)">
+            <summary>
+            This is used to show the command line syntax
+            </summary>
+            <param name="launchHelp">True to attempt to launch the help file
+            open to the Console Mode Builder information topic or false to just
+            show the command line help.</param>
+        </member>
+        <member name="M:SandcastleBuilder.ConsoleMode.SandcastleBuilderConsole.BuildProject(SandcastleBuilder.Utils.SandcastleProject)">
+            <summary>
+            This is called to build a project
+            </summary>
+            <param name="project">The project to build</param>
+            <returns>Returns true if successful, false if not</returns>
+        </member>
+        <member name="M:SandcastleBuilder.ConsoleMode.SandcastleBuilderConsole.buildProcess_BuildStepChanged(System.Object,SandcastleBuilder.Utils.BuildProgressEventArgs)">
+            <summary>
+            This is called by the build process thread to update the
+            application with the current build step.
+            </summary>
+            <param name="sender">The sender of the event</param>
+            <param name="e">The event arguments</param>
+        </member>
+        <member name="M:SandcastleBuilder.ConsoleMode.SandcastleBuilderConsole.buildProcess_BuildProgress(System.Object,SandcastleBuilder.Utils.BuildProgressEventArgs)">
+            <summary>
+            This is called by the build process thread to update the
+            application with information about progress.
+            </summary>
+            <param name="sender">The sender of the event</param>
+            <param name="e">The event arguments</param>
+        </member>
+        <member name="M:SandcastleBuilder.ConsoleMode.SandcastleBuilderConsole.ImportFromVisualStudio(System.String,System.String,SandcastleBuilder.Utils.SandcastleProject)">
+            <summary>
+            This is called to import settings from a Visual Studio solution or
+            project file into the given Sandcastle Help File Builder project.
+            </summary>
+            <param name="visualStudioFile">The Visual Studio solution or
+            project file from which to import the assemblies.</param>
+            <param name="configurationName">The configuration name to use
+            (i.e. Debug or Release).  If null or empty, Release is assumed</param>
+            <param name="shfbProject">The project to which the assembly and XML
+            comments file information is added.</param>
+        </member>
+        <member name="M:SandcastleBuilder.ConsoleMode.SandcastleBuilderConsole.ImportFromVSProject(System.String,System.Collections.Generic.List{SandcastleBuilder.ProjectConfigItem},SandcastleBuilder.Utils.SandcastleProject)">
+            <summary>
+            Import the assemblies information for the specified Visual
+            Studio project file.
+            </summary>
+            <param name="projectFile">The project file from which to
+            load the assembly information.</param>
+            <param name="projectConfigs">The project list</param>
+            <param name="shfbProject">The project to which the assembly and XML
+            comments file information is added.</param>
+        </member>
+        <member name="T:SandcastleBuilder.ConsoleMode.OptionInfo">
+            <summary>
+            This class holds command line option information.
+            </summary>
+        </member>
+        <member name="M:SandcastleBuilder.ConsoleMode.OptionInfo.#ctor(System.String)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="option">The option text to parse</param>
+        </member>
+        <member name="P:SandcastleBuilder.ConsoleMode.OptionInfo.OptionText">
+            <summary>
+            Get the option text as specified
+            </summary>
+        </member>
+        <member name="P:SandcastleBuilder.ConsoleMode.OptionInfo.Name">
+            <summary>
+            Get the option name
+            </summary>
+        </member>
+        <member name="P:SandcastleBuilder.ConsoleMode.OptionInfo.Value">
+            <summary>
+            Get the option value
+            </summary>
+        </member>
+        <member name="P:SandcastleBuilder.ConsoleMode.OptionInfo.SecondValue">
+            <summary>
+            Get the second option value if there was one
+            </summary>
+        </member>
+        <member name="P:SandcastleBuilder.ConsoleMode.OptionInfo.ThirdValue">
+            <summary>
+            Get the third option value if there was one
+            </summary>
+        </member>
+        <member name="T:SandcastleBuilder.ProjectConfigItem">
+            <summary>
+            This represents a Visual Studio project configuration
+            </summary>
+            <remarks>This is used to select the documentation assemblies when
+            creating a new project from a Visual Studio solution or project
+            file.</remarks>
+        </member>
+        <member name="M:SandcastleBuilder.ProjectConfigItem.#ctor(System.String,System.String,System.String)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="configuration">The configuration name</param>
+            <param name="assembly">The assembly filename</param>
+            <param name="comments">The comments filename</param>
+        </member>
+        <member name="P:SandcastleBuilder.ProjectConfigItem.ConfigurationName">
+            <summary>
+            This is used to get the configuration name
+            </summary>
+        </member>
+        <member name="P:SandcastleBuilder.ProjectConfigItem.AssemblyFile">
+            <summary>
+            This is used to get the assembly filename
+            </summary>
+        </member>
+        <member name="P:SandcastleBuilder.ProjectConfigItem.XmlCommentsFile">
+            <summary>
+            This is used to get the XML comments filename
+            </summary>
+        </member>
+    </members>
+</doc>
