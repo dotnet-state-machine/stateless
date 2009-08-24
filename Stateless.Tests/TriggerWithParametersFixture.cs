@@ -36,5 +36,19 @@ namespace Stateless.Tests
             var twp = new StateMachine<State, Trigger>.TriggerWithParameters<string>(Trigger.X);
             twp.ValidateParameters(new object[] { 123 });
         }
+
+        [Test, ExpectedException(typeof(ArgumentException))]
+        public void TooFewParametersDetected()
+        {
+            var twp = new StateMachine<State, Trigger>.TriggerWithParameters<string, string>(Trigger.X);
+            twp.ValidateParameters(new[] { "a" });
+        }
+
+        [Test, ExpectedException(typeof(ArgumentException))]
+        public void TooManyParametersDetected()
+        {
+            var twp = new StateMachine<State, Trigger>.TriggerWithParameters<string, string>(Trigger.X);
+            twp.ValidateParameters(new[] { "a", "b", "c" });
+        }
     }
 }
