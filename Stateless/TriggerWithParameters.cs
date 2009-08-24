@@ -42,11 +42,7 @@ namespace Stateless
             {
                 Enforce.ArgumentNotNull(args, "args");
 
-                if (args.Length > _argumentTypes.Length)
-                    throw new ArgumentException(TriggerWithParametersResources.TooManyParameters);
-
-                for (int i = 0; i < _argumentTypes.Length; ++i)
-                    args.Unpack(_argumentTypes[i], i);
+                ParameterConversion.Validate(args, _argumentTypes);
             }
         }
 

@@ -22,14 +22,14 @@ namespace Stateless {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "2.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class ParameterExtensionsResources {
+    internal class ParameterConversionResources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal ParameterExtensionsResources() {
+        internal ParameterConversionResources() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace Stateless {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Stateless.ParameterExtensionsResources", typeof(ParameterExtensionsResources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Stateless.ParameterConversionResources", typeof(ParameterConversionResources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -66,6 +66,15 @@ namespace Stateless {
         internal static string ArgOfTypeRequiredInPosition {
             get {
                 return ResourceManager.GetString("ArgOfTypeRequiredInPosition", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Too many parameters have been supplied. Expecting {0} but got {1}..
+        /// </summary>
+        internal static string TooManyParameters {
+            get {
+                return ResourceManager.GetString("TooManyParameters", resourceCulture);
             }
         }
         

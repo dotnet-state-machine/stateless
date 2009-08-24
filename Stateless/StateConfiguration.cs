@@ -182,7 +182,8 @@ namespace Stateless
             {
                 Enforce.ArgumentNotNull(entryAction, "entryAction");
                 Enforce.ArgumentNotNull(trigger, "trigger");
-                _representation.AddEntryAction(trigger.Trigger, (t, args) => entryAction(args.Unpack<TArg0>(0), t));
+                _representation.AddEntryAction(trigger.Trigger, (t, args) => entryAction(
+                    ParameterConversion.Unpack<TArg0>(args, 0), t));
                 return this;
             }
 
@@ -214,7 +215,9 @@ namespace Stateless
             {
                 Enforce.ArgumentNotNull(entryAction, "entryAction");
                 Enforce.ArgumentNotNull(trigger, "trigger");
-                _representation.AddEntryAction(trigger.Trigger, (t, args) => entryAction(args.Unpack<TArg0>(0), args.Unpack<TArg1>(1), t));
+                _representation.AddEntryAction(trigger.Trigger, (t, args) => entryAction(
+                    ParameterConversion.Unpack<TArg0>(args, 0),
+                    ParameterConversion.Unpack<TArg1>(args, 1), t));
                 return this;
             }
 
@@ -248,7 +251,10 @@ namespace Stateless
             {
                 Enforce.ArgumentNotNull(entryAction, "entryAction");
                 Enforce.ArgumentNotNull(trigger, "trigger");
-                _representation.AddEntryAction(trigger.Trigger, (t, args) => entryAction(args.Unpack<TArg0>(0), args.Unpack<TArg1>(1), args.Unpack<TArg2>(2), t));
+                _representation.AddEntryAction(trigger.Trigger, (t, args) => entryAction(
+                    ParameterConversion.Unpack<TArg0>(args, 0),
+                    ParameterConversion.Unpack<TArg1>(args, 1),
+                    ParameterConversion.Unpack<TArg2>(args, 2), t));
                 return this;
             }
 

@@ -51,10 +51,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ParameterExtensionsResources.Designer.cs">
+    <Compile Include="ParameterConversionResources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>ParameterExtensionsResources.resx</DependentUpon>
+      <DependentUpon>ParameterConversionResources.resx</DependentUpon>
     </Compile>
     <Compile Include="StateConfigurationResources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -72,7 +72,7 @@
       <DependentUpon>StateRepresentationResources.resx</DependentUpon>
     </Compile>
     <Compile Include="TriggerBehaviour.cs" />
-    <Compile Include="ParameterExtensions.cs" />
+    <Compile Include="ParameterConversion.cs" />
     <Compile Include="Enforce.cs" />
     <Compile Include="IgnoredTriggerBehaviour.cs" />
     <Compile Include="StateReference.cs" />
@@ -83,19 +83,14 @@
     <Compile Include="Transition.cs" />
     <Compile Include="TransitioningTriggerBehaviour.cs" />
     <Compile Include="TriggerWithParameters.cs" />
-    <Compile Include="TriggerWithParametersResources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>TriggerWithParametersResources.resx</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Stateless.snk" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="ParameterExtensionsResources.resx">
+    <EmbeddedResource Include="ParameterConversionResources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>ParameterExtensionsResources.Designer.cs</LastGenOutput>
+      <LastGenOutput>ParameterConversionResources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="StateConfigurationResources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -108,10 +103,6 @@
     <EmbeddedResource Include="StateRepresentationResources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>StateRepresentationResources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="TriggerWithParametersResources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>TriggerWithParametersResources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
