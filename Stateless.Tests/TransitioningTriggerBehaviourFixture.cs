@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace Stateless.Tests
 {
     [TestFixture]
-    public class TransitioningTriggerFixture
+    public class TransitioningTriggerBehaviourFixture
     {
         [Test]
         public void TransitionsToDestinationState()

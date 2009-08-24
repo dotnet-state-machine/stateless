@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace Stateless.Tests
 {
     [TestFixture]
-    public class IgnoredTriggerFixture
+    public class IgnoredTriggerBehaviourFixture
     {
         [Test]
         public void StateRemainsUnchanged()
