@@ -52,6 +52,14 @@ namespace BugTrackerExample
             _machine.Fire(_assignTrigger, assignee);
         }
 
+        public bool CanAssign
+        {
+            get
+            {
+                return _machine.CanFire(Trigger.Assign);
+            }
+        }
+
         public void Defer()
         {
             _machine.Fire(Trigger.Defer);

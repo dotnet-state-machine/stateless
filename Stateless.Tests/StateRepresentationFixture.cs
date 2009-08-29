@@ -233,6 +233,32 @@ namespace Stateless.Tests
             Assert.AreEqual(1, actual[1]);
         }
 
+        [Test]
+        public void WhenTransitionExists_TriggerCanBeFired()
+        {
+            var rep = CreateRepresentation(State.B);
+            Assert.IsFalse(rep.CanHandle(Trigger.X));
+        }
+
+        [Test]
+        public void WhenTransitionDoesNotExist_TriggerCannotBeFired()
+        {
+            var rep = CreateRepresentation(State.B);
+            rep.AddTriggerBehaviour(new StateMachine<State, Trigger>.IgnoredTriggerBehaviour(Trigger.X, () => true));
+            Assert.IsTrue(rep.CanHandle(Trigger.X));
+        }
+
+        [Test]
+        public void WhenTransitionExistsInSupersate_TriggerCanBeFired()
+        {
+            var rep = CreateRepresentation(State.B);
+            rep.AddTriggerBehaviour(new StateMachine<State, Trigger>.IgnoredTriggerBehaviour(Trigger.X, () => true));
+            var sub = CreateRepresentation(State.C);
+            sub.Superstate = rep;
+            rep.AddSubstate(sub);
+            Assert.IsTrue(sub.CanHandle(Trigger.X));
+        }
+
         void CreateSuperSubstatePair(out StateMachine<State, Trigger>.StateRepresentation super, out StateMachine<State, Trigger>.StateRepresentation sub)
         {
             super = CreateRepresentation(State.A);
