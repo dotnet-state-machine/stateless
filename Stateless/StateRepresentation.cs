@@ -99,9 +99,10 @@ namespace Stateless
                 }
                 else if (!Includes(transition.Source))
                 {
-                    ExecuteEntryActions(transition, entryArgs);
                     if (_superstate != null)
                         _superstate.Enter(transition, entryArgs);
+
+                    ExecuteEntryActions(transition, entryArgs);
                 }
             }
 

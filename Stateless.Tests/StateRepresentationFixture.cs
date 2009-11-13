@@ -259,6 +259,36 @@ namespace Stateless.Tests
             Assert.IsTrue(sub.CanHandle(Trigger.X));
         }
 
+        [Test]
+        public void WhenEnteringSubstate_SuperstateEntryActionsExecuteBeforeSubstate()
+        {
+            StateMachine<State, Trigger>.StateRepresentation super;
+            StateMachine<State, Trigger>.StateRepresentation sub;
+            CreateSuperSubstatePair(out super, out sub);
+
+            int order = 0, subOrder = 0, superOrder = 0;
+            super.AddEntryAction((t, a) => superOrder = order++);
+            sub.AddEntryAction((t, a) => subOrder = order++);
+            var transition = new StateMachine<State, Trigger>.Transition(State.C, sub.UnderlyingState, Trigger.X);
+            sub.Enter(transition);
+            Assert.Less(superOrder, subOrder);
+        }
+
+        [Test]
+        public void WhenExitingSubstate_SubstateEntryActionsExecuteBeforeSuperstate()
+        {
+            StateMachine<State, Trigger>.StateRepresentation super;
+            StateMachine<State, Trigger>.StateRepresentation sub;
+            CreateSuperSubstatePair(out super, out sub);
+
+            int order = 0, subOrder = 0, superOrder = 0;
+            super.AddExitAction(t => superOrder = order++);
+            sub.AddExitAction(t => subOrder = order++);
+            var transition = new StateMachine<State, Trigger>.Transition(sub.UnderlyingState, State.C, Trigger.X);
+            sub.Exit(transition);
+            Assert.Less(subOrder, superOrder);
+        }
+
         void CreateSuperSubstatePair(out StateMachine<State, Trigger>.StateRepresentation super, out StateMachine<State, Trigger>.StateRepresentation sub)
         {
             super = CreateRepresentation(State.A);
