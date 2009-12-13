@@ -51,6 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DynamicTriggerBehaviourFixture.cs" />
     <Compile Include="IgnoredTriggerBehaviourFixture.cs" />
     <Compile Include="State.cs" />
     <Compile Include="StateMachineFixture.cs" />
@@ -59,6 +60,7 @@
     <Compile Include="TransitionFixture.cs" />
     <Compile Include="TransitioningTriggerBehaviourFixture.cs" />
     <Compile Include="Trigger.cs" />
+    <Compile Include="TriggerBehaviourFixture.cs" />
     <Compile Include="TriggerWithParametersFixture.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -14,7 +14,7 @@ namespace Stateless.Tests
         {
             var ignored = new StateMachine<State, Trigger>.IgnoredTriggerBehaviour(Trigger.X, () => true);
             State destination = State.A;
-            Assert.IsFalse(ignored.ResultsInTransitionFrom(State.B, out destination));
+            Assert.IsFalse(ignored.ResultsInTransitionFrom(State.B, new object[0], out destination));
         }
 
         [Test]

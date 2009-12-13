@@ -28,7 +28,7 @@ namespace Stateless
                 }
             }
 
-            public abstract bool ResultsInTransitionFrom(TState source, out TState destination);
+            public abstract bool ResultsInTransitionFrom(TState source, object[] args, out TState destination);
         }
     }
 }

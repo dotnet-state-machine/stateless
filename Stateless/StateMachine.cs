@@ -178,7 +178,7 @@ namespace Stateless
 
             var source = State;
             TState destination;
-            if (triggerBehaviour.ResultsInTransitionFrom(source, out destination))
+            if (triggerBehaviour.ResultsInTransitionFrom(source, args, out destination))
             {
                 var transition = new Transition(source, destination, trigger);
 
