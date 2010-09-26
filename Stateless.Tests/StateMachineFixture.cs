@@ -234,5 +234,24 @@ namespace Stateless.Tests
             Assert.AreEqual(suppliedArgS, entryArgS);
             Assert.AreEqual(suppliedArgI, entryArgI);
         }
+
+        [Test]
+        public void WhenAnUnhandledTriggerIsFired_TheProvidedHandlerIsCalledWithStateAndTrigger()
+        {
+            var sm = new StateMachine<State, Trigger>(State.B);
+
+            State? state = null;
+            Trigger? trigger = null;
+            sm.OnUnhandledTrigger((s, t) =>
+                                      {
+                                          state = s;
+                                          trigger = t;
+                                      });
+
+            sm.Fire(Trigger.Z);
+
+            Assert.AreEqual(State.B, state);
+            Assert.AreEqual(Trigger.Z, trigger);
+        }
     }
 }

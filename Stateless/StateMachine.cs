@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Stateless
 {
@@ -16,6 +15,7 @@ namespace Stateless
         readonly IDictionary<TTrigger, TriggerWithParameters> _triggerConfiguration = new Dictionary<TTrigger, TriggerWithParameters>();
         readonly Func<TState> _stateAccessor;
         readonly Action<TState> _stateMutator;
+        Action<TState, TTrigger> _unhandledTriggerAction = DefaultUnhandledTriggerAction;
 
         /// <summary>
         /// Construct a state machine with external state storage.
@@ -34,7 +34,7 @@ namespace Stateless
         /// <param name="initialState">The initial state.</param>
         public StateMachine(TState initialState)
         {
-            var reference = new StateReference() { State = initialState };
+            var reference = new StateReference { State = initialState };
             _stateAccessor = () => reference.State;
             _stateMutator = s => reference.State = s;
         }
@@ -174,7 +174,12 @@ namespace Stateless
             if (_triggerConfiguration.TryGetValue(trigger, out configuration))
                 configuration.ValidateParameters(args);
 
-            var triggerBehaviour = CurrentRepresentation.FindHandler(trigger);
+            TriggerBehaviour triggerBehaviour;
+            if (!CurrentRepresentation.TryFindHandler(trigger, out triggerBehaviour))
+            {
+                _unhandledTriggerAction(CurrentRepresentation.UnderlyingState, trigger);
+                return;
+            }
 
             var source = State;
             TState destination;
@@ -186,6 +191,17 @@ namespace Stateless
                 State = transition.Destination;
                 CurrentRepresentation.Enter(transition, args);
             }
+        }
+
+        /// <summary>
+        /// Override the default behaviour of throwing an exception when an unhandled trigger
+        /// is fired.
+        /// </summary>
+        /// <param name="unhandledTriggerAction">An action to call when an unhandled trigger is fired.</param>
+        public void OnUnhandledTrigger(Action<TState, TTrigger> unhandledTriggerAction)
+        {
+            if (unhandledTriggerAction == null) throw new ArgumentNullException("unhandledTriggerAction");
+            _unhandledTriggerAction = unhandledTriggerAction;
         }
 
         /// <summary>
@@ -274,6 +290,14 @@ namespace Stateless
                     string.Format(StateMachineResources.CannotReconfigureParameters, trigger));
 
             _triggerConfiguration.Add(trigger.Trigger, trigger);
+        }
+
+        static void DefaultUnhandledTriggerAction(TState state, TTrigger trigger)
+        {
+            throw new InvalidOperationException(
+                string.Format(
+                    StateMachineResources.NoTransitionsPermitted,
+                    trigger, state));
         }
     }
 }

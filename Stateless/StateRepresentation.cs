@@ -26,24 +26,13 @@ namespace Stateless
                 _state = state;
             }
 
-            public TriggerBehaviour FindHandler(TTrigger trigger)
-            {
-                TriggerBehaviour handler;
-                if (TryFindHandler(trigger, out handler))
-                    return handler;
-                else
-                    throw new InvalidOperationException(
-                        string.Format(StateRepresentationResources.NoTransitionsPermitted,
-                        trigger, _state));
-            }
-
             public bool CanHandle(TTrigger trigger)
             {
                 TriggerBehaviour unused;
                 return TryFindHandler(trigger, out unused);
             }
 
-            bool TryFindHandler(TTrigger trigger, out TriggerBehaviour handler)
+            public bool TryFindHandler(TTrigger trigger, out TriggerBehaviour handler)
             {
                 return (TryFindLocalHandler(trigger, out handler) ||
                     (Superstate != null && Superstate.TryFindHandler(trigger, out handler)));

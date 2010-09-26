@@ -120,7 +120,4 @@
   <data name="MultipleTransitionsPermitted" xml:space="preserve">
     <value>Multiple permitted exit transitions are configured from state '{1}' for trigger '{0}'. Guard clauses must be mutually exclusive.</value>
   </data>
-  <data name="NoTransitionsPermitted" xml:space="preserve">
-    <value>No valid leaving transitions are permitted from state '{1}' for trigger '{0}'. Consider ignoring the trigger.</value>
-  </data>
 </root>

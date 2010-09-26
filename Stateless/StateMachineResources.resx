@@ -120,4 +120,7 @@
   <data name="CannotReconfigureParameters" xml:space="preserve">
     <value>Parameters for the trigger '{0}' have already been configured.</value>
   </data>
+  <data name="NoTransitionsPermitted" xml:space="preserve">
+    <value>No valid leaving transitions are permitted from state '{1}' for trigger '{0}'. Consider ignoring the trigger.</value>
+  </data>
 </root>

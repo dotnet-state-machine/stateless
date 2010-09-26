@@ -68,14 +68,5 @@ namespace Stateless {
                 return ResourceManager.GetString("MultipleTransitionsPermitted", resourceCulture);
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No valid leaving transitions are permitted from state &apos;{1}&apos; for trigger &apos;{0}&apos;. Consider ignoring the trigger..
-        /// </summary>
-        internal static string NoTransitionsPermitted {
-            get {
-                return ResourceManager.GetString("NoTransitionsPermitted", resourceCulture);
-            }
-        }
     }
 }
