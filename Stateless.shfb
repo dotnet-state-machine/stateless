@@ -9,7 +9,7 @@
     <ProjectSummary>A .NET IoC container written in C#. Focus on programmatic configuration with builder syntax. Zero intrusion into existing code. Create components using reflection or with lambda expressions for unlimited flexibility. Managed disposal of any IDisposable components created by the container within a defined scope.</ProjectSummary>
     <MissingTags>Summary, Parameter, Returns, AutoDocumentCtors, Namespace, TypeParameter</MissingTags>
     <VisibleItems>InheritedMembers, InheritedFrameworkMembers, Protected, SealedProtected</VisibleItems>
-    <HtmlHelp1xCompilerPath path="%ProgramFiles%\HTML Help Workshop\" />
+    <HtmlHelp1xCompilerPath path="" />
     <HtmlHelp2xCompilerPath path="" />
     <OutputPath>Build\Help\</OutputPath>
     <SandcastlePath path="" />
@@ -19,7 +19,7 @@
     <BuildLogFile path="" />
     <HelpFileFormat>HtmlHelp1x</HelpFileFormat>
     <CppCommentsFixup>False</CppCommentsFixup>
-    <FrameworkVersion>3.5.20404</FrameworkVersion>
+    <FrameworkVersion>2.0.50727</FrameworkVersion>
     <IndentHtml>False</IndentHtml>
     <Preliminary>False</Preliminary>
     <RootNamespaceContainer>False</RootNamespaceContainer>
@@ -28,7 +28,7 @@
     <HtmlHelpName>Stateless</HtmlHelpName>
     <Language>en-US</Language>
     <CopyrightHref>http://stateless.googlecode.com</CopyrightHref>
-    <CopyrightText>Copyright (c) 2007-2009 Stateless Contributors</CopyrightText>
+    <CopyrightText>Copyright (c) 2007-2010 Stateless Contributors</CopyrightText>
     <FeedbackEMailAddress />
     <FeedbackEMailLinkText />
     <HeaderText />
