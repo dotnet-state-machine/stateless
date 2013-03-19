@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using NUnit.Framework;
 
 namespace Stateless.Tests
@@ -16,7 +15,7 @@ namespace Stateless.Tests
         [Test]
         public void CanUseReferenceTypeMarkers()
         {
-            RunSimpleTest<string, string>(
+            RunSimpleTest(
                 new[] { StateA, StateB, StateC },
                 new[] { TriggerX, TriggerY });
         }
@@ -24,7 +23,7 @@ namespace Stateless.Tests
         [Test]
         public void CanUseValueTypeMarkers()
         {
-            RunSimpleTest<State, Trigger>(
+            RunSimpleTest(
                 Enum.GetValues(typeof(State)).Cast<State>(),
                 Enum.GetValues(typeof(Trigger)).Cast<Trigger>());
         }
@@ -252,6 +251,25 @@ namespace Stateless.Tests
 
             Assert.AreEqual(State.B, state);
             Assert.AreEqual(Trigger.Z, trigger);
+        }
+
+        [Test]
+        public void WhenATransitionOccurs_TheOnTransitionEventFires()
+        {
+            var sm = new StateMachine<State, Trigger>(State.B);
+
+            sm.Configure(State.B)
+                .Permit(Trigger.X, State.A);
+
+            StateMachine<State, Trigger>.Transition transition = null;
+            sm.OnTransitioned(t => transition = t);
+
+            sm.Fire(Trigger.X);
+
+            Assert.IsNotNull(transition);
+            Assert.AreEqual(Trigger.X, transition.Trigger);
+            Assert.AreEqual(State.B, transition.Source);
+            Assert.AreEqual(State.A, transition.Destination);
         }
     }
 }
