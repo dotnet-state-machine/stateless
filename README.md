@@ -1,4 +1,4 @@
-Create *state machines* and lightweight *state machine-based workflows* directly in .NET code:
+**Create *state machines* and lightweight *state machine-based workflows* directly in .NET code:**
 
 ```csharp
 var phoneCall = new StateMachine<State, Trigger>(State.OffHook);
@@ -23,9 +23,9 @@ phoneCall.Fire(Trigger.CallDialled);
 Assert.AreEqual(State.Ringing, phoneCall.State);
 ```
 
-This project, as well as the example above, was inspired by [http://simplestatemachine.codeplex.com/ Simple State Machine].
+This project, as well as the example above, was inspired by [Simple State Machine](http://simplestatemachine.codeplex.com/).
 
-== Features ==
+##Features
 
 Most standard state machine constructs are supported:
 
@@ -41,7 +41,7 @@ Some useful extensions are also provided:
  * Parameterised triggers
  * Reentrant states
 
-=== Hierarchical States ===
+###Hierarchical States
 
 In the example below, the `OnHold` state is a substate of the `Connected` state. This means that an `OnHold` call is still connected.
 
@@ -55,7 +55,7 @@ phoneCall.Configure(State.OnHold)
 
 In addition to the `StateMachine.State` property, which will report the precise current state, an `IsInState(State)` method is provided. `IsInState(State)` will take substates into account, so that if the example above was in the `OnHold` state, `IsInState(State.Connected)` would also evaluate to `true`.
 
-=== Entry/Exit Events ===
+###Entry/Exit Events
 
 In the example, the `StartCallTimer()` method will be executed when a call is connected. The `StopCallTimer()` will be executed when call completes (by either hanging up or hurling the phone against the wall.)
 
@@ -63,7 +63,7 @@ The call can move between the `Connected` and `OnHold` states without the `Start
 
 Entry/Exit event handlers can be supplied with a parameter of type `Transition` that describes the trigger, source and destination states.
 
-=== External State Storage ===
+###External State Storage
 
 Stateless has been designed with encapsulation within an ORM-ed domain model in mind. Some ORMs place requirements upon where mapped data may be stored. To this end, the `StateMachine` constructor can accept function arguments that will be used to read and write the state values:
 
@@ -75,11 +75,11 @@ var stateMachine = new StateMachine<State, Trigger>(
 
 In this example the state machine will use the `myState` object for state storage.
 
-=== Introspection ===
+###Introspection
 
 The state machine can provide a list of the triggers than can be successfully fired within the current state via the `StateMachine.PermittedTriggers` property.
 
-=== Guard Clauses ===
+###Guard Clauses
 
 The state machine will choose between multiple transitions based on guard clauses, e.g.:
 
@@ -91,7 +91,7 @@ phoneCall.Configure(State.OffHook)
 
 Guard clauses within a state must be mutually exclusive (multiple guard clauses cannot be valid at the same time.) Substates can override transitions by respecifying them, however substates cannot disallow transitions that are allowed by the superstate.
 
-=== Parameterised Triggers ===
+###Parameterised Triggers
 
 Strongly-typed parameters can be assigned to triggers:
 
@@ -106,7 +106,7 @@ stateMachine.Fire(assignTrigger, "joe@example.com");
 
 Trigger parameters can be used to dynamically select the destination state using the `PermitDynamic()` configuration method.
 
-=== Ignored Transitions and Reentrant States ===
+###Ignored Transitions and Reentrant States
 
 Firing a trigger that does not have an allowed transition associated with it will cause an exception to be thrown.
 
@@ -131,7 +131,7 @@ By default, triggers must be ignored explicitly. To override Stateless's default
 stateMachine.OnUnhandledTrigger((state, trigger) => { });
 ```
 
-== Project Goals ==
+##Project Goals
 
 Stateless is a base for exploration of generic and functional programming to drive workflow in .NET.
 
