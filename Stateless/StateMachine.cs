@@ -189,11 +189,13 @@ namespace Stateless
                 var transition = new Transition(source, destination, trigger);
 
                 CurrentRepresentation.Exit(transition);
+
                 State = transition.Destination;
-                CurrentRepresentation.Enter(transition, args);
                 var onTransitioned = _onTransitioned;
                 if (onTransitioned != null)
                     onTransitioned(transition);
+                
+                CurrentRepresentation.Enter(transition, args);
             }
         }
 
