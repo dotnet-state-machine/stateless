@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace Stateless
@@ -17,7 +18,11 @@ namespace Stateless
 
             var arg = args[index];
 
+#if PORTABLE259
+            if (arg != null && !argType.GetTypeInfo().IsAssignableFrom(arg.GetType().GetTypeInfo()))
+#else
             if (arg != null && !argType.IsAssignableFrom(arg.GetType()))
+#endif
                 throw new ArgumentException(
                     string.Format(ParameterConversionResources.WrongArgType, index, arg.GetType(), argType));
 
