@@ -15,5 +15,6 @@
   <files>
     <file src="bin\Release\**\Stateless.dll" target="lib" />
     <file src="bin\Release\**\Stateless.xml" target="lib" />
+    <file src="**\*.cs" exclude="**\obj\**\*.cs" target="src" />
   </files>
 </package>
