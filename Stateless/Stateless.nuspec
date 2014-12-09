@@ -13,7 +13,7 @@
     <iconUrl>https://code.google.com/p/stateless/logo</iconUrl>
   </metadata>
   <files>
-    <file src="bin\Release\Stateless.dll" target="lib" />
-    <file src="bin\Release\Stateless.xml" target="lib" />
+    <file src="bin\Release\**\Stateless.dll" target="lib" />
+    <file src="bin\Release\**\Stateless.xml" target="lib" />
   </files>
 </package>
