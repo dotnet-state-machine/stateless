@@ -12,26 +12,30 @@ namespace Stateless.Tests
         [Test]
         public void DestinationStateIsDynamic()
         {
-            var sm = new StateMachine<State, Trigger>(State.A);
+            var sm = StateMachine<State, Trigger>.Create(State.A);
             sm.Configure(State.A)
                 .PermitDynamic(Trigger.X, () => State.B);
 
-            sm.Fire(Trigger.X);
+            var csm = sm.FinishConfiguration();
 
-            Assert.AreEqual(State.B, sm.State);
+            csm.Fire(Trigger.X);
+
+            Assert.AreEqual(State.B, csm.State);
         }
 
         [Test]
         public void DestinationStateIsCalculatedBasedOnTriggerParameters()
         {
-            var sm = new StateMachine<State, Trigger>(State.A);
+            var sm = StateMachine<State, Trigger>.Create(State.A);
             var trigger = sm.SetTriggerParameters<int>(Trigger.X);
             sm.Configure(State.A)
                 .PermitDynamic(trigger, i => i == 1 ? State.B : State.C);
 
-            sm.Fire(trigger, 1);
+            var csm = sm.FinishConfiguration();
 
-            Assert.AreEqual(State.B, sm.State);
+            csm.Fire(trigger, 1);
+
+            Assert.AreEqual(State.B, csm.State);
         }
     }
 }

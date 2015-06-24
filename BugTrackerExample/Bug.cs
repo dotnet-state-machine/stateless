@@ -12,7 +12,7 @@ namespace BugTrackerExample
         enum Trigger { Assign, Defer, Resolve, Close }
 
         State _state = State.Open;
-        StateMachine<State, Trigger> _machine;
+        IConfiguredStatemachine<State, Trigger> _machine;
         StateMachine<State, Trigger>.TriggerWithParameters<string> _assignTrigger;
 
         string _title;
@@ -22,7 +22,7 @@ namespace BugTrackerExample
         {
             _title = title;
 
-            _machine = new StateMachine<State, Trigger>(() => _state, s => _state = s);
+            var _machine = StateMachine<State, Trigger>.Create(() => _state, s => _state = s);
 
             _assignTrigger = _machine.SetTriggerParameters<string>(Trigger.Assign);
 
@@ -40,6 +40,8 @@ namespace BugTrackerExample
             _machine.Configure(State.Deferred)
                 .OnEntry(() => _assignee = null)
                 .Permit(Trigger.Assign, State.Assigned);
+
+            this._machine = _machine.FinishConfiguration();
         }
 
         public void Close()
