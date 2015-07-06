@@ -9,7 +9,7 @@
     <description>Create state machines and lightweight state machine-based workflows directly in .NET code</description>
     <language>en-US</language>
     <title>Stateless</title>
-    <projectUrl>http://stateless.googlecode.com</projectUrl>
+    <projectUrl>https://github.com/nblumhardt/stateless</projectUrl>
     <iconUrl>https://code.google.com/p/stateless/logo</iconUrl>
   </metadata>
   <files>
