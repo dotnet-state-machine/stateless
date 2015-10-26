@@ -9,7 +9,7 @@ namespace Stateless
     {
         internal class TransitioningTriggerBehaviour : TriggerBehaviour
         {
-            readonly TState _destination;
+            protected internal readonly TState _destination;
 
             public TransitioningTriggerBehaviour(TTrigger trigger, TState destination, Func<bool> guard)
                 : base(trigger, guard)

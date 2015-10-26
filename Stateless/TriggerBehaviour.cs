@@ -9,8 +9,8 @@ namespace Stateless
     {
         internal abstract class TriggerBehaviour
         {
-            readonly TTrigger _trigger;
-            readonly Func<bool> _guard;
+            protected internal readonly TTrigger _trigger;
+            protected internal readonly Func<bool> _guard;
 
             protected TriggerBehaviour(TTrigger trigger, Func<bool> guard)
             {

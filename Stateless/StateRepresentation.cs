@@ -11,7 +11,7 @@ namespace Stateless
         {
             readonly TState _state;
 
-            readonly IDictionary<TTrigger, ICollection<TriggerBehaviour>> _triggerBehaviours =
+            protected internal readonly IDictionary<TTrigger, ICollection<TriggerBehaviour>> _triggerBehaviours =
                 new Dictionary<TTrigger, ICollection<TriggerBehaviour>>();
 
             readonly ICollection<Action<Transition, object[]>> _entryActions = new List<Action<Transition, object[]>>();
