@@ -80,7 +80,7 @@ namespace Stateless
 
             public void Enter(Transition transition, params object[] entryArgs)
             {
-                Enforce.ArgumentNotNull(transition, "transtion");
+                Enforce.ArgumentNotNull(transition, "transition");
 
                 if (transition.IsReentry)
                 {
@@ -97,7 +97,7 @@ namespace Stateless
 
             public void Exit(Transition transition)
             {
-                Enforce.ArgumentNotNull(transition, "transtion");
+                Enforce.ArgumentNotNull(transition, "transition");
 
                 if (transition.IsReentry)
                 {
@@ -113,7 +113,7 @@ namespace Stateless
 
             void ExecuteEntryActions(Transition transition, object[] entryArgs)
             {
-                Enforce.ArgumentNotNull(transition, "transtion");
+                Enforce.ArgumentNotNull(transition, "transition");
                 Enforce.ArgumentNotNull(entryArgs, "entryArgs");
                 foreach (var action in _entryActions)
                     action(transition, entryArgs);
@@ -121,7 +121,7 @@ namespace Stateless
 
             void ExecuteExitActions(Transition transition)
             {
-                Enforce.ArgumentNotNull(transition, "transtion");
+                Enforce.ArgumentNotNull(transition, "transition");
                 foreach (var action in _exitActions)
                     action(transition);
             }
