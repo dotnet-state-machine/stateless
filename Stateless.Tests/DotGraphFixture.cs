@@ -45,14 +45,16 @@ namespace Stateless.Tests
         [Test]
         public void WhenDiscriminatedByAnonymousGuard()
         {
+            Func<bool> anonymousGuard = () => true;
+
             var expected = "digraph {" + System.Environment.NewLine
-                         + " A -> B [label=\"X [<WhenDiscriminatedByAnonymousGuard>m__0]\"];" + System.Environment.NewLine
+                         + " A -> B [label=\"X ["+ anonymousGuard.Method.Name +"]\"];" + System.Environment.NewLine
                          + "}";
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .PermitIf(Trigger.X, State.B, () => true);
+                .PermitIf(Trigger.X, State.B, anonymousGuard);
 
             Assert.AreEqual(expected, sm.ToDotGraph());
         }
