@@ -15,11 +15,11 @@ namespace Stateless
 
             foreach (var stateCfg in _stateConfiguration) {
                 TState source = stateCfg.Key;
-                foreach (var behaviours in stateCfg.Value._triggerBehaviours) {
+                foreach (var behaviours in stateCfg.Value.TriggerBehaviours) {
                     foreach (TransitioningTriggerBehaviour behaviour in behaviours.Value.Where(b => b is TransitioningTriggerBehaviour)) {
-                        string line = (behaviour._guard.Method.DeclaringType.Namespace.Equals("Stateless")) ?
-                            string.Format(" {0} -> {1} [label=\"{2}\"];", source, behaviour._destination, behaviour._trigger) :
-                            string.Format(" {0} -> {1} [label=\"{2} [{3}]\"];", source, behaviour._destination, behaviour._trigger, behaviour._guard.Method.Name);
+                        string line = (behaviour.Guard.Method.DeclaringType.Namespace.Equals("Stateless")) ?
+                            string.Format(" {0} -> {1} [label=\"{2}\"];", source, behaviour.Destination, behaviour.Trigger) :
+                            string.Format(" {0} -> {1} [label=\"{2} [{3}]\"];", source, behaviour.Destination, behaviour.Trigger, behaviour.Guard.Method.Name);
 
                         transitions.Add(line);
                     }

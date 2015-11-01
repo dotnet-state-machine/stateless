@@ -9,8 +9,8 @@ namespace Stateless
     {
         internal abstract class TriggerBehaviour
         {
-            protected internal readonly TTrigger _trigger;
-            protected internal readonly Func<bool> _guard;
+            readonly TTrigger _trigger;
+            readonly Func<bool> _guard;
 
             protected TriggerBehaviour(TTrigger trigger, Func<bool> guard)
             {
@@ -19,6 +19,7 @@ namespace Stateless
             }
 
             public TTrigger Trigger { get { return _trigger; } }
+            internal Func<bool> Guard { get { return _guard; } }
 
             public bool IsGuardConditionMet
             {
