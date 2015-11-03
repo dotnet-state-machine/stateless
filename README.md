@@ -40,6 +40,8 @@ Some useful extensions are also provided:
  * Ability to store state externally (for example, in a property tracked by an ORM)
  * Parameterised triggers
  * Reentrant states
+ * Export to DOT graph
+
 
 ###Hierarchical States
 
@@ -130,6 +132,28 @@ By default, triggers must be ignored explicitly. To override Stateless's default
 ```csharp
 stateMachine.OnUnhandledTrigger((state, trigger) => { });
 ```
+
+###Export to DOT graph
+
+It can be useful to visualize state machines on runtime. With this approach the code is the authoritative source and state diagrams are by-products which are always up to date.
+ 
+```csharp
+phoneCall.Configure(State.OffHook)
+    .PermitIf(Trigger.CallDialed, State.Ringing, IsValidNumber);
+string graph = phoneCall.ToDotGraph();
+```
+
+The `StateMachine.ToDotGraph()` method returns a string representation of the state machine in the [DOT graph language](https://en.wikipedia.org/wiki/DOT_(graph_description_language)), e.g.:
+
+```dot
+digraph {
+ OffHook -> Ringing [label="CallDialed [IsValidNumber]"];
+}
+```
+
+This can then be rendered by tools that support the DOT graph language, such as the [dot command line tool](http://www.graphviz.org/doc/info/command.html) from [graphviz.org](http://www.graphviz.org) or [viz.js](https://github.com/mdaines/viz.js). See http://www.webgraphviz.com for instant gratification.
+Command line example: `dot -T pdf -o phoneCall.pdf phoneCall.dot` to generate a PDF file.
+
 
 ##Project Goals
 
