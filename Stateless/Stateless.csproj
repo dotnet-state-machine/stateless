@@ -124,6 +124,9 @@
     <Compile Include="TriggerWithParameters.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DotGraph.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

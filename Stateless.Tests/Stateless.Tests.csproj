@@ -84,6 +84,7 @@
     <Compile Include="Trigger.cs" />
     <Compile Include="TriggerBehaviourFixture.cs" />
     <Compile Include="TriggerWithParametersFixture.cs" />
+    <Compile Include="DotGraphFixture.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Stateless\Stateless.csproj">

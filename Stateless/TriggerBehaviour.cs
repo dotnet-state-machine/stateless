@@ -19,6 +19,7 @@ namespace Stateless
             }
 
             public TTrigger Trigger { get { return _trigger; } }
+            internal Func<bool> Guard { get { return _guard; } }
 
             public bool IsGuardConditionMet
             {

@@ -11,6 +11,8 @@ namespace Stateless
         {
             readonly TState _destination;
 
+            internal TState Destination { get { return _destination; } }
+
             public TransitioningTriggerBehaviour(TTrigger trigger, TState destination, Func<bool> guard)
                 : base(trigger, guard)
             {

@@ -14,6 +14,8 @@ namespace Stateless
             readonly IDictionary<TTrigger, ICollection<TriggerBehaviour>> _triggerBehaviours =
                 new Dictionary<TTrigger, ICollection<TriggerBehaviour>>();
 
+            internal IDictionary<TTrigger, ICollection<TriggerBehaviour>> TriggerBehaviours { get { return _triggerBehaviours; } }
+
             readonly ICollection<Action<Transition, object[]>> _entryActions = new List<Action<Transition, object[]>>();
             readonly ICollection<Action<Transition>> _exitActions = new List<Action<Transition>>();
 
