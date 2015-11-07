@@ -1,3 +1,5 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/ww4c9tvm9c68jndn/branch/master?svg=true)](https://ci.appveyor.com/project/NicholasBlumhardt/stateless/branch/master)
+
 **Create *state machines* and lightweight *state machine-based workflows* directly in .NET code:**
 
 ```csharp
