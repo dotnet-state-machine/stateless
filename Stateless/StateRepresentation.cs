@@ -16,8 +16,10 @@ namespace Stateless
 
             internal IDictionary<TTrigger, ICollection<TriggerBehaviour>> TriggerBehaviours { get { return _triggerBehaviours; } }
 
-            readonly ICollection<Action<Transition, object[]>> _entryActions = new List<Action<Transition, object[]>>();
-            readonly ICollection<Action<Transition>> _exitActions = new List<Action<Transition>>();
+            readonly ICollection<EntryActionBehavior> _entryActions = new List<EntryActionBehavior>();
+            internal ICollection<EntryActionBehavior> EntryActions { get { return _entryActions; } }
+            readonly ICollection<ExitActionBehavior> _exitActions = new List<ExitActionBehavior>();
+            internal ICollection<ExitActionBehavior> ExitActions { get { return _exitActions; } }
 
             StateRepresentation _superstate; // null
 
@@ -60,24 +62,32 @@ namespace Stateless
                 return handler != null;
             }
 
-            public void AddEntryAction(TTrigger trigger, Action<Transition, object[]> action)
+            public void AddEntryAction(TTrigger trigger, Action<Transition, object[]> action, string description = "")
             {
                 Enforce.ArgumentNotNull(action, "action");
-                _entryActions.Add((t, args) =>
-                {
-                    if (t.Trigger.Equals(trigger))
-                        action(t, args);
-                });
+                _entryActions.Add(
+                    new EntryActionBehavior((t, args) =>
+                    {
+                        if (t.Trigger.Equals(trigger))
+                            action(t, args);
+                    },
+                    string.IsNullOrEmpty(description) ? action.Method.Name : description));
             }
 
-            public void AddEntryAction(Action<Transition, object[]> action)
+            public void AddEntryAction(Action<Transition, object[]> action, string description = "")
             {
-                _entryActions.Add(Enforce.ArgumentNotNull(action, "action"));
+                _entryActions.Add(
+                    new EntryActionBehavior(
+                        Enforce.ArgumentNotNull(action, "action"),
+                        string.IsNullOrEmpty(description) ? action.Method.Name : description));
             }
 
-            public void AddExitAction(Action<Transition> action)
+            public void AddExitAction(Action<Transition> action, string description = "")
             {
-                _exitActions.Add(Enforce.ArgumentNotNull(action, "action"));
+                _exitActions.Add(
+                    new ExitActionBehavior(
+                        Enforce.ArgumentNotNull(action, "action"),
+                       string.IsNullOrEmpty(description) ? action.Method.Name : description));
             }
 
             public void Enter(Transition transition, params object[] entryArgs)
@@ -118,14 +128,14 @@ namespace Stateless
                 Enforce.ArgumentNotNull(transition, "transition");
                 Enforce.ArgumentNotNull(entryArgs, "entryArgs");
                 foreach (var action in _entryActions)
-                    action(transition, entryArgs);
+                    action.Action(transition, entryArgs);
             }
 
             void ExecuteExitActions(Transition transition)
             {
                 Enforce.ArgumentNotNull(transition, "transition");
                 foreach (var action in _exitActions)
-                    action(transition);
+                    action.Action(transition);
             }
 
             public void AddTriggerBehaviour(TriggerBehaviour triggerBehaviour)
