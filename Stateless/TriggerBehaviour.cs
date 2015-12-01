@@ -11,18 +11,18 @@ namespace Stateless
         {
             readonly TTrigger _trigger;
             readonly Func<bool> _guard;
-            readonly string _description;
+            readonly string _guardDescription;
 
-            protected TriggerBehaviour(TTrigger trigger, Func<bool> guard, string description)
+            protected TriggerBehaviour(TTrigger trigger, Func<bool> guard, string guardDescription)
             {
                 _trigger = trigger;
                 _guard = guard;
-                _description = description;
+                _guardDescription = guardDescription;
             }
 
             public TTrigger Trigger { get { return _trigger; } }
             internal Func<bool> Guard { get { return _guard; } }
-            internal string Description{ get { return string.IsNullOrEmpty(_description) ? _guard.Method.Name : _description ; } }
+            internal string GuardDescription{ get { return string.IsNullOrEmpty(_guardDescription) ? _guard.Method.Name : _guardDescription ; } }
 
             public bool IsGuardConditionMet
             {
