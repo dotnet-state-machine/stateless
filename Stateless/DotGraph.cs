@@ -56,15 +56,15 @@ namespace Stateless
                 {
                     TState source = stateCfg.Key;
 
-                    foreach (var entryAction in stateCfg.Value.EntryActions)
+                    foreach (var entryActionBehaviour in stateCfg.Value.EntryActions)
                     {
-                        string line = string.Format(" {0} -> \"{1}\" [label=\"On Entry\" style=dotted];", source, entryAction.Description);
+                        string line = string.Format(" {0} -> \"{1}\" [label=\"On Entry\" style=dotted];", source, entryActionBehaviour.ActionDescription);
                         lines.Add(line);
                     }
 
-                    foreach (var exitAction in stateCfg.Value.ExitActions)
+                    foreach (var exitActionBehaviour in stateCfg.Value.ExitActions)
                     {
-                        string line = string.Format(" {0} -> \"{1}\" [label=\"On Exit\" style=dotted];", source, exitAction.Description);
+                        string line = string.Format(" {0} -> \"{1}\" [label=\"On Exit\" style=dotted];", source, exitActionBehaviour.ActionDescription);
                         lines.Add(line);
                     }
                 }
