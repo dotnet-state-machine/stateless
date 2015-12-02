@@ -1,0 +1,34 @@
+{
+  "locked": false,
+  "version": 2,
+  "targets": {
+    ".NETPortable,Version=v4.0,Profile=Profile136": {},
+    ".NETFramework,Version=v3.5": {},
+    ".NETFramework,Version=v4.0": {},
+    ".NETPortable,Version=v4.0,Profile=Profile136/win7-x86": {},
+    ".NETPortable,Version=v4.0,Profile=Profile136/win7-x64": {},
+    ".NETFramework,Version=v3.5/win7-x86": {},
+    ".NETFramework,Version=v3.5/win7-x64": {},
+    ".NETFramework,Version=v4.0/win7-x86": {},
+    ".NETFramework,Version=v4.0/win7-x64": {}
+  },
+  "libraries": {},
+  "projectFileDependencyGroups": {
+    "": [],
+    ".NETPortable,Version=v4.0,Profile=Profile136": [
+      "fx/mscorlib ",
+      "fx/System ",
+      "fx/System.Core "
+    ],
+    ".NETFramework,Version=v3.5": [
+      "fx/mscorlib ",
+      "fx/System ",
+      "fx/System.Core "
+    ],
+    ".NETFramework,Version=v4.0": [
+      "fx/mscorlib ",
+      "fx/System ",
+      "fx/System.Core "
+    ]
+  }
+}

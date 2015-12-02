@@ -1,25 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stateless", "Stateless\Stateless.csproj", "{A15EEC02-60EC-4705-A58B-A6ECD55A9628}"
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Stateless", "Stateless\Stateless.xproj", "{D187179A-37A9-408D-A202-D05447D965F4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stateless.Tests", "Stateless.Tests\Stateless.Tests.csproj", "{70AD8860-1F5E-4F78-9276-CAD498EDDF73}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Stateless.Tests", "Stateless.Tests\Stateless.Tests.xproj", "{56EF3AE9-5E0F-41B0-BE6B-3035112557AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnOffExample", "OnOffExample\OnOffExample.csproj", "{69512CD4-53C5-4702-B0F6-E7EFA4897525}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "TelephoneCallExample", "TelephoneCallExample\TelephoneCallExample.xproj", "{DAD0EFF4-33AD-474B-AF7D-0D76498AC28F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelephoneCallExample", "TelephoneCallExample\TelephoneCallExample.csproj", "{F952836B-D548-4586-8974-59343D575A66}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "OnOffExample", "OnOffExample\OnOffExample.xproj", "{174A1601-5203-4585-B748-0053F070ABAF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BugTrackerExample", "BugTrackerExample\BugTrackerExample.csproj", "{3A56311E-C3AC-4E34-A1DF-CA5042A31039}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8DE7A8AE-D87D-46A0-9757-88BA4AF7EDA5}"
-	ProjectSection(SolutionItems) = preProject
-		Stateless.nuspec = Stateless.nuspec
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{9DBF0687-CF52-4E52-AE4E-5C123A455E15}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\packages.config = .nuget\packages.config
-	EndProjectSection
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "BugTrackerExample", "BugTrackerExample\BugTrackerExample.xproj", "{ED67B850-7A80-49B6-804F-CDD56C39B7F2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,26 +19,26 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A15EEC02-60EC-4705-A58B-A6ECD55A9628}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A15EEC02-60EC-4705-A58B-A6ECD55A9628}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A15EEC02-60EC-4705-A58B-A6ECD55A9628}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A15EEC02-60EC-4705-A58B-A6ECD55A9628}.Release|Any CPU.Build.0 = Release|Any CPU
-		{70AD8860-1F5E-4F78-9276-CAD498EDDF73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{70AD8860-1F5E-4F78-9276-CAD498EDDF73}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{70AD8860-1F5E-4F78-9276-CAD498EDDF73}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{70AD8860-1F5E-4F78-9276-CAD498EDDF73}.Release|Any CPU.Build.0 = Release|Any CPU
-		{69512CD4-53C5-4702-B0F6-E7EFA4897525}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{69512CD4-53C5-4702-B0F6-E7EFA4897525}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{69512CD4-53C5-4702-B0F6-E7EFA4897525}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{69512CD4-53C5-4702-B0F6-E7EFA4897525}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F952836B-D548-4586-8974-59343D575A66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F952836B-D548-4586-8974-59343D575A66}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F952836B-D548-4586-8974-59343D575A66}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F952836B-D548-4586-8974-59343D575A66}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3A56311E-C3AC-4E34-A1DF-CA5042A31039}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3A56311E-C3AC-4E34-A1DF-CA5042A31039}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3A56311E-C3AC-4E34-A1DF-CA5042A31039}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3A56311E-C3AC-4E34-A1DF-CA5042A31039}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D187179A-37A9-408D-A202-D05447D965F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D187179A-37A9-408D-A202-D05447D965F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D187179A-37A9-408D-A202-D05447D965F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D187179A-37A9-408D-A202-D05447D965F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56EF3AE9-5E0F-41B0-BE6B-3035112557AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56EF3AE9-5E0F-41B0-BE6B-3035112557AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56EF3AE9-5E0F-41B0-BE6B-3035112557AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56EF3AE9-5E0F-41B0-BE6B-3035112557AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DAD0EFF4-33AD-474B-AF7D-0D76498AC28F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DAD0EFF4-33AD-474B-AF7D-0D76498AC28F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DAD0EFF4-33AD-474B-AF7D-0D76498AC28F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DAD0EFF4-33AD-474B-AF7D-0D76498AC28F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{174A1601-5203-4585-B748-0053F070ABAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{174A1601-5203-4585-B748-0053F070ABAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{174A1601-5203-4585-B748-0053F070ABAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{174A1601-5203-4585-B748-0053F070ABAF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED67B850-7A80-49B6-804F-CDD56C39B7F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED67B850-7A80-49B6-804F-CDD56C39B7F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED67B850-7A80-49B6-804F-CDD56C39B7F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED67B850-7A80-49B6-804F-CDD56C39B7F2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

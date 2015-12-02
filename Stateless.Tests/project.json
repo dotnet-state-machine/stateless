@@ -1,0 +1,12 @@
+{
+  "compilationOptions": {
+    "keyFile": "Stateless.Tests.snk"
+  },
+  "dependencies": {
+    "NUnit": "2.6.4",
+    "Stateless": ""
+  },
+  "frameworks": {
+    "net40": { }
+  }
+}

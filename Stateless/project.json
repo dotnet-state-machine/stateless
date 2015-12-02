@@ -1,0 +1,41 @@
+﻿{
+  "title": "Stateless",
+  "description": "Create state machines and lightweight state machine-based workflows directly in .NET code",
+  "authors": [ "Nicholas Blumhardt and Contributors" ],
+  "owners": [ "" ],
+  "language": "en-US",
+  "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0",
+  "projectUrl": "https://github.com/nblumhardt/stateless",
+  "iconUrl": "https://code.google.com/p/stateless/logo",
+  "compilationOptions": {
+    "keyFile": "Stateless.snk"
+  },
+  "dependencies": {
+  },
+  "frameworks": {
+    ".NETPortable,Version=v4.0,Profile=Profile136": {
+      "compilationOptions": { "define": [ "PORTABLE" ] },
+      "frameworkAssemblies": {
+        "mscorlib": "",
+        "System": "",
+        "System.Core": ""
+      }
+    },
+    "net35": {
+      "compilationOptions": { "define": [ "NET35" ] },
+      "frameworkAssemblies": {
+        "mscorlib": "",
+        "System": "",
+        "System.Core": ""
+      }
+    },
+    "net40": {
+      "compilationOptions": { "define": [ "NET40" ] },
+      "frameworkAssemblies": {
+        "mscorlib": "",
+        "System": "",
+        "System.Core": ""
+      }
+    }
+  }
+}

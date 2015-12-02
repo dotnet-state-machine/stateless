@@ -44,12 +44,12 @@ namespace Stateless
 
             if (unknownDestinations.Any()) 
             {
-                string label = string.Format(" {{ node [label=\"?\"] {0} }};", string.Join (" ", unknownDestinations));
+                string label = string.Format(" {{ node [label=\"?\"] {0} }};", string.Join (" ", unknownDestinations.ToArray()));
                 lines.Insert(0, label);
             }
 
             return "digraph {" + System.Environment.NewLine +
-                     string.Join(System.Environment.NewLine, lines) + System.Environment.NewLine +
+                     string.Join(System.Environment.NewLine, lines.ToArray()) + System.Environment.NewLine +
                    "}";
         }
     }
