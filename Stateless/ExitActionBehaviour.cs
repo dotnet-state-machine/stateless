@@ -15,10 +15,10 @@ namespace Stateless
             public ExitActionBehavior(Action<Transition> action, string actionDescription)
             {
                 _action = action;
-                _actionDescription = actionDescription;
+                _actionDescription = Enforce.ArgumentNotNull(actionDescription, nameof(actionDescription));
             }
 
-            internal string ActionDescription { get { return string.IsNullOrEmpty(_actionDescription) ? _action.Method.Name : _actionDescription; } }
+            internal string ActionDescription { get { return _actionDescription; } }
             internal Action<Transition> Action { get { return _action; } }
         }
     }

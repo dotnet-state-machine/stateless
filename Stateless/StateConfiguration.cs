@@ -18,8 +18,8 @@ namespace Stateless
 
             internal StateConfiguration(StateRepresentation representation, Func<TState, StateRepresentation> lookup)
             {
-                _representation = Enforce.ArgumentNotNull(representation, "representation");
-                _lookup = Enforce.ArgumentNotNull(lookup, "lookup");
+                _representation = Enforce.ArgumentNotNull(representation, nameof(representation));
+                _lookup = Enforce.ArgumentNotNull(lookup, nameof(lookup));
             }
 
             /// <summary>
@@ -45,10 +45,14 @@ namespace Stateless
             /// trigger to be accepted.</param>
             /// <param name="guardDescription">Guard description</param>
             /// <returns>The reciever.</returns>
-            public StateConfiguration PermitIf(TTrigger trigger, TState destinationState, Func<bool> guard, string guardDescription = "")
+            public StateConfiguration PermitIf(TTrigger trigger, TState destinationState, Func<bool> guard, string guardDescription = null)
             {
                 EnforceNotIdentityTransition(destinationState);
-                return InternalPermitIf(trigger, destinationState, guard, guardDescription);
+                return InternalPermitIf(
+                    trigger,
+                    destinationState,
+                    guard,
+                    guardDescription != null ? guardDescription : guard?.Method.Name);
             }
 
             /// <summary>
@@ -79,9 +83,13 @@ namespace Stateless
             /// Applies to the current state only. Will not re-execute superstate actions, or
             /// cause actions to execute transitioning between super- and sub-states.
             /// </remarks>
-            public StateConfiguration PermitReentryIf(TTrigger trigger, Func<bool> guard, string guardDescription = "")
+            public StateConfiguration PermitReentryIf(TTrigger trigger, Func<bool> guard, string guardDescription = null)
             {
-                return InternalPermitIf(trigger, _representation.UnderlyingState, guard, guardDescription);
+                return InternalPermitIf(
+                    trigger,
+                    _representation.UnderlyingState,
+                    guard,
+                    guardDescription != null ? guardDescription : guard?.Method.Name);
             }
             /// <summary>
             /// Ignore the specified trigger when in the configured state.
@@ -102,10 +110,14 @@ namespace Stateless
             /// <param name="guard">Function that must return true in order for the
             /// trigger to be ignored.</param>
             /// <returns>The receiver.</returns>
-            public StateConfiguration IgnoreIf(TTrigger trigger, Func<bool> guard, string guardDescription = "")
+            public StateConfiguration IgnoreIf(TTrigger trigger, Func<bool> guard, string guardDescription = null)
             {
-                Enforce.ArgumentNotNull(guard, "guard");
-                _representation.AddTriggerBehaviour(new IgnoredTriggerBehaviour(trigger, guard, guardDescription));
+                Enforce.ArgumentNotNull(guard, nameof(guard));
+                _representation.AddTriggerBehaviour(
+                    new IgnoredTriggerBehaviour(
+                        trigger,
+                        guard,
+                        guardDescription != null ? guardDescription : guard?.Method.Name));
                 return this;
             }
 
@@ -116,10 +128,12 @@ namespace Stateless
             /// <param name="entryAction">Action to execute.</param>
             /// <param name="entryActionDescription">Action description.</param>
             /// <returns>The receiver.</returns>
-            public StateConfiguration OnEntry(Action entryAction, string entryActionDescription = "")
+            public StateConfiguration OnEntry(Action entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, "entryAction");
-                return OnEntry(t => entryAction(), entryActionDescription);
+                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
+                return OnEntry(
+                    t => entryAction(),
+                    entryActionDescription != null ? entryActionDescription : entryAction.Method.Name);
             }
 
             /// <summary>
@@ -129,12 +143,15 @@ namespace Stateless
             /// <param name="entryAction">Action to execute, providing details of the transition.</param>
             /// <param name="entryActionDescription">Action description.</param>
             /// <returns>The receiver.</returns>
-            public StateConfiguration OnEntry(Action<Transition> entryAction, string entryActionDescription = "")
+            public StateConfiguration OnEntry(Action<Transition> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, "entryAction");
-                _representation.AddEntryAction((t, args) => entryAction(t), entryActionDescription);
+                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
+                _representation.AddEntryAction(
+                    (t, args) => entryAction(t),
+                    entryActionDescription != null ? entryActionDescription : entryAction.Method.Name);
                 return this;
             }
+
             /// <summary>
             /// Specify an action that will execute when transitioning into
             /// the configured state.
@@ -143,10 +160,13 @@ namespace Stateless
             /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
             /// <param name="entryActionDescription">Action description.</param>
             /// <returns>The receiver.</returns>
-            public StateConfiguration OnEntryFrom(TTrigger trigger, Action entryAction, string entryActionDescription = "")
+            public StateConfiguration OnEntryFrom(TTrigger trigger, Action entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, "entryAction");
-                return OnEntryFrom(trigger, t => entryAction(), entryActionDescription);
+                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
+                return OnEntryFrom(
+                    trigger,
+                    t => entryAction(),
+                    entryActionDescription != null ? entryActionDescription : entryAction.Method.Name);
             }
 
             /// <summary>
@@ -157,10 +177,13 @@ namespace Stateless
             /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
             /// <param name="entryActionDescription">Action description.</param>
             /// <returns>The receiver.</returns>
-            public StateConfiguration OnEntryFrom(TTrigger trigger, Action<Transition> entryAction, string entryActionDescription = "")
+            public StateConfiguration OnEntryFrom(TTrigger trigger, Action<Transition> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, "entryAction");
-                _representation.AddEntryAction(trigger, (t, args) => entryAction(t), entryActionDescription);
+                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
+                _representation.AddEntryAction(
+                    trigger,
+                    (t, args) => entryAction(t),
+                    entryActionDescription != null ? entryActionDescription : entryAction.Method.Name);
                 return this;
             }
 
@@ -173,10 +196,13 @@ namespace Stateless
             /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
             /// <param name="entryActionDescription">Action description.</param>
             /// <returns>The receiver.</returns>
-            public StateConfiguration OnEntryFrom<TArg0>(TriggerWithParameters<TArg0> trigger, Action<TArg0> entryAction, string entryActionDescription = "")
+            public StateConfiguration OnEntryFrom<TArg0>(TriggerWithParameters<TArg0> trigger, Action<TArg0> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, "entryAction");
-                return OnEntryFrom<TArg0>(trigger, (a0, t) => entryAction(a0), entryActionDescription);
+                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
+                return OnEntryFrom<TArg0>(
+                    trigger,
+                    (a0, t) => entryAction(a0),
+                    entryActionDescription != null ? entryActionDescription : entryAction.Method.Name);
             }
 
             /// <summary>
@@ -188,12 +214,15 @@ namespace Stateless
             /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
             /// <param name="entryActionDescription">Action description.</param>
             /// <returns>The receiver.</returns>
-            public StateConfiguration OnEntryFrom<TArg0>(TriggerWithParameters<TArg0> trigger, Action<TArg0, Transition> entryAction, string entryActionDescription = "")
+            public StateConfiguration OnEntryFrom<TArg0>(TriggerWithParameters<TArg0> trigger, Action<TArg0, Transition> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, "entryAction");
-                Enforce.ArgumentNotNull(trigger, "trigger");
-                _representation.AddEntryAction(trigger.Trigger, (t, args) => entryAction(
-                    ParameterConversion.Unpack<TArg0>(args, 0), t), entryActionDescription);
+                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
+                Enforce.ArgumentNotNull(trigger, nameof(trigger));
+                _representation.AddEntryAction(
+                    trigger.Trigger,
+                    (t, args) => entryAction(
+                        ParameterConversion.Unpack<TArg0>(args, 0), t),
+                        entryActionDescription != null ? entryActionDescription : entryAction.Method.Name);
                 return this;
             }
 
@@ -207,10 +236,12 @@ namespace Stateless
             /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
             /// <param name="entryActionDescription">Action description.</param>
             /// <returns>The receiver.</returns>
-            public StateConfiguration OnEntryFrom<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Action<TArg0, TArg1> entryAction, string entryActionDescription = "")
+            public StateConfiguration OnEntryFrom<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Action<TArg0, TArg1> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, "entryAction");
-                return OnEntryFrom<TArg0, TArg1>(trigger, (a0, a1, t) => entryAction(a0, a1), entryActionDescription);
+                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
+                return OnEntryFrom<TArg0, TArg1>(
+                    trigger, 
+                    (a0, a1, t) => entryAction(a0, a1), entryActionDescription != null ? entryActionDescription : entryAction.Method.Name);
             }
 
             /// <summary>
@@ -223,13 +254,13 @@ namespace Stateless
             /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
             /// <param name="entryActionDescription">Action description.</param>
             /// <returns>The receiver.</returns>
-            public StateConfiguration OnEntryFrom<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Action<TArg0, TArg1, Transition> entryAction, string entryActionDescription = "")
+            public StateConfiguration OnEntryFrom<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Action<TArg0, TArg1, Transition> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, "entryAction");
-                Enforce.ArgumentNotNull(trigger, "trigger");
+                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
+                Enforce.ArgumentNotNull(trigger, nameof(trigger));
                 _representation.AddEntryAction(trigger.Trigger, (t, args) => entryAction(
                     ParameterConversion.Unpack<TArg0>(args, 0),
-                    ParameterConversion.Unpack<TArg1>(args, 1), t), entryActionDescription);
+                    ParameterConversion.Unpack<TArg1>(args, 1), t), entryActionDescription != null ? entryActionDescription : entryAction.Method.Name);
                 return this;
             }
 
@@ -244,10 +275,12 @@ namespace Stateless
             /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
             /// <param name="entryActionDescription">Action description.</param>
             /// <returns>The receiver.</returns>
-            public StateConfiguration OnEntryFrom<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Action<TArg0, TArg1, TArg2> entryAction, string entryActionDescription = "")
+            public StateConfiguration OnEntryFrom<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Action<TArg0, TArg1, TArg2> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, "entryAction");
-                return OnEntryFrom<TArg0, TArg1, TArg2>(trigger, (a0, a1, a2, t) => entryAction(a0, a1, a2), entryActionDescription);
+                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
+                return OnEntryFrom<TArg0, TArg1, TArg2>(
+                    trigger, 
+                    (a0, a1, a2, t) => entryAction(a0, a1, a2), entryActionDescription != null ? entryActionDescription : entryAction.Method.Name);
             }
 
             /// <summary>
@@ -261,14 +294,14 @@ namespace Stateless
             /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
             /// <param name="entryActionDescription">Action description.</param>
             /// <returns>The receiver.</returns>
-            public StateConfiguration OnEntryFrom<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Action<TArg0, TArg1, TArg2, Transition> entryAction, string entryActionDescription = "")
+            public StateConfiguration OnEntryFrom<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Action<TArg0, TArg1, TArg2, Transition> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, "entryAction");
-                Enforce.ArgumentNotNull(trigger, "trigger");
+                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
+                Enforce.ArgumentNotNull(trigger, nameof(trigger));
                 _representation.AddEntryAction(trigger.Trigger, (t, args) => entryAction(
                     ParameterConversion.Unpack<TArg0>(args, 0),
                     ParameterConversion.Unpack<TArg1>(args, 1),
-                    ParameterConversion.Unpack<TArg2>(args, 2), t), entryActionDescription);
+                    ParameterConversion.Unpack<TArg2>(args, 2), t), entryActionDescription != null ? entryActionDescription : entryAction.Method.Name);
                 return this;
             }
 
@@ -277,12 +310,14 @@ namespace Stateless
             /// the configured state.
             /// </summary>
             /// <param name="exitAction">Action to execute.</param>
-            /// <param name="onExitActionDescription">Action description.</param>
+            /// <param name="exitActionDescription">Action description.</param>
             /// <returns>The receiver.</returns>
-            public StateConfiguration OnExit(Action exitAction, string onExitActionDescription = "")
+            public StateConfiguration OnExit(Action exitAction, string exitActionDescription = null)
             {
-                Enforce.ArgumentNotNull(exitAction, "exitAction");
-                return OnExit(t => exitAction(), onExitActionDescription);
+                Enforce.ArgumentNotNull(exitAction, nameof(exitAction));
+                return OnExit(
+                    t => exitAction(),
+                    exitActionDescription != null ? exitActionDescription : exitAction.Method.Name);
             }
 
             /// <summary>
@@ -290,12 +325,14 @@ namespace Stateless
             /// the configured state.
             /// </summary>
             /// <param name="exitAction">Action to execute, providing details of the transition.</param>
-            /// <param name="onExitActionDescription">Action description.</param>
+            /// <param name="exitActionDescription">Action description.</param>
             /// <returns>The receiver.</returns>
-            public StateConfiguration OnExit(Action<Transition> exitAction, string onExitActionDescription = "")
+            public StateConfiguration OnExit(Action<Transition> exitAction, string exitActionDescription = null)
             {
-                Enforce.ArgumentNotNull(exitAction, "exitAction");
-                _representation.AddExitAction(exitAction, onExitActionDescription);
+                Enforce.ArgumentNotNull(exitAction, nameof(exitAction));
+                _representation.AddExitAction(
+                    exitAction,
+                    exitActionDescription != null ? exitActionDescription : exitAction.Method.Name);
                 return this;
             }
 
@@ -391,7 +428,7 @@ namespace Stateless
             /// <returns>The reciever.</returns>
             public StateConfiguration PermitDynamicIf(TTrigger trigger, Func<TState> destinationStateSelector, Func<bool> guard, string guardDescription = "")
             {
-                Enforce.ArgumentNotNull(destinationStateSelector, "destinationStateSelector");
+                Enforce.ArgumentNotNull(destinationStateSelector, nameof(destinationStateSelector));
                 return InternalPermitDynamicIf(trigger, args => destinationStateSelector(), guard, guardDescription);
             }
 
@@ -409,8 +446,8 @@ namespace Stateless
             /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
             public StateConfiguration PermitDynamicIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, TState> destinationStateSelector, Func<bool> guard, string guardDescription = "")
             {
-                Enforce.ArgumentNotNull(trigger, "trigger");
-                Enforce.ArgumentNotNull(destinationStateSelector, "destinationStateSelector");
+                Enforce.ArgumentNotNull(trigger, nameof(trigger));
+                Enforce.ArgumentNotNull(destinationStateSelector, nameof(destinationStateSelector));
                 return InternalPermitDynamicIf(
                     trigger.Trigger,
                     args => destinationStateSelector(
@@ -434,8 +471,8 @@ namespace Stateless
             /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
             public StateConfiguration PermitDynamicIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, TState> destinationStateSelector, Func<bool> guard, string guardDescription = "")
             {
-                Enforce.ArgumentNotNull(trigger, "trigger");
-                Enforce.ArgumentNotNull(destinationStateSelector, "destinationStateSelector");
+                Enforce.ArgumentNotNull(trigger, nameof(trigger));
+                Enforce.ArgumentNotNull(destinationStateSelector, nameof(destinationStateSelector));
                 return InternalPermitDynamicIf(
                     trigger.Trigger,
                     args => destinationStateSelector(
@@ -461,8 +498,8 @@ namespace Stateless
             /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
             public StateConfiguration PermitDynamicIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, TState> destinationStateSelector, Func<bool> guard, string guardDescription = "")
             {
-                Enforce.ArgumentNotNull(trigger, "trigger");
-                Enforce.ArgumentNotNull(destinationStateSelector, "destinationStateSelector");
+                Enforce.ArgumentNotNull(trigger, nameof(trigger));
+                Enforce.ArgumentNotNull(destinationStateSelector, nameof(destinationStateSelector));
                 return InternalPermitDynamicIf(
                     trigger.Trigger,
                     args => destinationStateSelector(
@@ -488,9 +525,9 @@ namespace Stateless
 
             StateConfiguration InternalPermitIf(TTrigger trigger, TState destinationState, Func<bool> guard, string guardDescription)
             {
-                Enforce.ArgumentNotNull(guard, "guard");
+                Enforce.ArgumentNotNull(guard, nameof(guard));
                 _representation.AddTriggerBehaviour(new TransitioningTriggerBehaviour(trigger, destinationState, guard, guardDescription));
-                return this;                
+                return this;
             }
 
             StateConfiguration InternalPermitDynamic(TTrigger trigger, Func<object[], TState> destinationStateSelector, string guardDescription)
@@ -500,8 +537,8 @@ namespace Stateless
 
             StateConfiguration InternalPermitDynamicIf(TTrigger trigger, Func<object[], TState> destinationStateSelector, Func<bool> guard, string guardDescription)
             {
-                Enforce.ArgumentNotNull(destinationStateSelector, "destinationStateSelector");
-                Enforce.ArgumentNotNull(guard, "guard");
+                Enforce.ArgumentNotNull(destinationStateSelector, nameof(destinationStateSelector));
+                Enforce.ArgumentNotNull(guard, nameof(guard));
                 _representation.AddTriggerBehaviour(new DynamicTriggerBehaviour(trigger, destinationStateSelector, guard, guardDescription));
                 return this;
             }

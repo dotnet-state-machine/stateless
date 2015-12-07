@@ -17,12 +17,12 @@ namespace Stateless
             {
                 _trigger = trigger;
                 _guard = guard;
-                _guardDescription = guardDescription;
+                _guardDescription = Enforce.ArgumentNotNull(guardDescription, nameof(guardDescription));
             }
 
             public TTrigger Trigger { get { return _trigger; } }
             internal Func<bool> Guard { get { return _guard; } }
-            internal string GuardDescription{ get { return string.IsNullOrEmpty(_guardDescription) ? _guard.Method.Name : _guardDescription ; } }
+            internal string GuardDescription{ get { return _guardDescription ; } }
 
             public bool IsGuardConditionMet
             {
