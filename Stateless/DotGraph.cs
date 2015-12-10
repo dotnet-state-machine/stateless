@@ -35,17 +35,39 @@ namespace Stateless
 
                         string line = (behaviour.Guard.Method.DeclaringType.Namespace.Equals("Stateless")) ?
                             string.Format(" {0} -> {1} [label=\"{2}\"];", source, destination, behaviour.Trigger) :
-                            string.Format(" {0} -> {1} [label=\"{2} [{3}]\"];", source, destination, behaviour.Trigger, behaviour.Guard.Method.Name);
+                            string.Format(" {0} -> {1} [label=\"{2} [{3}]\"];", source, destination, behaviour.Trigger, behaviour.GuardDescription);
 
                         lines.Add(line);
                     }
                 }
             }
 
-            if (unknownDestinations.Any()) 
+            if (unknownDestinations.Any())
             {
-                string label = string.Format(" {{ node [label=\"?\"] {0} }};", string.Join (" ", unknownDestinations));
+                string label = string.Format(" {{ node [label=\"?\"] {0} }};", string.Join(" ", unknownDestinations));
                 lines.Insert(0, label);
+            }
+
+            if (_stateConfiguration.Any(s => s.Value.EntryActions.Any() || s.Value.ExitActions.Any()))
+            {
+                lines.Add("node [shape=box];");
+
+                foreach (var stateCfg in _stateConfiguration)
+                {
+                    TState source = stateCfg.Key;
+
+                    foreach (var entryActionBehaviour in stateCfg.Value.EntryActions)
+                    {
+                        string line = string.Format(" {0} -> \"{1}\" [label=\"On Entry\" style=dotted];", source, entryActionBehaviour.ActionDescription);
+                        lines.Add(line);
+                    }
+
+                    foreach (var exitActionBehaviour in stateCfg.Value.ExitActions)
+                    {
+                        string line = string.Format(" {0} -> \"{1}\" [label=\"On Exit\" style=dotted];", source, exitActionBehaviour.ActionDescription);
+                        lines.Add(line);
+                    }
+                }
             }
 
             return "digraph {" + System.Environment.NewLine +

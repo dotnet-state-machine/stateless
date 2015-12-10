@@ -73,6 +73,7 @@
     <Compile Include="Enforce.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ExitActionBehaviour.cs" />
     <Compile Include="IgnoredTriggerBehaviour.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -118,6 +119,7 @@
     <Compile Include="TransitioningTriggerBehaviour.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="EntryActionBehaviour.cs" />
     <Compile Include="TriggerBehaviour.cs">
       <SubType>Code</SubType>
     </Compile>
