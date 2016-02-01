@@ -4,6 +4,7 @@
   },
   "dependencies": {
     "NUnit": "2.6.4",
+    "NUnit.Runners": "2.6.4"
     "Stateless": ""
   },
   "frameworks": {
