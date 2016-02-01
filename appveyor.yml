@@ -2,10 +2,10 @@ version: 2.5.{build}
 branches:
   only:
   - master
+os: Visual Studio 2015
 install:
-- cmd: >-
-    set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
-    dnvm install 1.0.0-rc1-update1  
+- dnvm upgrade -r clr
+- dnu restore
 configuration: Release
 assembly_info:
   patch: true
