@@ -2,6 +2,10 @@ version: 2.5.{build}
 branches:
   only:
   - master
+os: Visual Studio 2015
+install:
+- dnvm upgrade -r clr
+- dnu restore
 configuration: Release
 assembly_info:
   patch: true
@@ -15,6 +19,8 @@ build:
   verbosity: minimal
 after_build:
 - ps: 
+test_script:
+- C:\Users\appveyor\.dnx\packages\NUnit.Runners\2.6.4\tools\nunit-console-x86.exe /config:Release artifacts\bin\Stateless.Tests\Release\net40\Stateless.Tests.dll
 deploy:
 - provider: NuGet
   api_key:

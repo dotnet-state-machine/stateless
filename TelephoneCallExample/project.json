@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "Stateless": ""
+  },
+  "frameworks": {
+    "net40": { }
+  }
+}

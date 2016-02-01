@@ -1,0 +1,51 @@
+{
+  "locked": false,
+  "version": 2,
+  "targets": {
+    ".NETFramework,Version=v4.0": {
+      "Stateless/1.0.0": {
+        "type": "project",
+        "framework": ".NETFramework,Version=v4.0",
+        "frameworkAssemblies": [
+          "mscorlib",
+          "System",
+          "System.Core"
+        ]
+      }
+    },
+    ".NETFramework,Version=v4.0/win7-x86": {
+      "Stateless/1.0.0": {
+        "type": "project",
+        "framework": ".NETFramework,Version=v4.0",
+        "frameworkAssemblies": [
+          "mscorlib",
+          "System",
+          "System.Core"
+        ]
+      }
+    },
+    ".NETFramework,Version=v4.0/win7-x64": {
+      "Stateless/1.0.0": {
+        "type": "project",
+        "framework": ".NETFramework,Version=v4.0",
+        "frameworkAssemblies": [
+          "mscorlib",
+          "System",
+          "System.Core"
+        ]
+      }
+    }
+  },
+  "libraries": {
+    "Stateless/1.0.0": {
+      "type": "project",
+      "path": "../Stateless/project.json"
+    }
+  },
+  "projectFileDependencyGroups": {
+    "": [
+      "Stateless "
+    ],
+    ".NETFramework,Version=v4.0": []
+  }
+}

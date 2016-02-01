@@ -2,6 +2,5 @@ bin
 obj
 Stateless.userprefs
 *.user
-
 # Visual Studio 2015 cache/options directory
 .vs/
