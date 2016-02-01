@@ -6,8 +6,6 @@ os: Visual Studio 2015
 install:
 - dnvm upgrade -r clr
 - dnu restore
-- choco install nunit
-- choco upgrade nunit
 configuration: Release
 assembly_info:
   patch: true
@@ -22,7 +20,7 @@ build:
 after_build:
 - ps: 
 test_script:
-- ps: nunit-console-x86.exe /config:Release artifacts\bin\Stateless.Tests\Release\net40\Stateless.Tests.dll
+- ps: lib\nunit.runners\tools\nunit-console-x86.exe /config:Release artifacts\bin\Stateless.Tests\Release\net40\Stateless.Tests.dll
 deploy:
 - provider: NuGet
   api_key:
