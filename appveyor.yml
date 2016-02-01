@@ -22,8 +22,7 @@ build:
 after_build:
 - ps: 
 test_script:
-- ps: if($env:PLATFORM -eq "x86") { nunit-console-x86 /config:Release artifacts\bin\Stateless.Tests\Release\net40\Stateless.Tests.dll }
-- ps: if( $env:PLATFORM -eq "x64" ) { nunit-console /config:Release artifacts\bin\Stateless.Tests\Release\net40\Stateless.Tests.dll }
+- ps: nunit-console-x86.exe /config:Release artifacts\bin\Stateless.Tests\Release\net40\Stateless.Tests.dll
 deploy:
 - provider: NuGet
   api_key:
