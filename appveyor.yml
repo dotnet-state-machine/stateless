@@ -1,0 +1,23 @@
+version: 2.5.{build}
+branches:
+  only:
+  - master
+configuration: Release
+assembly_info:
+  patch: true
+  file: '**\AssemblyInfo.*'
+  assembly_version: '{version}.0'
+  assembly_file_version: '{version}.0'
+  assembly_informational_version: '{version}'
+build:
+  publish_nuget: true
+  publish_nuget_symbols: true
+  verbosity: minimal
+after_build:
+- ps: 
+deploy:
+- provider: NuGet
+  api_key:
+    secure: U0b7CQk3G8x+xfzoeGz3o26PyoR4G/DuuJ/G63mMrj+mgrDgV0/JA7/4fqqzO2eH
+  on:
+    branch: master
