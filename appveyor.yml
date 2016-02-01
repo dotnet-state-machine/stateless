@@ -20,6 +20,7 @@ build:
 after_build:
 - ps: 
 test_script:
+- dir /s
 - lib\nunit.runners\tools\nunit-console-x86.exe /config:Release artifacts\bin\Stateless.Tests\Release\net40\Stateless.Tests.dll
 deploy:
 - provider: NuGet
