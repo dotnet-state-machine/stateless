@@ -1,4 +1,4 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/7c1wwel7ydvtgjmd/branch/master?svg=true)](https://ci.appveyor.com/project/DotnetStateMachine/stateless/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/github/dotnet-state-machine/stateless?svg=true)](https://ci.appveyor.com/project/DotnetStateMachine/stateless/branch/master)
 
 **Create *state machines* and lightweight *state machine-based workflows* directly in .NET code:**
 
