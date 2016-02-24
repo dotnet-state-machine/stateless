@@ -12,15 +12,27 @@ namespace Stateless
         /// </summary>
         public class StateConfiguration
         {
+            private readonly StateMachine<TState, TTrigger> _machine;
             readonly StateRepresentation _representation;
             readonly Func<TState, StateRepresentation> _lookup;
             static readonly Func<bool> NoGuard = () => true;
 
-            internal StateConfiguration(StateRepresentation representation, Func<TState, StateRepresentation> lookup)
+            internal StateConfiguration(StateMachine<TState, TTrigger> machine, StateRepresentation representation, Func<TState, StateRepresentation> lookup)
             {
+                _machine = Enforce.ArgumentNotNull(machine, nameof(machine));
                 _representation = Enforce.ArgumentNotNull(representation, nameof(representation));
                 _lookup = Enforce.ArgumentNotNull(lookup, nameof(lookup));
             }
+
+            /// <summary>
+            /// The state that is configured with this configuration.
+            /// </summary>
+            public TState State { get { return _representation.UnderlyingState; } }
+
+            /// <summary>
+            /// The machine that is configured with this configuration.
+            /// </summary>
+            public StateMachine<TState, TTrigger> Machine { get { return _machine; } }
 
             /// <summary>
             /// Accept the specified trigger and transition to the destination state.
