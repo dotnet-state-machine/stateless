@@ -95,7 +95,7 @@ namespace Stateless
         /// <returns>A configuration object through which the state can be configured.</returns>
         public StateConfiguration Configure(TState state)
         {
-            return new StateConfiguration(GetRepresentation(state), GetRepresentation);
+            return new StateConfiguration(this, GetRepresentation(state), GetRepresentation);
         }
 
         /// <summary>
