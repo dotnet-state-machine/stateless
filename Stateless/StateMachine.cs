@@ -185,7 +185,6 @@ namespace Stateless
                 return;
             }
 
-
             TState destination;
             if (triggerBehaviour.ResultsInTransitionFrom(source, args, out destination))
             {
@@ -194,11 +193,12 @@ namespace Stateless
                 representativeState.Exit(transition);
 
                 State = transition.Destination;
+                var newRepresentation = GetRepresentation(transition.Destination);
                 var onTransitioned = _onTransitioned;
                 if (onTransitioned != null)
                     onTransitioned(transition);
 
-                representativeState.Enter(transition, args);
+                newRepresentation.Enter(transition, args);
             }
         }
 
