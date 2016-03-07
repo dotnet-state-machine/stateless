@@ -168,7 +168,7 @@ namespace Stateless
             Enforce.ArgumentNotNull(trigger, "trigger");
             InternalFire(trigger.Trigger, arg0, arg1, arg2);
         }
-        
+
         void InternalFire(TTrigger trigger, params object[] args)
         {
             TriggerWithParameters configuration;
@@ -195,7 +195,8 @@ namespace Stateless
 
                 State = transition.Destination;
                 var onTransitioned = _onTransitioned;
-                onTransitioned?.Invoke(transition);
+                if (onTransitioned != null)
+                    onTransitioned(transition);
 
                 representativeState.Enter(transition, args);
             }
@@ -251,7 +252,7 @@ namespace Stateless
         /// </summary>
         /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
         /// <param name="trigger">The underlying trigger value.</param>
-        /// <returns>An object that can be passed to the Fire() method in order to 
+        /// <returns>An object that can be passed to the Fire() method in order to
         /// fire the parameterised trigger.</returns>
         public TriggerWithParameters<TArg0> SetTriggerParameters<TArg0>(TTrigger trigger)
         {
@@ -266,7 +267,7 @@ namespace Stateless
         /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
         /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
         /// <param name="trigger">The underlying trigger value.</param>
-        /// <returns>An object that can be passed to the Fire() method in order to 
+        /// <returns>An object that can be passed to the Fire() method in order to
         /// fire the parameterised trigger.</returns>
         public TriggerWithParameters<TArg0, TArg1> SetTriggerParameters<TArg0, TArg1>(TTrigger trigger)
         {
@@ -282,7 +283,7 @@ namespace Stateless
         /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
         /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
         /// <param name="trigger">The underlying trigger value.</param>
-        /// <returns>An object that can be passed to the Fire() method in order to 
+        /// <returns>An object that can be passed to the Fire() method in order to
         /// fire the parameterised trigger.</returns>
         public TriggerWithParameters<TArg0, TArg1, TArg2> SetTriggerParameters<TArg0, TArg1, TArg2>(TTrigger trigger)
         {
