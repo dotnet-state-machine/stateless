@@ -175,27 +175,29 @@ namespace Stateless
             if (_triggerConfiguration.TryGetValue(trigger, out configuration))
                 configuration.ValidateParameters(args);
 
+            var source = State;
+            var representativeState = GetRepresentation(source);
+
             TriggerBehaviour triggerBehaviour;
-            if (!CurrentRepresentation.TryFindHandler(trigger, out triggerBehaviour))
+            if (!representativeState.TryFindHandler(trigger, out triggerBehaviour))
             {
-                _unhandledTriggerAction(CurrentRepresentation.UnderlyingState, trigger);
+                _unhandledTriggerAction(representativeState.UnderlyingState, trigger);
                 return;
             }
 
-            var source = State;
+
             TState destination;
             if (triggerBehaviour.ResultsInTransitionFrom(source, args, out destination))
             {
                 var transition = new Transition(source, destination, trigger);
 
-                CurrentRepresentation.Exit(transition);
+                representativeState.Exit(transition);
 
                 State = transition.Destination;
                 var onTransitioned = _onTransitioned;
-                if (onTransitioned != null)
-                    onTransitioned(transition);
-                
-                CurrentRepresentation.Enter(transition, args);
+                onTransitioned?.Invoke(transition);
+
+                representativeState.Enter(transition, args);
             }
         }
 
