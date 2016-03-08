@@ -30,7 +30,7 @@ namespace TelephoneCallExample
 
         static void Main(string[] args)
         {
-            var phoneCall = new StateMachine<State, Trigger>(State.OffHook);
+            var phoneCall = StateMachine<State, Trigger>.Create(State.OffHook);
 
             phoneCall.Configure(State.OffHook)
 	            .Permit(Trigger.CallDialed, State.Ringing);
@@ -52,17 +52,19 @@ namespace TelephoneCallExample
                 .Permit(Trigger.HungUp, State.OffHook)
                 .Permit(Trigger.PhoneHurledAgainstWall, State.PhoneDestroyed);
 
-            Print(phoneCall);
-            Fire(phoneCall, Trigger.CallDialed);
-            Print(phoneCall);
-            Fire(phoneCall, Trigger.CallConnected);
-            Print(phoneCall);
-            Fire(phoneCall, Trigger.PlacedOnHold);
-            Print(phoneCall);
-            Fire(phoneCall, Trigger.TakenOffHold);
-            Print(phoneCall);
-            Fire(phoneCall, Trigger.HungUp);
-            Print(phoneCall);
+            var cphoneCall = phoneCall.FinishConfiguration();
+
+            Print(cphoneCall);
+            Fire(cphoneCall, Trigger.CallDialed);
+            Print(cphoneCall);
+            Fire(cphoneCall, Trigger.CallConnected);
+            Print(cphoneCall);
+            Fire(cphoneCall, Trigger.PlacedOnHold);
+            Print(cphoneCall);
+            Fire(cphoneCall, Trigger.TakenOffHold);
+            Print(cphoneCall);
+            Fire(cphoneCall, Trigger.HungUp);
+            Print(cphoneCall);
 
             Console.WriteLine("Press any key...");
             Console.ReadKey(true);
@@ -78,13 +80,13 @@ namespace TelephoneCallExample
             Console.WriteLine("[Timer:] Call ended at {0}", DateTime.Now);
         }
 
-        static void Fire(StateMachine<State, Trigger> phoneCall, Trigger trigger)
+        static void Fire(IConfiguredStatemachine<State, Trigger> phoneCall, Trigger trigger)
         {
             Console.WriteLine("[Firing:] {0}", trigger);
             phoneCall.Fire(trigger);
         }
 
-        static void Print(StateMachine<State, Trigger> phoneCall)
+        static void Print(IConfiguredStatemachine<State, Trigger> phoneCall)
         {
             Console.WriteLine("[Status:] {0}", phoneCall);
         }

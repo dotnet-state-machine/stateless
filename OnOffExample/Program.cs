@@ -15,18 +15,20 @@ namespace OnOffExample
                 string on = "On", off = "Off";
                 var space = ' ';
 
-                var onOffSwitch = new StateMachine<string, char>(off);
+                var onOffSwitch = StateMachine<string, char>.Create(off);
 
                 onOffSwitch.Configure(off).Permit(space, on);
                 onOffSwitch.Configure(on).Permit(space, off);
+
+                var conOffSwitch = onOffSwitch.FinishConfiguration();
 
                 Console.WriteLine("Press <space> to toggle the switch. Any other key will raise an error.");
 
                 while (true)
                 {
-                    Console.WriteLine("Switch is in state: " + onOffSwitch.State);
+                    Console.WriteLine("Switch is in state: " + conOffSwitch.State);
                     var pressed = Console.ReadKey(true).KeyChar;
-                    onOffSwitch.Fire(pressed);
+                    conOffSwitch.Fire(pressed);
                 }
             }
             catch (Exception ex)
