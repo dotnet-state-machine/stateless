@@ -112,15 +112,18 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="CannotReconfigureParameters" xml:space="preserve">
     <value>Parameters for the trigger '{0}' have already been configured.</value>
   </data>
   <data name="NoTransitionsPermitted" xml:space="preserve">
     <value>No valid leaving transitions are permitted from state '{1}' for trigger '{0}'. Consider ignoring the trigger.</value>
+  </data>
+  <data name="NoTransitionsUnmetGuardCondition" xml:space="preserve">
+    <value>Trigger '{0}' is valid for transition from state '{1}' but a guard condition is not met. Guard description: '{2}'.</value>
   </data>
 </root>

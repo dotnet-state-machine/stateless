@@ -15,7 +15,7 @@ namespace Stateless
         readonly IDictionary<TTrigger, TriggerWithParameters> _triggerConfiguration = new Dictionary<TTrigger, TriggerWithParameters>();
         readonly Func<TState> _stateAccessor;
         readonly Action<TState> _stateMutator;
-        Action<TState, TTrigger> _unhandledTriggerAction = DefaultUnhandledTriggerAction;
+        Action<TState, TTrigger> _unhandledTriggerAction;
         event Action<Transition> _onTransitioned;
 
         /// <summary>
@@ -23,7 +23,7 @@ namespace Stateless
         /// </summary>
         /// <param name="stateAccessor">A function that will be called to read the current state value.</param>
         /// <param name="stateMutator">An action that will be called to write new state values.</param>
-        public StateMachine(Func<TState> stateAccessor, Action<TState> stateMutator)
+        public StateMachine(Func<TState> stateAccessor, Action<TState> stateMutator) : this()
         {
             _stateAccessor = Enforce.ArgumentNotNull(stateAccessor, "stateAccessor");
             _stateMutator = Enforce.ArgumentNotNull(stateMutator, "stateMutator");
@@ -33,12 +33,20 @@ namespace Stateless
         /// Construct a state machine.
         /// </summary>
         /// <param name="initialState">The initial state.</param>
-        public StateMachine(TState initialState)
+        public StateMachine(TState initialState) : this()
         {
             var reference = new StateReference { State = initialState };
             _stateAccessor = () => reference.State;
             _stateMutator = s => reference.State = s;
         }
+
+        /// <summary>
+        /// Default constuctor
+        /// </summary>
+        StateMachine()
+        {
+            _unhandledTriggerAction = DefaultUnhandledTriggerAction;
+        }  
 
         /// <summary>
         /// The current state.
@@ -301,8 +309,20 @@ namespace Stateless
             _triggerConfiguration.Add(trigger.Trigger, trigger);
         }
 
-        static void DefaultUnhandledTriggerAction(TState state, TTrigger trigger)
+        void DefaultUnhandledTriggerAction(TState state, TTrigger trigger)
         {
+            var source = state;
+            var representativeState = GetRepresentation(source);
+
+            TriggerBehaviour triggerBehaviour;
+            if (representativeState.TryFindHandlerWithUnmetGuardCondition(trigger, out triggerBehaviour))
+            {
+                throw new InvalidOperationException(
+                    string.Format(
+                        StateMachineResources.NoTransitionsUnmetGuardCondition,
+                        trigger, state, triggerBehaviour.GuardDescription));
+            }
+
             throw new InvalidOperationException(
                 string.Format(
                     StateMachineResources.NoTransitionsPermitted,

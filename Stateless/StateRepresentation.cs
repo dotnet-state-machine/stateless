@@ -38,11 +38,11 @@ namespace Stateless
 
             public bool TryFindHandler(TTrigger trigger, out TriggerBehaviour handler)
             {
-                return (TryFindLocalHandler(trigger, out handler) ||
+                return (TryFindLocalHandler(trigger, out handler, t => t.IsGuardConditionMet) ||
                     (Superstate != null && Superstate.TryFindHandler(trigger, out handler)));
             }
             
-            bool TryFindLocalHandler(TTrigger trigger, out TriggerBehaviour handler)
+            bool TryFindLocalHandler(TTrigger trigger, out TriggerBehaviour handler, params Func<TriggerBehaviour, bool>[] filters)
             {
                 ICollection<TriggerBehaviour> possible;
                 if (!_triggerBehaviours.TryGetValue(trigger, out possible))
@@ -51,7 +51,7 @@ namespace Stateless
                     return false;
                 }
 
-                var actual = possible.Where(at => at.IsGuardConditionMet).ToArray();
+                var actual = filters.Aggregate(possible, (current, filter) => current.Where(filter).ToArray());
 
                 if (actual.Count() > 1)
                     throw new InvalidOperationException(
@@ -60,6 +60,12 @@ namespace Stateless
 
                 handler = actual.FirstOrDefault();
                 return handler != null;
+            }
+
+            public bool TryFindHandlerWithUnmetGuardCondition(TTrigger trigger, out TriggerBehaviour handler)
+            {
+                return (TryFindLocalHandler(trigger, out handler, t => !t.IsGuardConditionMet) || 
+                    (Superstate != null && Superstate.TryFindHandlerWithUnmetGuardCondition(trigger, out handler)));
             }
 
             public void AddEntryAction(TTrigger trigger, Action<Transition, object[]> action, string entryActionDescription)
