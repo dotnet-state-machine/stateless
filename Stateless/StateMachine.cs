@@ -13,10 +13,20 @@ namespace Stateless
     {
         readonly IDictionary<TState, StateRepresentation> _stateConfiguration = new Dictionary<TState, StateRepresentation>();
         readonly IDictionary<TTrigger, TriggerWithParameters> _triggerConfiguration = new Dictionary<TTrigger, TriggerWithParameters>();
+        readonly Queue<QueuedTrigger> _eventQueue = new Queue<QueuedTrigger>();
+
         readonly Func<TState> _stateAccessor;
         readonly Action<TState> _stateMutator;
         Action<TState, TTrigger> _unhandledTriggerAction;
         event Action<Transition> _onTransitioned;
+
+        class QueuedTrigger
+        {
+            public TTrigger Trigger { get; set; }
+            public object[] Args { get; set; }
+        }
+
+        bool _firing;
 
         /// <summary>
         /// Construct a state machine with external state storage.
@@ -177,7 +187,34 @@ namespace Stateless
             InternalFire(trigger.Trigger, arg0, arg1, arg2);
         }
 
+        /// <summary>
+        /// Queue events and then fire in order.
+        /// If only one event is queued, this behaves identically to the non-queued version.
+        /// </summary>
+        /// <param name="trigger">  The trigger. </param>
+        /// <param name="args">     A variable-length parameters list containing arguments. </param>
         void InternalFire(TTrigger trigger, params object[] args)
+        {
+            _eventQueue.Enqueue(new QueuedTrigger{Trigger = trigger, Args = args});
+            if (_firing)
+                return;
+
+            try
+            {
+                _firing = true;
+                while (_eventQueue.Count != 0)
+                {
+                    var queuedEvent = _eventQueue.Dequeue();
+                    InternalFireOne(queuedEvent.Trigger, queuedEvent.Args);
+                }
+            }
+            finally
+            {
+                _firing = false;
+            }
+        }
+
+        void InternalFireOne(TTrigger trigger, params object[] args)
         {
             TriggerWithParameters configuration;
             if (_triggerConfiguration.TryGetValue(trigger, out configuration))
