@@ -16,6 +16,7 @@ namespace Stateless
 
             readonly ICollection<Action<Transition, object[]>> _entryActions = new List<Action<Transition, object[]>>();
             readonly ICollection<Action<Transition>> _exitActions = new List<Action<Transition>>();
+            readonly ICollection<Action<Transition, object[]>> _internalActions = new List<Action<Transition, object[]>>();
 
             StateRepresentation _superstate; // null
 
@@ -58,6 +59,8 @@ namespace Stateless
                 return handler != null;
             }
 
+
+
             public void AddEntryAction(TTrigger trigger, Action<Transition, object[]> action)
             {
                 Enforce.ArgumentNotNull(action, "action");
@@ -77,7 +80,15 @@ namespace Stateless
             {
                 _exitActions.Add(Enforce.ArgumentNotNull(action, "action"));
             }
-
+            internal void AddInternalAction(TTrigger trigger, Action<Transition> action)
+            {
+                Enforce.ArgumentNotNull(action, "action");
+                _internalActions.Add((t, args) =>
+                {
+                    if (t.Trigger.Equals(trigger))
+                        action(t);
+                });
+            }
             public void Enter(Transition transition, params object[] entryArgs)
             {
                 Enforce.ArgumentNotNull(transition, "transtion");
@@ -124,6 +135,32 @@ namespace Stateless
                 Enforce.ArgumentNotNull(transition, "transtion");
                 foreach (var action in _exitActions)
                     action(transition);
+            }
+            void ExecuteInternalActions(Transition transition, object[] entryArgs)
+            {
+                ICollection<Action<Transition, object[]>> internalActions;
+
+                if (_internalActions.Count > 0)
+                {
+                    internalActions = _internalActions;
+                }
+                else
+                {
+                    // Look for actions in superstate(s) recursivly until we hit the topmost superstate, or a non-empty list of actions
+                    StateRepresentation aStateRep = this;
+                    do
+                    {
+                        aStateRep = aStateRep._superstate;
+                        if (aStateRep._internalActions.Count > 0)
+                        {
+                            internalActions = aStateRep._internalActions;
+                            break;
+                        }
+                    } while (aStateRep != null);
+                    internalActions = aStateRep._internalActions;
+                }
+                foreach (var action in internalActions)
+                    action(transition, entryArgs);
             }
 
             public void AddTriggerBehaviour(TriggerBehaviour triggerBehaviour)
@@ -188,6 +225,12 @@ namespace Stateless
 
                     return result.ToArray();
                 }
+            }
+
+            internal void InternalAction(Transition transition, object[] args)
+            {
+                Enforce.ArgumentNotNull(transition, "transtion");
+                ExecuteInternalActions(transition, args);
             }
         }
     }
