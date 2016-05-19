@@ -76,7 +76,6 @@
     <Compile Include="IgnoredTriggerBehaviour.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="InternalTriggerBehaviour.cs" />
     <Compile Include="ParameterConversion.cs">
       <SubType>Code</SubType>
     </Compile>

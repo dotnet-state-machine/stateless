@@ -197,15 +197,6 @@ namespace Stateless
                 
                 CurrentRepresentation.Enter(transition, args);
             }
-            else
-            {
-                var transition = new Transition(source, destination, trigger);
-
-                CurrentRepresentation.InternalAction(transition, args);
-
-                if (_onTransitioned != null)
-                    _onTransitioned(transition);
-            }
         }
 
         /// <summary>
