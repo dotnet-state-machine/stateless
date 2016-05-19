@@ -16,7 +16,9 @@ namespace TelephoneCallExample
             LeftMessage,
             PlacedOnHold,
             TakenOffHold,
-            PhoneHurledAgainstWall
+            PhoneHurledAgainstWall,
+            MuteMicrophone,
+            SetVolume
         }
 
         enum State
@@ -32,19 +34,22 @@ namespace TelephoneCallExample
         {
             var phoneCall = new StateMachine<State, Trigger>(State.OffHook);
 
+            var setVolumeTrigger = phoneCall.SetTriggerParameters<int>(Trigger.SetVolume);
+
             phoneCall.Configure(State.OffHook)
 	            .Permit(Trigger.CallDialed, State.Ringing);
             	
             phoneCall.Configure(State.Ringing)
 	            .Permit(Trigger.HungUp, State.OffHook)
 	            .Permit(Trigger.CallConnected, State.Connected);
-             
+
             phoneCall.Configure(State.Connected)
                 .OnEntry(t => StartCallTimer())
                 .OnExit(t => StopCallTimer())
-	            .Permit(Trigger.LeftMessage, State.OffHook)
-	            .Permit(Trigger.HungUp, State.OffHook)
-	            .Permit(Trigger.PlacedOnHold, State.OnHold);
+                .Permit(Trigger.LeftMessage, State.OffHook)
+                .Permit(Trigger.HungUp, State.OffHook)
+                .Permit(Trigger.PlacedOnHold, State.OnHold)
+                .InternalTransistion(Trigger.MuteMicrophone, t => OnMuteMicrophone());
 
             phoneCall.Configure(State.OnHold)
                 .SubstateOf(State.Connected)
@@ -58,6 +63,8 @@ namespace TelephoneCallExample
             Fire(phoneCall, Trigger.CallConnected);
             Print(phoneCall);
             Fire(phoneCall, Trigger.PlacedOnHold);
+            Print(phoneCall);
+            Fire(phoneCall, Trigger.MuteMicrophone);
             Print(phoneCall);
             Fire(phoneCall, Trigger.TakenOffHold);
             Print(phoneCall);
@@ -87,6 +94,10 @@ namespace TelephoneCallExample
         static void Print(StateMachine<State, Trigger> phoneCall)
         {
             Console.WriteLine("[Status:] {0}", phoneCall);
+        }
+        static private void OnMuteMicrophone()
+        {
+            Console.WriteLine("Microphone muted!");
         }
     }
 }
