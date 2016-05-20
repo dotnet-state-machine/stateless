@@ -59,8 +59,6 @@ namespace Stateless
                 return handler != null;
             }
 
-
-
             public void AddEntryAction(TTrigger trigger, Action<Transition, object[]> action)
             {
                 Enforce.ArgumentNotNull(action, "action");
@@ -70,23 +68,21 @@ namespace Stateless
                         action(t, args);
                 });
             }
-
             public void AddEntryAction(Action<Transition, object[]> action)
             {
                 _entryActions.Add(Enforce.ArgumentNotNull(action, "action"));
             }
-
             public void AddExitAction(Action<Transition> action)
             {
                 _exitActions.Add(Enforce.ArgumentNotNull(action, "action"));
             }
-            internal void AddInternalAction(TTrigger trigger, Action<Transition> action)
+            internal void AddInternalAction(TTrigger trigger, Action<Transition, object[]> action)
             {
                 Enforce.ArgumentNotNull(action, "action");
                 _internalActions.Add((t, args) =>
                 {
                     if (t.Trigger.Equals(trigger))
-                        action(t);
+                        action(t, args);
                 });
             }
             public void Enter(Transition transition, params object[] entryArgs)
@@ -136,10 +132,9 @@ namespace Stateless
                 foreach (var action in _exitActions)
                     action(transition);
             }
-            void ExecuteInternalActions(Transition transition, object[] entryArgs)
+            void ExecuteInternalActions(Transition transition , object[] args)
             {
                 ICollection<Action<Transition, object[]>> internalActions;
-
                 if (_internalActions.Count > 0)
                 {
                     internalActions = _internalActions;
@@ -153,14 +148,17 @@ namespace Stateless
                         aStateRep = aStateRep._superstate;
                         if (aStateRep._internalActions.Count > 0)
                         {
-                            internalActions = aStateRep._internalActions;
                             break;
                         }
                     } while (aStateRep != null);
+
                     internalActions = aStateRep._internalActions;
                 }
+
+                // Execute internal transition event handler
                 foreach (var action in internalActions)
-                    action(transition, entryArgs);
+                    action(transition, args);
+                
             }
 
             public void AddTriggerBehaviour(TriggerBehaviour triggerBehaviour)

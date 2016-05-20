@@ -29,12 +29,15 @@ namespace TelephoneCallExample
             OnHold,
             PhoneDestroyed
         }
+        static StateMachine<State, Trigger>.TriggerWithParameters<int> setVolumeTrigger;
+        static StateMachine<State, Trigger>.TriggerWithParameters<int> muteMicTrigger;
 
         static void Main(string[] args)
         {
             var phoneCall = new StateMachine<State, Trigger>(State.OffHook);
 
-            var setVolumeTrigger = phoneCall.SetTriggerParameters<int>(Trigger.SetVolume);
+            setVolumeTrigger = phoneCall.SetTriggerParameters<int>(Trigger.SetVolume);
+            muteMicTrigger = phoneCall.SetTriggerParameters<int>(Trigger.MuteMicrophone);
 
             phoneCall.Configure(State.OffHook)
 	            .Permit(Trigger.CallDialed, State.Ringing);
@@ -49,7 +52,8 @@ namespace TelephoneCallExample
                 .Permit(Trigger.LeftMessage, State.OffHook)
                 .Permit(Trigger.HungUp, State.OffHook)
                 .Permit(Trigger.PlacedOnHold, State.OnHold)
-                .InternalTransistion(Trigger.MuteMicrophone, t => OnMuteMicrophone());
+                .InternalTransistion(muteMicTrigger, (volume, t) => OnMuteMicrophone())
+                .InternalTransistion(setVolumeTrigger, (volume, t) => OnSetVolume(volume));
 
             phoneCall.Configure(State.OnHold)
                 .SubstateOf(State.Connected)
@@ -64,7 +68,9 @@ namespace TelephoneCallExample
             Print(phoneCall);
             Fire(phoneCall, Trigger.PlacedOnHold);
             Print(phoneCall);
-            Fire(phoneCall, Trigger.MuteMicrophone);
+            Fire(phoneCall, setVolumeTrigger, 11);
+            Print(phoneCall);
+            Fire(phoneCall, muteMicTrigger, 0);
             Print(phoneCall);
             Fire(phoneCall, Trigger.TakenOffHold);
             Print(phoneCall);
@@ -74,6 +80,8 @@ namespace TelephoneCallExample
             Console.WriteLine("Press any key...");
             Console.ReadKey(true);
         }
+
+
 
         static void StartCallTimer()
         {
@@ -90,14 +98,23 @@ namespace TelephoneCallExample
             Console.WriteLine("[Firing:] {0}", trigger);
             phoneCall.Fire(trigger);
         }
-
+        private static void Fire(StateMachine<State, Trigger> phoneCall, StateMachine<State, Trigger>.TriggerWithParameters<int> trigger, int payload)
+        {
+            Console.WriteLine("[Firing:] {0}", trigger.Trigger);
+            phoneCall.Fire(trigger, payload);
+        }
         static void Print(StateMachine<State, Trigger> phoneCall)
         {
             Console.WriteLine("[Status:] {0}", phoneCall);
         }
-        static private void OnMuteMicrophone()
+        private static void OnMuteMicrophone()
         {
             Console.WriteLine("Microphone muted!");
+        }
+        private static void OnSetVolume(int volume)
+        {
+            int vol = (int)volume;
+            Console.WriteLine("Volume set to " + vol + "!");
         }
     }
 }
