@@ -15,7 +15,7 @@ namespace Stateless.Decoration
         /// <summary>
         /// Class to hold information about a transistion in the audit trail.
         /// </summary>
-        public class TransistionInfo
+        public class AuditInfo
         {
             private readonly DateTime _dateTime;
             private readonly StateMachine<TState, TTrigger>.Transition _transition;
@@ -24,7 +24,7 @@ namespace Stateless.Decoration
             /// Construct a TransitionInfo.
             /// </summary>
             /// <param name="transition">The transistion to wrap.</param>
-            public TransistionInfo(StateMachine<TState, TTrigger>.Transition transition)
+            public AuditInfo(StateMachine<TState, TTrigger>.Transition transition)
             {
                 _dateTime = DateTime.Now;
                 _transition = transition;
@@ -47,7 +47,7 @@ namespace Stateless.Decoration
             }
         }
 
-        private readonly List<TransistionInfo> _auditTrail = new List<TransistionInfo>();
+        private readonly List<AuditInfo> _auditTrail = new List<AuditInfo>();
         private readonly int _maximumAuditTrailSize;
 
         /// <summary>
@@ -64,11 +64,13 @@ namespace Stateless.Decoration
             _maximumAuditTrailSize = maximumAuditTrailSize;
         }
 
+        //TODO Devoney: Add event when transistion is added.
+
         /// <summary>
         /// The trail of transistions that the StateMachine went through.
         /// The latest entry is the most recent transition that happened.
         /// </summary>
-        public IEnumerable<TransistionInfo> AuditTrail => _auditTrail;
+        public IEnumerable<AuditInfo> AuditTrail => _auditTrail;
 
         /// <summary>
         /// Registers a callback that will be invoked every time the statemachine
@@ -91,7 +93,7 @@ namespace Stateless.Decoration
             {
                 _auditTrail.RemoveAt(0);
             }
-            var transitionInfo = new TransistionInfo(transition);
+            var transitionInfo = new AuditInfo(transition);
             _auditTrail.Add(transitionInfo);
         }
     }
