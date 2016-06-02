@@ -67,6 +67,8 @@
     <Reference Include="System.Xml.Serialization" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Decoration\AuditTrailDecorator.cs" />
+    <Compile Include="Decoration\StateMachineDecoratorBase.cs" />
     <Compile Include="DynamicTriggerBehaviour.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -77,6 +79,7 @@
     <Compile Include="IgnoredTriggerBehaviour.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Interfaces\IStateMachine.cs" />
     <Compile Include="ParameterConversion.cs">
       <SubType>Code</SubType>
     </Compile>

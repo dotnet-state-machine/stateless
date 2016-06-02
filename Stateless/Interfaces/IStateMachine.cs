@@ -147,9 +147,9 @@ namespace Stateless
         /// Registers a callback that will be invoked every time the statemachine
         /// transitions from one state into another.
         /// </summary>
-        /// <param name="onTransitionAction">The action to execute, accepting the details
+        /// <param name="onTransistionHandler">The action to execute, accepting the details
         /// of the transition.</param>
-        void OnTransitioned(Action<StateMachine<TState, TTrigger>.Transition> onTransitionAction);
+        void OnTransitioned(Action<StateMachine<TState, TTrigger>.Transition> onTransistionHandler);
 
         /// <summary>
         /// A string representation of the state machine in the DOT graph language.
