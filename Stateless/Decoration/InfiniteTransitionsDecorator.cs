@@ -13,8 +13,7 @@ namespace Stateless.Decoration
     /// </summary>
     public class InfiniteTransitionsDecorator<TState, TTrigger> : StateMachineDecoratorBase<TState, TTrigger>
     {
-        private TTrigger _nextTrigger = default(TTrigger);
-        private bool _nextTriggerSet = false;
+        private Action _nextTrigger = null;
         private bool _inFireLoop = false;
 
         /// <summary>
@@ -26,56 +25,109 @@ namespace Stateless.Decoration
         }
 
         /// <summary>
-        /// Does not actually fire a trigger, but can be seen more as setting the next trigger for when the current invoked method returns.
+        /// Transition from the current state via the specified trigger.
+        /// The target state is determined by the configuration of the current state.
+        /// Actions associated with leaving the current state and entering the new one
+        /// will be invoked.
         /// </summary>
+        /// <param name="trigger">The trigger to fire.</param>
+        /// <exception cref="System.InvalidOperationException">The current state does not allow the trigger to be fired.</exception>
+        /// <exception cref="System.InvalidOperationException">A trigger has already been set in the same method scope.</exception>
         public override void Fire(TTrigger trigger)
         {
-            if (_nextTriggerSet)
+            SetNextTriggerToFire(() =>
             {
-                throw new InvalidOperationException("The trigger '" + _nextTrigger + "' is already set to execute. No trigger may follow a trigger in the same scope an infinite state machine.");
+                base.Fire(trigger);
+            });
+        }
+
+        /// <summary>
+        /// Transition from the current state via the specified trigger.
+        /// The target state is determined by the configuration of the current state.
+        /// Actions associated with leaving the current state and entering the new one
+        /// will be invoked.
+        /// </summary>
+        /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+        /// <param name="trigger">The trigger to fire.</param>
+        /// <param name="arg0">The first argument.</param>
+        /// <exception cref="System.InvalidOperationException">The current state does not allow the trigger to be fired.</exception>
+        /// <exception cref="System.InvalidOperationException">A trigger has already been set in the same method scope.</exception>
+        public override void Fire<TArg0>(StateMachine<TState, TTrigger>.TriggerWithParameters<TArg0> trigger, TArg0 arg0)
+        {
+            SetNextTriggerToFire(() =>
+            {
+                base.Fire(trigger, arg0);
+            });
+        }
+
+        /// <summary>
+        /// Transition from the current state via the specified trigger.
+        /// The target state is determined by the configuration of the current state.
+        /// Actions associated with leaving the current state and entering the new one
+        /// will be invoked.
+        /// </summary>
+        /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+        /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
+        /// <param name="arg0">The first argument.</param>
+        /// <param name="arg1">The second argument.</param>
+        /// <param name="trigger">The trigger to fire.</param>
+        /// <exception cref="System.InvalidOperationException">The current state does not allow the trigger to be fired.</exception>
+        /// <exception cref="System.InvalidOperationException">A trigger has already been set in the same method scope.</exception>
+        public override void Fire<TArg0, TArg1>(StateMachine<TState, TTrigger>.TriggerWithParameters<TArg0, TArg1> trigger, TArg0 arg0, TArg1 arg1)
+        {
+            SetNextTriggerToFire(() =>
+            {
+                base.Fire(trigger, arg0, arg1);
+            });
+        }
+
+        /// <summary>
+        /// Transition from the current state via the specified trigger.
+        /// The target state is determined by the configuration of the current state.
+        /// Actions associated with leaving the current state and entering the new one
+        /// will be invoked.
+        /// </summary>
+        /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+        /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
+        /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
+        /// <param name="arg0">The first argument.</param>
+        /// <param name="arg1">The second argument.</param>
+        /// <param name="arg2">The third argument.</param>
+        /// <param name="trigger">The trigger to fire.</param>
+        /// <exception cref="System.InvalidOperationException">The current state does  not allow the trigger to be fired.</exception>
+        /// <exception cref="System.InvalidOperationException">A trigger has already been set in the same method scope.</exception>
+        public override void Fire<TArg0, TArg1, TArg2>(StateMachine<TState, TTrigger>.TriggerWithParameters<TArg0, TArg1, TArg2> trigger, TArg0 arg0, TArg1 arg1, TArg2 arg2)
+        {
+            SetNextTriggerToFire(() =>
+            {
+                base.Fire(trigger, arg0, arg1, arg2);
+            });
+        }
+
+        private void SetNextTriggerToFire(Action action)
+        {
+            if (_nextTrigger != null)
+            {
+                throw new InvalidOperationException("A trigger is already set to execute. No trigger may follow a trigger in the same method scope when using an infinite state machine.");
             }
 
-            _nextTrigger = trigger;
-            _nextTriggerSet = true;
+            _nextTrigger = action;
 
             if (!_inFireLoop)
             {
-                FireInternal();
+                FireWhileNextTriggerSet();
             }
         }
 
-        /// <summary>
-        /// Not supported yet.
-        /// </summary>
-        public override void Fire<TArg0, TArg1, TArg2>(StateMachine<TState, TTrigger>.TriggerWithParameters<TArg0, TArg1, TArg2> trigger, TArg0 arg0, TArg1 arg1, TArg2 arg2)
-        {
-            throw new NotSupportedException();
-        }
-
-        /// <summary>
-        /// Not supported yet.
-        /// </summary>
-        public override void Fire<TArg0, TArg1>(StateMachine<TState, TTrigger>.TriggerWithParameters<TArg0, TArg1> trigger, TArg0 arg0, TArg1 arg1)
-        {
-            throw new NotSupportedException();
-        }
-
-        /// <summary>
-        /// Not supported yet.
-        /// </summary>
-        public override void Fire<TArg0>(StateMachine<TState, TTrigger>.TriggerWithParameters<TArg0> trigger, TArg0 arg0)
-        {
-            throw new NotSupportedException();
-        }
-
-        private void FireInternal()
+        private void FireWhileNextTriggerSet()
         {
             _inFireLoop = true;
             do
             {
-                _nextTriggerSet = false;
-                base.Fire(_nextTrigger);
-            } while (_nextTriggerSet);
+                var action = _nextTrigger;
+                _nextTrigger = null;
+                action();
+            } while (_nextTrigger != null);
             _inFireLoop = false;
         }
     }
