@@ -154,7 +154,7 @@ namespace Stateless
         /// <summary>
         /// A string representation of the state machine in the DOT graph language.
         /// </summary>
-        /// <returns>A description of all simple source states, triggers and destination states.</returns>
-        string ToDotGraph();
+        /// <param name="includeIgnoredTriggers">Triggers that are ignored by states are added to the graph when set to true, they are left out when set to false.</param>
+        string ToDotGraph(bool includeIgnoredTriggers = true);
     }
 }
