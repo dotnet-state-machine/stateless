@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Stateless.Tests
 {
-    enum State
+    public enum State
     {
         A, B, C
     }

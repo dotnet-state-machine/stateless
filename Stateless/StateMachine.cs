@@ -333,12 +333,12 @@ namespace Stateless
         /// Registers a callback that will be invoked every time the statemachine
         /// transitions from one state into another.
         /// </summary>
-        /// <param name="onTransitionAction">The action to execute, accepting the details
+        /// <param name="onTransistionHandler">The action to execute, accepting the details
         /// of the transition.</param>
-        public void OnTransitioned(Action<Transition> onTransitionAction)
+        public void OnTransitioned(Action<Transition> onTransistionHandler)
         {
-            if (onTransitionAction == null) throw new ArgumentNullException("onTransitionAction");
-            _onTransitioned += onTransitionAction;
+            if (onTransistionHandler == null) throw new ArgumentNullException("onTransistionHandler");
+            _onTransitioned += onTransistionHandler;
         }
     }
 }

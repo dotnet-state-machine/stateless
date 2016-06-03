@@ -149,6 +149,53 @@ namespace Stateless.Tests
         }
 
         [Test]
+        public void DestinationStateIsDynamicExcludeIgnoredTriggers()
+        {
+            var expected = "digraph {" + System.Environment.NewLine
+                         + " { node [label=\"?\"] unknownDestination_0 };" + System.Environment.NewLine
+                         + " A -> unknownDestination_0 [label=\"X\"];" + System.Environment.NewLine
+                         + "}";
+
+            var sm = new StateMachine<State, Trigger>(State.A);
+            sm.Configure(State.A)
+                .PermitDynamic(Trigger.X, () => State.B);
+
+            Assert.AreEqual(expected, sm.ToDotGraph(false));
+        }
+
+        [Test]
+        public void DestinationStateIsCalculatedBasedOnTriggerParametersExcludeIgnoredTriggers()
+        {
+            var expected = "digraph {" + System.Environment.NewLine
+                         + " { node [label=\"?\"] unknownDestination_0 };" + System.Environment.NewLine
+                         + " A -> unknownDestination_0 [label=\"X\"];" + System.Environment.NewLine
+                         + "}";
+
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var trigger = sm.SetTriggerParameters<int>(Trigger.X);
+            sm.Configure(State.A)
+                .PermitDynamic(trigger, i => i == 1 ? State.B : State.C);
+
+            Assert.AreEqual(expected, sm.ToDotGraph(false));
+        }
+
+        [Test]
+        public void IgnoredTriggersAreExcludedFromGraph()
+        {
+            var expected = "digraph {" + System.Environment.NewLine
+                         + " A -> B [label=\"Y\"];" + System.Environment.NewLine
+                         + "}";
+
+            var sm = new StateMachine<State, Trigger>(State.A);
+            sm.Configure(State.A)
+                .Permit(Trigger.Y, State.B)
+                .Ignore(Trigger.X);
+
+            var actual = sm.ToDotGraph(false);
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
         public void OnEntryWithAnonymousActionAndDescription()
         {
             var expected = "digraph {" + System.Environment.NewLine

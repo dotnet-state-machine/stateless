@@ -8,8 +8,9 @@ namespace Stateless
         /// <summary>
         /// A string representation of the state machine in the DOT graph language.
         /// </summary>
+        /// <param name="includeIgnoredTriggers">Triggers that are ignored by states are added to the graph when set to true, they are left out when set to false.</param>
         /// <returns>A description of all simple source states, triggers and destination states.</returns>
-        public string ToDotGraph()
+        public string ToDotGraph(bool includeIgnoredTriggers = true)
         {
             List<string> lines = new List<string>();
             List<string> unknownDestinations = new List<string>();
@@ -27,8 +28,9 @@ namespace Stateless
                         {
                             destination = ((TransitioningTriggerBehaviour)behaviour).Destination.ToString ();
                         } 
-                        else 
+                        else
                         {
+                            if (!includeIgnoredTriggers && behaviour is IgnoredTriggerBehaviour) continue;
                             destination = "unknownDestination_" + unknownDestinations.Count;
                             unknownDestinations.Add(destination);
                         }
