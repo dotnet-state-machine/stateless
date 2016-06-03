@@ -8,19 +8,25 @@ using Stateless.Decoration;
 namespace Stateless.Tests
 {
     [TestFixture]
-    public class InfiniteTransitionsDecoratorFixture
+    public class InfiniteTransitionsDecoratorFixture : StateMachineFixture
     {
         private const int MaximumNumberOfTransistions = short.MaxValue;
         private int _numberOfTransistions;
-        private StateMachine<State, Trigger>.TriggerWithParameters<int> triggerWithParameter;
-            
+        private StateMachine<State, Trigger>.TriggerWithParameters<int> _triggerWithParameter;
+
+        protected override IStateMachine<State, Trigger> CreateStateMachine(State initialState)
+        {
+            var stateMachine = base.CreateStateMachine(initialState);
+            stateMachine = new InfiniteTransitionsDecorator<State, Trigger>(stateMachine);
+            return stateMachine;
+        }
+
         [Test]
         public void AnInfiniteNumberOfTransistionsIsSupported()
         {
             //Given
             _numberOfTransistions = 0;
-            IStateMachine<State, Trigger> stateMachine = new StateMachine<State, Trigger>(State.A);
-            stateMachine = new InfiniteTransitionsDecorator<State, Trigger>(stateMachine);
+            var stateMachine = CreateStateMachine(State.A);
 
             stateMachine.Configure(State.A)
                 .OnEntry(() =>
@@ -55,21 +61,20 @@ namespace Stateless.Tests
         {
             //Given
             _numberOfTransistions = 0;
-            IStateMachine<State, Trigger> stateMachine = new StateMachine<State, Trigger>(State.A);
-            stateMachine = new InfiniteTransitionsDecorator<State, Trigger>(stateMachine);
-            triggerWithParameter = stateMachine.SetTriggerParameters<int>(Trigger.X);
+            var stateMachine = CreateStateMachine(State.A);
+            _triggerWithParameter = stateMachine.SetTriggerParameters<int>(Trigger.X);
 
             stateMachine.Configure(State.A)
                 .OnEntry(() =>
                 {
                     _numberOfTransistions++;
                     if (_numberOfTransistions == short.MaxValue) return;
-                    stateMachine.Fire(triggerWithParameter, 1);
+                    stateMachine.Fire(_triggerWithParameter, 1);
                 })
                 .Permit(Trigger.X, State.B);
 
             stateMachine.Configure(State.B)
-                .OnEntryFrom(triggerWithParameter, (value) =>
+                .OnEntryFrom(_triggerWithParameter, (value) =>
                 {
                     _numberOfTransistions += value;
                     if (_numberOfTransistions == short.MaxValue) return;
@@ -78,7 +83,7 @@ namespace Stateless.Tests
                 .Permit(Trigger.Z, State.A);
 
             //When
-            stateMachine.Fire(triggerWithParameter, 1);
+            stateMachine.Fire(_triggerWithParameter, 1);
 
             //Then
             Assert.AreEqual(MaximumNumberOfTransistions, _numberOfTransistions, "The number of transistions expected does not match.");

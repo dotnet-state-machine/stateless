@@ -12,6 +12,16 @@ namespace Stateless.Tests
             StateA = "A", StateB = "B", StateC = "C",
             TriggerX = "X", TriggerY = "Y";
 
+        protected virtual IStateMachine<State, Trigger> CreateStateMachine(State initialState)
+        {
+            return new StateMachine<State, Trigger>(initialState);
+        }
+
+        protected virtual IStateMachine<State, Trigger> CreateStateMachine(Func<State> stateAccessor, Action<State> stateMutator)
+        {
+            return new StateMachine<State, Trigger>(stateAccessor, stateMutator);
+        }
+
         [Test]
         public void CanUseReferenceTypeMarkers()
         {
@@ -34,7 +44,7 @@ namespace Stateless.Tests
             var b = states.Skip(1).First();
             var x = transitions.First();
 
-            var sm = new StateMachine<TState, TTransition>(a);
+            var sm = new StateMachine<TState, TTransition>(a); //TODO DEVONEY: Use interface
 
             sm.Configure(a)
                 .Permit(x, b);
@@ -48,7 +58,7 @@ namespace Stateless.Tests
         public void InitialStateIsCurrent()
         {
             var initial = State.B;
-            var sm = new StateMachine<State, Trigger>(initial);
+            var sm = CreateStateMachine(initial);
             Assert.AreEqual(initial, sm.State);
         }
 
@@ -56,7 +66,7 @@ namespace Stateless.Tests
         public void StateCanBeStoredExternally()
         {
             var state = State.B;
-            var sm = new StateMachine<State, Trigger>(() => state, s => state = s);
+            var sm = CreateStateMachine(() => state, s => state = s);
             sm.Configure(State.B).Permit(Trigger.X, State.C);
             Assert.AreEqual(State.B, sm.State);
             Assert.AreEqual(State.B, state);
@@ -68,7 +78,7 @@ namespace Stateless.Tests
         [Test]
         public void SubstateIsIncludedInCurrentState()
         {
-            var sm = new StateMachine<State, Trigger>(State.B);
+            var sm = CreateStateMachine(State.B);
             sm.Configure(State.B).SubstateOf(State.C);
 
             Assert.AreEqual(State.B, sm.State);
@@ -78,7 +88,7 @@ namespace Stateless.Tests
         [Test]
         public void WhenInSubstate_TriggerIgnoredInSuperstate_RemainsInSubstate()
         {
-            var sm = new StateMachine<State, Trigger>(State.B);
+            var sm = CreateStateMachine(State.B);
 
             sm.Configure(State.B)
                 .SubstateOf(State.C);
@@ -94,7 +104,7 @@ namespace Stateless.Tests
         [Test]
         public void PermittedTriggersIncludeSuperstatePermittedTriggers()
         {
-            var sm = new StateMachine<State, Trigger>(State.B);
+            var sm = CreateStateMachine(State.B);
 
             sm.Configure(State.A)
                 .Permit(Trigger.Z, State.B);
@@ -116,7 +126,7 @@ namespace Stateless.Tests
         [Test]
         public void PermittedTriggersAreDistinctValues()
         {
-            var sm = new StateMachine<State, Trigger>(State.B);
+            var sm = CreateStateMachine(State.B);
 
             sm.Configure(State.B)
                 .SubstateOf(State.C)
@@ -133,7 +143,7 @@ namespace Stateless.Tests
         [Test]
         public void AcceptedTriggersRespectGuards()
         {
-            var sm = new StateMachine<State, Trigger>(State.B);
+            var sm = CreateStateMachine(State.B);
 
             sm.Configure(State.B)
                 .PermitIf(Trigger.X, State.A, () => false);
@@ -144,7 +154,7 @@ namespace Stateless.Tests
         [Test]
         public void WhenDiscriminatedByGuard_ChoosesPermitedTransition()
         {
-            var sm = new StateMachine<State, Trigger>(State.B);
+            var sm = CreateStateMachine(State.B);
 
             sm.Configure(State.B)
                 .PermitIf(Trigger.X, State.A, () => false)
@@ -158,7 +168,7 @@ namespace Stateless.Tests
         [Test]
         public void WhenTriggerIsIgnored_ActionsNotExecuted()
         {
-            var sm = new StateMachine<State, Trigger>(State.B);
+            var sm = CreateStateMachine(State.B);
 
             bool fired = false;
 
@@ -174,7 +184,7 @@ namespace Stateless.Tests
         [Test]
         public void IfSelfTransitionPermited_ActionsFire()
         {
-            var sm = new StateMachine<State, Trigger>(State.B);
+            var sm = CreateStateMachine(State.B);
 
             bool fired = false;
 
@@ -190,7 +200,7 @@ namespace Stateless.Tests
         [Test, ExpectedException(typeof(ArgumentException))]
         public void ImplicitReentryIsDisallowed()
         {
-            var sm = new StateMachine<State, Trigger>(State.B);
+            var sm = CreateStateMachine(State.B);
 
             sm.Configure(State.B)
                 .Permit(Trigger.X, State.B);
@@ -199,7 +209,7 @@ namespace Stateless.Tests
         [Test, ExpectedException(typeof(InvalidOperationException))]
         public void TriggerParametersAreImmutableOnceSet()
         {
-            var sm = new StateMachine<State, Trigger>(State.B);
+            var sm = CreateStateMachine(State.B);
 
             sm.SetTriggerParameters<string, int>(Trigger.X);
             sm.SetTriggerParameters<string>(Trigger.X);
@@ -210,7 +220,7 @@ namespace Stateless.Tests
             ExpectedMessage = "No valid leaving transitions are permitted from state 'A' for trigger 'X'. Consider ignoring the trigger.")]
         public void ExceptionThrownForInvalidTransition()
         {
-            var sm = new StateMachine<State, Trigger>(State.A);
+            var sm = CreateStateMachine(State.A);
             sm.Fire(Trigger.X);
         }
 
@@ -223,7 +233,7 @@ namespace Stateless.Tests
             // so I have skipped empty description test.
             const string guardDescription = "test";
 
-            var sm = new StateMachine<State, Trigger>(State.A);
+            var sm = CreateStateMachine(State.A);
             sm.Configure(State.A).PermitIf(Trigger.X, State.B, () => false, guardDescription); 
             sm.Fire(Trigger.X);
         }
@@ -231,7 +241,7 @@ namespace Stateless.Tests
         [Test]
         public void ParametersSuppliedToFireArePassedToEntryAction()
         {
-            var sm = new StateMachine<State, Trigger>(State.B);
+            var sm = CreateStateMachine(State.B);
 
             var x = sm.SetTriggerParameters<string, int>(Trigger.X);
 
@@ -260,7 +270,7 @@ namespace Stateless.Tests
         [Test]
         public void WhenAnUnhandledTriggerIsFired_TheProvidedHandlerIsCalledWithStateAndTrigger()
         {
-            var sm = new StateMachine<State, Trigger>(State.B);
+            var sm = CreateStateMachine(State.B);
 
             State? state = null;
             Trigger? trigger = null;
@@ -279,7 +289,7 @@ namespace Stateless.Tests
         [Test]
         public void WhenATransitionOccurs_TheOnTransitionEventFires()
         {
-            var sm = new StateMachine<State, Trigger>(State.B);
+            var sm = CreateStateMachine(State.B);
 
             sm.Configure(State.B)
                 .Permit(Trigger.X, State.A);
@@ -298,7 +308,7 @@ namespace Stateless.Tests
         [Test]
         public void TheOnTransitionEventFiresBeforeTheOnEntryEvent()
         {
-            var sm = new StateMachine<State, Trigger>(State.B);
+            var sm = CreateStateMachine(State.B);
             var expectedOrdering = new List<string> { "OnExit", "OnTransitioned", "OnEntry" };
             var actualOrdering = new List<string>();
 

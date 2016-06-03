@@ -7,9 +7,10 @@ namespace Stateless.Decoration
 {
     /// <summary>
     /// By using this decorator, the StateMachine supports an endless number of transistions.
-    /// This logically results in the following limitations: after a trigger is fired, the current method firing the trigger may not fire a trigger again and must return immediately.
-    /// Code that comes after the trigger is fired, in the same scope is executed while the trigger isn't actually fired yet.
-    /// This results in a callstack that is only deepened till a certain number of calls.
+    /// This logically results in the following limitations: no code may follow in the scope of the method that fires a trigger.
+    /// Code that comes after the trigger is fired, in the same method scope, is executed before the trigger is actually fired.
+    /// FIring triggers via this decorator is more like setting the next trigger for when the method returns.
+    /// This results in a callstack that is only deepened till a certain number of calls, and therefore infinite transistions are possible.
     /// </summary>
     public class InfiniteTransitionsDecorator<TState, TTrigger> : StateMachineDecoratorBase<TState, TTrigger>
     {

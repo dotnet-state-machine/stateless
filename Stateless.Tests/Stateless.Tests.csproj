@@ -73,7 +73,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AuditTrailDecoratorFixture.cs" />
     <Compile Include="DynamicTriggerBehaviourFixture.cs" />
     <Compile Include="IgnoredTriggerBehaviourFixture.cs" />
     <Compile Include="InfiniteTransitionsDecoratorFixture.cs" />

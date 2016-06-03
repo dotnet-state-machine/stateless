@@ -67,7 +67,6 @@
     <Reference Include="System.Xml.Serialization" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Decoration\AuditTrailDecorator.cs" />
     <Compile Include="Decoration\InfiniteTransitionsDecorator.cs" />
     <Compile Include="Decoration\StateMachineDecoratorBase.cs" />
     <Compile Include="DynamicTriggerBehaviour.cs">

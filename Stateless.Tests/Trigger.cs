@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Stateless.Tests
 {
-    enum Trigger
+    public enum Trigger
     {
         X, Y, Z
     }
