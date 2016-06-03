@@ -160,7 +160,7 @@ Command line example: `dot -T pdf -o phoneCall.pdf phoneCall.dot` to generate a 
 
 The StateMachines behaviour can be decorated.
 The following decorations have been added:
-- InfiniteTransitionsDecorator - Infinite transistions are possible via this decorator taking into account that a method firing a trigger must return immediately aftering firing.
+- InfiniteTransitionsDecorator - Infinite transistions are possible via this decorator taking into account that a method firing a trigger must return immediately after firing.
 
 ## Building
 

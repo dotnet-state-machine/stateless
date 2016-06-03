@@ -21,6 +21,20 @@ namespace Stateless.Tests
             return stateMachine;
         }
 
+        protected override IStateMachine<TState, TTrigger> CreateStateMachine<TState, TTrigger>(TState initialState)
+        {
+            var stateMachine = base.CreateStateMachine<TState, TTrigger>(initialState);
+            stateMachine = new InfiniteTransitionsDecorator<TState, TTrigger>(stateMachine);
+            return stateMachine;
+        }
+
+        protected override IStateMachine<State, Trigger> CreateStateMachine(Func<State> stateAccessor, Action<State> stateMutator)
+        {
+            var stateMachine = base.CreateStateMachine(stateAccessor, stateMutator);
+            stateMachine = new InfiniteTransitionsDecorator<State, Trigger>(stateMachine);
+            return stateMachine;
+        }
+
         [Test]
         public void AnInfiniteNumberOfTransistionsIsSupported()
         {

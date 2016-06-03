@@ -14,12 +14,17 @@ namespace Stateless.Tests
 
         protected virtual IStateMachine<State, Trigger> CreateStateMachine(State initialState)
         {
-            return new StateMachine<State, Trigger>(initialState);
+            return CreateStateMachine<State, Trigger>(initialState);
         }
 
         protected virtual IStateMachine<State, Trigger> CreateStateMachine(Func<State> stateAccessor, Action<State> stateMutator)
         {
             return new StateMachine<State, Trigger>(stateAccessor, stateMutator);
+        }
+
+        protected virtual IStateMachine<TState, TTrigger> CreateStateMachine<TState, TTrigger>(TState initialState)
+        {
+            return new StateMachine<TState, TTrigger>(initialState);
         }
 
         [Test]
@@ -44,7 +49,7 @@ namespace Stateless.Tests
             var b = states.Skip(1).First();
             var x = transitions.First();
 
-            var sm = new StateMachine<TState, TTransition>(a); //TODO DEVONEY: Use interface
+            var sm = CreateStateMachine<TState, TTransition>(a);
 
             sm.Configure(a)
                 .Permit(x, b);
