@@ -43,6 +43,7 @@ Some useful extensions are also provided:
  * Parameterised triggers
  * Reentrant states
  * Export to DOT graph
+ * Decorable
 
 ### Hierarchical States
 
@@ -154,6 +155,12 @@ digraph {
 
 This can then be rendered by tools that support the DOT graph language, such as the [dot command line tool](http://www.graphviz.org/doc/info/command.html) from [graphviz.org](http://www.graphviz.org) or [viz.js](https://github.com/mdaines/viz.js). See http://www.webgraphviz.com for instant gratification.
 Command line example: `dot -T pdf -o phoneCall.pdf phoneCall.dot` to generate a PDF file.
+
+### Decorable
+
+The StateMachines behaviour can be decorated.
+The following decorations have been added:
+- InfiniteTransitionsDecorator - Infinite transistions are possible via this decorator taking into account that a method firing a trigger must return immediately aftering firing.
 
 ## Building
 
