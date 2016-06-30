@@ -211,5 +211,22 @@ namespace Stateless.Tests
 
             Assert.AreEqual(expected, sm.ToDotGraph());
         }
+
+        [Test]
+        public void TransitionWithIgnore()
+        {
+            var expected = "digraph {" + System.Environment.NewLine
+                         + " A -> A [label=\"Y\"];" + System.Environment.NewLine
+                         + " A -> B [label=\"X\"];" + System.Environment.NewLine
+                         + "}";
+
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .Ignore(Trigger.Y)
+                .Permit(Trigger.X, State.B);
+
+            Assert.AreEqual(expected, sm.ToDotGraph());
+        }
     }
 }

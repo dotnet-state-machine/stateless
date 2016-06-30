@@ -26,7 +26,11 @@ namespace Stateless
                         if (behaviour is TransitioningTriggerBehaviour)
                         {
                             destination = ((TransitioningTriggerBehaviour)behaviour).Destination.ToString ();
-                        } 
+                        }
+                        else if (behaviour is IgnoredTriggerBehaviour)
+                        {
+                            destination = stateCfg.Key.ToString();
+                        }
                         else 
                         {
                             destination = "unknownDestination_" + unknownDestinations.Count;
