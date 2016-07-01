@@ -29,7 +29,7 @@ namespace Stateless
                         }
                         else if (behaviour is IgnoredTriggerBehaviour)
                         {
-                            destination = stateCfg.Key.ToString();
+                            continue; 
                         }
                         else 
                         {
