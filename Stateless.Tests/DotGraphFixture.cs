@@ -215,8 +215,8 @@ namespace Stateless.Tests
         [Test]
         public void TransitionWithIgnore()
         {
+            // Ignored triggers do not appear in the graph
             var expected = "digraph {" + System.Environment.NewLine
-                         + " A -> A [label=\"Y\"];" + System.Environment.NewLine
                          + " A -> B [label=\"X\"];" + System.Environment.NewLine
                          + "}";
 
