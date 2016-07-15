@@ -8,6 +8,8 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using System.Reflection;
+
 namespace Stateless {
     using System;
     
@@ -39,7 +41,11 @@ namespace Stateless {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
+#if PORTABLE259
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Stateless.ParameterConversionResources", typeof(ParameterConversionResources).GetTypeInfo().Assembly);
+#else
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Stateless.ParameterConversionResources", typeof(ParameterConversionResources).Assembly);
+#endif
                     resourceMan = temp;
                 }
                 return resourceMan;
