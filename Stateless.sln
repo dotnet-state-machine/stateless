@@ -21,6 +21,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{9DBF06
 		.nuget\packages.config = .nuget\packages.config
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StatelessNet45Profile259", "Stateless\StatelessNet45Profile259.csproj", "{DC4DD764-F902-4D2F-B175-37EB3A8F006D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,10 @@ Global
 		{3A56311E-C3AC-4E34-A1DF-CA5042A31039}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A56311E-C3AC-4E34-A1DF-CA5042A31039}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A56311E-C3AC-4E34-A1DF-CA5042A31039}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC4DD764-F902-4D2F-B175-37EB3A8F006D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC4DD764-F902-4D2F-B175-37EB3A8F006D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC4DD764-F902-4D2F-B175-37EB3A8F006D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC4DD764-F902-4D2F-B175-37EB3A8F006D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
