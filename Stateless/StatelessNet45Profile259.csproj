@@ -41,13 +41,64 @@
     <AssemblyOriginatorKeyFile>Stateless.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <!-- A reference to the entire .NET Framework is automatically included -->
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="**\*.cs" Exclude="obj\**" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Stateless.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DotGraph.cs" />
+    <Compile Include="DynamicTriggerBehaviour.cs" />
+    <Compile Include="Enforce.cs" />
+    <Compile Include="EntryActionBehaviour.cs" />
+    <Compile Include="ExitActionBehaviour.cs" />
+    <Compile Include="IgnoredTriggerBehaviour.cs" />
+    <Compile Include="ParameterConversion.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReflectionExtensions.cs" />
+    <Compile Include="StateConfiguration.cs" />
+    <Compile Include="StateMachine.cs" />
+    <Compile Include="StateReference.cs" />
+    <Compile Include="StateRepresentation.cs" />
+    <Compile Include="Transition.cs" />
+    <Compile Include="TransitioningTriggerBehaviour.cs" />
+    <Compile Include="TriggerBehaviour.cs" />
+    <Compile Include="TriggerWithParameters.cs" />
+    <Compile Include="ParameterConversionResources.Designer.cs">
+      <DependentUpon>ParameterConversionResources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Include="StateConfigurationResources.Designer.cs">
+      <DependentUpon>StateConfigurationResources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Include="StateMachineResources.Designer.cs">
+      <DependentUpon>StateMachineResources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Include="StateRepresentationResources.Designer.cs">
+      <DependentUpon>StateRepresentationResources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ParameterConversionResources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>ParameterConversionResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="StateConfigurationResources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>StateConfigurationResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="StateMachineResources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>StateMachineResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="StateRepresentationResources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>StateRepresentationResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
