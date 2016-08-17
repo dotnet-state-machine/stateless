@@ -55,7 +55,7 @@ namespace Stateless
             /// <returns></returns>
             public StateConfiguration InternalTransition(TTrigger trigger, Action<Transition> entryAction)
             {
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, () => true));
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger));
                 _representation.AddInternalAction(trigger, (t, args) => entryAction(t));
                 return this;
             }
@@ -68,7 +68,7 @@ namespace Stateless
             /// <returns></returns>
             public StateConfiguration InternalTransition<TArg0>(TTrigger trigger, Action<Transition> entryAction)
             {
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, () => true));
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger));
                 _representation.AddInternalAction(trigger, (t, args) => entryAction(t));
                 return this;
             }
@@ -81,7 +81,7 @@ namespace Stateless
             /// <returns></returns>
             public StateConfiguration InternalTransition<TArg0>(TriggerWithParameters<TArg0> trigger, Action<TArg0, Transition> entryAction)
             {
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, () => true));
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger));
                 _representation.AddInternalAction(trigger.Trigger, (t, args) => entryAction(ParameterConversion.Unpack<TArg0>(args, 0), t));
                 return this;
             }
