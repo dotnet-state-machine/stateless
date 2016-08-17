@@ -40,7 +40,7 @@ namespace TelephoneCallExample
 
             phoneCall.Configure(State.OffHook)
 	            .Permit(Trigger.CallDialed, State.Ringing);
-            	
+
             phoneCall.Configure(State.Ringing)
 	            .Permit(Trigger.HungUp, State.OffHook)
 	            .Permit(Trigger.CallConnected, State.Connected);
@@ -48,9 +48,9 @@ namespace TelephoneCallExample
             phoneCall.Configure(State.Connected)
                 .OnEntry(t => StartCallTimer())
                 .OnExit(t => StopCallTimer())
-                .InternalTransistion(Trigger.MuteMicrophone, t => OnMute())
-                .InternalTransistion(Trigger.UnmuteMicrophone, t => OnUnmute())
-                .InternalTransistion<int>(setVolumeTrigger, (volume, t) => OnSetVolume(volume))
+                .InternalTransition(Trigger.MuteMicrophone, t => OnMute())
+                .InternalTransition(Trigger.UnmuteMicrophone, t => OnUnmute())
+                .InternalTransition<int>(setVolumeTrigger, (volume, t) => OnSetVolume(volume))
                 .Permit(Trigger.LeftMessage, State.OffHook)
 	            .Permit(Trigger.HungUp, State.OffHook)
 	            .Permit(Trigger.PlacedOnHold, State.OnHold);

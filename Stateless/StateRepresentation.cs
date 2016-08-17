@@ -240,7 +240,7 @@ namespace Stateless
             }
             internal void InternalAction(Transition transition, object[] args)
             {
-                Enforce.ArgumentNotNull(transition, "transtion");
+                Enforce.ArgumentNotNull(transition, "transition");
                 ExecuteInternalActions(transition, args);
             }
         }
