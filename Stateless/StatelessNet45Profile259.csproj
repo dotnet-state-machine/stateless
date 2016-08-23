@@ -50,6 +50,7 @@
     <Compile Include="EntryActionBehaviour.cs" />
     <Compile Include="ExitActionBehaviour.cs" />
     <Compile Include="IgnoredTriggerBehaviour.cs" />
+    <Compile Include="InternalTriggerBehaviour.cs" />
     <Compile Include="ParameterConversion.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReflectionExtensions.cs" />

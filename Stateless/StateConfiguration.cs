@@ -47,7 +47,44 @@ namespace Stateless
                 EnforceNotIdentityTransition(destinationState);
                 return InternalPermit(trigger, destinationState, string.Empty);
             }
-
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="trigger"></param>
+            /// <param name="entryAction"></param>
+            /// <returns></returns>
+            public StateConfiguration InternalTransition(TTrigger trigger, Action<Transition> entryAction)
+            {
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger));
+                _representation.AddInternalAction(trigger, (t, args) => entryAction(t));
+                return this;
+            }
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <param name="trigger"></param>
+            /// <param name="entryAction"></param>
+            /// <returns></returns>
+            public StateConfiguration InternalTransition<TArg0>(TTrigger trigger, Action<Transition> entryAction)
+            {
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger));
+                _representation.AddInternalAction(trigger, (t, args) => entryAction(t));
+                return this;
+            }
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <param name="trigger"></param>
+            /// <param name="entryAction"></param>
+            /// <returns></returns>
+            public StateConfiguration InternalTransition<TArg0>(TriggerWithParameters<TArg0> trigger, Action<TArg0, Transition> entryAction)
+            {
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger));
+                _representation.AddInternalAction(trigger.Trigger, (t, args) => entryAction(ParameterConversion.Unpack<TArg0>(args, 0), t));
+                return this;
+            }
             /// <summary>
             /// Accept the specified trigger and transition to the destination state.
             /// </summary>

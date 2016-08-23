@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace Stateless
@@ -30,6 +31,11 @@ namespace Stateless
                         else if (behaviour is IgnoredTriggerBehaviour)
                         {
                             continue; 
+                        }
+                        else if (behaviour is InternalTriggerBehaviour)
+                        {
+                            // Internal transitions are for the moment displayed (re-entrant) self-transitions, even though no exit or entry transition occurs
+                            destination = stateCfg.Key.ToString();
                         }
                         else 
                         {

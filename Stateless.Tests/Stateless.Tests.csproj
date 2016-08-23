@@ -75,6 +75,7 @@
   <ItemGroup>
     <Compile Include="DynamicTriggerBehaviourFixture.cs" />
     <Compile Include="IgnoredTriggerBehaviourFixture.cs" />
+    <Compile Include="InternalTransitionFixture.cs" />
     <Compile Include="State.cs" />
     <Compile Include="StateMachineFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
