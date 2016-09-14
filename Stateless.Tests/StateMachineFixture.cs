@@ -187,36 +187,31 @@ namespace Stateless.Tests
             Assert.IsTrue(fired);
         }
 
-        [Test, ExpectedException(typeof(ArgumentException))]
+        [Test]
         public void ImplicitReentryIsDisallowed()
         {
             var sm = new StateMachine<State, Trigger>(State.B);
 
-            sm.Configure(State.B)
-                .Permit(Trigger.X, State.B);
+            Assert.Throws<ArgumentException>(() => sm.Configure(State.B)
+               .Permit(Trigger.X, State.B));
         }
 
-        [Test, ExpectedException(typeof(InvalidOperationException))]
+        [Test]
         public void TriggerParametersAreImmutableOnceSet()
         {
             var sm = new StateMachine<State, Trigger>(State.B);
-
-            sm.SetTriggerParameters<string, int>(Trigger.X);
-            sm.SetTriggerParameters<string>(Trigger.X);
+            sm.SetTriggerParameters<string, int>(Trigger.X);          
+            Assert.Throws<InvalidOperationException>(() => sm.SetTriggerParameters<string>(Trigger.X));
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), 
-            ExpectedMessage = "No valid leaving transitions are permitted from state 'A' for trigger 'X'. Consider ignoring the trigger.")]
         public void ExceptionThrownForInvalidTransition()
         {
-            var sm = new StateMachine<State, Trigger>(State.A);
-            sm.Fire(Trigger.X);
+            var sm = new StateMachine<State, Trigger>(State.A);          
+            Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X), "No valid leaving transitions are permitted from state 'A' for trigger 'X'.Consider ignoring the trigger.");
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException),
-            ExpectedMessage = "Trigger 'X' is valid for transition from state 'A' but a guard condition is not met. Guard description: 'test'.")]
         public void ExceptionThrownForInvalidTransitionMentionsGuardDescriptionIfPresent()
         {
             // If guard description is empty then method name of guard is used
@@ -224,8 +219,8 @@ namespace Stateless.Tests
             const string guardDescription = "test";
 
             var sm = new StateMachine<State, Trigger>(State.A);
-            sm.Configure(State.A).PermitIf(Trigger.X, State.B, () => false, guardDescription); 
-            sm.Fire(Trigger.X);
+            sm.Configure(State.A).PermitIf(Trigger.X, State.B, () => false, guardDescription);
+            Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X), "Trigger 'X' is valid for transition from state 'A' but a guard condition is not met. Guard description: 'test'.");
         }
 
         [Test]
