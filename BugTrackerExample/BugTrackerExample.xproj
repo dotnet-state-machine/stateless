@@ -7,8 +7,8 @@
 
   <Import Project="$(VSToolsPath)\DotNet\Microsoft.DotNet.Props" Condition="'$(VSToolsPath)' != ''" />
   <PropertyGroup Label="Globals">
-    <ProjectGuid>56053fac-1555-457f-9f95-66a06b4f30c6</ProjectGuid>
-    <RootNamespace>Stateless.Core</RootNamespace>
+    <ProjectGuid>1e7bda62-0bef-49c4-badf-f271755d3990</ProjectGuid>
+    <RootNamespace>BugTrackerExample</RootNamespace>
     <BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)'=='' ">.\obj</BaseIntermediateOutputPath>
     <OutputPath Condition="'$(OutputPath)'=='' ">.\bin\</OutputPath>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>

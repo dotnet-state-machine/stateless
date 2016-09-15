@@ -18,6 +18,9 @@
           "type": "platform"
         }
       }
-    }
+    },
+    "net451": {
+      "imports": [ "portable-net45+win8+wpa81+wp8" ]
+    }    
   }
 }

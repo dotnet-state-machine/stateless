@@ -8,20 +8,23 @@
     "projectUrl": "https://github.com/nblumhardt/stateless",
     "iconUrl": "https://storage.googleapis.com/google-code-archive/v2/code.google.com/stateless/logo.png",
     "requireLicenseAcceptance": false
-  }, 
-  "authors": [ "Nicholas Blumhardt and Contributors" ],   
+  },
+  "authors": [ "Nicholas Blumhardt and Contributors" ],
   "description": "Create state machines and lightweight state machine-based workflows directly in .NET code",
   "language": "en-US",
   "title": "Stateless",
   "frameworks": {
     "netstandard1.6": {
-      "imports": "dnxcore50"
+      "imports": "dnxcore50",
+      "buildOptions": {
+        "define": [ "PORTABLE259" ]
+      }
     },
-    "net45": {
+    "net451": {
       "imports": [ "portable-net45+win8+wpa81+wp8" ]
+    },
+    "net40": {
+      "buildOptions": {}
     }
-  },
-  "buildOptions": {
-    "define": [ "PORTABLE259" ]
   }
 }
