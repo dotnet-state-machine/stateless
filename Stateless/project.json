@@ -14,7 +14,7 @@
   "language": "en-US",
   "title": "Stateless",
   "frameworks": {
-    "netstandard1.6": {
+    "netstandard1.0": {
       "imports": "dnxcore50",
       "buildOptions": {
         "define": [ "PORTABLE259" ]
