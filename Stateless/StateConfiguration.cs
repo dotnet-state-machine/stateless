@@ -50,7 +50,7 @@ namespace Stateless
             /// <param name="trigger"></param>
             /// <param name="entryAction"></param>
             /// <returns></returns>
-            public StateConfiguration InternalTransistion(TTrigger trigger, Action<Transition> entryAction)
+            public StateConfiguration InternalTransition(TTrigger trigger, Action<Transition> entryAction)
             {
                 if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
 
@@ -64,7 +64,7 @@ namespace Stateless
             /// <param name="trigger">The accepted trigger</param>
             /// <param name="internalAction">The action performed by the internal transition</param>
             /// <returns></returns>
-            public StateConfiguration InternalTransistion(TTrigger trigger, Action internalAction)
+            public StateConfiguration InternalTransition(TTrigger trigger, Action internalAction)
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
@@ -79,7 +79,7 @@ namespace Stateless
             /// <param name="trigger">The accepted trigger</param>
             /// <param name="internalAction">The action performed by the internal transition</param>
             /// <returns></returns>
-            public StateConfiguration InternalTransistion<TArg0>(TTrigger trigger, Action<Transition> internalAction)
+            public StateConfiguration InternalTransition<TArg0>(TTrigger trigger, Action<Transition> internalAction)
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
@@ -94,7 +94,7 @@ namespace Stateless
             /// <param name="trigger">The accepted trigger</param>
             /// <param name="internalAction">The action performed by the internal transition</param>
             /// <returns></returns>
-            public StateConfiguration InternalTransistion<TArg0>(TriggerWithParameters<TArg0> trigger, Action<TArg0, Transition> internalAction)
+            public StateConfiguration InternalTransition<TArg0>(TriggerWithParameters<TArg0> trigger, Action<TArg0, Transition> internalAction)
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
