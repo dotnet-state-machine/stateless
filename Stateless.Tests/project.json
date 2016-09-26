@@ -9,9 +9,8 @@
       "version": "2.5.0-*"
     }
   },
-
   "testRunner": "nunit",
-
+  "buildOptions": { "keyFile": "Stateless.Tests.snk" },
   "frameworks": {
     "netcoreapp1.0": {
       "imports": "portable-net45+win8",
@@ -24,6 +23,6 @@
     },
     "net451": {
       "imports": [ "portable-net45+win8+wpa81+wp8" ]
-    }    
+    }
   }
 }

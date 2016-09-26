@@ -13,6 +13,7 @@
   "description": "Create state machines and lightweight state machine-based workflows directly in .NET code",
   "language": "en-US",
   "title": "Stateless",
+  "buildOptions": { "keyFile": "Stateless.snk" },
   "frameworks": {
     "netstandard1.0": {
       "imports": "dnxcore50",
