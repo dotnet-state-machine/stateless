@@ -9,7 +9,10 @@
       "type": "platform",
       "version": "1.0.0"
     },
-    "Stateless": "2.5.0-*"
+    "Stateless": {
+      "target": "project",
+      "version": "2.5.0-*"
+    }
   },
 
   "frameworks": {

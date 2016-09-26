@@ -4,7 +4,10 @@
   "dependencies": {
     "NUnit": "3.4.1",
     "dotnet-test-nunit": "3.4.0-beta-2",
-    "Stateless": "2.5.0-*"
+    "Stateless": {
+      "target": "project",
+      "version": "2.5.0-*"
+    }
   },
 
   "testRunner": "nunit",
