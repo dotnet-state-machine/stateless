@@ -15,8 +15,7 @@
   "title": "Stateless",
   "buildOptions": { "keyFile": "Stateless.snk" },
   "frameworks": {
-    "netstandard1.0": {
-      "imports": "dnxcore50",
+    "netstandard1.0": {      
       "buildOptions": {
         "define": [ "PORTABLE259" ]
       }
