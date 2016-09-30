@@ -48,41 +48,61 @@ namespace Stateless
                 return InternalPermit(trigger, destinationState, string.Empty);
             }
             /// <summary>
-            /// 
+            /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
             /// </summary>
             /// <param name="trigger"></param>
             /// <param name="entryAction"></param>
             /// <returns></returns>
             public StateConfiguration InternalTransition(TTrigger trigger, Action<Transition> entryAction)
             {
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
                 _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger));
                 _representation.AddInternalAction(trigger, (t, args) => entryAction(t));
                 return this;
             }
             /// <summary>
-            /// 
+            /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
             /// </summary>
-            /// <typeparam name="TArg0"></typeparam>
-            /// <param name="trigger"></param>
-            /// <param name="entryAction"></param>
+            /// <param name="trigger">The accepted trigger</param>
+            /// <param name="internalAction">The action performed by the internal transition</param>
             /// <returns></returns>
-            public StateConfiguration InternalTransition<TArg0>(TTrigger trigger, Action<Transition> entryAction)
+            public StateConfiguration InternalTransition(TTrigger trigger, Action internalAction)
             {
+                if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
+
                 _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger));
-                _representation.AddInternalAction(trigger, (t, args) => entryAction(t));
+                _representation.AddInternalAction(trigger, (t, args) => internalAction());
                 return this;
             }
             /// <summary>
-            /// 
+            /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
             /// </summary>
             /// <typeparam name="TArg0"></typeparam>
-            /// <param name="trigger"></param>
-            /// <param name="entryAction"></param>
+            /// <param name="trigger">The accepted trigger</param>
+            /// <param name="internalAction">The action performed by the internal transition</param>
             /// <returns></returns>
-            public StateConfiguration InternalTransition<TArg0>(TriggerWithParameters<TArg0> trigger, Action<TArg0, Transition> entryAction)
+            public StateConfiguration InternalTransition<TArg0>(TTrigger trigger, Action<Transition> internalAction)
             {
+                if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
+
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger));
+                _representation.AddInternalAction(trigger, (t, args) => internalAction(t));
+                return this;
+            }
+            /// <summary>
+            /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <param name="trigger">The accepted trigger</param>
+            /// <param name="internalAction">The action performed by the internal transition</param>
+            /// <returns></returns>
+            public StateConfiguration InternalTransition<TArg0>(TriggerWithParameters<TArg0> trigger, Action<TArg0, Transition> internalAction)
+            {
+                if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
+
                 _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger));
-                _representation.AddInternalAction(trigger.Trigger, (t, args) => entryAction(ParameterConversion.Unpack<TArg0>(args, 0), t));
+                _representation.AddInternalAction(trigger.Trigger, (t, args) => internalAction(ParameterConversion.Unpack<TArg0>(args, 0), t));
                 return this;
             }
             /// <summary>
@@ -104,7 +124,6 @@ namespace Stateless
                     guard,
                     guardDescription ?? guard?.TryGetMethodInfo().Name);
             }
-
             /// <summary>
             /// Accept the specified trigger, execute exit actions and re-execute entry actions.
             /// Reentry behaves as though the configured state transitions to an identical sibling state.
