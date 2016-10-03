@@ -20,7 +20,7 @@ namespace Stateless.Tests
         public void ParametersOfCorrectTypeAreAccepted()
         {
             var twp = new StateMachine<State, Trigger>.TriggerWithParameters<string>(Trigger.X);
-            twp.ValidateParameters(new [] { "arg" });
+            twp.ValidateParameters(new[] { "arg" });
         }
 
         [Test]
@@ -30,25 +30,25 @@ namespace Stateless.Tests
             twp.ValidateParameters(new[] { "arg" });
         }
 
-        [Test, ExpectedException(typeof(ArgumentException))]
+        [Test]
         public void IncompatibleParametersAreNotValid()
         {
             var twp = new StateMachine<State, Trigger>.TriggerWithParameters<string>(Trigger.X);
-            twp.ValidateParameters(new object[] { 123 });
+            Assert.Throws<ArgumentException>(() => twp.ValidateParameters(new object[] { 123 }));
         }
 
-        [Test, ExpectedException(typeof(ArgumentException))]
+        [Test]
         public void TooFewParametersDetected()
         {
             var twp = new StateMachine<State, Trigger>.TriggerWithParameters<string, string>(Trigger.X);
-            twp.ValidateParameters(new[] { "a" });
+            Assert.Throws<ArgumentException>(() => twp.ValidateParameters(new[] { "a" }));
         }
 
-        [Test, ExpectedException(typeof(ArgumentException))]
+        [Test]
         public void TooManyParametersDetected()
         {
             var twp = new StateMachine<State, Trigger>.TriggerWithParameters<string, string>(Trigger.X);
-            twp.ValidateParameters(new[] { "a", "b", "c" });
+            Assert.Throws<ArgumentException>(() => twp.ValidateParameters(new[] { "a", "b", "c" }));
         }
     }
 }
