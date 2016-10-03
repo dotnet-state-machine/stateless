@@ -5,8 +5,8 @@
   },
   "packOptions": {
     "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0",
-    "projectUrl": "https://github.com/nblumhardt/stateless",
-    "iconUrl": "https://storage.googleapis.com/google-code-archive/v2/code.google.com/stateless/logo.png",
+    "projectUrl": "https://github.com/dotnet-state-machine/stateless",
+    "iconUrl": "https://raw.githubusercontent.com/dotnet-state-machine/stateless/dev/asset/Stateless.png",
     "requireLicenseAcceptance": false
   },
   "authors": [ "Stateless Contributors" ],
