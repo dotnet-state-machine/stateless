@@ -14,7 +14,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.5 r10040"
-   sodipodi:docname="New document 1">
+   sodipodi:docname="Stateless.svg">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -25,8 +25,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.3900548"
-     inkscape:cx="252.68643"
-     inkscape:cy="578.60738"
+     inkscape:cx="310.61983"
+     inkscape:cy="567.30102"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -51,6 +51,16 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1">
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:none"
+       id="rect2987"
+       width="237.56282"
+       height="237.56282"
+       x="188.11531"
+       y="346.77414"
+       inkscape:export-filename="C:\Development\dotnet-statemachine\stateless\asset\Stateless.png"
+       inkscape:export-xdpi="48.490002"
+       inkscape:export-ydpi="48.490002" />
     <path
        d="m 342.85714,495.21933 a 65.714287,65.714287 0 1 1 -131.42857,0 65.714287,65.714287 0 1 1 131.42857,0 z"
        sodipodi:ry="65.714287"
