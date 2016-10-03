@@ -1,7 +1,4 @@
 version: 2.5.{build}
-branches:
-  only:
-  - master
 configuration: Release
 assembly_info:
   patch: true
