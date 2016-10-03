@@ -141,6 +141,7 @@ It can be useful to visualize state machines on runtime. With this approach the 
 ```csharp
 phoneCall.Configure(State.OffHook)
     .PermitIf(Trigger.CallDialed, State.Ringing, IsValidNumber);
+    
 string graph = phoneCall.ToDotGraph();
 ```
 
@@ -148,7 +149,7 @@ The `StateMachine.ToDotGraph()` method returns a string representation of the st
 
 ```dot
 digraph {
- OffHook -> Ringing [label="CallDialed [IsValidNumber]"];
+  OffHook -> Ringing [label="CallDialed [IsValidNumber]"];
 }
 ```
 
@@ -160,8 +161,6 @@ Command line example: `dot -T pdf -o phoneCall.pdf phoneCall.dot` to generate a 
 Visual Studio 2015 is required to build this project.
 
 ## Project Goals
-
-Stateless is a base for exploration of generic and functional programming to drive workflow in .NET.
 
 This page is an almost-complete description of Stateless, and its explicit aim is to remain minimal.
 
