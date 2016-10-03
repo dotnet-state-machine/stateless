@@ -1,11 +1,5 @@
-version: 2.5.{build}
+version: '{build}'
 configuration: Release
-assembly_info:
-  patch: true
-  file: '**\AssemblyInfo.*'
-  assembly_version: '{version}.0'
-  assembly_file_version: '{version}.0'
-  assembly_informational_version: '{version}'
 install:
   - ps: mkdir -Force ".\build\" | Out-Null
   - ps: Invoke-WebRequest "https://raw.githubusercontent.com/dotnet/cli/rel/1.0.0-preview2/scripts/obtain/dotnet-install.ps1" -OutFile ".\build\installcli.ps1"
