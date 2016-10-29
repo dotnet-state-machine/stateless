@@ -15,8 +15,8 @@ namespace Stateless
         readonly IDictionary<TTrigger, TriggerWithParameters> _triggerConfiguration = new Dictionary<TTrigger, TriggerWithParameters>();
         readonly Func<TState> _stateAccessor;
         readonly Action<TState> _stateMutator;
-        Action<TState, TTrigger> _unhandledTriggerAction;
-        event Action<Transition> _onTransitioned;
+        UnhandledTriggerAction _unhandledTriggerAction;
+        OnTransitionedEvent _onTransitionedEvent;
 
         /// <summary>
         /// Construct a state machine with external state storage.
@@ -45,7 +45,8 @@ namespace Stateless
         /// </summary>
         StateMachine()
         {
-            _unhandledTriggerAction = DefaultUnhandledTriggerAction;
+            _unhandledTriggerAction = new UnhandledTriggerAction.Sync(DefaultUnhandledTriggerAction);
+            _onTransitionedEvent = new OnTransitionedEvent();
         }  
 
         /// <summary>
@@ -189,7 +190,7 @@ namespace Stateless
             TriggerBehaviour triggerBehaviour;
             if (!representativeState.TryFindHandler(trigger, out triggerBehaviour))
             {
-                _unhandledTriggerAction(representativeState.UnderlyingState, trigger);
+                _unhandledTriggerAction.Execute(representativeState.UnderlyingState, trigger);
                 return;
             }
 
@@ -202,9 +203,7 @@ namespace Stateless
 
                 State = transition.Destination;
                 var newRepresentation = GetRepresentation(transition.Destination);
-                var onTransitioned = _onTransitioned;
-                if (onTransitioned != null)
-                    onTransitioned(transition);
+                _onTransitionedEvent.Invoke(transition);
 
                 newRepresentation.Enter(transition, args);
             }
@@ -224,7 +223,7 @@ namespace Stateless
         public void OnUnhandledTrigger(Action<TState, TTrigger> unhandledTriggerAction)
         {
             if (unhandledTriggerAction == null) throw new ArgumentNullException("unhandledTriggerAction");
-            _unhandledTriggerAction = unhandledTriggerAction;
+            _unhandledTriggerAction = new UnhandledTriggerAction.Sync(unhandledTriggerAction);
         }
 
         /// <summary>
@@ -344,7 +343,7 @@ namespace Stateless
         public void OnTransitioned(Action<Transition> onTransitionAction)
         {
             if (onTransitionAction == null) throw new ArgumentNullException("onTransitionAction");
-            _onTransitioned += onTransitionAction;
+            _onTransitionedEvent.Register(onTransitionAction);
         }
     }
 }
