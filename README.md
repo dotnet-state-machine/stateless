@@ -156,6 +156,25 @@ digraph {
 This can then be rendered by tools that support the DOT graph language, such as the [dot command line tool](http://www.graphviz.org/doc/info/command.html) from [graphviz.org](http://www.graphviz.org) or [viz.js](https://github.com/mdaines/viz.js). See http://www.webgraphviz.com for instant gratification.
 Command line example: `dot -T pdf -o phoneCall.pdf phoneCall.dot` to generate a PDF file.
 
+### Async triggers
+
+On platforms that provide `Task<T>`, the `StateMachine` supports `async` entry/exit actions and so-on:
+
+```csharp
+stateMachine.Configure(State.Assigned)
+    .OnEntryAsync(async () => await SendEmailToAssignee());
+```
+
+Asynchronous handlers must be registered using the `*Async()` methods in these cases.
+
+To fire a trigger that invokes asynchronous actions, the `FireAsync()` method must be used:
+
+```csharp
+await stateMachine.FireAsync(Trigger.Assigned);
+```
+
+**Note:** while `StateMachine` may be used _asynchronously_, is remains single-threaded and may not be used _concurrently_ by multiple threads.
+
 ## Building
 
 Visual Studio 2015 is required to build this project.
