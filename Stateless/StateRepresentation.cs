@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Stateless
 {
     public partial class StateMachine<TState, TTrigger>
     {
-        internal class StateRepresentation
+        internal partial class StateRepresentation
         {
             readonly TState _state;
 
@@ -20,7 +21,7 @@ namespace Stateless
             readonly ICollection<ExitActionBehavior> _exitActions = new List<ExitActionBehavior>();
             internal ICollection<ExitActionBehavior> ExitActions { get { return _exitActions; } }
 
-            readonly ICollection<Action<Transition, object[]>> _internalActions = new List<Action<Transition, object[]>>();
+            readonly ICollection<InternalActionBehaviour> _internalActions = new List<InternalActionBehaviour>();
 
             StateRepresentation _superstate; // null
 
@@ -42,7 +43,7 @@ namespace Stateless
                 return (TryFindLocalHandler(trigger, out handler, t => t.IsGuardConditionMet) ||
                     (Superstate != null && Superstate.TryFindHandler(trigger, out handler)));
             }
-            
+
             bool TryFindLocalHandler(TTrigger trigger, out TriggerBehaviour handler, params Func<TriggerBehaviour, bool>[] filters)
             {
                 ICollection<TriggerBehaviour> possible;
@@ -73,7 +74,7 @@ namespace Stateless
             {
                 Enforce.ArgumentNotNull(action, nameof(action));
                 _entryActions.Add(
-                    new EntryActionBehavior((t, args) =>
+                    new EntryActionBehavior.Sync((t, args) =>
                     {
                         if (t.Trigger.Equals(trigger))
                             action(t, args);
@@ -84,7 +85,7 @@ namespace Stateless
             public void AddEntryAction(Action<Transition, object[]> action, string entryActionDescription)
             {
                 _entryActions.Add(
-                    new EntryActionBehavior(
+                    new EntryActionBehavior.Sync(
                         Enforce.ArgumentNotNull(action, nameof(action)),
                         Enforce.ArgumentNotNull(entryActionDescription, nameof(entryActionDescription))));
             }
@@ -92,24 +93,22 @@ namespace Stateless
             public void AddExitAction(Action<Transition> action, string exitActionDescription)
             {
                 _exitActions.Add(
-                    new ExitActionBehavior(
+                    new ExitActionBehavior.Sync(
                         Enforce.ArgumentNotNull(action, nameof(action)),
                         Enforce.ArgumentNotNull(exitActionDescription, nameof(exitActionDescription))));
             }
-            public void AddInternalAction(Action<Transition, object[]> action)
-            {
-                _internalActions.Add(Enforce.ArgumentNotNull(action, "action"));
-            }
+
             internal void AddInternalAction(TTrigger trigger, Action<Transition, object[]> action)
             {
                 Enforce.ArgumentNotNull(action, "action");
 
-                _internalActions.Add((t, args) =>
+                _internalActions.Add(new InternalActionBehaviour.Sync((t, args) =>
                 {
                     if (t.Trigger.Equals(trigger))
                         action(t, args);
-                });
+                }));
             }
+
             public void Enter(Transition transition, params object[] entryArgs)
             {
                 Enforce.ArgumentNotNull(transition, nameof(transition));
@@ -148,18 +147,19 @@ namespace Stateless
                 Enforce.ArgumentNotNull(transition, nameof(transition));
                 Enforce.ArgumentNotNull(entryArgs, nameof(entryArgs));
                 foreach (var action in _entryActions)
-                    action.Action(transition, entryArgs);
+                    action.Execute(transition, entryArgs);
             }
 
             void ExecuteExitActions(Transition transition)
             {
                 Enforce.ArgumentNotNull(transition, nameof(transition));
                 foreach (var action in _exitActions)
-                    action.Action(transition);
+                    action.Execute(transition);
             }
+
             void ExecuteInternalActions(Transition transition, object[] args)
             {
-                var possibleActions = new List<Action<Transition, object[]>>();
+                var possibleActions = new List<InternalActionBehaviour>();
 
                 // Look for actions in superstate(s) recursivly until we hit the topmost superstate
                 StateRepresentation aStateRep = this;
@@ -172,9 +172,10 @@ namespace Stateless
                 // Execute internal transition event handler
                 foreach (var action in possibleActions)
                 {
-                    action(transition, args);
+                    action.Execute(transition, args);
                 }
             }
+
             public void AddTriggerBehaviour(TriggerBehaviour triggerBehaviour)
             {
                 ICollection<TriggerBehaviour> allowed;
@@ -238,6 +239,7 @@ namespace Stateless
                     return result.ToArray();
                 }
             }
+
             internal void InternalAction(Transition transition, object[] args)
             {
                 Enforce.ArgumentNotNull(transition, "transition");

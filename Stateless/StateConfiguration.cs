@@ -11,7 +11,7 @@ namespace Stateless
         /// <summary>
         /// The configuration for a single state value.
         /// </summary>
-        public class StateConfiguration
+        public partial class StateConfiguration
         {
             private readonly StateMachine<TState, TTrigger> _machine;
             readonly StateRepresentation _representation;
@@ -61,6 +61,7 @@ namespace Stateless
                 _representation.AddInternalAction(trigger, (t, args) => entryAction(t));
                 return this;
             }
+            
             /// <summary>
             /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
             /// </summary>
@@ -483,7 +484,6 @@ namespace Stateless
             {
                 return PermitDynamicIf(trigger, destinationStateSelector, NoGuard);
             }
-
 
             /// <summary>
             /// Accept the specified trigger and transition to the destination state, calculated

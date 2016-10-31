@@ -8,25 +8,16 @@ namespace Stateless
 {
     public partial class StateMachine<TState, TTrigger>
     {
-        internal abstract class EntryActionBehavior
+        internal abstract class InternalActionBehaviour
         {
-            readonly string _actionDescription;
-
-            protected EntryActionBehavior(string actionDescription)
-            {
-                _actionDescription = Enforce.ArgumentNotNull(actionDescription, nameof(actionDescription));
-            }
-
-            internal string ActionDescription { get { return _actionDescription; } }
-
             public abstract void Execute(Transition transition, object[] args);
             public abstract Task ExecuteAsync(Transition transition, object[] args);
 
-            public class Sync : EntryActionBehavior
+            public class Sync : InternalActionBehaviour
             {
                 readonly Action<Transition, object[]> _action;
 
-                public Sync(Action<Transition, object[]> action, string actionDescription) : base(actionDescription)
+                public Sync(Action<Transition, object[]> action)
                 {
                     _action = action;
                 }
@@ -43,11 +34,11 @@ namespace Stateless
                 }
             }
 
-            public class Async : EntryActionBehavior
+            public class Async : InternalActionBehaviour
             {
                 readonly Func<Transition, object[], Task> _action;
 
-                public Async(Func<Transition, object[], Task> action, string actionDescription) : base(actionDescription)
+                public Async(Func<Transition, object[], Task> action)
                 {
                     _action = action;
                 }
