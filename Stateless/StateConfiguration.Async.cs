@@ -71,7 +71,39 @@ namespace Stateless
                 _representation.AddInternalAction(trigger.Trigger, (t, args) => internalAction(ParameterConversion.Unpack<TArg0>(args, 0), t));
                 return this;
             }
-  
+
+            /// <summary>
+            /// Specify an asynchronous action that will execute when activating
+            /// the configured state.
+            /// </summary>
+            /// <param name="activateAction">Action to execute.</param>
+            /// <param name="activateActionDescription">Action description.</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration OnActivateAsync(Func<Task> activateAction, string activateActionDescription = null)
+            {
+                Enforce.ArgumentNotNull(activateAction, nameof(activateAction));
+                _representation.AddActivateAction(
+                    activateAction,
+                    activateActionDescription ?? activateAction.TryGetMethodName());
+                return this;
+            }
+
+            /// <summary>
+            /// Specify an asynchronous action that will execute when deactivating
+            /// the configured state.
+            /// </summary>
+            /// <param name="deactivateAction">Action to execute.</param>
+            /// <param name="deactivateActionDescription">Action description.</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration OnDeactivateAsync(Func<Task> deactivateAction, string deactivateActionDescription = null)
+            {
+                Enforce.ArgumentNotNull(deactivateAction, nameof(deactivateAction));
+                _representation.AddDeactivateAction(
+                    deactivateAction,
+                    deactivateActionDescription ?? deactivateAction.TryGetMethodName());
+                return this;
+            }
+
             /// <summary>
             /// Specify an asynchronous action that will execute when transitioning into
             /// the configured state.
