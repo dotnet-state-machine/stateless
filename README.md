@@ -177,7 +177,8 @@ await stateMachine.FireAsync(Trigger.Assigned);
 
 ## Building
 
-Visual Studio 2015 is required to build this project.
+[Visual Studio 2015 and .NET Core] are required to build this project.
+
 
 ## Project Goals
 
@@ -186,3 +187,5 @@ This page is an almost-complete description of Stateless, and its explicit aim i
 Please use the issue tracker or the if you'd like to report problems or discuss features.
 
 (_Why the name? Stateless implements the set of rules regarding state transitions, but, at least when the delegate version of the constructor is used, doesn't maintain any internal state itself._)
+
+[Visual Studio 2015 and .NET Core]: https://www.microsoft.com/net/core
