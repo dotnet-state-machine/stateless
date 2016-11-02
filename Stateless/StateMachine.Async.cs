@@ -10,6 +10,28 @@ namespace Stateless
     public partial class StateMachine<TState, TTrigger>
     {
         /// <summary>
+        /// Activates current state in asynchronous fashion. Actions associated with activating the currrent state
+        /// will be invoked. The activation is idempotent and subsequent activation of the same current state 
+        /// will not lead to re-execution of activation callbacks.
+        /// </summary>
+        public Task ActivateAsync()
+        {
+            var representativeState = GetRepresentation(State);
+            return representativeState.ActivateAsync();
+        }
+
+        /// <summary>
+        /// Deactivates current state in asynchronous fashion. Actions associated with deactivating the currrent state
+        /// will be invoked. The deactivation is idempotent and subsequent deactivation of the same current state 
+        /// will not lead to re-execution of deactivation callbacks.
+        /// </summary>
+        public Task DeactivateAsync()
+        {
+            var representativeState = GetRepresentation(State);
+            return representativeState.DeactivateAsync();
+        }
+
+        /// <summary>
         /// Transition from the current state via the specified trigger in async fashion.
         /// The target state is determined by the configuration of the current state.
         /// Actions associated with leaving the current state and entering the new one

@@ -173,6 +173,59 @@ namespace Stateless.Tests
 
             Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.Z));
         }
+
+        [Test]
+        public async Task WhenActivateAsync()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            var activated = false;
+            sm.Configure(State.A)
+              .OnActivateAsync(() => Task.Run(()=> activated = true));
+
+            await sm.ActivateAsync();
+
+            Assert.AreEqual(true, activated, "Should await action");
+        }
+
+        [Test]
+        public async Task WhenDeactivateAsync()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            var deactivated = false;
+            sm.Configure(State.A)
+              .OnDeactivateAsync(() => Task.Run(()=> deactivated = true));
+
+            await sm.ActivateAsync();
+            await sm.DeactivateAsync();
+
+            Assert.AreEqual(true, deactivated, "Should await action");
+        }
+
+        [Test]
+        public void WhenSyncActivateAsyncOnActivateAction()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+              .OnActivateAsync(() => TaskResult.Done);
+
+            Assert.Throws<InvalidOperationException>(() => sm.Activate());
+        }
+
+        [Test]
+        public void WhenSyncDeactivateAsyncOnDeactivateAction()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+              .OnDeactivateAsync(() => TaskResult.Done);
+
+            sm.Activate();
+
+            Assert.Throws<InvalidOperationException>(() => sm.Deactivate());
+        }
     }
 }
 

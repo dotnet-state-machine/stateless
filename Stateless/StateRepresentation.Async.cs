@@ -11,6 +11,24 @@ namespace Stateless
     {
         internal partial class StateRepresentation
         {
+            public void AddActivateAction(Func<Task> action, string activateActionDescription)
+            {
+                _activateActions.Add(
+                    new ActivateActionBehaviour.Async(
+                        _state,
+                        Enforce.ArgumentNotNull(action, nameof(action)),
+                        Enforce.ArgumentNotNull(activateActionDescription, nameof(activateActionDescription))));
+            }
+
+            public void AddDeactivateAction(Func<Task> action, string deactivateActionDescription)
+            {
+                _deactivateActions.Add(
+                    new DeactivateActionBehaviour.Async(
+                        _state,
+                        Enforce.ArgumentNotNull(action, nameof(action)),
+                        Enforce.ArgumentNotNull(deactivateActionDescription, nameof(deactivateActionDescription))));
+            }
+
             public void AddEntryAction(TTrigger trigger, Func<Transition, object[], Task> action, string entryActionDescription)
             {
                 Enforce.ArgumentNotNull(action, nameof(action));
@@ -54,6 +72,42 @@ namespace Stateless
                 }));
             }
 
+            public async Task ActivateAsync()
+            {
+                if (_superstate != null)
+                    await _superstate.ActivateAsync();
+
+                if (active)
+                    return;
+
+                await ExecuteActivationActionsAsync();
+                active = true;
+            }
+
+            public async Task DeactivateAsync()
+            {
+                if (!active)
+                    return;
+
+                await ExecuteDeactivationActionsAsync();
+                active = false;
+
+                if (_superstate != null)
+                    await _superstate.DeactivateAsync();
+            }
+
+            async Task ExecuteActivationActionsAsync()
+            {
+                foreach (var action in _activateActions)
+                    await action.ExecuteAsync();
+            }
+
+            async Task ExecuteDeactivationActionsAsync()
+            {
+                foreach (var action in _deactivateActions)
+                    await action.ExecuteAsync();
+            }
+
             public async Task EnterAsync(Transition transition, params object[] entryArgs)
             {
                 Enforce.ArgumentNotNull(transition, nameof(transition));
@@ -61,6 +115,7 @@ namespace Stateless
                 if (transition.IsReentry)
                 {
                     await ExecuteEntryActionsAsync(transition, entryArgs);
+                    await ExecuteActivationActionsAsync();
                 }
                 else if (!Includes(transition.Source))
                 {
@@ -68,6 +123,7 @@ namespace Stateless
                         await _superstate.EnterAsync(transition, entryArgs);
 
                     await ExecuteEntryActionsAsync(transition, entryArgs);
+                    await ExecuteActivationActionsAsync();
                 }
             }
 
@@ -77,11 +133,14 @@ namespace Stateless
 
                 if (transition.IsReentry)
                 {
+                    await ExecuteDeactivationActionsAsync();
                     await ExecuteExitActionsAsync(transition);
                 }
                 else if (!Includes(transition.Destination))
                 {
+                    await ExecuteDeactivationActionsAsync();
                     await ExecuteExitActionsAsync(transition);
+
                     if (_superstate != null)
                         await _superstate.ExitAsync(transition);
                 }
