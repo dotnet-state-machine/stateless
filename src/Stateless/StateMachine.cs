@@ -178,6 +178,28 @@ namespace Stateless
             InternalFire(trigger.Trigger, arg0, arg1, arg2);
         }
 
+        /// <summary>
+        /// Activates current state. Actions associated with activating the currrent state
+        /// will be invoked. The activation is idempotent and subsequent activation of the same current state 
+        /// will not lead to re-execution of activation callbacks.
+        /// </summary>
+        public void Activate()
+        {
+            var representativeState = GetRepresentation(State);
+            representativeState.Activate();
+        }
+
+        /// <summary>
+        /// Deactivates current state. Actions associated with deactivating the currrent state
+        /// will be invoked. The deactivation is idempotent and subsequent deactivation of the same current state 
+        /// will not lead to re-execution of deactivation callbacks.
+        /// </summary>
+        public void Deactivate()
+        {
+            var representativeState = GetRepresentation(State);
+            representativeState.Deactivate();
+        }
+
         void InternalFire(TTrigger trigger, params object[] args)
         {
             TriggerWithParameters configuration;

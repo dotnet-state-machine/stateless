@@ -9,3 +9,4 @@ Stateless.userprefs
 project.lock.json
 artifacts/
 TestResult.xml
+*.orig

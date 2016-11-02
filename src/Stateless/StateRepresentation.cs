@@ -21,9 +21,13 @@ namespace Stateless
             readonly ICollection<ExitActionBehavior> _exitActions = new List<ExitActionBehavior>();
             internal ICollection<ExitActionBehavior> ExitActions { get { return _exitActions; } }
 
+            readonly ICollection<ActivateActionBehaviour> _activateActions = new List<ActivateActionBehaviour>();
+            readonly ICollection<DeactivateActionBehaviour> _deactivateActions = new List<DeactivateActionBehaviour>();
+
             readonly ICollection<InternalActionBehaviour> _internalActions = new List<InternalActionBehaviour>();
 
             StateRepresentation _superstate; // null
+            bool active;
 
             readonly ICollection<StateRepresentation> _substates = new List<StateRepresentation>();
 
@@ -70,6 +74,24 @@ namespace Stateless
                     (Superstate != null && Superstate.TryFindHandlerWithUnmetGuardCondition(trigger, out handler)));
             }
 
+            public void AddActivateAction(Action action, string activateActionDescription)
+            {
+                _activateActions.Add(                    
+                    new ActivateActionBehaviour.Sync(
+                        _state,
+                        Enforce.ArgumentNotNull(action, nameof(action)),
+                        Enforce.ArgumentNotNull(activateActionDescription, nameof(activateActionDescription))));
+            }
+
+            public void AddDeactivateAction(Action action, string deactivateActionDescription)
+            {
+                _deactivateActions.Add(
+                    new DeactivateActionBehaviour.Sync(
+                        _state,
+                        Enforce.ArgumentNotNull(action, nameof(action)),
+                        Enforce.ArgumentNotNull(deactivateActionDescription, nameof(deactivateActionDescription))));
+            }
+
             public void AddEntryAction(TTrigger trigger, Action<Transition, object[]> action, string entryActionDescription)
             {
                 Enforce.ArgumentNotNull(action, nameof(action));
@@ -109,6 +131,42 @@ namespace Stateless
                 }));
             }
 
+            public void Activate()
+            {
+                if (_superstate != null)
+                    _superstate.Activate();
+
+                if (active)
+                    return;
+
+                ExecuteActivationActions();
+                active = true;
+            }
+
+            public void Deactivate()
+            {
+                if (!active)
+                    return;
+
+                ExecuteDeactivationActions();
+                active = false;
+
+                if (_superstate != null)
+                    _superstate.Deactivate();
+            }
+
+            void ExecuteActivationActions()
+            {
+                foreach (var action in _activateActions)
+                    action.Execute();
+            }
+
+            void ExecuteDeactivationActions()
+            {
+                foreach (var action in _deactivateActions)
+                    action.Execute();
+            }
+
             public void Enter(Transition transition, params object[] entryArgs)
             {
                 Enforce.ArgumentNotNull(transition, nameof(transition));
@@ -116,6 +174,7 @@ namespace Stateless
                 if (transition.IsReentry)
                 {
                     ExecuteEntryActions(transition, entryArgs);
+                    ExecuteActivationActions();
                 }
                 else if (!Includes(transition.Source))
                 {
@@ -123,6 +182,7 @@ namespace Stateless
                         _superstate.Enter(transition, entryArgs);
 
                     ExecuteEntryActions(transition, entryArgs);
+                    ExecuteActivationActions();
                 }
             }
 
@@ -132,11 +192,14 @@ namespace Stateless
 
                 if (transition.IsReentry)
                 {
+                    ExecuteDeactivationActions();
                     ExecuteExitActions(transition);
                 }
                 else if (!Includes(transition.Destination))
                 {
+                    ExecuteDeactivationActions();
                     ExecuteExitActions(transition);
+
                     if (_superstate != null)
                         _superstate.Exit(transition);
                 }

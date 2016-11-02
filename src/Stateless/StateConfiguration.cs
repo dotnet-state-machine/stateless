@@ -193,6 +193,38 @@ namespace Stateless
             }
 
             /// <summary>
+            /// Specify an action that will execute when activating
+            /// the configured state.
+            /// </summary>
+            /// <param name="activateAction">Action to execute.</param>
+            /// <param name="activateActionDescription">Action description.</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration OnActivate(Action activateAction, string activateActionDescription = null)
+            {
+                Enforce.ArgumentNotNull(activateAction, nameof(activateAction));
+                _representation.AddActivateAction(
+                    activateAction, 
+                    activateActionDescription ?? activateAction.TryGetMethodName());
+                return this;
+            }
+
+            /// <summary>
+            /// Specify an action that will execute when deactivating
+            /// the configured state.
+            /// </summary>
+            /// <param name="deactivateAction">Action to execute.</param>
+            /// <param name="deactivateActionDescription">Action description.</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration OnDeactivate(Action deactivateAction, string deactivateActionDescription = null)
+            {
+                Enforce.ArgumentNotNull(deactivateAction, nameof(deactivateAction));
+                _representation.AddDeactivateAction(
+                    deactivateAction,
+                    deactivateActionDescription ?? deactivateAction.TryGetMethodName());
+                return this;
+            }
+
+            /// <summary>
             /// Specify an action that will execute when transitioning into
             /// the configured state.
             /// </summary>
