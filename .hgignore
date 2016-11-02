@@ -1,6 +1,0 @@
-glob:bin
-glob:obj
-glob:*.suo
-glob:Build/Help/LastBuild.log
-glob:*.user
-glob:_ReSharper*
