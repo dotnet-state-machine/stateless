@@ -14,7 +14,9 @@
   "language": "en-US",
   "title": "Stateless",
   "buildOptions": {
-    "keyFile": "../../asset/Stateless.snk"
+    "keyFile": "../../asset/Stateless.snk",
+    "xmlDoc": true,
+    "warningsAsErrors": true
   },
   "frameworks": {
     "netstandard1.0": {      
