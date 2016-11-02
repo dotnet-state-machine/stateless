@@ -18,14 +18,14 @@ namespace Stateless
         UnhandledTriggerAction _unhandledTriggerAction;
         OnTransitionedEvent _onTransitionedEvent;
 
-        private class QueuedTrigger
+        class QueuedTrigger
         {
             public TTrigger Trigger { get; set; }
             public object[] Args { get; set; }
         }
 
         readonly Queue<QueuedTrigger> _eventQueue = new Queue<QueuedTrigger>();
-        private bool _firing;
+        bool _firing;
 
         /// <summary>
         /// Construct a state machine with external state storage.
@@ -193,11 +193,6 @@ namespace Stateless
         /// will not lead to re-execution of activation callbacks.
         /// </summary>
         public void Activate()
-        /// Queue events and then fire in order.
-        /// If only one event is queued, this behaves identically to the non-queued version.
-        /// </summary>
-        /// <param name="trigger">  The trigger. </param>
-        /// <param name="args">     A variable-length parameters list containing arguments. </param>
         {
             var representativeState = GetRepresentation(State);
             representativeState.Activate();
@@ -214,15 +209,26 @@ namespace Stateless
             representativeState.Deactivate();
         }
 
+        /// <summary>
+        /// Queue events and then fire in order.
+        /// If only one event is queued, this behaves identically to the non-queued version.
+        /// </summary>
+        /// <param name="trigger">  The trigger. </param>
+        /// <param name="args">     A variable-length parameters list containing arguments. </param>
         void InternalFire(TTrigger trigger, params object[] args)
         {
-            _eventQueue.Enqueue(new QueuedTrigger{Trigger = trigger, Args = args});
             if (_firing)
+            {
+                _eventQueue.Enqueue(new QueuedTrigger { Trigger = trigger, Args = args });
                 return;
+            }
 
             try
             {
                 _firing = true;
+
+                InternalFireOne(trigger, args);
+
                 while (_eventQueue.Count != 0)
                 {
                     var queuedEvent = _eventQueue.Dequeue();
