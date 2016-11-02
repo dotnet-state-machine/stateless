@@ -1,11 +1,7 @@
-version: 2.5.{build}
+version: '{build}'
+skip_tags: true
+image: Visual Studio 2015
 configuration: Release
-assembly_info:
-  patch: true
-  file: '**\AssemblyInfo.*'
-  assembly_version: '{version}.0'
-  assembly_file_version: '{version}.0'
-  assembly_informational_version: '{version}'
 install:
   - ps: mkdir -Force ".\build\" | Out-Null
   - ps: Invoke-WebRequest "https://raw.githubusercontent.com/dotnet/cli/rel/1.0.0-preview2/scripts/obtain/dotnet-install.ps1" -OutFile ".\build\installcli.ps1"
@@ -14,7 +10,7 @@ install:
   - ps: $env:Path = "$env:DOTNET_INSTALL_DIR;$env:Path"
 build_script:
 - ps: ./Build.ps1
-test: off 
+test: off
 artifacts:
 - path: artifacts/Stateless.*.nupkg
 deploy:
@@ -23,5 +19,4 @@ deploy:
     secure: U0b7CQk3G8x+xfzoeGz3o26PyoR4G/DuuJ/G63mMrj+mgrDgV0/JA7/4fqqzO2eH
   on:
     branch: /^(master|dev)$/
-
 

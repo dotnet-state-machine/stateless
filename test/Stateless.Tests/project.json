@@ -1,0 +1,31 @@
+{
+  "version": "1.0.0-*",
+
+  "dependencies": {
+    "NUnit": "3.4.1",
+    "dotnet-test-nunit": "3.4.0-beta-2",
+    "Stateless": {
+      "target": "project"      
+    }
+  },
+  "testRunner": "nunit",
+  "buildOptions": {
+    "keyFile": "../../asset/Stateless.snk",
+    "warningsAsErrors": true,
+    "define": ["TASKS"]
+  },
+  "frameworks": {
+    "netcoreapp1.0": {
+      "imports": "portable-net45+win8",
+      "dependencies": {
+        "Microsoft.NETCore.App": {
+          "version": "1.0.0-*",
+          "type": "platform"
+        }
+      }
+    },
+    "net451": {
+      "imports": [ "portable-net45+win8+wpa81+wp8" ]
+    }
+  }
+}
