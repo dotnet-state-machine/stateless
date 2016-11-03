@@ -1,4 +1,4 @@
-# Stateless [![Build status](https://ci.appveyor.com/api/projects/status/github/dotnet-state-machine/stateless?svg=true)](https://ci.appveyor.com/project/DotnetStateMachine/stateless/branch/master)
+# Stateless [![Build status](https://ci.appveyor.com/api/projects/status/github/dotnet-state-machine/stateless?svg=true)](https://ci.appveyor.com/project/DotnetStateMachine/stateless/branch/master) [![NuGet Pre Release](https://img.shields.io/nuget/vpre/Stateless.svg)](https://www.nuget.org/packages/stateless) [![Join the chat at https://gitter.im/dotnet-state-machine/stateless](https://badges.gitter.im/dotnet-state-machine/stateless.svg)](https://gitter.im/dotnet-state-machine/stateless?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Stack Overflow](https://img.shields.io/badge/stackoverflow-tag-orange.svg)](http://stackoverflow.com/questions/tagged/stateless-state-machine)
 
 **Create *state machines* and lightweight *state machine-based workflows* directly in .NET code:**
 
@@ -141,6 +141,7 @@ It can be useful to visualize state machines on runtime. With this approach the 
 ```csharp
 phoneCall.Configure(State.OffHook)
     .PermitIf(Trigger.CallDialed, State.Ringing, IsValidNumber);
+    
 string graph = phoneCall.ToDotGraph();
 ```
 
@@ -148,23 +149,43 @@ The `StateMachine.ToDotGraph()` method returns a string representation of the st
 
 ```dot
 digraph {
- OffHook -> Ringing [label="CallDialed [IsValidNumber]"];
+  OffHook -> Ringing [label="CallDialed [IsValidNumber]"];
 }
 ```
 
 This can then be rendered by tools that support the DOT graph language, such as the [dot command line tool](http://www.graphviz.org/doc/info/command.html) from [graphviz.org](http://www.graphviz.org) or [viz.js](https://github.com/mdaines/viz.js). See http://www.webgraphviz.com for instant gratification.
 Command line example: `dot -T pdf -o phoneCall.pdf phoneCall.dot` to generate a PDF file.
 
+### Async triggers
+
+On platforms that provide `Task<T>`, the `StateMachine` supports `async` entry/exit actions and so-on:
+
+```csharp
+stateMachine.Configure(State.Assigned)
+    .OnEntryAsync(async () => await SendEmailToAssignee());
+```
+
+Asynchronous handlers must be registered using the `*Async()` methods in these cases.
+
+To fire a trigger that invokes asynchronous actions, the `FireAsync()` method must be used:
+
+```csharp
+await stateMachine.FireAsync(Trigger.Assigned);
+```
+
+**Note:** while `StateMachine` may be used _asynchronously_, is remains single-threaded and may not be used _concurrently_ by multiple threads.
+
 ## Building
 
-Visual Studio 2015 is required to build this project.
+[Visual Studio 2015 and .NET Core] are required to build this project.
+
 
 ## Project Goals
-
-Stateless is a base for exploration of generic and functional programming to drive workflow in .NET.
 
 This page is an almost-complete description of Stateless, and its explicit aim is to remain minimal.
 
 Please use the issue tracker or the if you'd like to report problems or discuss features.
 
 (_Why the name? Stateless implements the set of rules regarding state transitions, but, at least when the delegate version of the constructor is used, doesn't maintain any internal state itself._)
+
+[Visual Studio 2015 and .NET Core]: https://www.microsoft.com/net/core
