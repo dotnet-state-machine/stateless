@@ -68,7 +68,7 @@ Entry/Exit event handlers can be supplied with a parameter of type `Transition` 
 
 ### External State Storage
 
-Stateless has been designed with encapsulation within an ORM-ed domain model in mind. Some ORMs place requirements upon where mapped data may be stored. To this end, the `StateMachine` constructor can accept function arguments that will be used to read and write the state values:
+Stateless is designed to be embedded in various application models. For example, some ORMs place requirements upon where mapped data may be stored, and UI frameworks often require state to be stored in special "bindable" properties. To this end, the `StateMachine` constructor can accept function arguments that will be used to read and write the state values:
 
 ```csharp
 var stateMachine = new StateMachine<State, Trigger>(
@@ -173,7 +173,7 @@ To fire a trigger that invokes asynchronous actions, the `FireAsync()` method mu
 await stateMachine.FireAsync(Trigger.Assigned);
 ```
 
-**Note:** while `StateMachine` may be used _asynchronously_, is remains single-threaded and may not be used _concurrently_ by multiple threads.
+**Note:** while `StateMachine` may be used _asynchronously_, it remains single-threaded and may not be used _concurrently_ by multiple threads.
 
 ## Building
 
