@@ -177,7 +177,7 @@ await stateMachine.FireAsync(Trigger.Assigned);
 
 ## Building
 
-[Visual Studio 2015 and .NET Core] are required to build this project.
+Stateless runs on .NET 4.0+ and practically all modern .NET platforms by targeting .NET Standard 1.0. [Visual Studio 2015 and .NET Core] are required to build the solution.
 
 
 ## Project Goals
