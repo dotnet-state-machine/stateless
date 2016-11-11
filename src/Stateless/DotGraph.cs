@@ -195,9 +195,10 @@ namespace Stateless
             var source = string.IsNullOrEmpty(sourceName) ? stateRepresentation.UnderlyingState.ToString() : sourceName;
             foreach (var triggerBehaviours in stateRepresentation.TriggerBehaviours)
             {
-                string destinationString = "";
+                
                 foreach (TriggerBehaviour behaviour in triggerBehaviours.Value)
                 {
+                    string destinationString = "";
                     TState destination = default(TState);
 
                     var triggerBehaviour = behaviour as TransitioningTriggerBehaviour;

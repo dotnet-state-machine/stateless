@@ -195,5 +195,20 @@ namespace Stateless.Tests
 
             Assert.AreEqual(expected, sm.ToDotGraph());
         }
+
+        [Test]
+        public void test()
+        {
+            // Ignored triggers do not appear in the graph
+            var expected = $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}\tA [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"A\">A</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}A -> B [   style=\"solid\",label=\"X\" ];  {System.Environment.NewLine}}}";
+            Func<bool> anonymousGuard = () => true;
+            var sm = new StateMachine<State, Trigger>(State.A);
+            sm.Configure(State.A)
+            .OnEntry(() => { },"OnEntry")
+            .Permit(Trigger.X, State.B)
+            .PermitIf(Trigger.Y, State.C, anonymousGuard, "IsTriggerY")
+            .PermitIf(Trigger.Z, State.B, anonymousGuard, "IsTriggerZ");
+            Assert.AreEqual(expected, sm.ToDotGraph());
+        }
     }
 }
