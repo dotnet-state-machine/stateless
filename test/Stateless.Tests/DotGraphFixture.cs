@@ -24,19 +24,8 @@ namespace Stateless.Tests
         [Test]
         public void SimpleTransition()
         {
-            var expected = @"digraph {
-compound=true;
-rankdir=""LR""
-	A [   label=<
-	<TABLE BORDER=""1"" CELLBORDER=""1"" CELLSPACING=""0"" >
-	<tr><td>
-	</td></tr>
-	<TR><TD PORT=""A"">A</TD></TR><tr><td>
-	</td></tr>
-	</TABLE>>,shape=""plaintext"",color=""blue"" ];
-
-A -> B [   style=""solid"",label=""X"" ];  
-}";
+            var expected =
+                $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}\tA [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"A\">A</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}A -> B [   style=\"solid\",label=\"X\" ];  {System.Environment.NewLine}}}";
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -49,20 +38,7 @@ A -> B [   style=""solid"",label=""X"" ];
         [Test]
         public void TwoSimpleTransitions()
         {
-            var expected = @"digraph {
-compound=true;
-rankdir=""LR""
-	A [   label=<
-	<TABLE BORDER=""1"" CELLBORDER=""1"" CELLSPACING=""0"" >
-	<tr><td>
-	</td></tr>
-	<TR><TD PORT=""A"">A</TD></TR><tr><td>
-	</td></tr>
-	</TABLE>>,shape=""plaintext"",color=""blue"" ];
-
-A -> B [   style=""solid"",label=""X"" ]; 
-A -> C [   style=""solid"",label=""Y"" ];  
-}";
+            var expected = $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}\tA [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"A\">A</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}A -> B [   style=\"solid\",label=\"X\" ]; {System.Environment.NewLine}A -> C [   style=\"solid\",label=\"Y\" ];  {System.Environment.NewLine}}}";
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -78,29 +54,7 @@ A -> C [   style=""solid"",label=""Y"" ];
         {
             Func<bool> anonymousGuard = () => true;
 
-            var expected = @"digraph {
-compound=true;
-rankdir=""LR""
-	A [   label=<
-	<TABLE BORDER=""1"" CELLBORDER=""1"" CELLSPACING=""0"" >
-	<tr><td>
-	</td></tr>
-	<TR><TD PORT=""A"">A</TD></TR><tr><td>
-	</td></tr>
-	</TABLE>>,shape=""plaintext"",color=""blue"" ];
-	B [   label=<
-	<TABLE BORDER=""1"" CELLBORDER=""1"" CELLSPACING=""0"" >
-	<tr><td>
-	</td></tr>
-	<TR><TD PORT=""B"">B</TD></TR><tr><td>
-	</td></tr>
-	</TABLE>>,shape=""plaintext"",color=""blue"" ];
-
-A -> B [   style=""solid"",label=""X " + anonymousGuard.TryGetMethodName() + @""" ]; 
-}";
-                
-              
-
+            var expected = $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}\tA [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"A\">A</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}\tB [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"B\">B</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}A -> B [   style=\"solid\",label=\"X " + anonymousGuard.TryGetMethodName() + $"\" ]; {System.Environment.NewLine}}}";
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
@@ -115,19 +69,7 @@ A -> B [   style=""solid"",label=""X " + anonymousGuard.TryGetMethodName() + @""
         {
             Func<bool> anonymousGuard = () => true;
 
-            var expected = @"digraph {
-compound=true;
-rankdir=""LR""
-	A [   label=<
-	<TABLE BORDER=""1"" CELLBORDER=""1"" CELLSPACING=""0"" >
-	<tr><td>
-	</td></tr>
-	<TR><TD PORT=""A"">A</TD></TR><tr><td>
-	</td></tr>
-	</TABLE>>,shape=""plaintext"",color=""blue"" ];
-
-A -> B [   style=""solid"",label=""X description"" ]; 
-}";
+            var expected = $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}\tA [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"A\">A</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}A -> B [   style=\"solid\",label=\"X description\" ]; {System.Environment.NewLine}}}";
         var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
@@ -139,19 +81,7 @@ A -> B [   style=""solid"",label=""X description"" ];
         [Test]
         public void WhenDiscriminatedByNamedDelegate()
         {
-            var expected = @"digraph {
-compound=true;
-rankdir=""LR""
-	A [   label=<
-	<TABLE BORDER=""1"" CELLBORDER=""1"" CELLSPACING=""0"" >
-	<tr><td>
-	</td></tr>
-	<TR><TD PORT=""A"">A</TD></TR><tr><td>
-	</td></tr>
-	</TABLE>>,shape=""plaintext"",color=""blue"" ];
-
-A -> B [   style=""solid"",label=""X IsTrue"" ]; 
-}";
+            var expected = $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}\tA [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"A\">A</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}A -> B [   style=\"solid\",label=\"X IsTrue\" ]; {System.Environment.NewLine}}}";
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -164,26 +94,7 @@ A -> B [   style=""solid"",label=""X IsTrue"" ];
         [Test]
         public void WhenDiscriminatedByNamedDelegateWithDescription()
         {
-            var expected = @"digraph {
-compound=true;
-rankdir=""LR""
-	A [   label=<
-	<TABLE BORDER=""1"" CELLBORDER=""1"" CELLSPACING=""0"" >
-	<tr><td>
-	</td></tr>
-	<TR><TD PORT=""A"">A</TD></TR><tr><td>
-	</td></tr>
-	</TABLE>>,shape=""plaintext"",color=""blue"" ];
-	B [   label=<
-	<TABLE BORDER=""1"" CELLBORDER=""1"" CELLSPACING=""0"" >
-	<tr><td>
-	</td></tr>
-	<TR><TD PORT=""B"">B</TD></TR><tr><td>
-	</td></tr>
-	</TABLE>>,shape=""plaintext"",color=""blue"" ];
-
-A -> B [   style=""solid"",label=""X description"" ]; 
-}";
+            var expected = $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}\tA [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"A\">A</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}\tB [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"B\">B</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}A -> B [   style=\"solid\",label=\"X description\" ]; {System.Environment.NewLine}}}";
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -196,27 +107,7 @@ A -> B [   style=""solid"",label=""X description"" ];
         [Test]
         public void DestinationStateIsDynamic()
         {
-            var expected = @"digraph {
-compound=true;
-rankdir=""LR""
-	A [   label=<
-	<TABLE BORDER=""1"" CELLBORDER=""1"" CELLSPACING=""0"" >
-	<tr><td>
-	</td></tr>
-	<TR><TD PORT=""A"">A</TD></TR><tr><td>
-	</td></tr>
-	</TABLE>>,shape=""plaintext"",color=""blue"" ];
-
-	Unk0_A [   label=<
-	<TABLE BORDER=""1"" CELLBORDER=""1"" CELLSPACING=""0"" >
-	<tr><td>
-	</td></tr>
-	<TR><TD PORT=""Unk0_A"">Unk0_A</TD></TR><tr><td>
-	</td></tr>
-	</TABLE>>,shape=""plaintext"",color=""blue"" ];
-
-A -> Unk0_A [   style=""solid"",label=""X"" ];  
-}";
+            var expected = $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}\tA [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"A\">A</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}\tUnk0_A [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"Unk0_A\">Unk0_A</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}A -> Unk0_A [   style=\"solid\",label=\"X\" ];  {System.Environment.NewLine}}}";
 
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A)
@@ -228,27 +119,7 @@ A -> Unk0_A [   style=""solid"",label=""X"" ];
         [Test]
         public void DestinationStateIsCalculatedBasedOnTriggerParameters()
         {
-            var expected = @"digraph {
-compound=true;
-rankdir=""LR""
-	A [   label=<
-	<TABLE BORDER=""1"" CELLBORDER=""1"" CELLSPACING=""0"" >
-	<tr><td>
-	</td></tr>
-	<TR><TD PORT=""A"">A</TD></TR><tr><td>
-	</td></tr>
-	</TABLE>>,shape=""plaintext"",color=""blue"" ];
-
-	Unk0_A [   label=<
-	<TABLE BORDER=""1"" CELLBORDER=""1"" CELLSPACING=""0"" >
-	<tr><td>
-	</td></tr>
-	<TR><TD PORT=""Unk0_A"">Unk0_A</TD></TR><tr><td>
-	</td></tr>
-	</TABLE>>,shape=""plaintext"",color=""blue"" ];
-
-A -> Unk0_A [   style=""solid"",label=""X"" ];  
-}".Replace("\r\n", System.Environment.NewLine);
+            var expected = $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}\tA [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"A\">A</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}\tUnk0_A [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"Unk0_A\">Unk0_A</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}A -> Unk0_A [   style=\"solid\",label=\"X\" ];  {System.Environment.NewLine}}}".Replace("{System.Environment.NewLine}", System.Environment.NewLine);
 
             var sm = new StateMachine<State, Trigger>(State.A);
             var trigger = sm.SetTriggerParameters<int>(Trigger.X);
@@ -261,22 +132,7 @@ A -> Unk0_A [   style=""solid"",label=""X"" ];
         [Test]
         public void OnEntryWithAnonymousActionAndDescription()
         {
-            var expected = @"digraph {
-compound=true;
-rankdir=""LR""
-	A [   label=<
-	<TABLE BORDER=""1"" CELLBORDER=""1"" CELLSPACING=""0"" >
-	<tr><td>
-		<TABLE BORDER=""0"" CELLBORDER=""1"" CELLSPACING=""0"" BGCOLOR=""yellow"">
-		<TR><TD><sup>enteredA</sup></TD></TR>
-		</TABLE>
-
-	</td></tr>
-	<TR><TD PORT=""A"">A</TD></TR><tr><td>
-	</td></tr>
-	</TABLE>>,shape=""plaintext"",color=""blue"" ];
-
-}";
+            var expected = $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}\tA [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t\t<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" BGCOLOR=\"yellow\">{System.Environment.NewLine}\t\t<TR><TD><sup>enteredA</sup></TD></TR>{System.Environment.NewLine}\t\t</TABLE>{System.Environment.NewLine}{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"A\">A</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}}}";
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -289,22 +145,7 @@ rankdir=""LR""
         [Test]
         public void OnEntryWithNamedDelegateActionAndDescription()
         {
-            var expected = @"digraph {
-compound=true;
-rankdir=""LR""
-	A [   label=<
-	<TABLE BORDER=""1"" CELLBORDER=""1"" CELLSPACING=""0"" >
-	<tr><td>
-		<TABLE BORDER=""0"" CELLBORDER=""1"" CELLSPACING=""0"" BGCOLOR=""yellow"">
-		<TR><TD><sup>enteredA</sup></TD></TR>
-		</TABLE>
-
-	</td></tr>
-	<TR><TD PORT=""A"">A</TD></TR><tr><td>
-	</td></tr>
-	</TABLE>>,shape=""plaintext"",color=""blue"" ];
-
-}";
+            var expected = $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}\tA [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t\t<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" BGCOLOR=\"yellow\">{System.Environment.NewLine}\t\t<TR><TD><sup>enteredA</sup></TD></TR>{System.Environment.NewLine}\t\t</TABLE>{System.Environment.NewLine}{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"A\">A</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}}}";
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -317,22 +158,7 @@ rankdir=""LR""
         [Test]
         public void OnExitWithAnonymousActionAndDescription()
         {
-            var expected = @"digraph {
-compound=true;
-rankdir=""LR""
-	A [   label=<
-	<TABLE BORDER=""1"" CELLBORDER=""1"" CELLSPACING=""0"" >
-	<tr><td>
-	</td></tr>
-	<TR><TD PORT=""A"">A</TD></TR><tr><td>
-		<TABLE BORDER=""0"" CELLBORDER=""1"" CELLSPACING=""0"" BGCOLOR=""yellow"">
-		<TR><TD><sup>exitA</sup></TD></TR>
-		</TABLE>
-
-	</td></tr>
-	</TABLE>>,shape=""plaintext"",color=""blue"" ];
-
-}";
+            var expected = $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}\tA [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"A\">A</TD></TR><tr><td>{System.Environment.NewLine}\t\t<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" BGCOLOR=\"yellow\">{System.Environment.NewLine}\t\t<TR><TD><sup>exitA</sup></TD></TR>{System.Environment.NewLine}\t\t</TABLE>{System.Environment.NewLine}{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}}}";
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -345,22 +171,7 @@ rankdir=""LR""
         [Test]
         public void OnExitWithNamedDelegateActionAndDescription()
         {
-            var expected = @"digraph {
-compound=true;
-rankdir=""LR""
-	A [   label=<
-	<TABLE BORDER=""1"" CELLBORDER=""1"" CELLSPACING=""0"" >
-	<tr><td>
-	</td></tr>
-	<TR><TD PORT=""A"">A</TD></TR><tr><td>
-		<TABLE BORDER=""0"" CELLBORDER=""1"" CELLSPACING=""0"" BGCOLOR=""yellow"">
-		<TR><TD><sup>exitA</sup></TD></TR>
-		</TABLE>
-
-	</td></tr>
-	</TABLE>>,shape=""plaintext"",color=""blue"" ];
-
-}";
+            var expected = $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}\tA [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"A\">A</TD></TR><tr><td>{System.Environment.NewLine}\t\t<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" BGCOLOR=\"yellow\">{System.Environment.NewLine}\t\t<TR><TD><sup>exitA</sup></TD></TR>{System.Environment.NewLine}\t\t</TABLE>{System.Environment.NewLine}{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}}}";
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -374,19 +185,7 @@ rankdir=""LR""
         public void TransitionWithIgnore()
         {
             // Ignored triggers do not appear in the graph
-            var expected = @"digraph {
-compound=true;
-rankdir=""LR""
-	A [   label=<
-	<TABLE BORDER=""1"" CELLBORDER=""1"" CELLSPACING=""0"" >
-	<tr><td>
-	</td></tr>
-	<TR><TD PORT=""A"">A</TD></TR><tr><td>
-	</td></tr>
-	</TABLE>>,shape=""plaintext"",color=""blue"" ];
-
-A -> B [   style=""solid"",label=""X"" ];  
-}";
+            var expected = $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}\tA [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"A\">A</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}A -> B [   style=\"solid\",label=\"X\" ];  {System.Environment.NewLine}}}";
 
         var sm = new StateMachine<State, Trigger>(State.A);
 
