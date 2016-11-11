@@ -269,7 +269,7 @@ namespace Stateless
                 return OnEntryFrom(
                     trigger,
                     t => entryAction(),
-                    entryActionDescription ?? entryAction.TryGetMethodName());
+                    entryActionDescription ?? $"{entryAction.TryGetMethodName()}[{trigger}]");
             }
 
             /// <summary>
@@ -286,7 +286,7 @@ namespace Stateless
                 _representation.AddEntryAction(
                     trigger,
                     (t, args) => entryAction(t),
-                    entryActionDescription ?? entryAction.TryGetMethodName());
+                    entryActionDescription ?? $"{entryAction.TryGetMethodName()}[{trigger}]");
                 return this;
             }
 
@@ -305,7 +305,7 @@ namespace Stateless
                 return OnEntryFrom<TArg0>(
                     trigger,
                     (a0, t) => entryAction(a0),
-                    entryActionDescription ?? entryAction.TryGetMethodName());
+                    entryActionDescription ?? $"{entryAction.TryGetMethodName()}[{trigger.Trigger}]");
             }
 
             /// <summary>
@@ -325,7 +325,7 @@ namespace Stateless
                     trigger.Trigger,
                     (t, args) => entryAction(
                         ParameterConversion.Unpack<TArg0>(args, 0), t),
-                        entryActionDescription ?? entryAction.TryGetMethodName());
+                        entryActionDescription ?? $"{entryAction.TryGetMethodName()}[{trigger.Trigger}]");
                 return this;
             }
 
@@ -344,7 +344,7 @@ namespace Stateless
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
                 return OnEntryFrom<TArg0, TArg1>(
                     trigger, 
-                    (a0, a1, t) => entryAction(a0, a1), entryActionDescription ?? entryAction.TryGetMethodName());
+                    (a0, a1, t) => entryAction(a0, a1), entryActionDescription ?? $"{entryAction.TryGetMethodName()}[{trigger.Trigger}]");
             }
 
             /// <summary>
@@ -363,7 +363,7 @@ namespace Stateless
                 Enforce.ArgumentNotNull(trigger, nameof(trigger));
                 _representation.AddEntryAction(trigger.Trigger, (t, args) => entryAction(
                     ParameterConversion.Unpack<TArg0>(args, 0),
-                    ParameterConversion.Unpack<TArg1>(args, 1), t), entryActionDescription ?? entryAction.TryGetMethodName());
+                    ParameterConversion.Unpack<TArg1>(args, 1), t), entryActionDescription ?? $"{entryAction.TryGetMethodName()}[{trigger.Trigger}]");
                 return this;
             }
 
@@ -383,7 +383,7 @@ namespace Stateless
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
                 return OnEntryFrom<TArg0, TArg1, TArg2>(
                     trigger, 
-                    (a0, a1, a2, t) => entryAction(a0, a1, a2), entryActionDescription ?? entryAction.TryGetMethodName());
+                    (a0, a1, a2, t) => entryAction(a0, a1, a2), entryActionDescription ?? $"{entryAction.TryGetMethodName()}[{trigger.Trigger}]");
             }
 
             /// <summary>
@@ -404,7 +404,7 @@ namespace Stateless
                 _representation.AddEntryAction(trigger.Trigger, (t, args) => entryAction(
                     ParameterConversion.Unpack<TArg0>(args, 0),
                     ParameterConversion.Unpack<TArg1>(args, 1),
-                    ParameterConversion.Unpack<TArg2>(args, 2), t), entryActionDescription ?? entryAction.TryGetMethodName());
+                    ParameterConversion.Unpack<TArg2>(args, 2), t), entryActionDescription ?? $"{entryAction.TryGetMethodName()}[{trigger.Trigger}]");
                 return this;
             }
 

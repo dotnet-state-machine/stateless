@@ -197,18 +197,27 @@ namespace Stateless.Tests
         }
 
         [Test]
-        public void test()
+        public void OnEntryWithTriggerParameter()
         {
             // Ignored triggers do not appear in the graph
-            var expected = $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}\tA [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"A\">A</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}A -> B [   style=\"solid\",label=\"X\" ];  {System.Environment.NewLine}}}";
+            var expected =
+                $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}\tA [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t\t<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" BGCOLOR=\"yellow\">{System.Environment.NewLine}\t\t<TR><TD><sup>OnEntry</sup></TD></TR>{System.Environment.NewLine}\t\t<TR><TD><sup>TestEntryAction[X]</sup></TD></TR>{System.Environment.NewLine}\t\t<TR><TD><sup>TestEntryActionString[Y]</sup></TD></TR>{System.Environment.NewLine}\t\t</TABLE>{System.Environment.NewLine}{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"A\">A</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}A -> B [   style=\"solid\",label=\"X\" ]; {System.Environment.NewLine}A -> C [   style=\"solid\",label=\"Y IsTriggerY\" ];{System.Environment.NewLine}A -> B [   style=\"solid\",label=\"Z IsTriggerZ\" ]; {System.Environment.NewLine}}}";
             Func<bool> anonymousGuard = () => true;
             var sm = new StateMachine<State, Trigger>(State.A);
+            var parmTrig = sm.SetTriggerParameters<string>(Trigger.Y);
+
             sm.Configure(State.A)
             .OnEntry(() => { },"OnEntry")
+            .OnEntryFrom(Trigger.X, TestEntryAction)
+            .OnEntryFrom(parmTrig, TestEntryActionString)
             .Permit(Trigger.X, State.B)
             .PermitIf(Trigger.Y, State.C, anonymousGuard, "IsTriggerY")
             .PermitIf(Trigger.Z, State.B, anonymousGuard, "IsTriggerZ");
+            
             Assert.AreEqual(expected, sm.ToDotGraph());
         }
+
+        private void TestEntryAction() { }
+        private void TestEntryActionString(string val) { }
     }
 }
