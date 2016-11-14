@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using Stateless.Dot;
+using Stateless.Core.Dot;
 
 namespace Stateless
 {
@@ -11,20 +11,19 @@ namespace Stateless
     public partial class StateMachine<TState, TTrigger>
     {
 
-        private Dictionary<string, string> clusterDictionary;
-        private List<string> _handledStates;
-        private List<string> _formattedNodesList;
-        private FormatList _nodeShapeState;
-        private FormatList _clusterFormat;
-        private FormatList _edgeShape;
-        private FormatList _exitEdges;
-        private Rank _ranks;
+        Dictionary<string, string> clusterDictionary;
+        List<string> _handledStates;
+        List<string> _formattedNodesList;
+        FormatList _nodeShapeState;
+        FormatList _clusterFormat;
+        FormatList _edgeShape;
+        FormatList _exitEdges;
 
         private void BuildFormatters()
         {
             _nodeShapeState = new FormatList()
                 .Add(new Shape(ShapeType.Mrecord))
-                .Add(new Color(ShapeColor.blue));
+                .Add(new Color(HtmlColor.blue));
             _clusterFormat = new FormatList()
                 .Add(new Label("placeholder"));
             _edgeShape = new FormatList()
@@ -44,7 +43,6 @@ namespace Stateless
             clusterDictionary = new Dictionary<string, string>();
             _handledStates  =new List<string>();
             _formattedNodesList = new List<string>();
-            _ranks = new Rank();
             BuildFormatters();
             FillClusterNames();
 
@@ -68,7 +66,6 @@ namespace Stateless
                 if (behaviours.Length > 0)
                     dirgraphText += $"{System.Environment.NewLine}{string.Join(System.Environment.NewLine, behaviours)} ";
             }
-            dirgraphText += _ranks;
 
             dirgraphText += $"{System.Environment.NewLine}}}";
             return dirgraphText;
@@ -118,7 +115,6 @@ namespace Stateless
             {
                 var clusterName = $"cluster{i++}";
                 clusterDictionary.Add(state.Key.ToString(), clusterName);
-                Rank.TryAdd(_ranks.ClustersList, clusterName);
             }
         }
         /// <summary>
@@ -182,7 +178,7 @@ namespace Stateless
             _nodeShapeState = new FormatList()
                 .Add(new Label(label).IsHTML())
                 .Add(new Shape(ShapeType.plaintext))
-                .Add(new Color(ShapeColor.blue))
+                .Add(new Color(HtmlColor.blue))
                 ;
             return $"\t{sourceName} {_nodeShapeState}{System.Environment.NewLine}";
         }

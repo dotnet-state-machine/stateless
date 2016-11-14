@@ -1,10 +1,10 @@
-﻿namespace Stateless.Dot
+﻿namespace Stateless.Core.Dot
 {
     class Format
     {
         protected string FormatName;
         protected string FormatValue;
-        private bool _isHtml;
+        bool _isHtml;
 
         public override string ToString()
         {

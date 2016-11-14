@@ -1,4 +1,4 @@
-﻿namespace Stateless.Dot
+﻿namespace Stateless.Core.Dot
 {
     class Sides : Format
     {

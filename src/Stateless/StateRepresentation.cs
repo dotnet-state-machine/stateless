@@ -280,6 +280,7 @@ namespace Stateless
             {
                 return _substates;
             }
+
             public bool Includes(TState state)
             {
                 return _state.Equals(state) || _substates.Any(s => s.Includes(state));

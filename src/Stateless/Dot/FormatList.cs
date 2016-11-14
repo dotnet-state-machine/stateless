@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Stateless.Dot
+namespace Stateless.Core.Dot
 {
     class FormatList
     {
-        private readonly List<Format> _formats;
-        private string _ltail;
-        private string _lhead;
+        readonly List<Format> _formats;
+        string _ltail;
+        string _lhead;
 
         public FormatList()
         {

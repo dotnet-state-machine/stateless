@@ -1,4 +1,4 @@
-﻿namespace Stateless.Dot
+﻿namespace Stateless.Core.Dot
 {
     enum ShapeStyle
     {
@@ -8,6 +8,5 @@
         dotted,
         invis,
         filled
-
     }
 }

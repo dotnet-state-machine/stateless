@@ -1,6 +1,6 @@
-﻿namespace Stateless.Dot
+﻿namespace Stateless.Core.Dot
 {
-    enum ShapeColor
+    enum HtmlColor
     {
         aliceblue, antiquewhite, antiquewhite1, antiquewhite2, antiquewhite3,
         antiquewhite4, aquamarine, aquamarine1, aquamarine2, aquamarine3,
