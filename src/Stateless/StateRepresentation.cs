@@ -36,6 +36,11 @@ namespace Stateless
                 _state = state;
             }
 
+            internal ICollection<StateRepresentation> GetSubstates()
+            {
+                return _substates;
+            }
+
             public bool CanHandle(TTrigger trigger)
             {
                 TriggerBehaviour unused;
