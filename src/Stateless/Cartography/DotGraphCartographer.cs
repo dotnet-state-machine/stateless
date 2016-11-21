@@ -1,8 +1,6 @@
 ﻿using Stateless.Cartography;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Stateless.Core.Cartography
 {
@@ -27,21 +25,17 @@ namespace Stateless.Core.Cartography
 
             foreach (var stateCfg in resources)
             {
-                unknownDestinations.AddRange(stateCfg.DynamicTransitions.Select(t => t.Value.DestinationStateText));
+                unknownDestinations.AddRange(stateCfg.DynamicTransitions.Select(t => t.Value.Destination));
 
-                var source = stateCfg.StateText;
-                foreach (var behaviours in stateCfg.Transitions.Concat(stateCfg.InternalTransitions).Concat(stateCfg.DynamicTransitions))
+                var source = stateCfg.UnderlyingState.ToString();
+                foreach (var behaviours in stateCfg.Transitions.Concat(stateCfg.InternalTransitions))
                 {
-                    var behaviour = behaviours.Value;
-                    string destination;
+                    HandleTransitions(ref lines, source, behaviours.Key.ToString(), behaviours.Value.DestinationState.ToString(), behaviours.Value.GuardDescription);
+                }
 
-                    destination = behaviour.DestinationStateText;
-
-                    string line = string.IsNullOrWhiteSpace(behaviour.GuardDescription) ?
-                        string.Format(" {0} -> {1} [label=\"{2}\"];", source, destination, behaviours.Key) :
-                        string.Format(" {0} -> {1} [label=\"{2} [{3}]\"];", source, destination, behaviours.Key, behaviour.GuardDescription);
-
-                    lines.Add(line);
+                foreach (var behaviours in stateCfg.DynamicTransitions)
+                {
+                    HandleTransitions(ref lines, source, behaviours.Key.ToString(), behaviours.Value.Destination, behaviours.Value.GuardDescription);
                 }
             }
 
@@ -57,7 +51,7 @@ namespace Stateless.Core.Cartography
 
                 foreach (var stateCfg in resources)
                 {
-                    var source = stateCfg.StateText;
+                    var source = stateCfg.UnderlyingState.ToString();
 
                     foreach (var entryActionBehaviour in stateCfg.EntryActions)
                     {
@@ -78,5 +72,13 @@ namespace Stateless.Core.Cartography
                    "}";
         }
 
+        private static void HandleTransitions(ref List<string> lines, string sourceState, string trigger, string destination, string guardDescription)
+        {
+            string line = string.IsNullOrWhiteSpace(guardDescription) ?
+                string.Format(" {0} -> {1} [label=\"{2}\"];", sourceState, destination, trigger) :
+                string.Format(" {0} -> {1} [label=\"{2} [{3}]\"];", sourceState, destination, trigger, guardDescription);
+
+            lines.Add(line);
+        }
     }
 }

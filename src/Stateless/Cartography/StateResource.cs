@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Stateless.Cartography
@@ -12,7 +13,7 @@ namespace Stateless.Cartography
     {
         internal StateResource(StateMachine<TState, TTrigger>.StateRepresentation stateReperesentation)
         {
-            StateText = stateReperesentation.UnderlyingState.ToString();
+            UnderlyingState = stateReperesentation.UnderlyingState;
 
             Substates = stateReperesentation.GetSubstates().Select(s => new StateResource<TState, TTrigger>(s)).ToList();
 
@@ -32,25 +33,25 @@ namespace Stateless.Cartography
                 foreach (var item in triggerBehaviours.Value)
                 {
                     if (item is StateMachine<TState, TTrigger>.TransitioningTriggerBehaviour)
-                        Transitions.Add(triggerText, new TransitionResource<TState, TTrigger>((StateMachine<TState, TTrigger>.TransitioningTriggerBehaviour)item));
+                        Transitions.Add(triggerBehaviours.Key, new TransitionResource<TState, TTrigger>(triggerBehaviours.Key, (StateMachine<TState, TTrigger>.TransitioningTriggerBehaviour)item));
                     if (item is StateMachine<TState, TTrigger>.InternalTriggerBehaviour)
-                        InternalTransitions.Add(triggerText, new TransitionResource<TState, TTrigger>((StateMachine<TState, TTrigger>.InternalTriggerBehaviour)item, StateText));
+                        InternalTransitions.Add(triggerBehaviours.Key, new TransitionResource<TState, TTrigger>(triggerBehaviours.Key, (StateMachine<TState, TTrigger>.InternalTriggerBehaviour)item, UnderlyingState));
                     if (item is StateMachine<TState, TTrigger>.IgnoredTriggerBehaviour)
-                        IgnoredTriggers.Add(triggerText);
+                        IgnoredTriggers.Add(triggerBehaviours.Key);
                     if (item is StateMachine<TState, TTrigger>.DynamicTriggerBehaviour)
                     {
                         var label = $"unknownDestination_{unknowns++}";
 
-                        DynamicTransitions.Add(triggerText, new TransitionResource<TState, TTrigger>((StateMachine<TState, TTrigger>.DynamicTriggerBehaviour)item, label));
+                        DynamicTransitions.Add(triggerBehaviours.Key, new DynamicTransitionResource<TState, TTrigger>(triggerBehaviours.Key, (StateMachine<TState, TTrigger>.DynamicTriggerBehaviour)item, label));
                     }
                 }
             }
         }
 
         /// <summary>
-        /// Textual representation of the State.
+        /// The instance or value this resource represents.
         /// </summary>
-        public string StateText { get; }
+        public TState UnderlyingState { get; }
 
         /// <summary>
         /// Substates defined for this StateResource.
@@ -75,22 +76,22 @@ namespace Stateless.Cartography
         /// <summary>
         /// Transitions defined for this state.
         /// </summary>
-        public IDictionary<string, TransitionResource<TState, TTrigger>> Transitions { get; } = new Dictionary<string, TransitionResource<TState, TTrigger>>();
+        public IDictionary<TTrigger, TransitionResource<TState, TTrigger>> Transitions { get; } = new Dictionary<TTrigger, TransitionResource<TState, TTrigger>>();
 
         /// <summary>
         /// Transitions defined for this state internally.
         /// </summary>
-        public IDictionary<string, TransitionResource<TState, TTrigger>> InternalTransitions { get; } = new Dictionary<string, TransitionResource<TState, TTrigger>>();
+        public IDictionary<TTrigger, TransitionResource<TState, TTrigger>> InternalTransitions { get; } = new Dictionary<TTrigger, TransitionResource<TState, TTrigger>>();
 
         /// <summary>
         /// Dynamic Transitions defined for this state internally.
         /// </summary>
-        public IDictionary<string, TransitionResource<TState, TTrigger>> DynamicTransitions { get; } = new Dictionary<string, TransitionResource<TState, TTrigger>>();
+        public IDictionary<TTrigger, DynamicTransitionResource<TState, TTrigger>> DynamicTransitions { get; } = new Dictionary<TTrigger, DynamicTransitionResource<TState, TTrigger>>();
 
         /// <summary>
         /// Triggers ignored for this state.
         /// </summary>
-        public ICollection<string> IgnoredTriggers { get; } = new List<string>();
+        public ICollection<TTrigger> IgnoredTriggers { get; } = new List<TTrigger>();
     }
 
     /// <summary>
@@ -98,30 +99,56 @@ namespace Stateless.Cartography
     /// </summary>
     public class TransitionResource<TState, TTrigger>
     {
-        internal TransitionResource(StateMachine<TState, TTrigger>.TransitioningTriggerBehaviour b)
+        internal TransitionResource(TTrigger trigger, StateMachine<TState, TTrigger>.TransitioningTriggerBehaviour b)
         {
-            DestinationStateText = b.Destination.ToString();
+            DestinationState = b.Destination;
 
             GuardDescription = string.IsNullOrWhiteSpace(b.GuardDescription) ? null : b.GuardDescription;
         }
 
-        internal TransitionResource(StateMachine<TState, TTrigger>.InternalTriggerBehaviour b, string sourceState)
+        internal TransitionResource(TTrigger trigger, StateMachine<TState, TTrigger>.InternalTriggerBehaviour b, TState destination)
         {
-            DestinationStateText = sourceState;
+            DestinationState = destination;
 
             GuardDescription = string.IsNullOrWhiteSpace(b.GuardDescription) ? null : b.GuardDescription;
         }
 
-        internal TransitionResource(StateMachine<TState, TTrigger>.DynamicTriggerBehaviour b, string label)
-        {
-            DestinationStateText = label;
-        }
+        /// <summary>
+        /// The trigger whose firing resulted in this transition.
+        /// </summary>
+        public TTrigger UnderlyingTrigger { get; }
 
         /// <summary>
         /// Textual representation of the State into which will be transitioned.
         /// </summary>
-        public string DestinationStateText { get; }
+        public TState DestinationState { get; }
 
+
+        /// <summary>
+        /// Description of provided guard clause, if any.
+        /// </summary>
+        public string GuardDescription { get; }
+    }
+
+    /// <summary>
+    /// Describes a transition that can be initiated from a trigger, but whose result is non-deterministic.
+    /// </summary>
+    public class DynamicTransitionResource<TState, TTrigger>
+    {
+        internal DynamicTransitionResource(TTrigger trigger, StateMachine<TState, TTrigger>.DynamicTriggerBehaviour b, string desitination)
+        {
+            Destination = desitination;
+        }
+
+        /// <summary>
+        /// The trigger whose firing resulted in this transition.
+        /// </summary>
+        public TTrigger UnderlyingTrigger { get; }
+
+        /// <summary>
+        /// Friendly text for dynamic transitions.
+        /// </summary>
+        public string Destination { get; }
 
         /// <summary>
         /// Description of provided guard clause, if any.
