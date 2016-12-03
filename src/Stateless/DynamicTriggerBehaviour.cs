@@ -11,8 +11,8 @@ namespace Stateless
         {
             readonly Func<object[], TState> _destination;
 
-            public DynamicTriggerBehaviour(TTrigger trigger, Func<object[], TState> destination, Func<bool> guard, string description)
-                : base(trigger, guard, description)
+            public DynamicTriggerBehaviour(TTrigger trigger, Func<object[], TState> destination, TransitionGuards guards)
+                : base(trigger, guards)
             {
                 _destination = Enforce.ArgumentNotNull(destination, "destination");
             }

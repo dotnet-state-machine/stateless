@@ -388,7 +388,7 @@ namespace Stateless
                 throw new InvalidOperationException(
                     string.Format(
                         StateMachineResources.NoTransitionsUnmetGuardCondition,
-                        trigger, state, triggerBehaviour.GuardDescription));
+                        trigger, state, triggerBehaviour.GuardsDescriptions));
             }
 
             throw new InvalidOperationException(
