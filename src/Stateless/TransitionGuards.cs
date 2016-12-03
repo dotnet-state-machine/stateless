@@ -33,11 +33,14 @@ namespace Stateless
         /// </summary>
         public class TransitionGuards
         {
-            readonly IList<TransitionGuard> _guardsList;
+            /// <summary>
+            /// List of added guards
+            /// </summary>
+            public IList<TransitionGuard> List { get; private set; }
 
             internal TransitionGuards(Func<bool> guard = null, string guardDescription = null)
             {
-                _guardsList = new List<TransitionGuard>();
+                List = new List<TransitionGuard>();
 
                 if (guard != null)
                     And(guard, guardDescription);
@@ -50,7 +53,7 @@ namespace Stateless
             /// <returns></returns>
             public TransitionGuards And(Func<bool> guard, string guardDescription = null)
             {
-                _guardsList.Add(new TransitionGuard(guard, guardDescription));
+                List.Add(new TransitionGuard(guard, guardDescription));
                 return this;
             }
         }

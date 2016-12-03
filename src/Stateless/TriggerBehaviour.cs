@@ -20,12 +20,12 @@ namespace Stateless
             }
 
             public TTrigger Trigger { get { return _trigger; } }
-            internal ICollection<Func<bool>> Guards { get { return _guards._guardsList.Select(g => g.Guard).ToList(); } }
+            internal ICollection<Func<bool>> Guards { get { return _guards.List.Select(g => g.Guard).ToList(); } }
             internal string GuardsDescriptions
             {
                 get
                 {
-                    var guardsDescriptions = _guards._guardsList
+                    var guardsDescriptions = _guards.List
                         .Select(d => d.GuardDescription ?? d.Guard.TryGetMethodName());
 
                     return string
@@ -37,7 +37,7 @@ namespace Stateless
             {
                 get
                 {
-                    return _guards._guardsList.All(c => c.Guard());
+                    return _guards.List.All(c => c.Guard());
                 }
             }
             public abstract bool ResultsInTransitionFrom(TState source, object[] args, out TState destination);
