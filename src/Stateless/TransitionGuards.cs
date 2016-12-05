@@ -10,14 +10,14 @@ namespace Stateless
         /// <summary>
         /// Guard function and description.
         /// </summary>
-        public class TransitionGuard
+        public class GuardCondition
         {
             /// <summary>
             /// Initializes a new instance of the <see cref="TransitionGuard"/> class.
             /// </summary>
             /// <param name="guard">The guard.</param>
             /// <param name="guardDescription">The guard description.</param>
-            public TransitionGuard(Func<bool> guard, string guardDescription)
+            public GuardCondition(Func<bool> guard, string guardDescription)
             {
                 _guard = guard;
                 _guardDescription = guardDescription;
@@ -31,30 +31,23 @@ namespace Stateless
         /// <summary>
         /// List of guards.
         /// </summary>
-        public class TransitionGuards
+        public class TransitionGuard
         {
             /// <summary>
             /// List of added guards
             /// </summary>
-            public IList<TransitionGuard> List { get; private set; }
+            public IList<GuardCondition> Conditions { get; private set; }
 
-            internal TransitionGuards(Func<bool> guard = null, string guardDescription = null)
+            internal TransitionGuard(Tuple<Func<bool>, string>[] guards)
             {
-                List = new List<TransitionGuard>();
-
-                if (guard != null)
-                    And(guard, guardDescription);
+                Conditions = guards
+                    .Select(g => new GuardCondition(g.Item1, g.Item2))
+                    .ToList();
             }
-            /// <summary>
-            /// Add guard to list of guards.
-            /// </summary>
-            /// <param name="guard">The guard.</param>
-            /// <param name="guardDescription">The guard description.</param>
-            /// <returns></returns>
-            public TransitionGuards And(Func<bool> guard, string guardDescription = null)
+
+            internal TransitionGuard(Func<bool> guard = null, string guardDescription = null)
             {
-                List.Add(new TransitionGuard(guard, guardDescription));
-                return this;
+                Conditions = new List<GuardCondition> { new GuardCondition(guard, guardDescription) };
             }
         }
     }

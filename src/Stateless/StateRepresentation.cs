@@ -57,6 +57,7 @@ namespace Stateless
                     return false;
                 }
 
+                // TODO : Refactor for condition results
                 var actual = filters.Aggregate(possible, (current, filter) => current.Where(filter).ToArray());
 
                 if (actual.Count() > 1)
@@ -65,18 +66,19 @@ namespace Stateless
                         trigger, _state));
 
                 handler = actual.FirstOrDefault();
+
                 return handler != null;
             }
 
             public bool TryFindHandlerWithUnmetGuardCondition(TTrigger trigger, out TriggerBehaviour handler)
             {
-                return (TryFindLocalHandler(trigger, out handler, t => !t.IsGuardConditionMet) || 
+                return (TryFindLocalHandler(trigger, out handler, t => t.IsGuardConditionMet) ||
                     (Superstate != null && Superstate.TryFindHandlerWithUnmetGuardCondition(trigger, out handler)));
             }
 
             public void AddActivateAction(Action action, string activateActionDescription)
             {
-                _activateActions.Add(                    
+                _activateActions.Add(
                     new ActivateActionBehaviour.Sync(
                         _state,
                         Enforce.ArgumentNotNull(action, nameof(action)),
@@ -293,7 +295,7 @@ namespace Stateless
                 get
                 {
                     var result = _triggerBehaviours
-                        .Where(t => t.Value.Any(a => a.IsGuardConditionMet))
+                        .Where(t => t.Value.Any(a => !a.UnmetGuardConditions.Any()))
                         .Select(t => t.Key);
 
                     if (Superstate != null)
