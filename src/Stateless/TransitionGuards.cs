@@ -25,7 +25,7 @@ namespace Stateless
             readonly Func<bool> _guard;
             readonly string _guardDescription;
             internal Func<bool> Guard { get { return _guard; } }
-            internal string GuardDescription { get { return _guardDescription; } }
+            internal string GuardDescription { get { return _guardDescription ?? _guard.TryGetMethodName(); } }
         }
 
         /// <summary>
