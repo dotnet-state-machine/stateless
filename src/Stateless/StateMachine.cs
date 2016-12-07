@@ -56,7 +56,7 @@ namespace Stateless
         {
             _unhandledTriggerAction = new UnhandledTriggerAction.Sync(DefaultUnhandledTriggerAction);
             _onTransitionedEvent = new OnTransitionedEvent();
-        }  
+        }
 
         /// <summary>
         /// The current state.
@@ -250,15 +250,15 @@ namespace Stateless
             var source = State;
             var representativeState = GetRepresentation(source);
 
-            TriggerBehaviour triggerBehaviour;
-            if (!representativeState.TryFindHandler(trigger, out triggerBehaviour))
+            TriggerBehaviourResult triggerBehaviourResult;
+            if (!representativeState.TryFindHandler(trigger, out triggerBehaviourResult))
             {
-                _unhandledTriggerAction.Execute(representativeState.UnderlyingState, trigger);
+                _unhandledTriggerAction.Execute(representativeState.UnderlyingState, trigger, triggerBehaviourResult?.UnmetUnmetGuardConditions);
                 return;
             }
 
             TState destination;
-            if (triggerBehaviour.ResultsInTransitionFrom(source, args, out destination))
+            if (triggerBehaviourResult.Handler.ResultsInTransitionFrom(source, args, out destination))
             {
                 var transition = new Transition(source, destination, trigger);
 
@@ -283,7 +283,7 @@ namespace Stateless
         /// is fired.
         /// </summary>
         /// <param name="unhandledTriggerAction">An action to call when an unhandled trigger is fired.</param>
-        public void OnUnhandledTrigger(Action<TState, TTrigger> unhandledTriggerAction)
+        public void OnUnhandledTrigger(Action<TState, TTrigger, ICollection<string>> unhandledTriggerAction)
         {
             if (unhandledTriggerAction == null) throw new ArgumentNullException("unhandledTriggerAction");
             _unhandledTriggerAction = new UnhandledTriggerAction.Sync(unhandledTriggerAction);
@@ -377,19 +377,16 @@ namespace Stateless
             _triggerConfiguration.Add(trigger.Trigger, trigger);
         }
 
-        void DefaultUnhandledTriggerAction(TState state, TTrigger trigger)
+        void DefaultUnhandledTriggerAction(TState state, TTrigger trigger, ICollection<string> unmetGuards)
         {
             var source = state;
             var representativeState = GetRepresentation(source);
 
-            TriggerBehaviour triggerBehaviour;
-            if (representativeState.TryFindHandlerWithUnmetGuardCondition(trigger, out triggerBehaviour))
-            {
+            if (unmetGuards?.Any() ?? false)
                 throw new InvalidOperationException(
                     string.Format(
                         StateMachineResources.NoTransitionsUnmetGuardCondition,
-                        trigger, state, triggerBehaviour.GuardsDescriptions));
-            }
+                        trigger, state, string.Join(", ", unmetGuards)));
 
             throw new InvalidOperationException(
                 string.Format(

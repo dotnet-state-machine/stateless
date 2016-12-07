@@ -111,15 +111,15 @@ namespace Stateless
             var source = State;
             var representativeState = GetRepresentation(source);
 
-            TriggerBehaviour triggerBehaviour;
-            if (!representativeState.TryFindHandler(trigger, out triggerBehaviour))
+            TriggerBehaviourResult triggerBehaviourResult;
+            if (!representativeState.TryFindHandler(trigger, out triggerBehaviourResult))
             {
-                await _unhandledTriggerAction.ExecuteAsync(representativeState.UnderlyingState, trigger);
+                await _unhandledTriggerAction.ExecuteAsync(representativeState.UnderlyingState, trigger, triggerBehaviourResult?.UnmetUnmetGuardConditions);
                 return;
             }
 
             TState destination;
-            if (triggerBehaviour.ResultsInTransitionFrom(source, args, out destination))
+            if (triggerBehaviourResult.Handler.ResultsInTransitionFrom(source, args, out destination))
             {
                 var transition = new Transition(source, destination, trigger);
 
@@ -144,7 +144,7 @@ namespace Stateless
         /// is fired.
         /// </summary>
         /// <param name="unhandledTriggerAction">An asynchronous action to call when an unhandled trigger is fired.</param>
-        public void OnUnhandledTriggerAsync(Func<TState, TTrigger, Task> unhandledTriggerAction)
+        public void OnUnhandledTriggerAsync(Func<TState, TTrigger, ICollection<string>, Task> unhandledTriggerAction)
         {
             if (unhandledTriggerAction == null) throw new ArgumentNullException("unhandledTriggerAction");
             _unhandledTriggerAction = new UnhandledTriggerAction.Async(unhandledTriggerAction);

@@ -200,14 +200,14 @@ namespace Stateless.Tests
         public void TriggerParametersAreImmutableOnceSet()
         {
             var sm = new StateMachine<State, Trigger>(State.B);
-            sm.SetTriggerParameters<string, int>(Trigger.X);          
+            sm.SetTriggerParameters<string, int>(Trigger.X);
             Assert.Throws<InvalidOperationException>(() => sm.SetTriggerParameters<string>(Trigger.X));
         }
 
         [Test]
         public void ExceptionThrownForInvalidTransition()
         {
-            var sm = new StateMachine<State, Trigger>(State.A);          
+            var sm = new StateMachine<State, Trigger>(State.A);
             Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X), "No valid leaving transitions are permitted from state 'A' for trigger 'X'.Consider ignoring the trigger.");
         }
 
@@ -259,7 +259,7 @@ namespace Stateless.Tests
 
             State? state = null;
             Trigger? trigger = null;
-            sm.OnUnhandledTrigger((s, t) =>
+            sm.OnUnhandledTrigger((s, t, u) =>
                                       {
                                           state = s;
                                           trigger = t;
