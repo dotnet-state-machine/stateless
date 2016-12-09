@@ -253,7 +253,7 @@ namespace Stateless
             TriggerBehaviourResult triggerBehaviourResult;
             if (!representativeState.TryFindHandler(trigger, out triggerBehaviourResult))
             {
-                _unhandledTriggerAction.Execute(representativeState.UnderlyingState, trigger, triggerBehaviourResult?.UnmetUnmetGuardConditions);
+                _unhandledTriggerAction.Execute(representativeState.UnderlyingState, trigger, triggerBehaviourResult?.UnmetGuardConditions);
                 return;
             }
 
@@ -276,6 +276,17 @@ namespace Stateless
 
                 CurrentRepresentation.InternalAction(transition, args);
             }
+        }
+
+        /// <summary>
+        /// Override the default behaviour of throwing an exception when an unhandled trigger
+        /// is fired.
+        /// </summary>
+        /// <param name="unhandledTriggerAction">An action to call when an unhandled trigger is fired.</param>
+        public void OnUnhandledTrigger(Action<TState, TTrigger> unhandledTriggerAction)
+        {
+            if (unhandledTriggerAction == null) throw new ArgumentNullException("unhandledTriggerAction");
+            _unhandledTriggerAction = new UnhandledTriggerAction.Sync((s, t, c) => unhandledTriggerAction(s, t));
         }
 
         /// <summary>
@@ -377,16 +388,16 @@ namespace Stateless
             _triggerConfiguration.Add(trigger.Trigger, trigger);
         }
 
-        void DefaultUnhandledTriggerAction(TState state, TTrigger trigger, ICollection<string> unmetGuards)
+        void DefaultUnhandledTriggerAction(TState state, TTrigger trigger, ICollection<string> unmetGuardConditions)
         {
             var source = state;
             var representativeState = GetRepresentation(source);
 
-            if (unmetGuards?.Any() ?? false)
+            if (unmetGuardConditions?.Any() ?? false)
                 throw new InvalidOperationException(
                     string.Format(
-                        StateMachineResources.NoTransitionsUnmetGuardCondition,
-                        trigger, state, string.Join(", ", unmetGuards)));
+                        StateMachineResources.NoTransitionsUnmetGuardConditions,
+                        trigger, state, string.Join(", ", unmetGuardConditions)));
 
             throw new InvalidOperationException(
                 string.Format(

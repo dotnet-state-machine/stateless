@@ -26,13 +26,13 @@ namespace Stateless
                 get
                 {
                     var guardsDescriptions = _guard.Conditions
-                        .Select(c => c.GuardDescription);
+                        .Select(c => c.Description);
 
                     return string
                         .Join(",", guardsDescriptions);
                 }
             }
-            public bool IsGuardConditionMet
+            public bool GuardConditionsMet
             {
                 get {
                     return _guard.Conditions.All(c => c.Guard());
@@ -44,7 +44,7 @@ namespace Stateless
                 {
                     return _guard.Conditions
                         .Where(c => !c.Guard())
-                        .Select(c => c.GuardDescription)
+                        .Select(c => c.Description)
                         .ToList();
                 }
             }

@@ -24,7 +24,7 @@ namespace Stateless.Tests
             var transtioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
                 Trigger.X, State.C, () => false);
 
-            Assert.IsFalse(transtioning.IsGuardConditionMet);
+            Assert.IsFalse(transtioning.GuardConditionsMet);
         }
 
         [Test]
@@ -33,7 +33,7 @@ namespace Stateless.Tests
             var transtioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
                 Trigger.X, State.C, () => true);
 
-            Assert.IsTrue(transtioning.IsGuardConditionMet);
+            Assert.IsTrue(transtioning.GuardConditionsMet);
         }
 
         [Test]
@@ -47,7 +47,7 @@ namespace Stateless.Tests
             var transtioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
                 Trigger.X, State.C, new StateMachine<State, Trigger>.TransitionGuard(falseGuard));
 
-            Assert.IsFalse(transtioning.IsGuardConditionMet);
+            Assert.IsFalse(transtioning.GuardConditionsMet);
         }
     }
 }

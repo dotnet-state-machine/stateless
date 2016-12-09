@@ -9,13 +9,13 @@ namespace Stateless
     {
         internal class TriggerBehaviourResult
         {
-            public TriggerBehaviourResult(TriggerBehaviour handler, ICollection<string> unmetGuards)
+            public TriggerBehaviourResult(TriggerBehaviour handler, ICollection<string> unmetGuardConditions)
             {
                 Handler = handler;
-                UnmetUnmetGuardConditions = unmetGuards;
+                UnmetGuardConditions = unmetGuardConditions;
             }
             public TriggerBehaviour Handler { get; private set; }
-            public ICollection<string> UnmetUnmetGuardConditions { get; private set; }
+            public ICollection<string> UnmetGuardConditions { get; private set; }
         }
     }
 }

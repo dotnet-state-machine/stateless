@@ -114,7 +114,7 @@ namespace Stateless
             TriggerBehaviourResult triggerBehaviourResult;
             if (!representativeState.TryFindHandler(trigger, out triggerBehaviourResult))
             {
-                await _unhandledTriggerAction.ExecuteAsync(representativeState.UnderlyingState, trigger, triggerBehaviourResult?.UnmetUnmetGuardConditions);
+                await _unhandledTriggerAction.ExecuteAsync(representativeState.UnderlyingState, trigger, triggerBehaviourResult?.UnmetGuardConditions);
                 return;
             }
 

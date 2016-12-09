@@ -61,11 +61,12 @@ namespace Stateless
                 var actual = possible
                     .Select(h => new TriggerBehaviourResult(h, h.UnmetGuardConditions));
         
-                handlerResult = TryFindLocalHandlerResult(trigger, actual, r => !r.UnmetUnmetGuardConditions.Any())
-                    ?? TryFindLocalHandlerResult(trigger, actual, r => r.UnmetUnmetGuardConditions.Any());
+                handlerResult = TryFindLocalHandlerResult(trigger, actual, r => !r.UnmetGuardConditions.Any())
+                    ?? TryFindLocalHandlerResult(trigger, actual, r => r.UnmetGuardConditions.Any());
 
-                return !handlerResult.UnmetUnmetGuardConditions.Any();
+                return !handlerResult.UnmetGuardConditions.Any();
             }
+
             TriggerBehaviourResult TryFindLocalHandlerResult(TTrigger trigger, IEnumerable<TriggerBehaviourResult> results, Func<TriggerBehaviourResult, bool> filter)
             {
                 var actual = results

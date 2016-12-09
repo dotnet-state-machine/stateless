@@ -80,9 +80,9 @@ namespace Stateless {
         /// <summary>
         ///    Looks up a localized string similar to Trigger &apos;{0}&apos; is valid for transition from state &apos;{1}&apos; but a guard conditions are not met. Guard descriptions: &apos;{2}&apos;..
         /// </summary>
-        public static string NoTransitionsUnmetGuardCondition {
+        public static string NoTransitionsUnmetGuardConditions {
             get {
-                return ResourceManager.GetString("NoTransitionsUnmetGuardCondition", resourceCulture);
+                return ResourceManager.GetString("NoTransitionsUnmetGuardConditions", resourceCulture);
             }
         }
     }
