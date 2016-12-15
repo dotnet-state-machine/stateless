@@ -11,13 +11,18 @@ namespace Stateless
             internal IList<GuardCondition> Conditions { get; private set; }
             internal TransitionGuard(Tuple<Func<bool>, string>[] guards)
             {
+                Enforce.ArgumentNotNull(guards, nameof(guards));
+
                 Conditions = guards
                     .Select(g => new GuardCondition(g.Item1, g.Item2))
                     .ToList();
             }
-            internal TransitionGuard(Func<bool> guard = null, string guardDescription = null)
+
+            internal TransitionGuard(Func<bool> guard, string description = null)
             {
-                Conditions = new List<GuardCondition> { new GuardCondition(guard, guardDescription) };
+                Enforce.ArgumentNotNull(guard, nameof(guard));
+
+                Conditions = new List<GuardCondition> { new GuardCondition(guard, description) };
             }
         }
     }

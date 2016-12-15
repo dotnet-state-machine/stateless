@@ -250,15 +250,15 @@ namespace Stateless
             var source = State;
             var representativeState = GetRepresentation(source);
 
-            TriggerBehaviourResult triggerBehaviourResult;
-            if (!representativeState.TryFindHandler(trigger, out triggerBehaviourResult))
+            TriggerBehaviourResult result;
+            if (!representativeState.TryFindHandler(trigger, out result))
             {
-                _unhandledTriggerAction.Execute(representativeState.UnderlyingState, trigger, triggerBehaviourResult?.UnmetGuardConditions);
+                _unhandledTriggerAction.Execute(representativeState.UnderlyingState, trigger, result?.UnmetGuardConditions);
                 return;
             }
 
             TState destination;
-            if (triggerBehaviourResult.Handler.ResultsInTransitionFrom(source, args, out destination))
+            if (result.Handler.ResultsInTransitionFrom(source, args, out destination))
             {
                 var transition = new Transition(source, destination, trigger);
 
