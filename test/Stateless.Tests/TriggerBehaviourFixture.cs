@@ -19,7 +19,7 @@ namespace Stateless.Tests
         }
 
         [Test]
-        public void WhenGuardConditionFalse_IsGuardConditionMetIsFalse()
+        public void WhenGuardConditionFalse_IsGuardConditionsMetIsFalse()
         {
             var transtioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
                 Trigger.X, State.C, () => false);
@@ -28,7 +28,7 @@ namespace Stateless.Tests
         }
 
         [Test]
-        public void WhenGuardConditionTrue_IsGuardConditionMetIsTrue()
+        public void WhenGuardConditionTrue_IsGuardConditionsMetIsTrue()
         {
             var transtioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
                 Trigger.X, State.C, () => true);
@@ -37,10 +37,37 @@ namespace Stateless.Tests
         }
 
         [Test]
-        public void WhenOneOfMultipleGuardConditionsFalse_IsGuardConditionMetIsFalse()
+        public void WhenOneOfMultipleGuardConditionsFalse_IsGuardConditionsMetIsFalse()
         {
             var falseGuard = new[] {
                 new Tuple<Func<bool>, string>(() => true, "1"),
+                new Tuple<Func<bool>, string>(() => false, "2")
+            };
+
+            var transtioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
+                Trigger.X, State.C, new StateMachine<State, Trigger>.TransitionGuard(falseGuard));
+
+            Assert.IsFalse(transtioning.GuardConditionsMet);
+        }
+        [Test]
+        public void WhenAllMultipleGuardConditionsTrue_IsGuardConditionsMetIsTrue()
+        {
+            var falseGuard = new[] {
+                new Tuple<Func<bool>, string>(() => true, "1"),
+                new Tuple<Func<bool>, string>(() => true, "2")
+            };
+
+            var transtioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
+                Trigger.X, State.C, new StateMachine<State, Trigger>.TransitionGuard(falseGuard));
+
+            Assert.IsTrue(transtioning.GuardConditionsMet);
+        }
+
+        [Test]
+        public void WhenAllMultipleGuardConditionsFalse_IsGuardConditionsMetIsFalse()
+        {
+            var falseGuard = new[] {
+                new Tuple<Func<bool>, string>(() => false, "1"),
                 new Tuple<Func<bool>, string>(() => false, "2")
             };
 
