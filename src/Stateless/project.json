@@ -1,5 +1,5 @@
 {
-  "version": "3.0.1-*",
+  "version": "3.1.0-*",
   "packOptions": {
     "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0",
     "projectUrl": "https://github.com/dotnet-state-machine/stateless",
@@ -26,9 +26,17 @@
     },
     "net4.5": {
       "buildOptions": {
-        "define": ["TASKS"]
+        "define": [ "TASKS" ]
       }
     },
-    "net4.0": {}
+    "net4.0": {},
+    ".NETPortable,Version=4.5,Profile=Profile259": {
+      "dependencies": {
+        "NETStandard.Library": "1.6.1"
+      },
+      "buildOptions": {
+        "define": [ "PORTABLE_REFLECTION", "TASKS" ]
+      }
+    }
   }
 }

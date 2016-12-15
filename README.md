@@ -6,7 +6,7 @@
 var phoneCall = new StateMachine<State, Trigger>(State.OffHook);
 
 phoneCall.Configure(State.OffHook)
-    .Permit(Trigger.CallDialed, State.Ringing);
+    .Permit(Trigger.CallDialled, State.Ringing);
 	
 phoneCall.Configure(State.Ringing)
     .Permit(Trigger.HungUp, State.OffHook)
@@ -140,7 +140,7 @@ It can be useful to visualize state machines on runtime. With this approach the 
  
 ```csharp
 phoneCall.Configure(State.OffHook)
-    .PermitIf(Trigger.CallDialed, State.Ringing, IsValidNumber);
+    .PermitIf(Trigger.CallDialled, State.Ringing, IsValidNumber);
     
 string graph = phoneCall.ToDotGraph();
 ```
@@ -149,7 +149,7 @@ The `StateMachine.ToDotGraph()` method returns a string representation of the st
 
 ```dot
 digraph {
-  OffHook -> Ringing [label="CallDialed [IsValidNumber]"];
+  OffHook -> Ringing [label="CallDialled [IsValidNumber]"];
 }
 ```
 
