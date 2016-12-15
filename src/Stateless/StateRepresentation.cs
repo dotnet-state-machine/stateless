@@ -276,6 +276,11 @@ namespace Stateless
                 _substates.Add(substate);
             }
 
+            public ICollection<StateRepresentation> GetSubstates()
+            {
+                return _substates;
+            }
+
             public bool Includes(TState state)
             {
                 return _state.Equals(state) || _substates.Any(s => s.Includes(state));

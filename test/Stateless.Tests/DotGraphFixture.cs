@@ -24,9 +24,8 @@ namespace Stateless.Tests
         [Test]
         public void SimpleTransition()
         {
-            var expected = "digraph {" + System.Environment.NewLine
-                         + " A -> B [label=\"X\"];" + System.Environment.NewLine
-                         + "}";
+            var expected =
+                $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}\tA [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"A\">A</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}A -> B [   style=\"solid\",label=\"X\" ];  {System.Environment.NewLine}}}";
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -39,10 +38,7 @@ namespace Stateless.Tests
         [Test]
         public void TwoSimpleTransitions()
         {
-            var expected = "digraph {" + System.Environment.NewLine
-                         + " A -> B [label=\"X\"];" + System.Environment.NewLine
-                         + " A -> C [label=\"Y\"];" + System.Environment.NewLine
-                         + "}";
+            var expected = $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}\tA [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"A\">A</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}A -> B [   style=\"solid\",label=\"X\" ]; {System.Environment.NewLine}A -> C [   style=\"solid\",label=\"Y\" ];  {System.Environment.NewLine}}}";
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -58,14 +54,12 @@ namespace Stateless.Tests
         {
             Func<bool> anonymousGuard = () => true;
 
-            var expected = "digraph {" + System.Environment.NewLine
-                         + " A -> B [label=\"X ["+ anonymousGuard.TryGetMethodName() +"]\"];" + System.Environment.NewLine
-                         + "}";
-
+            var expected = $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}\tA [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"A\">A</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}\tB [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"B\">B</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}A -> B [   style=\"solid\",label=\"X " + anonymousGuard.TryGetMethodName() + $"\" ]; {System.Environment.NewLine}}}";
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
                 .PermitIf(Trigger.X, State.B, anonymousGuard);
+            sm.Configure(State.B);
 
             Assert.AreEqual(expected, sm.ToDotGraph());
         }
@@ -75,11 +69,8 @@ namespace Stateless.Tests
         {
             Func<bool> anonymousGuard = () => true;
 
-            var expected = "digraph {" + System.Environment.NewLine
-                         + " A -> B [label=\"X [description]\"];" + System.Environment.NewLine
-                         + "}";
-
-            var sm = new StateMachine<State, Trigger>(State.A);
+            var expected = $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}\tA [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"A\">A</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}A -> B [   style=\"solid\",label=\"X description\" ]; {System.Environment.NewLine}}}";
+        var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
                 .PermitIf(Trigger.X, State.B, anonymousGuard, "description");
@@ -90,9 +81,7 @@ namespace Stateless.Tests
         [Test]
         public void WhenDiscriminatedByNamedDelegate()
         {
-            var expected = "digraph {" + System.Environment.NewLine
-                         + " A -> B [label=\"X [IsTrue]\"];" + System.Environment.NewLine
-                         + "}";
+            var expected = $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}\tA [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"A\">A</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}A -> B [   style=\"solid\",label=\"X IsTrue\" ]; {System.Environment.NewLine}}}";
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -105,25 +94,20 @@ namespace Stateless.Tests
         [Test]
         public void WhenDiscriminatedByNamedDelegateWithDescription()
         {
-            var expected = "digraph {" + System.Environment.NewLine
-                         + " A -> B [label=\"X [description]\"];" + System.Environment.NewLine
-                         + "}";
+            var expected = $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}\tA [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"A\">A</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}\tB [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"B\">B</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}A -> B [   style=\"solid\",label=\"X description\" ]; {System.Environment.NewLine}}}";
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
                 .PermitIf(Trigger.X, State.B, IsTrue, "description");
-
+            sm.Configure(State.B);
             Assert.AreEqual(expected, sm.ToDotGraph());
         }
 
         [Test]
         public void DestinationStateIsDynamic()
         {
-            var expected = "digraph {" + System.Environment.NewLine
-                         + " { node [label=\"?\"] unknownDestination_0 };" + System.Environment.NewLine
-                         + " A -> unknownDestination_0 [label=\"X\"];" + System.Environment.NewLine
-                         + "}";
+            var expected = $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}\tA [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"A\">A</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}\tUnk0_A [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"Unk0_A\">Unk0_A</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}A -> Unk0_A [   style=\"solid\",label=\"X\" ];  {System.Environment.NewLine}}}";
 
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A)
@@ -135,10 +119,7 @@ namespace Stateless.Tests
         [Test]
         public void DestinationStateIsCalculatedBasedOnTriggerParameters()
         {
-            var expected = "digraph {" + System.Environment.NewLine
-                         + " { node [label=\"?\"] unknownDestination_0 };" + System.Environment.NewLine
-                         + " A -> unknownDestination_0 [label=\"X\"];" + System.Environment.NewLine
-                         + "}";
+            var expected = $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}\tA [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"A\">A</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}\tUnk0_A [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"Unk0_A\">Unk0_A</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}A -> Unk0_A [   style=\"solid\",label=\"X\" ];  {System.Environment.NewLine}}}".Replace("{System.Environment.NewLine}", System.Environment.NewLine);
 
             var sm = new StateMachine<State, Trigger>(State.A);
             var trigger = sm.SetTriggerParameters<int>(Trigger.X);
@@ -151,10 +132,7 @@ namespace Stateless.Tests
         [Test]
         public void OnEntryWithAnonymousActionAndDescription()
         {
-            var expected = "digraph {" + System.Environment.NewLine
-                         + "node [shape=box];" + System.Environment.NewLine
-                         + " A -> \"enteredA\" [label=\"On Entry\" style=dotted];" + System.Environment.NewLine
-                         + "}";
+            var expected = $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}\tA [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t\t<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" BGCOLOR=\"yellow\">{System.Environment.NewLine}\t\t<TR><TD><sup>enteredA</sup></TD></TR>{System.Environment.NewLine}\t\t</TABLE>{System.Environment.NewLine}{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"A\">A</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}}}";
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -167,10 +145,7 @@ namespace Stateless.Tests
         [Test]
         public void OnEntryWithNamedDelegateActionAndDescription()
         {
-            var expected = "digraph {" + System.Environment.NewLine
-                         + "node [shape=box];" + System.Environment.NewLine
-                         + " A -> \"enteredA\" [label=\"On Entry\" style=dotted];" + System.Environment.NewLine
-                         + "}";
+            var expected = $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}\tA [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t\t<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" BGCOLOR=\"yellow\">{System.Environment.NewLine}\t\t<TR><TD><sup>enteredA</sup></TD></TR>{System.Environment.NewLine}\t\t</TABLE>{System.Environment.NewLine}{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"A\">A</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}}}";
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -183,10 +158,7 @@ namespace Stateless.Tests
         [Test]
         public void OnExitWithAnonymousActionAndDescription()
         {
-            var expected = "digraph {" + System.Environment.NewLine
-                         + "node [shape=box];" + System.Environment.NewLine
-                         + " A -> \"exitA\" [label=\"On Exit\" style=dotted];" + System.Environment.NewLine
-                         + "}";
+            var expected = $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}\tA [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"A\">A</TD></TR><tr><td>{System.Environment.NewLine}\t\t<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" BGCOLOR=\"yellow\">{System.Environment.NewLine}\t\t<TR><TD><sup>exitA</sup></TD></TR>{System.Environment.NewLine}\t\t</TABLE>{System.Environment.NewLine}{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}}}";
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -199,10 +171,7 @@ namespace Stateless.Tests
         [Test]
         public void OnExitWithNamedDelegateActionAndDescription()
         {
-            var expected = "digraph {" + System.Environment.NewLine
-                         + "node [shape=box];" + System.Environment.NewLine
-                         + " A -> \"exitA\" [label=\"On Exit\" style=dotted];" + System.Environment.NewLine
-                         + "}";
+            var expected = $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}\tA [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"A\">A</TD></TR><tr><td>{System.Environment.NewLine}\t\t<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" BGCOLOR=\"yellow\">{System.Environment.NewLine}\t\t<TR><TD><sup>exitA</sup></TD></TR>{System.Environment.NewLine}\t\t</TABLE>{System.Environment.NewLine}{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}}}";
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -216,11 +185,9 @@ namespace Stateless.Tests
         public void TransitionWithIgnore()
         {
             // Ignored triggers do not appear in the graph
-            var expected = "digraph {" + System.Environment.NewLine
-                         + " A -> B [label=\"X\"];" + System.Environment.NewLine
-                         + "}";
+            var expected = $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}\tA [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"A\">A</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}A -> B [   style=\"solid\",label=\"X\" ];  {System.Environment.NewLine}}}";
 
-            var sm = new StateMachine<State, Trigger>(State.A);
+        var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
                 .Ignore(Trigger.Y)
@@ -228,5 +195,29 @@ namespace Stateless.Tests
 
             Assert.AreEqual(expected, sm.ToDotGraph());
         }
+
+        [Test]
+        public void OnEntryWithTriggerParameter()
+        {
+            // Ignored triggers do not appear in the graph
+            var expected =
+                $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}\tA [   label=<{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >{System.Environment.NewLine}\t<tr><td>{System.Environment.NewLine}\t\t<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" BGCOLOR=\"yellow\">{System.Environment.NewLine}\t\t<TR><TD><sup>OnEntry</sup></TD></TR>{System.Environment.NewLine}\t\t<TR><TD><sup>TestEntryAction[X]</sup></TD></TR>{System.Environment.NewLine}\t\t<TR><TD><sup>TestEntryActionString[Y]</sup></TD></TR>{System.Environment.NewLine}\t\t</TABLE>{System.Environment.NewLine}{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t<TR><TD PORT=\"A\">A</TD></TR><tr><td>{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];{System.Environment.NewLine}{System.Environment.NewLine}A -> B [   style=\"solid\",label=\"X\" ]; {System.Environment.NewLine}A -> C [   style=\"solid\",label=\"Y IsTriggerY\" ];{System.Environment.NewLine}A -> B [   style=\"solid\",label=\"Z IsTriggerZ\" ]; {System.Environment.NewLine}}}";
+            Func<bool> anonymousGuard = () => true;
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var parmTrig = sm.SetTriggerParameters<string>(Trigger.Y);
+
+            sm.Configure(State.A)
+            .OnEntry(() => { },"OnEntry")
+            .OnEntryFrom(Trigger.X, TestEntryAction)
+            .OnEntryFrom(parmTrig, TestEntryActionString)
+            .Permit(Trigger.X, State.B)
+            .PermitIf(Trigger.Y, State.C, anonymousGuard, "IsTriggerY")
+            .PermitIf(Trigger.Z, State.B, anonymousGuard, "IsTriggerZ");
+            
+            Assert.AreEqual(expected, sm.ToDotGraph());
+        }
+
+        private void TestEntryAction() { }
+        private void TestEntryActionString(string val) { }
     }
 }
