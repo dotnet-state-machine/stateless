@@ -1,5 +1,5 @@
 {
-  "version": "3.1.0-*",
+  "version": "3.1.1-*",
   "packOptions": {
     "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0",
     "projectUrl": "https://github.com/dotnet-state-machine/stateless",
