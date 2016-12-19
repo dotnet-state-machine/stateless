@@ -41,6 +41,20 @@ namespace Stateless.Tests
         {
             var falseGuard = new[] {
                 new Tuple<Func<bool>, string>(() => true, "1"),
+                new Tuple<Func<bool>, string>(() => true, "2")
+            };
+
+            var transtioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
+                Trigger.X, State.C, new StateMachine<State, Trigger>.TransitionGuard(falseGuard));
+
+            Assert.IsTrue(transtioning.GuardConditionsMet);
+        }
+
+        [Test]
+        public void WhenAllMultipleGuardConditionsFalse_IsGuardConditionsMetIsFalse()
+        {
+            var falseGuard = new[] {
+                new Tuple<Func<bool>, string>(() => false, "1"),
                 new Tuple<Func<bool>, string>(() => false, "2")
             };
 

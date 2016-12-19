@@ -14,9 +14,8 @@ namespace Stateless
 
             protected TriggerBehaviour(TTrigger trigger, TransitionGuard guard)
             {
+                _guard = Enforce.ArgumentNotNull(guard, nameof(guard));
                 _trigger = trigger;
-                _guard = guard;
-
             }
 
             public TTrigger Trigger { get { return _trigger; } }
@@ -34,7 +33,8 @@ namespace Stateless
             }
             public bool GuardConditionsMet
             {
-                get {
+                get
+                {
                     return _guard.Conditions.All(c => c.Guard());
                 }
             }
