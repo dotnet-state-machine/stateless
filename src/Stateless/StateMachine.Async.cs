@@ -143,6 +143,17 @@ namespace Stateless
         /// Override the default behaviour of throwing an exception when an unhandled trigger
         /// is fired.
         /// </summary>
+        /// <param name="unhandledTriggerAction"></param>
+        public void OnUnhandledTriggerAsync(Func<TState, TTrigger, Task> unhandledTriggerAction)
+        {
+            if (unhandledTriggerAction == null) throw new ArgumentNullException("unhandledTriggerAction");
+            _unhandledTriggerAction = new UnhandledTriggerAction.Async((s, t, c) => unhandledTriggerAction(s, t));
+        }
+
+        /// <summary>
+        /// Override the default behaviour of throwing an exception when an unhandled trigger
+        /// is fired.
+        /// </summary>
         /// <param name="unhandledTriggerAction">An asynchronous action to call when an unhandled trigger is fired.</param>
         public void OnUnhandledTriggerAsync(Func<TState, TTrigger, ICollection<string>, Task> unhandledTriggerAction)
         {
