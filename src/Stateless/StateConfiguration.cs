@@ -453,6 +453,9 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration SubstateOf(TState superstate)
             {
+                if(_representation.UnderlyingState.Equals(superstate)){ 
+                    throw new InvalidOperationException(string.Format("A given state cannot be defined as a substate of itself.  The problem state is {0}.", superstate));
+                }
                 var superRepresentation = _lookup(superstate);
                 _representation.Superstate = superRepresentation;
                 superRepresentation.AddSubstate(_representation);
