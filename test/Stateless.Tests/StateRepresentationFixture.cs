@@ -234,14 +234,14 @@ namespace Stateless.Tests
         }
 
         [Test]
-        public void WhenTransitionExists_TriggerCanBeFired()
+        public void WhenTransitionExists_TriggerCannotBeFired()
         {
             var rep = CreateRepresentation(State.B);
             Assert.IsFalse(rep.CanHandle(Trigger.X));
         }
 
         [Test]
-        public void WhenTransitionDoesNotExist_TriggerCannotBeFired()
+        public void WhenTransitionDoesNotExist_TriggerCanBeFired()
         {
             var rep = CreateRepresentation(State.B);
             rep.AddTriggerBehaviour(new StateMachine<State, Trigger>.IgnoredTriggerBehaviour(Trigger.X, () => true));
@@ -287,6 +287,91 @@ namespace Stateless.Tests
             var transition = new StateMachine<State, Trigger>.Transition(sub.UnderlyingState, State.C, Trigger.X);
             sub.Exit(transition);
             Assert.Less(subOrder, superOrder);
+        }
+
+        [Test]
+        public void WhenTransitionUnmetGuardConditions_TriggerCannotBeFired()
+        {
+            var rep = CreateRepresentation(State.B);
+
+            var falseConditions = new[] {
+                new Tuple<Func<bool>, string>(() => true, "1"),
+                new Tuple<Func<bool>, string>(() => false, "2")
+            };
+
+            var transitionGuard = new StateMachine<State, Trigger>.TransitionGuard(falseConditions);
+            var transition = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(Trigger.X, State.C, transitionGuard);
+            rep.AddTriggerBehaviour(transition);
+
+            Assert.IsFalse(rep.CanHandle(Trigger.X));
+        }
+
+        [Test]
+        public void WhenTransitioGuardConditionsMet_TriggerCanBeFired()
+        {
+            var rep = CreateRepresentation(State.B);
+
+            var trueConditions = new[] {
+                new Tuple<Func<bool>, string>(() => true, "1"),
+                new Tuple<Func<bool>, string>(() => true, "2")
+            };
+
+            var transitionGuard = new StateMachine<State, Trigger>.TransitionGuard(trueConditions);
+            var transition = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(Trigger.X, State.C, transitionGuard);
+            rep.AddTriggerBehaviour(transition);
+
+            Assert.IsTrue(rep.CanHandle(Trigger.X));
+        }
+
+        [Test]
+        public void WhenTransitionExistAndSuperstateUnmetGuardConditions_FireNotPossible()
+        {
+            StateMachine<State, Trigger>.StateRepresentation super;
+            StateMachine<State, Trigger>.StateRepresentation sub;
+            CreateSuperSubstatePair(out super, out sub);
+
+            var falseConditions = new[] {
+                new Tuple<Func<bool>, string>(() => true, "1"),
+                new Tuple<Func<bool>, string>(() => false, "2")
+            };
+            var transitionGuard = new StateMachine<State, Trigger>.TransitionGuard(falseConditions);
+            var transition = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(Trigger.X, State.C, transitionGuard);
+            super.AddTriggerBehaviour(transition);
+
+            StateMachine<State, Trigger>.TriggerBehaviourResult result;
+            sub.TryFindHandler(Trigger.X, out result);
+
+            Assert.False(sub.CanHandle(Trigger.X));
+            Assert.False(super.CanHandle(Trigger.X));
+            Assert.IsNotNull(result);
+            Assert.False(result?.Handler.GuardConditionsMet);
+            Assert.Contains("2", result?.UnmetGuardConditions.ToArray());
+            
+        }
+        [Test]
+        public void WhenTransitionExistSuperstateMetGuardConditions_CanBeFired()
+        {
+            StateMachine<State, Trigger>.StateRepresentation super;
+            StateMachine<State, Trigger>.StateRepresentation sub;
+            CreateSuperSubstatePair(out super, out sub);
+
+            var trueConditions = new[] {
+                new Tuple<Func<bool>, string>(() => true, "1"),
+                new Tuple<Func<bool>, string>(() => true, "2")
+            };
+            var transitionGuard = new StateMachine<State, Trigger>.TransitionGuard(trueConditions);
+            var transition = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(Trigger.X, State.C, transitionGuard);
+
+            super.AddTriggerBehaviour(transition);
+            StateMachine<State, Trigger>.TriggerBehaviourResult result;
+            sub.TryFindHandler(Trigger.X, out result);
+
+            Assert.True(sub.CanHandle(Trigger.X));
+            Assert.True(super.CanHandle(Trigger.X));
+            Assert.IsNotNull(result);     
+            Assert.True(result?.Handler.GuardConditionsMet);
+            Assert.False(result?.UnmetGuardConditions.Any());
+
         }
 
         void CreateSuperSubstatePair(out StateMachine<State, Trigger>.StateRepresentation super, out StateMachine<State, Trigger>.StateRepresentation sub)

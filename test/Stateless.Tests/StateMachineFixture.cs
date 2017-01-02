@@ -142,6 +142,19 @@ namespace Stateless.Tests
         }
 
         [Test]
+        public void AcceptedTriggersRespectMultipleGuards()
+        {
+            var sm = new StateMachine<State, Trigger>(State.B);
+
+            sm.Configure(State.B)
+                .PermitIf(Trigger.X, State.A,
+                    new Tuple<Func<bool>, string>(() => true, "1"),
+                    new Tuple<Func<bool>, string>(() => false, "2"));
+
+            Assert.AreEqual(0, sm.PermittedTriggers.Count());
+        }
+
+        [Test]
         public void WhenDiscriminatedByGuard_ChoosesPermitedTransition()
         {
             var sm = new StateMachine<State, Trigger>(State.B);
@@ -149,6 +162,24 @@ namespace Stateless.Tests
             sm.Configure(State.B)
                 .PermitIf(Trigger.X, State.A, () => false)
                 .PermitIf(Trigger.X, State.C, () => true);
+
+            sm.Fire(Trigger.X);
+
+            Assert.AreEqual(State.C, sm.State);
+        }
+
+        [Test]
+        public void WhenDiscriminatedByMultiConditionGuard_ChoosesPermitedTransition()
+        {
+            var sm = new StateMachine<State, Trigger>(State.B);
+
+            sm.Configure(State.B)
+                .PermitIf(Trigger.X, State.A,
+                    new Tuple<Func<bool>, string>(() => true, "1"),
+                    new Tuple<Func<bool>, string>(() => false, "2"))
+                .PermitIf(Trigger.X, State.C,
+                    new Tuple<Func<bool>, string>(() => true, "1"),
+                    new Tuple<Func<bool>, string>(() => true, "2"));
 
             sm.Fire(Trigger.X);
 
@@ -200,15 +231,16 @@ namespace Stateless.Tests
         public void TriggerParametersAreImmutableOnceSet()
         {
             var sm = new StateMachine<State, Trigger>(State.B);
-            sm.SetTriggerParameters<string, int>(Trigger.X);          
+            sm.SetTriggerParameters<string, int>(Trigger.X);
             Assert.Throws<InvalidOperationException>(() => sm.SetTriggerParameters<string>(Trigger.X));
         }
 
         [Test]
         public void ExceptionThrownForInvalidTransition()
         {
-            var sm = new StateMachine<State, Trigger>(State.A);          
-            Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X), "No valid leaving transitions are permitted from state 'A' for trigger 'X'.Consider ignoring the trigger.");
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var exception = Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
+            Assert.AreEqual(exception.Message, "No valid leaving transitions are permitted from state 'A' for trigger 'X'. Consider ignoring the trigger.");
         }
 
         [Test]
@@ -220,7 +252,20 @@ namespace Stateless.Tests
 
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A).PermitIf(Trigger.X, State.B, () => false, guardDescription);
-            Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X), "Trigger 'X' is valid for transition from state 'A' but a guard condition is not met. Guard description: 'test'.");
+            var exception = Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
+            Assert.AreEqual(exception.Message, "Trigger 'X' is valid for transition from state 'A' but a guard conditions are not met. Guard descriptions: 'test'.");
+        }
+
+        [Test]
+        public void ExceptionThrownForInvalidTransitionMentionsMultiGuardGuardDescriptionIfPresent()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            sm.Configure(State.A).PermitIf(Trigger.X, State.B,
+                new Tuple<Func<bool>, string>(() => false, "test1"),
+                new Tuple<Func<bool>, string>(() => false, "test2"));
+
+            var exception = Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
+            Assert.AreEqual(exception.Message, "Trigger 'X' is valid for transition from state 'A' but a guard conditions are not met. Guard descriptions: 'test1, test2'.");
         }
 
         [Test]
@@ -259,7 +304,7 @@ namespace Stateless.Tests
 
             State? state = null;
             Trigger? trigger = null;
-            sm.OnUnhandledTrigger((s, t) =>
+            sm.OnUnhandledTrigger((s, t, u) =>
                                       {
                                           state = s;
                                           trigger = t;

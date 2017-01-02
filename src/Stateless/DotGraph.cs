@@ -43,9 +43,9 @@ namespace Stateless
                             unknownDestinations.Add(destination);
                         }
 
-                        string line = (behaviour.Guard.TryGetMethodInfo().DeclaringType.Namespace.Equals("Stateless")) ?
-                            string.Format(" {0} -> {1} [label=\"{2}\"];", source, destination, behaviour.Trigger) :
-                            string.Format(" {0} -> {1} [label=\"{2} [{3}]\"];", source, destination, behaviour.Trigger, behaviour.GuardDescription);
+                        string line = (behaviour.Guards.Any(g => g.TryGetMethodInfo().DeclaringType.Namespace.Equals("Stateless"))) ?
+                               string.Format(" {0} -> {1} [label=\"{2}\"];", source, destination, behaviour.Trigger) :
+                               string.Format(" {0} -> {1} [label=\"{2} [{3}]\"];", source, destination, behaviour.Trigger, behaviour.GuardsDescriptions);
 
                         lines.Add(line);
                     }

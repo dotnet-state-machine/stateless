@@ -15,7 +15,12 @@ namespace Stateless
             }
 
             public IgnoredTriggerBehaviour(TTrigger trigger, Func<bool> guard, string description)
-                : base(trigger, guard, description)
+                : base(trigger, new TransitionGuard(guard, description))
+            {
+            }
+
+            public IgnoredTriggerBehaviour(TTrigger trigger, TransitionGuard transitionGuard)
+                : base(trigger, transitionGuard)
             {
             }
 
