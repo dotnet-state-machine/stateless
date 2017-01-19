@@ -359,5 +359,20 @@ namespace Stateless.Tests
                 Assert.AreEqual(expectedOrdering[i], actualOrdering[i]);
             }
         }
+        [Test]
+        public void CyclicConfigurationDetected()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            Assert.Throws(typeof(ArgumentException),  delegate { sm.Configure(State.A).SubstateOf(State.A); });
+        }
+        [Test]
+        public void NestedCyclicConfigurationDetected()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            sm.Configure(State.B).SubstateOf(State.A);
+
+            Assert.Throws(typeof(ArgumentException), delegate { sm.Configure(State.A).SubstateOf(State.B); });
+        }
     }
 }
