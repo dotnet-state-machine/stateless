@@ -508,6 +508,26 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration SubstateOf(TState superstate)
             {
+                var State = _representation.UnderlyingState;
+
+                // Check for accidental identical cyclic configuration 
+                if (State.Equals(superstate)) { throw new ArgumentException($"Configuring {State} as a substate of {superstate} creates an illegal cyclic configuration."); }
+
+                // Check for accidental identical nested cyclic configuration 
+                List<TState> superstates = new List<TState>();
+                superstates.Add(State);
+
+                // Build list of super states 
+                var activeRepresentation = _lookup(superstate);
+                while (activeRepresentation.Superstate != null)
+                {
+                    superstates.Add(activeRepresentation.Superstate.UnderlyingState);
+                    activeRepresentation = _lookup(activeRepresentation.Superstate.UnderlyingState);
+                }
+
+                if (superstates.GroupBy(n => n).Any(c => c.Count() > 1))
+                { throw new ArgumentException($"Configuring {State} as a substate of {superstate} creates an illegal nested cyclic configuration."); }
+
                 var superRepresentation = _lookup(superstate);
                 _representation.Superstate = superRepresentation;
                 superRepresentation.AddSubstate(_representation);
