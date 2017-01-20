@@ -511,23 +511,27 @@ namespace Stateless
                 var State = _representation.UnderlyingState;
 
                 // Check for accidental identical cyclic configuration 
-                if (State.Equals(superstate)) { throw new ArgumentException($"Configuring {State} as a substate of {superstate} creates an illegal cyclic configuration."); }
+                if (State.Equals(superstate))
+                {
+                    throw new ArgumentException($"Configuring {State} as a substate of {superstate} creates an illegal cyclic configuration.");
+                }
 
                 // Check for accidental identical nested cyclic configuration 
-                List<TState> superstates = new List<TState>();
-                superstates.Add(State);
+                var superstates = new HashSet<TState> { State };
 
-                // Build list of super states 
+                // Build list of super states and check for 
                 var activeRepresentation = _lookup(superstate);
                 while (activeRepresentation.Superstate != null)
                 {
+                    // Check if superstate is already added to hashset
+                    if (superstates.Contains(activeRepresentation.Superstate.UnderlyingState))
+                        throw new ArgumentException($"Configuring {State} as a substate of {superstate} creates an illegal nested cyclic configuration.");
+
                     superstates.Add(activeRepresentation.Superstate.UnderlyingState);
                     activeRepresentation = _lookup(activeRepresentation.Superstate.UnderlyingState);
                 }
 
-                if (superstates.GroupBy(n => n).Any(c => c.Count() > 1))
-                { throw new ArgumentException($"Configuring {State} as a substate of {superstate} creates an illegal nested cyclic configuration."); }
-
+                // The check was OK, we can add this 
                 var superRepresentation = _lookup(superstate);
                 _representation.Superstate = superRepresentation;
                 superRepresentation.AddSubstate(_representation);
