@@ -359,5 +359,45 @@ namespace Stateless.Tests
                 Assert.AreEqual(expectedOrdering[i], actualOrdering[i]);
             }
         }
+
+        [Test]
+        public void DirectCyclicConfigurationDetected()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            Assert.Throws(typeof(ArgumentException),  () => { sm.Configure(State.A).SubstateOf(State.A); });
+        }
+
+        [Test]
+        public void NestedCyclicConfigurationDetected()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            sm.Configure(State.B).SubstateOf(State.A);
+
+            Assert.Throws(typeof(ArgumentException), () => { sm.Configure(State.A).SubstateOf(State.B); });
+        }
+
+        [Test]
+        public void NestedTwoLevelsCyclicConfigurationDetected()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            sm.Configure(State.B).SubstateOf(State.A);
+            sm.Configure(State.C).SubstateOf(State.B);
+
+            Assert.Throws(typeof(ArgumentException), () => { sm.Configure(State.A).SubstateOf(State.C); });
+        }
+
+        [Test]
+        public void DelayedNestedCyclicConfigurationDetected()
+        {
+            // Set up two states and substates, then join them
+            var sm = new StateMachine<State, Trigger>(State.A);
+            sm.Configure(State.B).SubstateOf(State.A);
+
+            sm.Configure(State.C);
+            sm.Configure(State.A).SubstateOf(State.C);
+
+            Assert.Throws(typeof(ArgumentException), () => { sm.Configure(State.C).SubstateOf(State.B); });
+        }
     }
 }
