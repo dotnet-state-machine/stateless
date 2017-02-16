@@ -14,11 +14,11 @@ namespace Stateless.Core.Cartography
         /// <summary>
         /// Produces a DOT GraphViz graph.
         /// </summary>
-        /// <param name="stateMachine">The StateMachine to be mapped.</param>
+        /// <param name="stateMachineInfo">The StateMachineInfo to be mapped.</param>
         /// <returns>DOT GraphViz text.</returns>
-        public string WriteMap(StateMachine<TState, TTrigger> stateMachine)
+        public string WriteMap(StateMachineInfo<TState, TTrigger> stateMachineInfo)
         {
-            var resources = stateMachine.Explore();
+            var resources = stateMachineInfo.StateResources;
 
             List<string> lines = new List<string>();
             List<string> unknownDestinations = new List<string>();

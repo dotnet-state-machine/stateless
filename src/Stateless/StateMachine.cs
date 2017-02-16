@@ -14,7 +14,6 @@ namespace Stateless
     {
         readonly IDictionary<TState, StateRepresentation> _stateConfiguration = new Dictionary<TState, StateRepresentation>();
         readonly IDictionary<TTrigger, TriggerWithParameters> _triggerConfiguration = new Dictionary<TTrigger, TriggerWithParameters>();
-        readonly IExplorer<TState, TTrigger> _explorer = new StateResourceExplorer<TState, TTrigger>();
         readonly Func<TState> _stateAccessor;
         readonly Action<TState> _stateMutator;
         UnhandledTriggerAction _unhandledTriggerAction;
@@ -95,23 +94,15 @@ namespace Stateless
         }
 
         /// <summary>
-        /// Provides a descriptive tree-structure of internal StateMachine structure.
+        /// Provides an info object which exposes the states, transitions, and actions of this machine.
         /// </summary>
-        public ICollection<StateResource<TState, TTrigger>> Explore()
+        public StateMachineInfo<TState, TTrigger> GetStateMachineInfo()
         {
-            return _explorer.Discover(_stateConfiguration);
+            return new StateMachineInfo<TState, TTrigger>(
+                _stateConfiguration.Select(kvp => 
+                    new StateResource<TState, TTrigger>(kvp.Value))
+                .ToList());
         }
-
-        /// <summary>
-        /// Uses the cartography API to write a textual representation of the StateMachine.
-        /// </summary>
-        /// <param name="cartographer">The text builder from the CartographyApi</param>
-        /// <returns></returns>
-        public string WriteMap(ICartographer<TState, TTrigger> cartographer)
-        {
-            return cartographer.WriteMap(this);
-        }
-
 
         StateRepresentation GetRepresentation(TState state)
         {

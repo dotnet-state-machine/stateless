@@ -13,7 +13,7 @@ namespace Stateless
         /// <returns>A description of all simple source states, triggers and destination states.</returns>
         public string ToDotGraph()
         {
-            return WriteMap(new DotGraphCartographer<TState, TTrigger>());
+            return new DotGraphCartographer<TState, TTrigger>().WriteMap(this.GetStateMachineInfo());
         }
 
     }

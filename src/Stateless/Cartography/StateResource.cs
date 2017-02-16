@@ -11,6 +11,11 @@ namespace Stateless.Cartography
     /// </summary>
     public class StateResource<TState, TTrigger>
     {
+        /// <summary>
+        /// Constructs an empty StateResource.
+        /// </summary>
+        public StateResource() { }
+
         internal StateResource(StateMachine<TState, TTrigger>.StateRepresentation stateReperesentation)
         {
             UnderlyingState = stateReperesentation.UnderlyingState;
@@ -51,47 +56,47 @@ namespace Stateless.Cartography
         /// <summary>
         /// The instance or value this resource represents.
         /// </summary>
-        public TState UnderlyingState { get; }
+        public TState UnderlyingState { get; set; }
 
         /// <summary>
         /// Substates defined for this StateResource.
         /// </summary>
-        public ICollection<StateResource<TState, TTrigger>> Substates { get; } = new StateResource<TState, TTrigger>[0];
+        public ICollection<StateResource<TState, TTrigger>> Substates { get; set; } = new StateResource<TState, TTrigger>[0];
 
         /// <summary>
         /// Superstate defined, if any, for this StateResource.
         /// </summary>
-        public StateResource<TState, TTrigger> Superstate { get; }
+        public StateResource<TState, TTrigger> Superstate { get; set; }
 
         /// <summary>
         /// Actions that are defined to be exectuted on state-entry.
         /// </summary>
-        public ICollection<string> EntryActions { get; } = new string[0];
+        public ICollection<string> EntryActions { get; set; } = new string[0];
 
         /// <summary>
         /// Actions that are defined to be exectuted on state-exit.
         /// </summary>
-        public ICollection<string> ExitActions { get; } = new string[0]; 
+        public ICollection<string> ExitActions { get; set; } = new string[0]; 
 
         /// <summary>
         /// Transitions defined for this state.
         /// </summary>
-        public IDictionary<TTrigger, TransitionResource<TState, TTrigger>> Transitions { get; } = new Dictionary<TTrigger, TransitionResource<TState, TTrigger>>();
+        public IDictionary<TTrigger, TransitionResource<TState, TTrigger>> Transitions { get; set; } = new Dictionary<TTrigger, TransitionResource<TState, TTrigger>>();
 
         /// <summary>
         /// Transitions defined for this state internally.
         /// </summary>
-        public IDictionary<TTrigger, TransitionResource<TState, TTrigger>> InternalTransitions { get; } = new Dictionary<TTrigger, TransitionResource<TState, TTrigger>>();
+        public IDictionary<TTrigger, TransitionResource<TState, TTrigger>> InternalTransitions { get; set; } = new Dictionary<TTrigger, TransitionResource<TState, TTrigger>>();
 
         /// <summary>
         /// Dynamic Transitions defined for this state internally.
         /// </summary>
-        public IDictionary<TTrigger, DynamicTransitionResource<TState, TTrigger>> DynamicTransitions { get; } = new Dictionary<TTrigger, DynamicTransitionResource<TState, TTrigger>>();
+        public IDictionary<TTrigger, DynamicTransitionResource<TState, TTrigger>> DynamicTransitions { get; set; } = new Dictionary<TTrigger, DynamicTransitionResource<TState, TTrigger>>();
 
         /// <summary>
         /// Triggers ignored for this state.
         /// </summary>
-        public ICollection<TTrigger> IgnoredTriggers { get; } = new List<TTrigger>();
+        public ICollection<TTrigger> IgnoredTriggers { get; set; } = new List<TTrigger>();
     }
 
     /// <summary>
@@ -99,6 +104,11 @@ namespace Stateless.Cartography
     /// </summary>
     public class TransitionResource<TState, TTrigger>
     {
+        /// <summary>
+        /// Constructs an empty TransitionResource.
+        /// </summary>
+        public TransitionResource() { }
+
         internal TransitionResource(TTrigger trigger, StateMachine<TState, TTrigger>.TransitioningTriggerBehaviour b)
         {
             DestinationState = b.Destination;
@@ -116,18 +126,18 @@ namespace Stateless.Cartography
         /// <summary>
         /// The trigger whose firing resulted in this transition.
         /// </summary>
-        public TTrigger UnderlyingTrigger { get; }
+        public TTrigger UnderlyingTrigger { get; set; }
 
         /// <summary>
         /// Textual representation of the State into which will be transitioned.
         /// </summary>
-        public TState DestinationState { get; }
+        public TState DestinationState { get; set; }
 
 
         /// <summary>
         /// Description of provided guard clause, if any.
         /// </summary>
-        public string GuardDescription { get; }
+        public string GuardDescription { get; set; }
     }
 
     /// <summary>
@@ -135,6 +145,11 @@ namespace Stateless.Cartography
     /// </summary>
     public class DynamicTransitionResource<TState, TTrigger>
     {
+        /// <summary>
+        /// Constructs an empty DynamicTransitionResource.
+        /// </summary>
+        public DynamicTransitionResource() { }
+
         internal DynamicTransitionResource(TTrigger trigger, StateMachine<TState, TTrigger>.DynamicTriggerBehaviour b, string desitination)
         {
             Destination = desitination;
@@ -143,16 +158,16 @@ namespace Stateless.Cartography
         /// <summary>
         /// The trigger whose firing resulted in this transition.
         /// </summary>
-        public TTrigger UnderlyingTrigger { get; }
+        public TTrigger UnderlyingTrigger { get; set; }
 
         /// <summary>
         /// Friendly text for dynamic transitions.
         /// </summary>
-        public string Destination { get; }
+        public string Destination { get; set; }
 
         /// <summary>
         /// Description of provided guard clause, if any.
         /// </summary>
-        public string GuardDescription { get; }
+        public string GuardDescription { get; set; }
     }
 }
