@@ -157,5 +157,43 @@ namespace Stateless.Tests
             sm.Fire(Trigger.Y);
             Assert.AreEqual(State.B, sm.State);
         }
+
+        [Test]
+        public void AllowTriggerWithTwoParameters()
+        {
+            var sm = new StateMachine<State, Trigger>(State.B);
+            var trigger = sm.SetTriggerParameters<int, string>(Trigger.X);
+            const int intParam = 5;
+            const string strParam = "Five";
+
+            sm.Configure(State.B)
+                .InternalTransition(trigger, (i, s, transition) =>
+                {
+                    Assert.That(i, Is.EqualTo(intParam));
+                    Assert.That(s, Is.EqualTo(strParam));
+                });
+
+            sm.Fire(trigger, intParam, strParam);
+        }
+
+        [Test]
+        public void AllowTriggerWithThreeParameters()
+        {
+            var sm = new StateMachine<State, Trigger>(State.B);
+            var trigger = sm.SetTriggerParameters<int, string, bool>(Trigger.X);
+            const int intParam = 5;
+            const string strParam = "Five";
+            var boolParam = true;
+
+            sm.Configure(State.B)
+                .InternalTransition(trigger, (i, s, b, transition) =>
+                {
+                    Assert.That(i, Is.EqualTo(intParam));
+                    Assert.That(s, Is.EqualTo(strParam));
+                    Assert.That(b, Is.EqualTo(boolParam));
+                });
+
+            sm.Fire(trigger, intParam, strParam, boolParam);
+        }
     }
 }
