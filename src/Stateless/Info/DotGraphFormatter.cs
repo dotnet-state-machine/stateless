@@ -1,41 +1,38 @@
-﻿using Stateless.Cartography;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Stateless.Core.Cartography
+namespace Stateless.Reflection
 {
     /// <summary>
-    /// DOT GraphViz text writer for cartographer API.
+    /// DOT GraphViz text writer for reflection API.
     /// </summary>
-    /// <typeparam name="TState"></typeparam>
-    /// <typeparam name="TTrigger"></typeparam>
-    public class DotGraphCartographer<TState, TTrigger> : ICartographer<TState, TTrigger>
+    public class DotGraphFormatter : IStateMachineInfoFormatter
     {
         /// <summary>
         /// Produces a DOT GraphViz graph.
         /// </summary>
         /// <param name="stateMachineInfo">The StateMachineInfo to be mapped.</param>
         /// <returns>DOT GraphViz text.</returns>
-        public string WriteMap(StateMachineInfo<TState, TTrigger> stateMachineInfo)
+        public string Format(StateMachineInfo stateMachineInfo)
         {
-            var resources = stateMachineInfo.StateResources;
+            var bindings = stateMachineInfo.StateBindings;
 
             List<string> lines = new List<string>();
             List<string> unknownDestinations = new List<string>();
 
-            foreach (var stateCfg in resources)
+            foreach (var binding in bindings)
             {
-                unknownDestinations.AddRange(stateCfg.DynamicTransitions.Select(t => t.Value.Destination));
+                unknownDestinations.AddRange(binding.DynamicTransitions.Select(t => t.Destination));
 
-                var source = stateCfg.UnderlyingState.ToString();
-                foreach (var behaviours in stateCfg.Transitions.Concat(stateCfg.InternalTransitions))
+                var source = binding.State.ToString();
+                foreach (var transition in binding.Transitions.Concat(binding.InternalTransitions))
                 {
-                    HandleTransitions(ref lines, source, behaviours.Key.ToString(), behaviours.Value.DestinationState.ToString(), behaviours.Value.GuardDescription);
+                    HandleTransitions(ref lines, source, transition.Trigger.ToString(), transition.DestinationState.ToString(), transition.GuardDescription);
                 }
 
-                foreach (var behaviours in stateCfg.DynamicTransitions)
+                foreach (var transition in binding.DynamicTransitions)
                 {
-                    HandleTransitions(ref lines, source, behaviours.Key.ToString(), behaviours.Value.Destination, behaviours.Value.GuardDescription);
+                    HandleTransitions(ref lines, source, transition.Trigger.ToString(), transition.Destination, transition.GuardDescription);
                 }
             }
 
@@ -45,21 +42,21 @@ namespace Stateless.Core.Cartography
                 lines.Insert(0, label);
             }
 
-            if (resources.Any(s => s.EntryActions.Any() || s.ExitActions.Any()))
+            if (bindings.Any(s => s.EntryActions.Any() || s.ExitActions.Any()))
             {
                 lines.Add("node [shape=box];");
 
-                foreach (var stateCfg in resources)
+                foreach (var binding in bindings)
                 {
-                    var source = stateCfg.UnderlyingState.ToString();
+                    var source = binding.State.ToString();
 
-                    foreach (var entryActionBehaviour in stateCfg.EntryActions)
+                    foreach (var entryActionBehaviour in binding.EntryActions)
                     {
                         string line = string.Format(" {0} -> \"{1}\" [label=\"On Entry\" style=dotted];", source, entryActionBehaviour);
                         lines.Add(line);
                     }
 
-                    foreach (var exitActionBehaviour in stateCfg.ExitActions)
+                    foreach (var exitActionBehaviour in binding.ExitActions)
                     {
                         string line = string.Format(" {0} -> \"{1}\" [label=\"On Exit\" style=dotted];", source, exitActionBehaviour);
                         lines.Add(line);

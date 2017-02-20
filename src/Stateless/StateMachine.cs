@@ -1,4 +1,4 @@
-﻿using Stateless.Cartography;
+﻿using Stateless.Reflection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -96,11 +96,11 @@ namespace Stateless
         /// <summary>
         /// Provides an info object which exposes the states, transitions, and actions of this machine.
         /// </summary>
-        public StateMachineInfo<TState, TTrigger> GetStateMachineInfo()
+        public StateMachineInfo GetStateMachineInfo()
         {
-            return new StateMachineInfo<TState, TTrigger>(
+            return new StateMachineInfo(
                 _stateConfiguration.Select(kvp => 
-                    new StateResource<TState, TTrigger>(kvp.Value))
+                    StateBindingInfo.CreateStateBindingInfo(kvp.Value))
                 .ToList());
         }
 

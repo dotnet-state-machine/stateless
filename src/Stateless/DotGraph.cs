@@ -1,7 +1,7 @@
-﻿using Stateless.Core.Cartography;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Stateless.Reflection;
 
 namespace Stateless
 {
@@ -13,7 +13,7 @@ namespace Stateless
         /// <returns>A description of all simple source states, triggers and destination states.</returns>
         public string ToDotGraph()
         {
-            return new DotGraphCartographer<TState, TTrigger>().WriteMap(this.GetStateMachineInfo());
+            return new DotGraphFormatter().Format(this.GetStateMachineInfo());
         }
 
     }
