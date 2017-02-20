@@ -165,15 +165,18 @@ namespace Stateless.Tests
             var trigger = sm.SetTriggerParameters<int, string>(Trigger.X);
             const int intParam = 5;
             const string strParam = "Five";
+            var callbackInvoked = false;
 
             sm.Configure(State.B)
                 .InternalTransition(trigger, (i, s, transition) =>
                 {
+                    callbackInvoked = true;
                     Assert.That(i, Is.EqualTo(intParam));
                     Assert.That(s, Is.EqualTo(strParam));
                 });
 
             sm.Fire(trigger, intParam, strParam);
+            Assert.That(callbackInvoked, Is.True);
         }
 
         [Test]
@@ -184,16 +187,19 @@ namespace Stateless.Tests
             const int intParam = 5;
             const string strParam = "Five";
             var boolParam = true;
+            var callbackInvoked = false;
 
             sm.Configure(State.B)
                 .InternalTransition(trigger, (i, s, b, transition) =>
                 {
+                    callbackInvoked = true;
                     Assert.That(i, Is.EqualTo(intParam));
                     Assert.That(s, Is.EqualTo(strParam));
                     Assert.That(b, Is.EqualTo(boolParam));
                 });
 
             sm.Fire(trigger, intParam, strParam, boolParam);
+            Assert.That(callbackInvoked, Is.True);
         }
     }
 }
