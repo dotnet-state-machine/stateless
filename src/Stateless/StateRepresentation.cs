@@ -43,45 +43,51 @@ namespace Stateless
 
             public bool CanHandle(TTrigger trigger)
             {
-                TriggerBehaviour unused;
+                TriggerBehaviourResult unused;
                 return TryFindHandler(trigger, out unused);
             }
 
-            public bool TryFindHandler(TTrigger trigger, out TriggerBehaviour handler)
+            public bool TryFindHandler(TTrigger trigger, out TriggerBehaviourResult handler)
             {
-                return (TryFindLocalHandler(trigger, out handler, t => t.IsGuardConditionMet) ||
+                return (TryFindLocalHandler(trigger, out handler) ||
                     (Superstate != null && Superstate.TryFindHandler(trigger, out handler)));
             }
 
-            bool TryFindLocalHandler(TTrigger trigger, out TriggerBehaviour handler, params Func<TriggerBehaviour, bool>[] filters)
+            bool TryFindLocalHandler(TTrigger trigger, out TriggerBehaviourResult handlerResult)
             {
                 ICollection<TriggerBehaviour> possible;
                 if (!_triggerBehaviours.TryGetValue(trigger, out possible))
                 {
-                    handler = null;
+                    handlerResult = null;
                     return false;
                 }
 
-                var actual = filters.Aggregate(possible, (current, filter) => current.Where(filter).ToArray());
+                // Guard functions executed
+                var actual = possible
+                    .Select(h => new TriggerBehaviourResult(h, h.UnmetGuardConditions));
+        
+                handlerResult = TryFindLocalHandlerResult(trigger, actual, r => !r.UnmetGuardConditions.Any())
+                    ?? TryFindLocalHandlerResult(trigger, actual, r => r.UnmetGuardConditions.Any());
+
+                return !handlerResult.UnmetGuardConditions.Any();
+            }
+
+            TriggerBehaviourResult TryFindLocalHandlerResult(TTrigger trigger, IEnumerable<TriggerBehaviourResult> results, Func<TriggerBehaviourResult, bool> filter)
+            {
+                var actual = results
+                    .Where(filter);
 
                 if (actual.Count() > 1)
                     throw new InvalidOperationException(
                         string.Format(StateRepresentationResources.MultipleTransitionsPermitted,
                         trigger, _state));
 
-                handler = actual.FirstOrDefault();
-                return handler != null;
+                return actual
+                    .FirstOrDefault();
             }
-
-            public bool TryFindHandlerWithUnmetGuardCondition(TTrigger trigger, out TriggerBehaviour handler)
-            {
-                return (TryFindLocalHandler(trigger, out handler, t => !t.IsGuardConditionMet) || 
-                    (Superstate != null && Superstate.TryFindHandlerWithUnmetGuardCondition(trigger, out handler)));
-            }
-
             public void AddActivateAction(Action action, string activateActionDescription)
             {
-                _activateActions.Add(                    
+                _activateActions.Add(
                     new ActivateActionBehaviour.Sync(
                         _state,
                         Enforce.ArgumentNotNull(action, nameof(action)),
@@ -298,7 +304,7 @@ namespace Stateless
                 get
                 {
                     var result = _triggerBehaviours
-                        .Where(t => t.Value.Any(a => a.IsGuardConditionMet))
+                        .Where(t => t.Value.Any(a => !a.UnmetGuardConditions.Any()))
                         .Select(t => t.Key);
 
                     if (Superstate != null)

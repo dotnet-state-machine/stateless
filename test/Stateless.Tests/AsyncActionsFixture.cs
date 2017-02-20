@@ -41,7 +41,7 @@ namespace Stateless.Tests
             sm.Configure(State.B)
               .OnEntryAsync(() => TaskResult.Done);
 
-            Assert.Throws<InvalidOperationException>(()=> sm.Fire(Trigger.X));
+            Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
         }
 
         [Test]
@@ -79,7 +79,7 @@ namespace Stateless.Tests
 
             var test = "";
             sm.Configure(State.A)
-              .InternalTransitionAsync(Trigger.X, ()=> Task.Run(() => test = "foo"));
+              .InternalTransitionAsync(Trigger.X, () => Task.Run(() => test = "foo"));
 
             await sm.FireAsync(Trigger.X);
 
@@ -92,7 +92,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-              .InternalTransitionAsync(Trigger.X, ()=> TaskResult.Done);
+              .InternalTransitionAsync(Trigger.X, () => TaskResult.Done);
 
             Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
         }
@@ -154,7 +154,7 @@ namespace Stateless.Tests
               .Permit(Trigger.X, State.B);
 
             var test = "";
-            sm.OnUnhandledTriggerAsync((s, t)=>Task.Run(() => test = "foo"));
+            sm.OnUnhandledTriggerAsync((s, t, u) => Task.Run(() => test = "foo"));
 
             await sm.FireAsync(Trigger.Z);
 
@@ -169,7 +169,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
               .Permit(Trigger.X, State.B);
 
-            sm.OnUnhandledTriggerAsync((s,t) => TaskResult.Done);
+            sm.OnUnhandledTriggerAsync((s, t, u) => TaskResult.Done);
 
             Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.Z));
         }
@@ -181,7 +181,7 @@ namespace Stateless.Tests
 
             var activated = false;
             sm.Configure(State.A)
-              .OnActivateAsync(() => Task.Run(()=> activated = true));
+              .OnActivateAsync(() => Task.Run(() => activated = true));
 
             await sm.ActivateAsync();
 
@@ -195,7 +195,7 @@ namespace Stateless.Tests
 
             var deactivated = false;
             sm.Configure(State.A)
-              .OnDeactivateAsync(() => Task.Run(()=> deactivated = true));
+              .OnDeactivateAsync(() => Task.Run(() => deactivated = true));
 
             await sm.ActivateAsync();
             await sm.DeactivateAsync();

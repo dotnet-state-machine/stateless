@@ -111,15 +111,15 @@ namespace Stateless
             var source = State;
             var representativeState = GetRepresentation(source);
 
-            TriggerBehaviour triggerBehaviour;
-            if (!representativeState.TryFindHandler(trigger, out triggerBehaviour))
+            TriggerBehaviourResult result;
+            if (!representativeState.TryFindHandler(trigger, out result))
             {
-                await _unhandledTriggerAction.ExecuteAsync(representativeState.UnderlyingState, trigger);
+                await _unhandledTriggerAction.ExecuteAsync(representativeState.UnderlyingState, trigger, result?.UnmetGuardConditions);
                 return;
             }
 
             TState destination;
-            if (triggerBehaviour.ResultsInTransitionFrom(source, args, out destination))
+            if (result.Handler.ResultsInTransitionFrom(source, args, out destination))
             {
                 var transition = new Transition(source, destination, trigger);
 
@@ -143,8 +143,19 @@ namespace Stateless
         /// Override the default behaviour of throwing an exception when an unhandled trigger
         /// is fired.
         /// </summary>
-        /// <param name="unhandledTriggerAction">An asynchronous action to call when an unhandled trigger is fired.</param>
+        /// <param name="unhandledTriggerAction"></param>
         public void OnUnhandledTriggerAsync(Func<TState, TTrigger, Task> unhandledTriggerAction)
+        {
+            if (unhandledTriggerAction == null) throw new ArgumentNullException("unhandledTriggerAction");
+            _unhandledTriggerAction = new UnhandledTriggerAction.Async((s, t, c) => unhandledTriggerAction(s, t));
+        }
+
+        /// <summary>
+        /// Override the default behaviour of throwing an exception when an unhandled trigger
+        /// is fired.
+        /// </summary>
+        /// <param name="unhandledTriggerAction">An asynchronous action to call when an unhandled trigger is fired.</param>
+        public void OnUnhandledTriggerAsync(Func<TState, TTrigger, ICollection<string>, Task> unhandledTriggerAction)
         {
             if (unhandledTriggerAction == null) throw new ArgumentNullException("unhandledTriggerAction");
             _unhandledTriggerAction = new UnhandledTriggerAction.Async(unhandledTriggerAction);
