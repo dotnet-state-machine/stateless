@@ -171,7 +171,7 @@ namespace Stateless.Reflection
                     TriggerType = trigger.GetType() 
                 },
                 DestinationState = new StateInfo { Value = b.Destination, StateType = typeof(TState) },
-                GuardDescription = string.IsNullOrWhiteSpace(b.GuardDescription) ? null : b.GuardDescription
+                GuardDescription = string.IsNullOrWhiteSpace(b.GuardsDescriptions) ? null : b.GuardsDescriptions
             };
 
             return transition;
@@ -187,7 +187,7 @@ namespace Stateless.Reflection
                     TriggerType = typeof(TTrigger) 
                 },
                 DestinationState = new StateInfo { Value = destination, StateType = typeof(TState) },
-                GuardDescription = string.IsNullOrWhiteSpace(b.GuardDescription) ? null : b.GuardDescription
+                GuardDescription = string.IsNullOrWhiteSpace(b.GuardsDescriptions) ? null : b.GuardsDescriptions
             };
 
             return transition;
