@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System.Linq;
+using NUnit.Framework;
 
 namespace Stateless.Tests
 {
@@ -200,6 +201,19 @@ namespace Stateless.Tests
 
             sm.Fire(trigger, intParam, strParam, boolParam);
             Assert.That(callbackInvoked, Is.True);
+        }
+
+        [Test]
+        public void ConditionalInternalTransition_ShouldBeReflectedInPermittedTriggers()
+        {
+            var isPermitted = true;
+            var sm = new StateMachine<State, Trigger>(State.A);
+            sm.Configure(State.A)
+                .InternalTransitionIf(Trigger.X, () => isPermitted, t => { });
+
+            Assert.That(sm.PermittedTriggers.ToArray().Length, Is.EqualTo(1));
+            isPermitted = false;
+            Assert.That(sm.PermittedTriggers.ToArray().Length, Is.EqualTo(0));
         }
     }
 }
