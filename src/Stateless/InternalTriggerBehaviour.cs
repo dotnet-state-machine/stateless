@@ -6,10 +6,6 @@ namespace Stateless
     {
         internal class InternalTriggerBehaviour : TriggerBehaviour
         {
-            public InternalTriggerBehaviour(TTrigger trigger)
-                : base(trigger, new TransitionGuard(() => true, "Internal Transition"))
-            {
-            }
             public InternalTriggerBehaviour(TTrigger trigger, Func<bool> guard)
                 : base(trigger, new TransitionGuard(guard, "Internal Transition"))
             {
