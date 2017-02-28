@@ -101,7 +101,7 @@ namespace Stateless
                 result = new StateRepresentation(state);
                 _stateConfiguration.Add(state, result);
             }
-
+            
             return result;
         }
 
