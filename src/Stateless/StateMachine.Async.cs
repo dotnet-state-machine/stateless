@@ -58,7 +58,7 @@ namespace Stateless
         /// not allow the trigger to be fired.</exception>
         public Task FireAsync<TArg0>(TriggerWithParameters<TArg0> trigger, TArg0 arg0)
         {
-            Enforce.ArgumentNotNull(trigger, "trigger");
+            Enforce.ArgumentNotNull(trigger, nameof(trigger));
             return InternalFireAsync(trigger.Trigger, arg0);
         }
 
@@ -77,7 +77,7 @@ namespace Stateless
         /// not allow the trigger to be fired.</exception>
         public Task FireAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, TArg0 arg0, TArg1 arg1)
         {
-            Enforce.ArgumentNotNull(trigger, "trigger");
+            Enforce.ArgumentNotNull(trigger, nameof(trigger));
             return InternalFireAsync(trigger.Trigger, arg0, arg1);
         }
 
@@ -98,7 +98,7 @@ namespace Stateless
         /// not allow the trigger to be fired.</exception>
         public Task FireAsync<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, TArg0 arg0, TArg1 arg1, TArg2 arg2)
         {
-            Enforce.ArgumentNotNull(trigger, "trigger");
+            Enforce.ArgumentNotNull(trigger, nameof(trigger));
             return InternalFireAsync(trigger.Trigger, arg0, arg1, arg2);
         }
 

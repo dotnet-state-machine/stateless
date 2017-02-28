@@ -128,7 +128,7 @@ namespace Stateless
 
             internal void AddInternalAction(TTrigger trigger, Action<Transition, object[]> action)
             {
-                Enforce.ArgumentNotNull(action, "action");
+                Enforce.ArgumentNotNull(action, nameof(action));
 
                 _internalActions.Add(new InternalActionBehaviour.Sync((t, args) =>
                 {
@@ -311,7 +311,7 @@ namespace Stateless
 
             internal void InternalAction(Transition transition, object[] args)
             {
-                Enforce.ArgumentNotNull(transition, "transition");
+                Enforce.ArgumentNotNull(transition, nameof(transition));
                 ExecuteInternalActions(transition, args);
             }
         }
