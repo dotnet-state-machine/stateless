@@ -84,6 +84,17 @@ namespace Stateless
             }
         }
 
+        /// <summary>
+        /// The currently-not-permissible trigger values.
+        /// </summary>
+        public Dictionary<TTrigger, HashSet<string>> NotPermittedTriggers
+        {
+            get
+            {
+                return CurrentRepresentation.NotPermittedTriggers;
+            }
+        }
+
         StateRepresentation CurrentRepresentation
         {
             get

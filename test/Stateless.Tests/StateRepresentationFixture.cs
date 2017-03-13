@@ -374,7 +374,131 @@ namespace Stateless.Tests
 
         }
 
-        void CreateSuperSubstatePair(out StateMachine<State, Trigger>.StateRepresentation super, out StateMachine<State, Trigger>.StateRepresentation sub)
+        [Test]
+        public void WhenDiscriminatedByGuard_GetGuardDescription()
+        {
+            var guardDescription = "message 1";
+            var stateRepresentation = CreateRepresentation(State.A);
+            var falseCondition = new[] {
+                new Tuple<Func<bool>, string>(() => false, guardDescription),
+            };
+            var transitionGuard = new StateMachine<State, Trigger>.TransitionGuard(falseCondition);
+            var transition = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(Trigger.X, State.C, transitionGuard);
+
+            stateRepresentation.AddTriggerBehaviour(transition);
+
+            Assert.AreEqual(1, stateRepresentation.NotPermittedTriggers.Count);
+            Assert.AreEqual(1, stateRepresentation.NotPermittedTriggers.Keys.Count);
+            Assert.IsTrue(stateRepresentation.NotPermittedTriggers.Keys.Contains(Trigger.X));
+            Assert.AreEqual(1, stateRepresentation.NotPermittedTriggers[Trigger.X].Count);
+            Assert.IsTrue(stateRepresentation.NotPermittedTriggers[Trigger.X].Contains(guardDescription));
+        }
+
+        [Test]
+        public void WhenDiscriminatedByGuards_GetGuardDescriptions()
+        {
+            var guardDescription1 = "message 1";
+            var guardDescription2 = "message 2";
+            var stateRepresentation = CreateRepresentation(State.A);
+            var falseConditions = new[] {
+                new Tuple<Func<bool>, string>(() => false, guardDescription1),
+                new Tuple<Func<bool>, string>(() => false, guardDescription2),
+            };
+            var transitionGuard = new StateMachine<State, Trigger>.TransitionGuard(falseConditions);
+            var transition = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(Trigger.X, State.C, transitionGuard);
+
+            stateRepresentation.AddTriggerBehaviour(transition);
+
+            Assert.AreEqual(1, stateRepresentation.NotPermittedTriggers.Count);
+            Assert.AreEqual(1, stateRepresentation.NotPermittedTriggers.Keys.Count);
+            Assert.IsTrue(stateRepresentation.NotPermittedTriggers.Keys.Contains(Trigger.X));
+            Assert.AreEqual(2, stateRepresentation.NotPermittedTriggers[Trigger.X].Count);
+            Assert.IsTrue(stateRepresentation.NotPermittedTriggers[Trigger.X].Contains(guardDescription1));
+            Assert.IsTrue(stateRepresentation.NotPermittedTriggers[Trigger.X].Contains(guardDescription2));
+        }
+
+        [Test]
+        public void WhenDiscriminatedByGuard_NotGetDescriptionFromValidGuards()
+        {
+            var guardDescription1 = "message 1";
+            var guardDescription2 = "valid guard";
+            var stateRepresentation = CreateRepresentation(State.A);
+            var falseConditions = new[] {
+                new Tuple<Func<bool>, string>(() => false, guardDescription1),
+                new Tuple<Func<bool>, string>(() => true, guardDescription2),
+            };
+            var transitionGuard = new StateMachine<State, Trigger>.TransitionGuard(falseConditions);
+            var transition = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(Trigger.X, State.C, transitionGuard);
+
+            stateRepresentation.AddTriggerBehaviour(transition);
+
+            Assert.AreEqual(1, stateRepresentation.NotPermittedTriggers.Count);
+            Assert.AreEqual(1, stateRepresentation.NotPermittedTriggers.Keys.Count);
+            Assert.IsTrue(stateRepresentation.NotPermittedTriggers.Keys.Contains(Trigger.X));
+            Assert.AreEqual(1, stateRepresentation.NotPermittedTriggers[Trigger.X].Count);
+            Assert.IsTrue(stateRepresentation.NotPermittedTriggers[Trigger.X].Contains(guardDescription1));
+            Assert.IsFalse(stateRepresentation.NotPermittedTriggers[Trigger.X].Contains(guardDescription2));
+        }
+
+        [Test]
+        public void WhenDiscriminatedByGuardsInMultipleTransitions_GetGuardDescriptionsForeachTrigger()
+        {
+            var guardDescription1 = "message 1";
+            var guardDescription2 = "valid guard";
+            var guardDescription3 = "message 2";
+            var stateRepresentation = CreateRepresentation(State.A);
+            var falseConditions1 = new[] {
+                new Tuple<Func<bool>, string>(() => false, guardDescription1),
+                new Tuple<Func<bool>, string>(() => true, guardDescription2),
+            };
+            var transitionGuard1 = new StateMachine<State, Trigger>.TransitionGuard(falseConditions1);
+            var transition1 = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(Trigger.X, State.C, transitionGuard1);
+            stateRepresentation.AddTriggerBehaviour(transition1);
+
+            var falseConditions2 = new[] {
+                new Tuple<Func<bool>, string>(() => false, guardDescription3),
+            };
+            var transitionGuard2 = new StateMachine<State, Trigger>.TransitionGuard(falseConditions2);
+            var transition2 = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(Trigger.Y, State.B, transitionGuard2);
+            stateRepresentation.AddTriggerBehaviour(transition2);
+
+            Assert.AreEqual(2, stateRepresentation.NotPermittedTriggers.Count);
+            Assert.AreEqual(2, stateRepresentation.NotPermittedTriggers.Keys.Count);
+            Assert.IsTrue(stateRepresentation.NotPermittedTriggers.Keys.Contains(Trigger.X));
+            Assert.IsTrue(stateRepresentation.NotPermittedTriggers.Keys.Contains(Trigger.Y));
+            Assert.AreEqual(1, stateRepresentation.NotPermittedTriggers[Trigger.X].Count);
+            Assert.IsTrue(stateRepresentation.NotPermittedTriggers[Trigger.X].Contains(guardDescription1));
+            Assert.IsFalse(stateRepresentation.NotPermittedTriggers[Trigger.X].Contains(guardDescription2));
+            Assert.AreEqual(1, stateRepresentation.NotPermittedTriggers[Trigger.Y].Count);
+            Assert.IsTrue(stateRepresentation.NotPermittedTriggers[Trigger.Y].Contains(guardDescription3));
+        }
+
+        [Test]
+        public void DistinctGuardDescriptionForTriggerWhenDiscriminatedByGuards()
+        {
+            var guardDescription1 = "message 1";
+            var guardDescription2 = "message 2";
+
+            var stateRepresentation = CreateRepresentation(State.A);
+            var falseConditions = new[] {
+                new Tuple<Func<bool>, string>(() => false, guardDescription1),
+                new Tuple<Func<bool>, string>(() => false, guardDescription2),
+                new Tuple<Func<bool>, string>(() => false, guardDescription1),
+            };
+            var transitionGuard = new StateMachine<State, Trigger>.TransitionGuard(falseConditions);
+            var transition = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(Trigger.X, State.C, transitionGuard);
+
+            stateRepresentation.AddTriggerBehaviour(transition);
+
+            Assert.AreEqual(1, stateRepresentation.NotPermittedTriggers.Count);
+            Assert.AreEqual(1, stateRepresentation.NotPermittedTriggers.Keys.Count);
+            Assert.IsTrue(stateRepresentation.NotPermittedTriggers.Keys.Contains(Trigger.X));
+            Assert.AreEqual(2, stateRepresentation.NotPermittedTriggers[Trigger.X].Count);
+            Assert.IsTrue(stateRepresentation.NotPermittedTriggers[Trigger.X].Contains(guardDescription2));
+            Assert.AreEqual(1, stateRepresentation.NotPermittedTriggers[Trigger.X].Count(x => x == guardDescription2));
+        }
+
+            void CreateSuperSubstatePair(out StateMachine<State, Trigger>.StateRepresentation super, out StateMachine<State, Trigger>.StateRepresentation sub)
         {
             super = CreateRepresentation(State.A);
             sub = CreateRepresentation(State.B);

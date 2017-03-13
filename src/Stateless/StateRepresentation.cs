@@ -309,6 +309,31 @@ namespace Stateless
                 }
             }
 
+            public Dictionary<TTrigger, HashSet<string>> NotPermittedTriggers
+            {
+                get
+                {
+                    Dictionary<TTrigger, HashSet<string>> result = new Dictionary<TTrigger, HashSet<string>>();
+                    foreach (var triggerBehavior in _triggerBehaviours.Where(t => t.Value.Any(a => a.UnmetGuardConditions.Any())))
+                    {
+                        if (!result.Keys.Contains(triggerBehavior.Key))
+                        {
+                            result.Add(triggerBehavior.Key, new HashSet<string>());
+                        }
+                        foreach (var condition in triggerBehavior.Value.Select(c => c.UnmetGuardConditions))
+                        {
+                            result[triggerBehavior.Key].UnionWith(condition);
+                        }
+
+                    }
+
+                    if (Superstate != null)
+                        result = result.Union(Superstate.NotPermittedTriggers).ToDictionary(t => t.Key, t => t.Value);
+
+                    return result;
+                }
+            }
+
             internal void InternalAction(Transition transition, object[] args)
             {
                 Enforce.ArgumentNotNull(transition, nameof(transition));
