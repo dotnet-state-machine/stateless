@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>Stateless-KrauseT</id>
+    <version>3.1.0-beta</version>
+    <title>Stateless-KrauseT</title>
+    <authors>Stateless Contributors</authors>
+    <owners>Stateless Contributors</owners>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <projectUrl>https://github.com/dotnet-state-machine/stateless</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/dotnet-state-machine/stateless/dev/asset/Stateless.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Create state machines and lightweight state machine-based workflows directly in .NET code. Modification of functionallity to get the description of the failed guard conditions.</description>
+    <language>en-US</language>
+    <tags></tags>
+    <dependencies>
+      <group targetFramework=".NETFramework4.0" />
+      <group targetFramework=".NETFramework4.5" />
+      <group targetFramework=".NETPortable4.5-Profile259">
+        <dependency id="NETStandard.Library" version="[1.6.1, )" />
+      </group>
+      <group targetFramework=".NETStandard1.0">
+        <dependency id="NETStandard.Library" version="[1.6.1, )" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>
