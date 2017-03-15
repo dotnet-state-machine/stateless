@@ -42,6 +42,14 @@ namespace Stateless
                 return TryFindHandler(trigger, out unused);
             }
 
+            public bool CanHandle(TTrigger trigger, out IEnumerable<string> errorMessages)
+            {
+                TriggerBehaviourResult unused;
+                var result = TryFindHandler(trigger, out unused);
+                errorMessages = unused.UnmetGuardConditions;
+                return result;
+            }
+
             public bool TryFindHandler(TTrigger trigger, out TriggerBehaviourResult handler)
             {
                 return (TryFindLocalHandler(trigger, out handler) ||

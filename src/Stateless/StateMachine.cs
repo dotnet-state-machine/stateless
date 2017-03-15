@@ -334,6 +334,18 @@ namespace Stateless
         }
 
         /// <summary>
+        /// Returns true if <paramref name="trigger"/> can be fired
+        /// in the current state.
+        /// </summary>
+        /// <param name="trigger">Trigger to test.</param>
+        /// <param name="errorMessages">Messages of failed guard conditions.</param>
+        /// <returns>True if the trigger can be fired, false otherwise.</returns>
+        public bool CanFire(TTrigger trigger, out IEnumerable<string> errorMessages)
+        {
+            return CurrentRepresentation.CanHandle(trigger, out errorMessages);
+        }
+
+        /// <summary>
         /// A human-readable representation of the state machine.
         /// </summary>
         /// <returns>A description of the current state and permitted triggers.</returns>
