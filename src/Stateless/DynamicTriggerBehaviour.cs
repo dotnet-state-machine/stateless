@@ -14,7 +14,7 @@ namespace Stateless
             public DynamicTriggerBehaviour(TTrigger trigger, Func<object[], TState> destination, TransitionGuard transitionGuard)
                 : base(trigger, transitionGuard)
             {
-                _destination = Enforce.ArgumentNotNull(destination, "destination");
+                _destination = Enforce.ArgumentNotNull(destination, nameof(destination));
             }
 
             public override bool ResultsInTransitionFrom(TState source, object[] args, out TState destination)

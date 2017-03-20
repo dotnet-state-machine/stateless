@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System.Linq;
+using NUnit.Framework;
 
 namespace Stateless.Tests
 {
@@ -156,6 +157,63 @@ namespace Stateless.Tests
             Assert.AreEqual(State.B, sm.State);
             sm.Fire(Trigger.Y);
             Assert.AreEqual(State.B, sm.State);
+        }
+
+        [Test]
+        public void AllowTriggerWithTwoParameters()
+        {
+            var sm = new StateMachine<State, Trigger>(State.B);
+            var trigger = sm.SetTriggerParameters<int, string>(Trigger.X);
+            const int intParam = 5;
+            const string strParam = "Five";
+            var callbackInvoked = false;
+
+            sm.Configure(State.B)
+                .InternalTransition(trigger, (i, s, transition) =>
+                {
+                    callbackInvoked = true;
+                    Assert.That(i, Is.EqualTo(intParam));
+                    Assert.That(s, Is.EqualTo(strParam));
+                });
+
+            sm.Fire(trigger, intParam, strParam);
+            Assert.That(callbackInvoked, Is.True);
+        }
+
+        [Test]
+        public void AllowTriggerWithThreeParameters()
+        {
+            var sm = new StateMachine<State, Trigger>(State.B);
+            var trigger = sm.SetTriggerParameters<int, string, bool>(Trigger.X);
+            const int intParam = 5;
+            const string strParam = "Five";
+            var boolParam = true;
+            var callbackInvoked = false;
+
+            sm.Configure(State.B)
+                .InternalTransition(trigger, (i, s, b, transition) =>
+                {
+                    callbackInvoked = true;
+                    Assert.That(i, Is.EqualTo(intParam));
+                    Assert.That(s, Is.EqualTo(strParam));
+                    Assert.That(b, Is.EqualTo(boolParam));
+                });
+
+            sm.Fire(trigger, intParam, strParam, boolParam);
+            Assert.That(callbackInvoked, Is.True);
+        }
+
+        [Test]
+        public void ConditionalInternalTransition_ShouldBeReflectedInPermittedTriggers()
+        {
+            var isPermitted = true;
+            var sm = new StateMachine<State, Trigger>(State.A);
+            sm.Configure(State.A)
+                .InternalTransitionIf(Trigger.X, () => isPermitted, t => { });
+
+            Assert.That(sm.PermittedTriggers.ToArray().Length, Is.EqualTo(1));
+            isPermitted = false;
+            Assert.That(sm.PermittedTriggers.ToArray().Length, Is.EqualTo(0));
         }
     }
 }
