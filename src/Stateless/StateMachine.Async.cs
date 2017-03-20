@@ -101,8 +101,38 @@ namespace Stateless
             Enforce.ArgumentNotNull(trigger, nameof(trigger));
             return InternalFireAsync(trigger.Trigger, arg0, arg1, arg2);
         }
-
+        /// <summary>
+        /// Queue events and then fire in order.
+        /// If only one event is queued, this behaves identically to the non-queued version.
+        /// </summary>
+        /// <param name="trigger">  The trigger. </param>
+        /// <param name="args">     A variable-length parameters list containing arguments. </param>
         async Task InternalFireAsync(TTrigger trigger, params object[] args)
+        {
+            if (_firing)
+            {
+                _eventQueue.Enqueue(new QueuedTrigger { Trigger = trigger, Args = args });
+                return;
+            }
+
+            try
+            {
+                _firing = true;
+
+                await InternalFireOneAsync(trigger, args);
+
+                while (_eventQueue.Count != 0)
+                {
+                    var queuedEvent = _eventQueue.Dequeue();
+                    await InternalFireOneAsync(queuedEvent.Trigger, queuedEvent.Args);
+                }
+            }
+            finally
+            {
+                _firing = false;
+            }
+        }
+        async Task InternalFireOneAsync(TTrigger trigger, params object[] args)
         {
             TriggerWithParameters configuration;
             if (_triggerConfiguration.TryGetValue(trigger, out configuration))
