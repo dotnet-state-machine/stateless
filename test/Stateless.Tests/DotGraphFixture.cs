@@ -23,7 +23,7 @@ namespace Stateless.Tests
         }
 
         [Test]
-        public void SimpleTransition()
+        public void SimpleTransition_DotGraph()
         {
             var expected = "digraph {" + System.Environment.NewLine
                          + " A -> B [label=\"X\"];" + System.Environment.NewLine
@@ -38,7 +38,7 @@ namespace Stateless.Tests
         }
 
         [Test]
-        public void TwoSimpleTransitions()
+        public void TwoSimpleTransitions_DotGraph()
         {
             var expected = "digraph {" + System.Environment.NewLine
                          + " A -> B [label=\"X\"];" + System.Environment.NewLine
@@ -55,9 +55,13 @@ namespace Stateless.Tests
         }
 
         [Test]
-        public void WhenDiscriminatedByAnonymousGuard()
+        public void WhenDiscriminatedByAnonymousGuard_DotGraph()
         {
             Func<bool> anonymousGuard = () => true;
+
+            // TODO: Does the spec specify that when you have a guard function, the
+            // description will be the result of TryGetMethodName()?  If not, we
+            // shouldn't test for that exact value
 
             var expected = "digraph {" + System.Environment.NewLine
                          + " A -> B [label=\"X ["+ anonymousGuard.TryGetMethodName() +"]\"];" + System.Environment.NewLine
@@ -72,7 +76,7 @@ namespace Stateless.Tests
         }
 
         [Test]
-        public void WhenDiscriminatedByAnonymousGuardWithDescription()
+        public void WhenDiscriminatedByAnonymousGuardWithDescription_DotGraph()
         {
             Func<bool> anonymousGuard = () => true;
 
@@ -89,7 +93,7 @@ namespace Stateless.Tests
         }
 
         [Test]
-        public void WhenDiscriminatedByNamedDelegate()
+        public void WhenDiscriminatedByNamedDelegate_DotGraph()
         {
             var expected = "digraph {" + System.Environment.NewLine
                          + " A -> B [label=\"X [IsTrue]\"];" + System.Environment.NewLine
@@ -104,7 +108,7 @@ namespace Stateless.Tests
         }
 
         [Test]
-        public void WhenDiscriminatedByNamedDelegateWithDescription()
+        public void WhenDiscriminatedByNamedDelegateWithDescription_DotGraph()
         {
             var expected = "digraph {" + System.Environment.NewLine
                          + " A -> B [label=\"X [description]\"];" + System.Environment.NewLine
@@ -119,8 +123,11 @@ namespace Stateless.Tests
         }
 
         [Test]
-        public void DestinationStateIsDynamic()
+        public void DestinationStateIsDynamic_DotGraph()
         {
+            // TODO: Since the spec doesn't guarantee that the destination text will have a
+            // specific format, we shouldn't be writing a test that assumes a specific format.
+
             var expected = "digraph {" + System.Environment.NewLine
                          + " { node [label=\"?\"] unknownDestination_0 };" + System.Environment.NewLine
                          + " A -> unknownDestination_0 [label=\"X\"];" + System.Environment.NewLine
@@ -134,7 +141,7 @@ namespace Stateless.Tests
         }
 
         [Test]
-        public void DestinationStateIsCalculatedBasedOnTriggerParameters()
+        public void DestinationStateIsCalculatedBasedOnTriggerParameters_DotGraph()
         {
             var expected = "digraph {" + System.Environment.NewLine
                          + " { node [label=\"?\"] unknownDestination_0 };" + System.Environment.NewLine
@@ -150,7 +157,7 @@ namespace Stateless.Tests
         }
 
         [Test]
-        public void OnEntryWithAnonymousActionAndDescription()
+        public void OnEntryWithAnonymousActionAndDescription_DotGraph()
         {
             var expected = "digraph {" + System.Environment.NewLine
                          + "node [shape=box];" + System.Environment.NewLine
@@ -166,7 +173,7 @@ namespace Stateless.Tests
         }
 
         [Test]
-        public void OnEntryWithNamedDelegateActionAndDescription()
+        public void OnEntryWithNamedDelegateActionAndDescription_DotGraph()
         {
             var expected = "digraph {" + System.Environment.NewLine
                          + "node [shape=box];" + System.Environment.NewLine
@@ -182,7 +189,7 @@ namespace Stateless.Tests
         }
 
         [Test]
-        public void OnExitWithAnonymousActionAndDescription()
+        public void OnExitWithAnonymousActionAndDescription_DotGraph()
         {
             var expected = "digraph {" + System.Environment.NewLine
                          + "node [shape=box];" + System.Environment.NewLine
@@ -198,7 +205,7 @@ namespace Stateless.Tests
         }
 
         [Test]
-        public void OnExitWithNamedDelegateActionAndDescription()
+        public void OnExitWithNamedDelegateActionAndDescription_DotGraph()
         {
             var expected = "digraph {" + System.Environment.NewLine
                          + "node [shape=box];" + System.Environment.NewLine
@@ -214,7 +221,7 @@ namespace Stateless.Tests
         }
 
         [Test]
-        public void TransitionWithIgnore()
+        public void TransitionWithIgnore_DotGraph()
         {
             // Ignored triggers do not appear in the graph
             var expected = "digraph {" + System.Environment.NewLine
