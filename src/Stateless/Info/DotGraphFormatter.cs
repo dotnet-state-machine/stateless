@@ -6,7 +6,7 @@ namespace Stateless.Reflection
     /// <summary>
     /// DOT GraphViz text writer for reflection API.
     /// </summary>
-    public class DotGraphFormatter : IStateMachineInfoFormatter
+    public class DotGraphFormatter
     {
         /// <summary>
         /// Produces a DOT GraphViz graph.
