@@ -18,7 +18,7 @@ namespace Stateless.Reflection
         {
             var stateBinding = new StateBindingInfo();
 
-            stateBinding.State = new StateInfo { Value = stateReperesentation.UnderlyingState, StateType = typeof(TState) };
+            stateBinding.State = new StateInfo(stateReperesentation.UnderlyingState, typeof(TState) );
 
             stateBinding.Substates = stateReperesentation.GetSubstates().Select(s => CreateStateBindingInfo(s)).ToList();
 
@@ -42,7 +42,7 @@ namespace Stateless.Reflection
                     if (item is StateMachine<TState, TTrigger>.InternalTriggerBehaviour)
                         stateBinding.Transitions.Add(TransitionInfo.CreateInternalTransitionInfo(triggerBehaviours.Key, (StateMachine<TState, TTrigger>.InternalTriggerBehaviour)item, stateReperesentation.UnderlyingState));
                     if (item is StateMachine<TState, TTrigger>.IgnoredTriggerBehaviour)
-                        stateBinding.IgnoredTriggers.Add(new TriggerInfo { Value = triggerBehaviours.Key, TriggerType = typeof(TTrigger) });
+                        stateBinding.IgnoredTriggers.Add(new TriggerInfo(triggerBehaviours.Key, typeof(TTrigger) ));
                     if (item is StateMachine<TState, TTrigger>.DynamicTriggerBehaviour)
                     {
                         var label = $"unknownDestination_{unknowns++}";
@@ -58,47 +58,47 @@ namespace Stateless.Reflection
         /// <summary>
         /// The state to which this binding belongs.
         /// </summary>
-        public StateInfo State { get; set; }
+        public StateInfo State { get; private set; }
 
         /// <summary>
         /// Substates defined for this StateResource.
         /// </summary>
-        public ICollection<StateBindingInfo> Substates { get; set; } = new List<StateBindingInfo>();
+        public ICollection<StateBindingInfo> Substates { get; private set; } = new List<StateBindingInfo>();
 
         /// <summary>
         /// Superstate defined, if any, for this StateResource.
         /// </summary>
-        public StateBindingInfo Superstate { get; set; }
+        public StateBindingInfo Superstate { get; private set; }
 
         /// <summary>
         /// Actions that are defined to be exectuted on state-entry.
         /// </summary>
-        public ICollection<string> EntryActions { get; set; } = new List<string>();
+        public ICollection<string> EntryActions { get; private set; } = new List<string>();
 
         /// <summary>
         /// Actions that are defined to be exectuted on state-exit.
         /// </summary>
-        public ICollection<string> ExitActions { get; set; } = new List<string>(); 
+        public ICollection<string> ExitActions { get; private set; } = new List<string>(); 
 
         /// <summary>
         /// Transitions defined for this state.
         /// </summary>
-        public ICollection<TransitionInfo> Transitions { get; set; } = new List<TransitionInfo>();
+        public ICollection<TransitionInfo> Transitions { get; private set; } = new List<TransitionInfo>();
 
         /// <summary>
         /// Transitions defined for this state internally.
         /// </summary>
-        public ICollection<TransitionInfo> InternalTransitions { get; set; } = new List<TransitionInfo>();
+        public ICollection<TransitionInfo> InternalTransitions { get; private set; } = new List<TransitionInfo>();
 
         /// <summary>
         /// Dynamic Transitions defined for this state internally.
         /// </summary>
-        public ICollection<DynamicTransitionInfo> DynamicTransitions { get; set; } = new List<DynamicTransitionInfo>();
+        public ICollection<DynamicTransitionInfo> DynamicTransitions { get; private set; } = new List<DynamicTransitionInfo>();
 
         /// <summary>
         /// Triggers ignored for this state.
         /// </summary>
-        public ICollection<TriggerInfo> IgnoredTriggers { get; set; } = new List<TriggerInfo>();
+        public ICollection<TriggerInfo> IgnoredTriggers { get; private set; } = new List<TriggerInfo>();
     }
 
     /// <summary>
@@ -107,15 +107,24 @@ namespace Stateless.Reflection
     public class StateInfo
     {
         /// <summary>
+        /// Constructs a StateInfo.
+        /// </summary>
+        public StateInfo(object value, Type stateType)
+        {
+            Value = value;
+            StateType = stateType;
+        }
+
+        /// <summary>
         /// The instance or value this state represents.
         /// </summary>
-        public object Value { get; set; }
+        public object Value { get; private set; }
         
         /// <summary>
         /// The type of the underlying state.
         /// </summary>
         /// <returns></returns>
-        public Type StateType { get; set; }
+        public Type StateType { get; private set; }
 
         /// <summary>
         /// Passes through to the value's ToString.
@@ -132,15 +141,24 @@ namespace Stateless.Reflection
     public class TriggerInfo
     {
         /// <summary>
+        /// Constructs a TriggerInfo
+        /// </summary>
+        public TriggerInfo(object value, Type triggerType)
+        {
+            Value = value;
+            TriggerType = triggerType;
+        }
+
+        /// <summary>
         /// The instance or value this trigger represents.
         /// </summary>
-        public object Value { get; set; }
+        public object Value { get; private set; }
         
         /// <summary>
         /// The type of the underlying trigger.
         /// </summary>
         /// <returns></returns>
-        public Type TriggerType { get; set; }
+        public Type TriggerType { get; private set; }
 
         /// <summary>
         /// Passes through to the value's ToString.
@@ -165,12 +183,8 @@ namespace Stateless.Reflection
         {
             var transition = new TransitionInfo
             {
-                Trigger = new TriggerInfo
-                {
-                    Value = trigger,
-                    TriggerType = trigger.GetType() 
-                },
-                DestinationState = new StateInfo { Value = b.Destination, StateType = typeof(TState) },
+                Trigger = new TriggerInfo(trigger, trigger.GetType()),
+                DestinationState = new StateInfo(b.Destination, typeof(TState) ),
                 GuardDescription = string.IsNullOrWhiteSpace(b.GuardsDescriptions) ? null : b.GuardsDescriptions
             };
 
@@ -181,12 +195,8 @@ namespace Stateless.Reflection
         {
             var transition = new TransitionInfo
             {
-                Trigger = new TriggerInfo
-                {
-                    Value = trigger,
-                    TriggerType = typeof(TTrigger) 
-                },
-                DestinationState = new StateInfo { Value = destination, StateType = typeof(TState) },
+                Trigger = new TriggerInfo(trigger, typeof(TTrigger) ),
+                DestinationState = new StateInfo(destination, typeof(TState) ),
                 GuardDescription = string.IsNullOrWhiteSpace(b.GuardsDescriptions) ? null : b.GuardsDescriptions
             };
 
@@ -196,18 +206,18 @@ namespace Stateless.Reflection
         /// <summary>
         /// The trigger whose firing resulted in this transition.
         /// </summary>
-        public TriggerInfo Trigger { get; set; }
+        public TriggerInfo Trigger { get; private set; }
 
         /// <summary>
         /// The state that will be transitioned into on activation.
         /// </summary>
-        public StateInfo DestinationState { get; set; }
+        public StateInfo DestinationState { get; private set; }
 
 
         /// <summary>
         /// Description of provided guard clause, if any.
         /// </summary>
-        public string GuardDescription { get; set; }
+        public string GuardDescription { get; private set; }
     }
 
     /// <summary>
@@ -224,11 +234,7 @@ namespace Stateless.Reflection
         {
             var transition = new DynamicTransitionInfo
             {
-                Trigger = new TriggerInfo
-                {
-                    Value = trigger,
-                    TriggerType = typeof(TTrigger)
-                },
+                Trigger = new TriggerInfo(trigger, typeof(TTrigger)),
                 Destination = destination
             };
 
@@ -238,16 +244,16 @@ namespace Stateless.Reflection
         /// <summary>
         /// The trigger whose firing resulted in this transition.
         /// </summary>
-        public TriggerInfo Trigger { get; set; }
+        public TriggerInfo Trigger { get; private set; }
 
         /// <summary>
         /// Friendly text for dynamic transitions.
         /// </summary>
-        public string Destination { get; set; }
+        public string Destination { get; private set; }
 
         /// <summary>
         /// Description of provided guard clause, if any.
         /// </summary>
-        public string GuardDescription { get; set; }
+        public string GuardDescription { get; private set; }
     }
 }
