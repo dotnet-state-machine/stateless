@@ -113,7 +113,7 @@ namespace Stateless
             var info = representations.ToDictionary(kvp => kvp.Key, kvp => StateInfo.CreateStateInfo(kvp.Value));
 
             foreach (var state in info)
-                StateInfo.AddTransitions(state.Value, representations[state.Key], k => info[(TState)k]);
+                StateInfo.AddRelationships(state.Value, representations[state.Key], k => info[k]);
 
             return new StateMachineInfo(info.Values);
         }
