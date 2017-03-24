@@ -2,46 +2,45 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NUnit.Framework;
+using Xunit;
 
 namespace Stateless.Tests
 {
-    [TestFixture]
     public class IgnoredTriggerBehaviourFixture
     {
-        [Test]
+        [Fact]
         public void StateRemainsUnchanged()
         {
             var ignored = new StateMachine<State, Trigger>.IgnoredTriggerBehaviour(Trigger.X, () => true);
             State destination = State.A;
-            Assert.IsFalse(ignored.ResultsInTransitionFrom(State.B, new object[0], out destination));
+            Assert.False(ignored.ResultsInTransitionFrom(State.B, new object[0], out destination));
         }
 
-        [Test]
+        [Fact]
         public void ExposesCorrectUnderlyingTrigger()
         {
             var ignored = new StateMachine<State, Trigger>.IgnoredTriggerBehaviour(
                 Trigger.X, () => true);
 
-            Assert.AreEqual(Trigger.X, ignored.Trigger);
+            Assert.Equal(Trigger.X, ignored.Trigger);
         }
 
-        [Test]
+        [Fact]
         public void WhenGuardConditionFalse_IsGuardConditionMetIsFalse()
         {
             var ignored = new StateMachine<State, Trigger>.IgnoredTriggerBehaviour(
                 Trigger.X, () => false);
 
-            Assert.IsFalse(ignored.GuardConditionsMet);
+            Assert.False(ignored.GuardConditionsMet);
         }
 
-        [Test]
+        [Fact]
         public void WhenGuardConditionTrue_IsGuardConditionMetIsTrue()
         {
             var ignored = new StateMachine<State, Trigger>.IgnoredTriggerBehaviour(
                 Trigger.X, () => true);
 
-            Assert.IsTrue(ignored.GuardConditionsMet);
+            Assert.True(ignored.GuardConditionsMet);
         }
     }
 }

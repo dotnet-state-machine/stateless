@@ -1,10 +1,9 @@
 ﻿using System;
-using NUnit.Framework;
+using Xunit;
 using Stateless.Reflection;
 
 namespace Stateless.Tests
 {
-    [TestFixture]
     public class DotGraphFixture
     {
         bool IsTrue() 
@@ -22,7 +21,7 @@ namespace Stateless.Tests
 
         }
 
-        [Test]
+        [Fact]
         public void SimpleTransition_DotGraph()
         {
             var expected = "digraph {" + System.Environment.NewLine
@@ -34,10 +33,10 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .Permit(Trigger.X, State.B);
 
-            Assert.AreEqual(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
+            Assert.Equal(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
         }
 
-        [Test]
+        [Fact]
         public void TwoSimpleTransitions_DotGraph()
         {
             var expected = "digraph {" + System.Environment.NewLine
@@ -51,10 +50,10 @@ namespace Stateless.Tests
                 .Permit(Trigger.X, State.B)
                 .Permit(Trigger.Y, State.C);
 
-            Assert.AreEqual(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
+            Assert.Equal(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
         }
 
-        [Test]
+        [Fact]
         public void WhenDiscriminatedByAnonymousGuard_DotGraph()
         {
             Func<bool> anonymousGuard = () => true;
@@ -72,10 +71,10 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .PermitIf(Trigger.X, State.B, anonymousGuard);
 
-            Assert.AreEqual(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
+            Assert.Equal(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
         }
 
-        [Test]
+        [Fact]
         public void WhenDiscriminatedByAnonymousGuardWithDescription_DotGraph()
         {
             Func<bool> anonymousGuard = () => true;
@@ -89,10 +88,10 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .PermitIf(Trigger.X, State.B, anonymousGuard, "description");
 
-            Assert.AreEqual(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
+            Assert.Equal(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
         }
 
-        [Test]
+        [Fact]
         public void WhenDiscriminatedByNamedDelegate_DotGraph()
         {
             var expected = "digraph {" + System.Environment.NewLine
@@ -104,10 +103,10 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .PermitIf(Trigger.X, State.B, IsTrue);
 
-            Assert.AreEqual(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
+            Assert.Equal(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
         }
 
-        [Test]
+        [Fact]
         public void WhenDiscriminatedByNamedDelegateWithDescription_DotGraph()
         {
             var expected = "digraph {" + System.Environment.NewLine
@@ -119,10 +118,10 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .PermitIf(Trigger.X, State.B, IsTrue, "description");
 
-            Assert.AreEqual(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
+            Assert.Equal(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
         }
 
-        [Test]
+        [Fact]
         public void DestinationStateIsDynamic_DotGraph()
         {
             // TODO: Since the spec doesn't guarantee that the destination text will have a
@@ -137,10 +136,10 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .PermitDynamic(Trigger.X, () => State.B);
 
-            Assert.AreEqual(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
+            Assert.Equal(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
         }
 
-        [Test]
+        [Fact]
         public void DestinationStateIsCalculatedBasedOnTriggerParameters_DotGraph()
         {
             var expected = "digraph {" + System.Environment.NewLine
@@ -153,10 +152,10 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .PermitDynamic(trigger, i => i == 1 ? State.B : State.C);
 
-            Assert.AreEqual(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
+            Assert.Equal(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
         }
 
-        [Test]
+        [Fact]
         public void OnEntryWithAnonymousActionAndDescription_DotGraph()
         {
             var expected = "digraph {" + System.Environment.NewLine
@@ -169,10 +168,10 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .OnEntry(() => { }, "enteredA");
 
-            Assert.AreEqual(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
+            Assert.Equal(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
         }
 
-        [Test]
+        [Fact]
         public void OnEntryWithNamedDelegateActionAndDescription_DotGraph()
         {
             var expected = "digraph {" + System.Environment.NewLine
@@ -185,10 +184,10 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .OnEntry(OnEntry, "enteredA");
 
-            Assert.AreEqual(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
+            Assert.Equal(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
         }
 
-        [Test]
+        [Fact]
         public void OnExitWithAnonymousActionAndDescription_DotGraph()
         {
             var expected = "digraph {" + System.Environment.NewLine
@@ -201,10 +200,10 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .OnExit(() => { }, "exitA");
 
-            Assert.AreEqual(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
+            Assert.Equal(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
         }
 
-        [Test]
+        [Fact]
         public void OnExitWithNamedDelegateActionAndDescription_DotGraph()
         {
             var expected = "digraph {" + System.Environment.NewLine
@@ -217,10 +216,10 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .OnExit(OnExit, "exitA");
 
-            Assert.AreEqual(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
+            Assert.Equal(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
         }
 
-        [Test]
+        [Fact]
         public void TransitionWithIgnore_DotGraph()
         {
             // Ignored triggers do not appear in the graph
@@ -234,7 +233,7 @@ namespace Stateless.Tests
                 .Ignore(Trigger.Y)
                 .Permit(Trigger.X, State.B);
 
-            Assert.AreEqual(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
+            Assert.Equal(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
         }
     }
 }

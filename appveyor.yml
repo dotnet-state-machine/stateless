@@ -1,6 +1,6 @@
 version: '{build}'
 skip_tags: true
-image: Visual Studio 2015
+image: Visual Studio 2017
 configuration: Release
 install:
   - ps: mkdir -Force ".\build\" | Out-Null
