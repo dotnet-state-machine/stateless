@@ -2,25 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NUnit.Framework;
+using Xunit;
 
 namespace Stateless.Tests
 {
-    [TestFixture]
     public class TransitionFixture
     {
-        [Test]
+        [Fact]
         public void IdentityTransitionIsNotChange()
         {
             StateMachine<int, int>.Transition t = new StateMachine<int, int>.Transition(1, 1, 0);
-            Assert.IsTrue(t.IsReentry);
+            Assert.True(t.IsReentry);
         }
 
-        [Test]
+        [Fact]
         public void TransitioningTransitionIsChange()
         {
             StateMachine<int, int>.Transition t = new StateMachine<int, int>.Transition(1, 2, 0);
-            Assert.IsFalse(t.IsReentry);
+            Assert.False(t.IsReentry);
         }
     }
 }

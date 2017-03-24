@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using NUnit.Framework;
+using Xunit;
 
 namespace Stateless.Tests
 {
-    [TestFixture]
     public class ActiveStatesFixture
     {
-        [Test]
+        [Fact]
         public void WhenActivate()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -28,12 +27,12 @@ namespace Stateless.Tests
 
             sm.Activate();
 
-            Assert.AreEqual(expectedOrdering.Count, actualOrdering.Count);
+            Assert.Equal(expectedOrdering.Count, actualOrdering.Count);
             for (int i = 0; i < expectedOrdering.Count; i++)
-                Assert.AreEqual(expectedOrdering[i], actualOrdering[i]);
+                Assert.Equal(expectedOrdering[i], actualOrdering[i]);
         }
 
-        [Test]
+        [Fact]
         public void WhenActivateIsIdempotent()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -52,10 +51,10 @@ namespace Stateless.Tests
             actualOrdering.Clear();
             sm.Activate();
 
-            Assert.AreEqual(0, actualOrdering.Count);
+            Assert.Equal(0, actualOrdering.Count);
         }
 
-        [Test]
+        [Fact]
         public void WhenDeactivate()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -76,12 +75,12 @@ namespace Stateless.Tests
             sm.Activate();
             sm.Deactivate();
 
-            Assert.AreEqual(expectedOrdering.Count, actualOrdering.Count);
+            Assert.Equal(expectedOrdering.Count, actualOrdering.Count);
             for (int i = 0; i < expectedOrdering.Count; i++)
-                Assert.AreEqual(expectedOrdering[i], actualOrdering[i]);
+                Assert.Equal(expectedOrdering[i], actualOrdering[i]);
         }
 
-        [Test]
+        [Fact]
         public void WhenDeactivateIsIdempotent()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -101,10 +100,10 @@ namespace Stateless.Tests
             actualOrdering.Clear();
             sm.Activate();
 
-            Assert.AreEqual(0, actualOrdering.Count);
+            Assert.Equal(0, actualOrdering.Count);
         }
 
-        [Test]
+        [Fact]
         public void WhenTransitioning()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -148,12 +147,12 @@ namespace Stateless.Tests
             sm.Fire(Trigger.X);
             sm.Fire(Trigger.Y);
 
-            Assert.AreEqual(expectedOrdering.Count, actualOrdering.Count);
+            Assert.Equal(expectedOrdering.Count, actualOrdering.Count);
             for (int i = 0; i < expectedOrdering.Count; i++)
-                Assert.AreEqual(expectedOrdering[i], actualOrdering[i]);
+                Assert.Equal(expectedOrdering[i], actualOrdering[i]);
         }
 
-        [Test]
+        [Fact]
         public void WhenTransitioningWithinSameSuperstate()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -192,9 +191,9 @@ namespace Stateless.Tests
             sm.Fire(Trigger.X);
             sm.Fire(Trigger.Y);
 
-            Assert.AreEqual(expectedOrdering.Count, actualOrdering.Count);
+            Assert.Equal(expectedOrdering.Count, actualOrdering.Count);
             for (int i = 0; i < expectedOrdering.Count; i++)
-                Assert.AreEqual(expectedOrdering[i], actualOrdering[i]);
+                Assert.Equal(expectedOrdering[i], actualOrdering[i]);
         }
     }
 }
