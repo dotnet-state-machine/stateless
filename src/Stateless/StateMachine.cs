@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stateless.Reflection;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -90,6 +91,17 @@ namespace Stateless
             {
                 return GetRepresentation(State);
             }
+        }
+
+        /// <summary>
+        /// Provides an info object which exposes the states, transitions, and actions of this machine.
+        /// </summary>
+        public StateMachineInfo GetStateMachineInfo()
+        {
+            return new StateMachineInfo(
+                _stateConfiguration.Select(kvp => 
+                    StateBindingInfo.CreateStateBindingInfo(kvp.Value))
+                .ToList());
         }
 
         StateRepresentation GetRepresentation(TState state)
