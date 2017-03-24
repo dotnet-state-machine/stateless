@@ -14,14 +14,9 @@ namespace Stateless.Reflection
             if (stateReperesentation == null)
                 throw new ArgumentException(nameof(stateReperesentation));
 
-            var substates = stateReperesentation.GetSubstates().Select(s => CreateStateInfo(s)).ToList();
             var entryActions = stateReperesentation.EntryActions.Select(e => e.ActionDescription).ToList();
             var exitActions = stateReperesentation.ExitActions.Select(e => e.ActionDescription).ToList();
             var ignoredTriggers = new List<TriggerInfo>();
-            StateInfo superstate = null;
-
-            if (stateReperesentation.Superstate != null)
-                superstate = CreateStateInfo(stateReperesentation.Superstate);
 
             foreach (var triggerBehaviours in stateReperesentation.TriggerBehaviours)
             {
@@ -32,11 +27,17 @@ namespace Stateless.Reflection
                 }
             }
 
-            return new StateInfo(stateReperesentation.UnderlyingState, typeof(TState), superstate, substates, entryActions, exitActions, ignoredTriggers);
+            return new StateInfo(stateReperesentation.UnderlyingState, typeof(TState), entryActions, exitActions, ignoredTriggers);
         }
 
-        internal static void AddTransitions<TState, TTrigger>(StateInfo info, StateMachine<TState, TTrigger>.StateRepresentation stateReperesentation, Func<object, StateInfo> lookupState)
+        internal static void AddRelationships<TState, TTrigger>(StateInfo info, StateMachine<TState, TTrigger>.StateRepresentation stateReperesentation, Func<TState, StateInfo> lookupState)
         {
+            var substates = stateReperesentation.GetSubstates().Select(s => lookupState(s.UnderlyingState)).ToList();
+
+            StateInfo superstate = null;
+            if (stateReperesentation.Superstate != null)
+                superstate = lookupState(stateReperesentation.Superstate.UnderlyingState);
+
             var transitions = new List<TransitionInfo>();
             var internalTransitions = new List<TransitionInfo>();
             var dynamicTransitions = new List<DynamicTransitionInfo>();
@@ -64,31 +65,32 @@ namespace Stateless.Reflection
                 }
             }
 
-            info.SetTransitions(transitions, internalTransitions, dynamicTransitions);
+            info.AddRelationships(superstate, substates, transitions, internalTransitions, dynamicTransitions);
         }
 
         private StateInfo(
             object underlyingState, 
             Type stateType,
-            StateInfo superstate,
-            IEnumerable<StateInfo> substates,
             IEnumerable<string> entryActions,
             IEnumerable<string> exitActions,
             IEnumerable<TriggerInfo> ignoredTriggers)
         {
             UnderlyingState = underlyingState;
             StateType = stateType;
-            Superstate = superstate;
-            Substates = substates ?? throw new ArgumentNullException(nameof(substates));
             EntryActions = entryActions ?? throw new ArgumentNullException(nameof(entryActions));
             ExitActions = exitActions ?? throw new ArgumentNullException(nameof(exitActions));
             IgnoredTriggers = ignoredTriggers ?? throw new ArgumentNullException(nameof(ignoredTriggers));
         }
 
-        private void SetTransitions(IEnumerable<TransitionInfo> transitions,
+        private void AddRelationships(
+            StateInfo superstate,
+            IEnumerable<StateInfo> substates,
+            IEnumerable<TransitionInfo> transitions,
             IEnumerable<TransitionInfo> internalTransitions,
             IEnumerable<DynamicTransitionInfo> dynamicTransitions)
         {
+            Superstate = superstate;
+            Substates = substates ?? throw new ArgumentNullException(nameof(substates));
             Transitions = transitions ?? throw new ArgumentNullException(nameof(transitions));
             InternalTransitions = internalTransitions ?? throw new ArgumentNullException(nameof(internalTransitions));
             DynamicTransitions = dynamicTransitions ?? throw new ArgumentNullException(nameof(dynamicTransitions));

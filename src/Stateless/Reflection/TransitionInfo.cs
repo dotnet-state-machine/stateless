@@ -7,7 +7,7 @@ namespace Stateless.Reflection
     /// </summary>
     public class TransitionInfo
     {
-        internal static TransitionInfo CreateTransitionInfo<TState, TTrigger>(TTrigger trigger, StateMachine<TState, TTrigger>.TransitioningTriggerBehaviour behavior, Func<object, StateInfo> lookupState)
+        internal static TransitionInfo CreateTransitionInfo<TState, TTrigger>(TTrigger trigger, StateMachine<TState, TTrigger>.TransitioningTriggerBehaviour behavior, Func<TState, StateInfo> lookupState)
         {
             var transition = new TransitionInfo
             {
@@ -19,7 +19,7 @@ namespace Stateless.Reflection
             return transition;
         }
 
-        internal static TransitionInfo CreateInternalTransitionInfo<TState, TTrigger>(TTrigger trigger, StateMachine<TState, TTrigger>.InternalTriggerBehaviour behavior, TState destination, Func<object, StateInfo> lookupState)
+        internal static TransitionInfo CreateInternalTransitionInfo<TState, TTrigger>(TTrigger trigger, StateMachine<TState, TTrigger>.InternalTriggerBehaviour behavior, TState destination, Func<TState, StateInfo> lookupState)
         {
             var transition = new TransitionInfo
             {
