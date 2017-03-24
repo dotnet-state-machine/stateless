@@ -96,12 +96,26 @@ namespace Stateless
         /// <summary>
         /// Provides an info object which exposes the states, transitions, and actions of this machine.
         /// </summary>
-        public StateMachineInfo GetStateMachineInfo()
+        public StateMachineInfo GetInfo()
         {
-            return new StateMachineInfo(
-                _stateConfiguration.Select(kvp => 
-                    StateBindingInfo.CreateStateBindingInfo(kvp.Value))
-                .ToList());
+            var representations = _stateConfiguration.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+
+            var reachable = _stateConfiguration
+                .SelectMany(kvp => kvp.Value.TriggerBehaviours.SelectMany(b => b.Value.OfType<TransitioningTriggerBehaviour>().Select(tb => tb.Destination)))
+                .Distinct()
+                .Except(representations.Keys)
+                .Select(underlying => new StateRepresentation(underlying))
+                .ToArray();
+
+            foreach (var representation in reachable)
+                representations.Add(representation.UnderlyingState, representation);
+
+            var info = representations.ToDictionary(kvp => kvp.Key, kvp => StateInfo.CreateStateInfo(kvp.Value));
+
+            foreach (var state in info)
+                StateInfo.AddTransitions(state.Value, representations[state.Key], k => info[(TState)k]);
+
+            return new StateMachineInfo(info.Values);
         }
 
         StateRepresentation GetRepresentation(TState state)

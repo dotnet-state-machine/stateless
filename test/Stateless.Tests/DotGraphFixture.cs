@@ -1,6 +1,7 @@
 ﻿using System;
 using Xunit;
 using Stateless.Reflection;
+using Stateless.DotGraph;
 
 namespace Stateless.Tests
 {
@@ -33,7 +34,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .Permit(Trigger.X, State.B);
 
-            Assert.Equal(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
+            Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo()));
         }
 
         [Fact]
@@ -50,7 +51,7 @@ namespace Stateless.Tests
                 .Permit(Trigger.X, State.B)
                 .Permit(Trigger.Y, State.C);
 
-            Assert.Equal(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
+            Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo()));
         }
 
         [Fact]
@@ -71,7 +72,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .PermitIf(Trigger.X, State.B, anonymousGuard);
 
-            Assert.Equal(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
+            Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo()));
         }
 
         [Fact]
@@ -88,7 +89,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .PermitIf(Trigger.X, State.B, anonymousGuard, "description");
 
-            Assert.Equal(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
+            Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo()));
         }
 
         [Fact]
@@ -103,7 +104,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .PermitIf(Trigger.X, State.B, IsTrue);
 
-            Assert.Equal(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
+            Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo()));
         }
 
         [Fact]
@@ -118,7 +119,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .PermitIf(Trigger.X, State.B, IsTrue, "description");
 
-            Assert.Equal(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
+            Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo()));
         }
 
         [Fact]
@@ -136,7 +137,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .PermitDynamic(Trigger.X, () => State.B);
 
-            Assert.Equal(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
+            Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo()));
         }
 
         [Fact]
@@ -152,7 +153,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .PermitDynamic(trigger, i => i == 1 ? State.B : State.C);
 
-            Assert.Equal(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
+            Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo()));
         }
 
         [Fact]
@@ -168,7 +169,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .OnEntry(() => { }, "enteredA");
 
-            Assert.Equal(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
+            Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo()));
         }
 
         [Fact]
@@ -184,7 +185,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .OnEntry(OnEntry, "enteredA");
 
-            Assert.Equal(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
+            Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo()));
         }
 
         [Fact]
@@ -200,7 +201,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .OnExit(() => { }, "exitA");
 
-            Assert.Equal(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
+            Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo()));
         }
 
         [Fact]
@@ -216,7 +217,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .OnExit(OnExit, "exitA");
 
-            Assert.Equal(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
+            Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo()));
         }
 
         [Fact]
@@ -233,7 +234,7 @@ namespace Stateless.Tests
                 .Ignore(Trigger.Y)
                 .Permit(Trigger.X, State.B);
 
-            Assert.Equal(expected, new DotGraphFormatter().Format(sm.GetStateMachineInfo()));
+            Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo()));
         }
     }
 }

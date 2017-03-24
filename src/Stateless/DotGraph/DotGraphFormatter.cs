@@ -1,21 +1,22 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Stateless.Reflection;
 
-namespace Stateless.Reflection
+namespace Stateless.DotGraph
 {
     /// <summary>
     /// DOT GraphViz text writer for reflection API.
     /// </summary>
-    public class DotGraphFormatter
+    public static class DotGraphFormatter
     {
         /// <summary>
         /// Produces a DOT GraphViz graph.
         /// </summary>
         /// <param name="stateMachineInfo">The StateMachineInfo to be mapped.</param>
         /// <returns>DOT GraphViz text.</returns>
-        public string Format(StateMachineInfo stateMachineInfo)
+        public static string Format(StateMachineInfo stateMachineInfo)
         {
-            var bindings = stateMachineInfo.StateBindings;
+            var bindings = stateMachineInfo.States;
 
             List<string> lines = new List<string>();
             List<string> unknownDestinations = new List<string>();
@@ -24,7 +25,7 @@ namespace Stateless.Reflection
             {
                 unknownDestinations.AddRange(binding.DynamicTransitions.Select(t => t.Destination));
 
-                var source = binding.State.ToString();
+                var source = binding.ToString();
                 foreach (var transition in binding.Transitions.Concat(binding.InternalTransitions))
                 {
                     HandleTransitions(ref lines, source, transition.Trigger.ToString(), transition.DestinationState.ToString(), transition.GuardDescription);
@@ -48,7 +49,7 @@ namespace Stateless.Reflection
 
                 foreach (var binding in bindings)
                 {
-                    var source = binding.State.ToString();
+                    var source = binding.ToString();
 
                     foreach (var entryActionBehaviour in binding.EntryActions)
                     {
