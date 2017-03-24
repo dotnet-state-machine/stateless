@@ -31,6 +31,8 @@ namespace Stateless.Reflection
             return transition;
         }
 
+        private TransitionInfo() { }
+
         /// <summary>
         /// The trigger whose firing resulted in this transition.
         /// </summary>

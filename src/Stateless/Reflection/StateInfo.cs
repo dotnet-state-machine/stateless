@@ -67,7 +67,7 @@ namespace Stateless.Reflection
             info.SetTransitions(transitions, internalTransitions, dynamicTransitions);
         }
 
-        internal StateInfo(
+        private StateInfo(
             object underlyingState, 
             Type stateType,
             StateInfo superstate,
@@ -85,7 +85,7 @@ namespace Stateless.Reflection
             IgnoredTriggers = ignoredTriggers ?? throw new ArgumentNullException(nameof(ignoredTriggers));
         }
 
-        internal void SetTransitions(IEnumerable<TransitionInfo> transitions,
+        private void SetTransitions(IEnumerable<TransitionInfo> transitions,
             IEnumerable<TransitionInfo> internalTransitions,
             IEnumerable<DynamicTransitionInfo> dynamicTransitions)
         {

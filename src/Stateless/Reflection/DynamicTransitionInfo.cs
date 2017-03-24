@@ -16,6 +16,8 @@
             return transition;
         }
 
+        private DynamicTransitionInfo() { }
+
         /// <summary>
         /// The trigger whose firing resulted in this transition.
         /// </summary>
