@@ -1,9 +1,8 @@
 ﻿using System.Linq;
-using NUnit.Framework;
+using Xunit;
 
 namespace Stateless.Tests
 {
-    [TestFixture]
     class InternalTransitionFixture
     {
 
@@ -11,19 +10,19 @@ namespace Stateless.Tests
         /// The expected behaviour of the internal transistion is that the state does not change.
         /// This will fail if the state changes after the trigger has fired.
         /// </summary>
-        [Test]
+        [Fact]
         public void StayInSameStateOneState_Transition()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A)
                 .InternalTransition(Trigger.X, (t) => { });
 
-            Assert.AreEqual(State.A, sm.State);
+            Assert.Equal(State.A, sm.State);
             sm.Fire(Trigger.X);
-            Assert.AreEqual(State.A, sm.State);
+            Assert.Equal(State.A, sm.State);
         }
 
-        [Test]
+        [Fact]
         public void StayInSameStateTwoStates_Transition()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -37,19 +36,19 @@ namespace Stateless.Tests
                     .Permit(Trigger.Y, State.A);
 
             // This should not cause any state changes
-            Assert.AreEqual(State.A, sm.State);
+            Assert.Equal(State.A, sm.State);
             sm.Fire(Trigger.X);
-            Assert.AreEqual(State.A, sm.State);
+            Assert.Equal(State.A, sm.State);
 
             // Change state to B
             sm.Fire(Trigger.Y);
 
             // This should also not cause any state changes
-            Assert.AreEqual(State.B, sm.State);
+            Assert.Equal(State.B, sm.State);
             sm.Fire(Trigger.X);
-            Assert.AreEqual(State.B, sm.State);
+            Assert.Equal(State.B, sm.State);
         }
-        [Test]
+        [Fact]
         public void StayInSameSubStateTransitionInSuperstate_Transition()
         {
             var sm = new StateMachine<State, Trigger>(State.B);
@@ -61,11 +60,11 @@ namespace Stateless.Tests
                     .SubstateOf(State.A);
 
             // This should not cause any state changes
-            Assert.AreEqual(State.B, sm.State);
+            Assert.Equal(State.B, sm.State);
             sm.Fire(Trigger.X);
-            Assert.AreEqual(State.B, sm.State);
+            Assert.Equal(State.B, sm.State);
         }
-        [Test]
+        [Fact]
         public void StayInSameSubStateTransitionInSubstate_Transition()
         {
             var sm = new StateMachine<State, Trigger>(State.B);
@@ -77,24 +76,24 @@ namespace Stateless.Tests
                     .InternalTransition(Trigger.X, (t) => { });
 
             // This should not cause any state changes
-            Assert.AreEqual(State.B, sm.State);
+            Assert.Equal(State.B, sm.State);
             sm.Fire(Trigger.X);
-            Assert.AreEqual(State.B, sm.State);
+            Assert.Equal(State.B, sm.State);
         }
 
-        [Test]
+        [Fact]
         public void StayInSameStateOneState_Action()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A)
                 .InternalTransition(Trigger.X, () => { });
 
-            Assert.AreEqual(State.A, sm.State);
+            Assert.Equal(State.A, sm.State);
             sm.Fire(Trigger.X);
-            Assert.AreEqual(State.A, sm.State);
+            Assert.Equal(State.A, sm.State);
         }
 
-        [Test]
+        [Fact]
         public void StayInSameStateTwoStates_Action()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -108,19 +107,19 @@ namespace Stateless.Tests
                     .Permit(Trigger.Y, State.A);
 
             // This should not cause any state changes
-            Assert.AreEqual(State.A, sm.State);
+            Assert.Equal(State.A, sm.State);
             sm.Fire(Trigger.X);
-            Assert.AreEqual(State.A, sm.State);
+            Assert.Equal(State.A, sm.State);
 
             // Change state to B
             sm.Fire(Trigger.Y);
 
             // This should also not cause any state changes
-            Assert.AreEqual(State.B, sm.State);
+            Assert.Equal(State.B, sm.State);
             sm.Fire(Trigger.X);
-            Assert.AreEqual(State.B, sm.State);
+            Assert.Equal(State.B, sm.State);
         }
-        [Test]
+        [Fact]
         public void StayInSameSubStateTransitionInSuperstate_Action()
         {
             var sm = new StateMachine<State, Trigger>(State.B);
@@ -133,13 +132,13 @@ namespace Stateless.Tests
                     .SubstateOf(State.A);
 
             // This should not cause any state changes
-            Assert.AreEqual(State.B, sm.State);
+            Assert.Equal(State.B, sm.State);
             sm.Fire(Trigger.X);
-            Assert.AreEqual(State.B, sm.State);
+            Assert.Equal(State.B, sm.State);
             sm.Fire(Trigger.Y);
-            Assert.AreEqual(State.B, sm.State);
+            Assert.Equal(State.B, sm.State);
         }
-        [Test]
+        [Fact]
         public void StayInSameSubStateTransitionInSubstate_Action()
         {
             var sm = new StateMachine<State, Trigger>(State.B);
@@ -152,14 +151,14 @@ namespace Stateless.Tests
                     .InternalTransition(Trigger.Y, () => { });
 
             // This should not cause any state changes
-            Assert.AreEqual(State.B, sm.State);
+            Assert.Equal(State.B, sm.State);
             sm.Fire(Trigger.X);
-            Assert.AreEqual(State.B, sm.State);
+            Assert.Equal(State.B, sm.State);
             sm.Fire(Trigger.Y);
-            Assert.AreEqual(State.B, sm.State);
+            Assert.Equal(State.B, sm.State);
         }
 
-        [Test]
+        [Fact]
         public void AllowTriggerWithTwoParameters()
         {
             var sm = new StateMachine<State, Trigger>(State.B);
@@ -172,15 +171,15 @@ namespace Stateless.Tests
                 .InternalTransition(trigger, (i, s, transition) =>
                 {
                     callbackInvoked = true;
-                    Assert.That(i, Is.EqualTo(intParam));
-                    Assert.That(s, Is.EqualTo(strParam));
+                    Assert.Equal(intParam, i);
+                    Assert.Equal(strParam, s);
                 });
 
             sm.Fire(trigger, intParam, strParam);
-            Assert.That(callbackInvoked, Is.True);
+            Assert.True(callbackInvoked);
         }
 
-        [Test]
+        [Fact]
         public void AllowTriggerWithThreeParameters()
         {
             var sm = new StateMachine<State, Trigger>(State.B);
@@ -194,16 +193,16 @@ namespace Stateless.Tests
                 .InternalTransition(trigger, (i, s, b, transition) =>
                 {
                     callbackInvoked = true;
-                    Assert.That(i, Is.EqualTo(intParam));
-                    Assert.That(s, Is.EqualTo(strParam));
-                    Assert.That(b, Is.EqualTo(boolParam));
+                    Assert.Equal(intParam, i);
+                    Assert.Equal(strParam, s);
+                    Assert.Equal(boolParam, b);
                 });
 
             sm.Fire(trigger, intParam, strParam, boolParam);
-            Assert.That(callbackInvoked, Is.True);
+            Assert.True(callbackInvoked);
         }
 
-        [Test]
+        [Fact]
         public void ConditionalInternalTransition_ShouldBeReflectedInPermittedTriggers()
         {
             var isPermitted = true;
@@ -211,9 +210,9 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .InternalTransitionIf(Trigger.X, () => isPermitted, t => { });
 
-            Assert.That(sm.PermittedTriggers.ToArray().Length, Is.EqualTo(1));
+            Assert.Equal(1, sm.PermittedTriggers.ToArray().Length);
             isPermitted = false;
-            Assert.That(sm.PermittedTriggers.ToArray().Length, Is.EqualTo(0));
+            Assert.Equal(0, sm.PermittedTriggers.ToArray().Length);
         }
     }
 }

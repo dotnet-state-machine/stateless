@@ -2,41 +2,40 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NUnit.Framework;
+using Xunit;
 
 namespace Stateless.Tests
 {
-    [TestFixture]
     public class TriggerBehaviourFixture
     {
-        [Test]
+        [Fact]
         public void ExposesCorrectUnderlyingTrigger()
         {
             var transtioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
                 Trigger.X, State.C, () => true);
 
-            Assert.AreEqual(Trigger.X, transtioning.Trigger);
+            Assert.Equal(Trigger.X, transtioning.Trigger);
         }
 
-        [Test]
+        [Fact]
         public void WhenGuardConditionFalse_GuardConditionsMetIsFalse()
         {
             var transtioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
                 Trigger.X, State.C, () => false);
 
-            Assert.IsFalse(transtioning.GuardConditionsMet);
+            Assert.False(transtioning.GuardConditionsMet);
         }
 
-        [Test]
+        [Fact]
         public void WhenGuardConditionTrue_GuardConditionsMetIsTrue()
         {
             var transtioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
                 Trigger.X, State.C, () => true);
 
-            Assert.IsTrue(transtioning.GuardConditionsMet);
+            Assert.True(transtioning.GuardConditionsMet);
         }
 
-        [Test]
+        [Fact]
         public void WhenOneOfMultipleGuardConditionsFalse_GuardConditionsMetIsFalse()
         {
             var falseGuard = new[] {
@@ -47,10 +46,10 @@ namespace Stateless.Tests
             var transtioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
                 Trigger.X, State.C, new StateMachine<State, Trigger>.TransitionGuard(falseGuard));
 
-            Assert.IsTrue(transtioning.GuardConditionsMet);
+            Assert.True(transtioning.GuardConditionsMet);
         }
 
-        [Test]
+        [Fact]
         public void WhenAllMultipleGuardConditionsFalse_IsGuardConditionsMetIsFalse()
         {
             var falseGuard = new[] {
@@ -61,10 +60,10 @@ namespace Stateless.Tests
             var transtioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
                 Trigger.X, State.C, new StateMachine<State, Trigger>.TransitionGuard(falseGuard));
 
-            Assert.IsFalse(transtioning.GuardConditionsMet);
+            Assert.False(transtioning.GuardConditionsMet);
         }
 
-        [Test]
+        [Fact]
         public void WhenAllGuardConditionsTrue_GuardConditionsMetIsTrue()
         {
             var trueGuard = new[] {
@@ -75,7 +74,7 @@ namespace Stateless.Tests
             var transtioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
                 Trigger.X, State.C, new StateMachine<State, Trigger>.TransitionGuard(trueGuard));
 
-            Assert.IsTrue(transtioning.GuardConditionsMet);
+            Assert.True(transtioning.GuardConditionsMet);
         }
     }
 }
