@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
+using System.Linq;
 
 namespace Stateless.Reflection
 {
@@ -9,20 +9,14 @@ namespace Stateless.Reflection
     /// </summary>
     public class StateMachineInfo
     {
-        /// <summary>
-        /// Construct an empty StateMachineInfo.
-        /// </summary>
-        public StateMachineInfo() { }
-
-        internal StateMachineInfo(ICollection<StateBindingInfo> states)
+        internal StateMachineInfo(IEnumerable<StateInfo> states)
         {
-            StateBindings = states;            
+            States = states?.ToList() ?? throw new ArgumentNullException(nameof(states));            
         }
 
         /// <summary>
         /// Exposes the states, transitions, and actions of this machine.
         /// </summary>
-        public ICollection<StateBindingInfo> StateBindings { get; set; } = new List<StateBindingInfo>();
-        
+        public IEnumerable<StateInfo> States { get; }
     }
 }
