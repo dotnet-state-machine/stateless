@@ -26,11 +26,14 @@ namespace Stateless.DotGraph
                 unknownDestinations.AddRange(binding.DynamicTransitions.Select(t => t.Destination));
 
                 var source = binding.ToString();
-                foreach (var transition in binding.Transitions.Concat(binding.InternalTransitions))
+                foreach (var transition in binding.ExternalTransitions)
                 {
                     HandleTransitions(ref lines, source, transition.Trigger.ToString(), transition.DestinationState.ToString(), transition.GuardDescription);
                 }
-
+                foreach (var transition in binding.InternalTransitions)
+                {
+                    HandleTransitions(ref lines, source, transition.Trigger.ToString(), transition.DestinationState.ToString(), transition.GuardDescription);
+                }
                 foreach (var transition in binding.DynamicTransitions)
                 {
                     HandleTransitions(ref lines, source, transition.Trigger.ToString(), transition.Destination, transition.GuardDescription);

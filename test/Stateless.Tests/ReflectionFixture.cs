@@ -45,8 +45,8 @@ namespace Stateless.Tests
             Assert.Equal(0, binding.EntryActions.Count());
             Assert.Equal(0, binding.ExitActions.Count());
             //
-            Assert.Equal(1, binding.Transitions.Count());
-            foreach (TransitionInfo trans in binding.Transitions)
+            Assert.Equal(1, binding.ExternalTransitions.Count());
+            foreach (ExternalTransitionInfo trans in binding.ExternalTransitions)
             {
                 Assert.True(trans.Trigger.Value is Trigger);
                 Assert.Equal(trans.Trigger.TriggerType, typeof(Trigger));
@@ -84,11 +84,11 @@ namespace Stateless.Tests
             Assert.Equal(0, binding.EntryActions.Count()); //  Binding entry actions count mismatch
             Assert.Equal(0, binding.ExitActions.Count());
             //
-            Assert.Equal(2, binding.Transitions.Count()); // Transition count mismatch
+            Assert.Equal(2, binding.ExternalTransitions.Count()); // Transition count mismatch
             //
             bool haveXB = false;
             bool haveYC = false;
-            foreach (TransitionInfo trans in binding.Transitions)
+            foreach (ExternalTransitionInfo trans in binding.ExternalTransitions)
             {
                 Assert.True(trans.Trigger.Value is Trigger);
                 Assert.True(trans.Trigger.TriggerType == typeof(Trigger));
@@ -143,8 +143,8 @@ namespace Stateless.Tests
             Assert.Equal(0, binding.EntryActions.Count());
             Assert.Equal(0, binding.ExitActions.Count());
             //
-            Assert.Equal(1, binding.Transitions.Count());
-            foreach (TransitionInfo trans in binding.Transitions)
+            Assert.Equal(1, binding.ExternalTransitions.Count());
+            foreach (ExternalTransitionInfo trans in binding.ExternalTransitions)
             {
                 Assert.True(trans.Trigger.Value is Trigger);
                 Assert.Equal(typeof(Trigger), trans.Trigger.TriggerType);
@@ -184,8 +184,8 @@ namespace Stateless.Tests
             Assert.Equal(0, binding.EntryActions.Count());
             Assert.Equal(0, binding.ExitActions.Count());
             //
-            Assert.Equal(1, binding.Transitions.Count());
-            foreach (TransitionInfo trans in binding.Transitions)
+            Assert.Equal(1, binding.ExternalTransitions.Count());
+            foreach (ExternalTransitionInfo trans in binding.ExternalTransitions)
             {
                 Assert.True(trans.Trigger.Value is Trigger);
                 Assert.Equal(typeof(Trigger), trans.Trigger.TriggerType);
@@ -224,8 +224,8 @@ namespace Stateless.Tests
             Assert.Equal(0, binding.EntryActions.Count());
             Assert.Equal(0, binding.ExitActions.Count());
             //
-            Assert.Equal(1, binding.Transitions.Count());
-            foreach (TransitionInfo trans in binding.Transitions)
+            Assert.Equal(1, binding.ExternalTransitions.Count());
+            foreach (ExternalTransitionInfo trans in binding.ExternalTransitions)
             {
                 Assert.True(trans.Trigger.Value is Trigger);
                 Assert.Equal(typeof(Trigger), trans.Trigger.TriggerType);
@@ -264,8 +264,8 @@ namespace Stateless.Tests
             Assert.Equal(0, binding.EntryActions.Count());
             Assert.Equal(0, binding.ExitActions.Count());
             //
-            Assert.Equal(1, binding.Transitions.Count());
-            foreach (TransitionInfo trans in binding.Transitions)
+            Assert.Equal(1, binding.ExternalTransitions.Count());
+            foreach (ExternalTransitionInfo trans in binding.ExternalTransitions)
             {
                 Assert.True(trans.Trigger.Value is Trigger);
                 Assert.Equal(typeof(Trigger), trans.Trigger.TriggerType);
@@ -303,7 +303,7 @@ namespace Stateless.Tests
             Assert.Equal(0, binding.EntryActions.Count());
             Assert.Equal(0, binding.ExitActions.Count());
             //
-            Assert.Equal(0, binding.Transitions.Count()); // Binding transition count mismatch
+            Assert.Equal(0, binding.ExternalTransitions.Count()); // Binding transition count mismatch
             Assert.Equal(0, binding.IgnoredTriggers.Count());
             Assert.Equal(0, binding.InternalTransitions.Count()); // Internal transition count mismatch
             Assert.Equal(1, binding.DynamicTransitions.Count()); // Dynamic transition count mismatch
@@ -339,7 +339,7 @@ namespace Stateless.Tests
             Assert.Equal(0, binding.EntryActions.Count());
             Assert.Equal(0, binding.ExitActions.Count());
             //
-            Assert.Equal(0, binding.Transitions.Count()); // Binding transition count mismatch"
+            Assert.Equal(0, binding.ExternalTransitions.Count()); // Binding transition count mismatch"
             Assert.Equal(0, binding.IgnoredTriggers.Count());
             Assert.Equal(0, binding.InternalTransitions.Count()); // Internal transition count mismatch
             Assert.Equal(1, binding.DynamicTransitions.Count()); // Dynamic transition count mismatch
@@ -379,7 +379,7 @@ namespace Stateless.Tests
             }
             Assert.Equal(0, binding.ExitActions.Count());
             //
-            Assert.Equal(0, binding.Transitions.Count()); // Binding count mismatch
+            Assert.Equal(0, binding.ExternalTransitions.Count()); // Binding count mismatch
             Assert.Equal(0, binding.IgnoredTriggers.Count());
             Assert.Equal(0, binding.InternalTransitions.Count()); // Internal transition count mismatch
             Assert.Equal(0, binding.DynamicTransitions.Count()); // Dynamic transition count mismatch
@@ -410,7 +410,7 @@ namespace Stateless.Tests
                 Assert.Equal("enteredA", entryAction);
             Assert.Equal(0, binding.ExitActions.Count());
             //
-            Assert.Equal(0, binding.Transitions.Count()); // Binding count mismatch
+            Assert.Equal(0, binding.ExternalTransitions.Count()); // Binding count mismatch
             Assert.Equal(0, binding.IgnoredTriggers.Count());
             Assert.Equal(0, binding.InternalTransitions.Count()); // Internal transition count mismatch
             Assert.Equal(0, binding.DynamicTransitions.Count()); // Dynamic transition count mismatch
@@ -441,7 +441,7 @@ namespace Stateless.Tests
             foreach (string entryAction in binding.ExitActions)
                 Assert.Equal("exitA", entryAction);
             //
-            Assert.Equal(0, binding.Transitions.Count()); // Binding count mismatch
+            Assert.Equal(0, binding.ExternalTransitions.Count()); // Binding count mismatch
             Assert.Equal(0, binding.IgnoredTriggers.Count());
             Assert.Equal(0, binding.InternalTransitions.Count()); // Internal transition count mismatch
             Assert.Equal(0, binding.DynamicTransitions.Count()); // Dynamic transition count mismatch
@@ -472,7 +472,7 @@ namespace Stateless.Tests
             foreach (string entryAction in binding.ExitActions)
                 Assert.Equal("exitA", entryAction);
             //
-            Assert.Equal(0, binding.Transitions.Count()); // Binding count mismatch
+            Assert.Equal(0, binding.ExternalTransitions.Count()); // Binding count mismatch
             Assert.Equal(0, binding.IgnoredTriggers.Count());
             Assert.Equal(0, binding.InternalTransitions.Count()); // Internal transition count mismatch
             Assert.Equal(0, binding.DynamicTransitions.Count()); // Dynamic transition count mismatch
@@ -496,8 +496,8 @@ namespace Stateless.Tests
             Assert.Equal(typeof(State), binding.StateType);
             Assert.Equal(State.A, (State)binding.UnderlyingState);
             //
-            Assert.Equal(1, binding.Transitions.Count()); // Transition count mismatch"
-            foreach (TransitionInfo trans in binding.Transitions)
+            Assert.Equal(1, binding.ExternalTransitions.Count()); // Transition count mismatch"
+            foreach (ExternalTransitionInfo trans in binding.ExternalTransitions)
             {
                 Assert.True(trans.Trigger.Value is Trigger);
                 Assert.Equal(trans.Trigger.TriggerType, typeof(Trigger));

@@ -38,8 +38,8 @@ namespace Stateless.Reflection
             if (stateReperesentation.Superstate != null)
                 superstate = lookupState(stateReperesentation.Superstate.UnderlyingState);
 
-            var transitions = new List<TransitionInfo>();
-            var internalTransitions = new List<TransitionInfo>();
+            var transitions = new List<ExternalTransitionInfo>();
+            var internalTransitions = new List<InternalTransitionInfo>();
             var dynamicTransitions = new List<DynamicTransitionInfo>();
 
             foreach (var triggerBehaviours in stateReperesentation.TriggerBehaviours)
@@ -51,10 +51,10 @@ namespace Stateless.Reflection
                 foreach (var item in triggerBehaviours.Value)
                 {
                     if (item is StateMachine<TState, TTrigger>.TransitioningTriggerBehaviour)
-                        transitions.Add(TransitionInfo.CreateTransitionInfo(triggerBehaviours.Key, (StateMachine<TState, TTrigger>.TransitioningTriggerBehaviour)item, lookupState));
+                        transitions.Add(ExternalTransitionInfo.Create(triggerBehaviours.Key, (StateMachine<TState, TTrigger>.TransitioningTriggerBehaviour)item, lookupState));
 
                     if (item is StateMachine<TState, TTrigger>.InternalTriggerBehaviour)
-                        transitions.Add(TransitionInfo.CreateInternalTransitionInfo(triggerBehaviours.Key, (StateMachine<TState, TTrigger>.InternalTriggerBehaviour)item, stateReperesentation.UnderlyingState, lookupState));
+                        internalTransitions.Add(InternalTransitionInfo.Create(triggerBehaviours.Key, (StateMachine<TState, TTrigger>.InternalTriggerBehaviour)item, stateReperesentation.UnderlyingState, lookupState));
 
                     if (item is StateMachine<TState, TTrigger>.DynamicTriggerBehaviour)
                     {
@@ -85,13 +85,13 @@ namespace Stateless.Reflection
         private void AddRelationships(
             StateInfo superstate,
             IEnumerable<StateInfo> substates,
-            IEnumerable<TransitionInfo> transitions,
-            IEnumerable<TransitionInfo> internalTransitions,
+            IEnumerable<ExternalTransitionInfo> transitions,
+            IEnumerable<InternalTransitionInfo> internalTransitions,
             IEnumerable<DynamicTransitionInfo> dynamicTransitions)
         {
             Superstate = superstate;
             Substates = substates ?? throw new ArgumentNullException(nameof(substates));
-            Transitions = transitions ?? throw new ArgumentNullException(nameof(transitions));
+            ExternalTransitions = transitions ?? throw new ArgumentNullException(nameof(transitions));
             InternalTransitions = internalTransitions ?? throw new ArgumentNullException(nameof(internalTransitions));
             DynamicTransitions = dynamicTransitions ?? throw new ArgumentNullException(nameof(dynamicTransitions));
         }
@@ -130,12 +130,12 @@ namespace Stateless.Reflection
         /// <summary>
         /// Transitions defined for this state.
         /// </summary>
-        public IEnumerable<TransitionInfo> Transitions { get; private set; }
+        public IEnumerable<ExternalTransitionInfo> ExternalTransitions { get; private set; }
 
         /// <summary>
         /// Transitions defined for this state internally.
         /// </summary>
-        public IEnumerable<TransitionInfo> InternalTransitions { get; private set; }
+        public IEnumerable<InternalTransitionInfo> InternalTransitions { get; private set; }
 
         /// <summary>
         /// Dynamic Transitions defined for this state internally.
