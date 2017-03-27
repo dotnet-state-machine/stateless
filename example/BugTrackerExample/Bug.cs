@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Stateless;
+using Stateless.DotGraph;
 
 namespace BugTrackerExample
 {
@@ -82,6 +83,11 @@ namespace BugTrackerExample
         void SendEmailToAssignee(string message)
         {
             Console.WriteLine("{0}, RE {1}: {2}", _assignee, _title, message);
+        }
+
+        public string ToDotGraph()
+        {
+            return DotGraphFormatter.Format(_machine.GetInfo());
         }
     }
 }
