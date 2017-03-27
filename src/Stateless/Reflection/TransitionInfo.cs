@@ -8,11 +8,11 @@
         /// <summary>
         /// The trigger whose firing resulted in this transition.
         /// </summary>
-        public TriggerInfo Trigger { get; internal set; }
+        public TriggerInfo Trigger { get; protected set; }
 
         /// <summary>
         /// Description of provided guard clause, if any.
         /// </summary>
-        public string GuardDescription { get; internal set; }
+        public string GuardDescription { get; protected set; }
     }
 }
