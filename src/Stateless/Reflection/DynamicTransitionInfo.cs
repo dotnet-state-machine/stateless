@@ -5,12 +5,12 @@
     /// </summary>
     public class DynamicTransitionInfo : TransitionInfo
     {
-        internal static DynamicTransitionInfo Create<TState, TTrigger>(TTrigger trigger, StateMachine<TState, TTrigger>.DynamicTriggerBehaviour b, string destination)
+        internal static DynamicTransitionInfo Create<TState, TTrigger>(TTrigger trigger, StateMachine<TState, TTrigger>.DynamicTriggerBehaviour behaviour, string destination)
         {
             var transition = new DynamicTransitionInfo
             {
-                Trigger = new TriggerInfo(trigger, typeof(TTrigger)),
-                Destination = destination
+                Trigger = new TriggerInfo(behaviour.Trigger, typeof(TTrigger)),
+                Destination = destination,
             };
 
             return transition;

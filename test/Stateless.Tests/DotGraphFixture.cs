@@ -33,7 +33,7 @@ namespace Stateless.Tests
 
             sm.Configure(State.A)
                 .Permit(Trigger.X, State.B);
-
+            var resukt = DotGraphFormatter.Format(sm.GetInfo());
             Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo()));
         }
 
@@ -152,7 +152,6 @@ namespace Stateless.Tests
             var trigger = sm.SetTriggerParameters<int>(Trigger.X);
             sm.Configure(State.A)
                 .PermitDynamic(trigger, i => i == 1 ? State.B : State.C);
-
             Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo()));
         }
 

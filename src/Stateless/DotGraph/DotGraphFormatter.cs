@@ -30,10 +30,7 @@ namespace Stateless.DotGraph
                 {
                     HandleTransitions(ref lines, source, transition.Trigger.ToString(), transition.DestinationState.ToString(), transition.GuardDescription);
                 }
-                foreach (var transition in binding.InternalTransitions)
-                {
-                    HandleTransitions(ref lines, source, transition.Trigger.ToString(), transition.DestinationState.ToString(), transition.GuardDescription);
-                }
+                
                 foreach (var transition in binding.DynamicTransitions)
                 {
                     HandleTransitions(ref lines, source, transition.Trigger.ToString(), transition.Destination, transition.GuardDescription);
