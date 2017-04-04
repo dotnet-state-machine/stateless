@@ -7,10 +7,9 @@ namespace Stateless.Reflection
     /// </summary>
     public class TriggerInfo
     {
-        internal TriggerInfo(object value, Type triggerType)
+        internal TriggerInfo(object value)
         {
             Value = value;
-            TriggerType = triggerType;
         }
 
         /// <summary>
@@ -18,12 +17,6 @@ namespace Stateless.Reflection
         /// </summary>
         public object Value { get; private set; }
         
-        /// <summary>
-        /// The type of the underlying trigger.
-        /// </summary>
-        /// <returns></returns>
-        public Type TriggerType { get; private set; }
-
         /// <summary>
         /// Passes through to the value's ToString.
         /// </summary>

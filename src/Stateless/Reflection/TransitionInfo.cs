@@ -11,7 +11,7 @@ namespace Stateless.Reflection
         {
             var transition = new TransitionInfo
             {
-                Trigger = new TriggerInfo(trigger, trigger.GetType()),
+                Trigger = new TriggerInfo(trigger),
                 DestinationState = lookupState(behavior.Destination),
                 GuardDescription = string.IsNullOrWhiteSpace(behavior.GuardsDescriptions) ? null : behavior.GuardsDescriptions
             };
@@ -23,7 +23,7 @@ namespace Stateless.Reflection
         {
             var transition = new TransitionInfo
             {
-                Trigger = new TriggerInfo(trigger, typeof(TTrigger)),
+                Trigger = new TriggerInfo(trigger),
                 DestinationState = lookupState(destination),
                 GuardDescription = string.IsNullOrWhiteSpace(behavior.GuardsDescriptions) ? null : behavior.GuardsDescriptions
             };

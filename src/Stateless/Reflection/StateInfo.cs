@@ -23,11 +23,11 @@ namespace Stateless.Reflection
                 foreach (var item in triggerBehaviours.Value)
                 {
                     if (item is StateMachine<TState, TTrigger>.IgnoredTriggerBehaviour)
-                        ignoredTriggers.Add(new TriggerInfo(triggerBehaviours.Key, typeof(TTrigger) ));
+                        ignoredTriggers.Add(new TriggerInfo(triggerBehaviours.Key));
                 }
             }
 
-            return new StateInfo(stateReperesentation.UnderlyingState, typeof(TState), entryActions, exitActions, ignoredTriggers);
+            return new StateInfo(stateReperesentation.UnderlyingState, entryActions, exitActions, ignoredTriggers);
         }
 
         internal static void AddRelationships<TState, TTrigger>(StateInfo info, StateMachine<TState, TTrigger>.StateRepresentation stateReperesentation, Func<TState, StateInfo> lookupState)
@@ -70,13 +70,11 @@ namespace Stateless.Reflection
 
         private StateInfo(
             object underlyingState, 
-            Type stateType,
             IEnumerable<string> entryActions,
             IEnumerable<string> exitActions,
             IEnumerable<TriggerInfo> ignoredTriggers)
         {
             UnderlyingState = underlyingState;
-            StateType = stateType;
             EntryActions = entryActions ?? throw new ArgumentNullException(nameof(entryActions));
             ExitActions = exitActions ?? throw new ArgumentNullException(nameof(exitActions));
             IgnoredTriggers = ignoredTriggers ?? throw new ArgumentNullException(nameof(ignoredTriggers));
@@ -100,12 +98,6 @@ namespace Stateless.Reflection
         /// The instance or value this state represents.
         /// </summary>
         public object UnderlyingState { get; private set; }
-
-        /// <summary>
-        /// The type of the underlying state.
-        /// </summary>
-        /// <returns></returns>
-        public Type StateType { get; private set; }
 
         /// <summary>
         /// Substates defined for this StateResource.

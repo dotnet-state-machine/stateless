@@ -33,11 +33,11 @@ namespace Stateless.Tests
 
             StateMachineInfo inf = sm.GetInfo();
 
+            Assert.Equal(inf.TriggerType, typeof(Trigger));
             Assert.Equal(inf.States.Count(), 2);
             var binding = inf.States.Single(s => (State)s.UnderlyingState == State.A);
 
             Assert.True(binding.UnderlyingState is State);
-            Assert.True(binding.StateType == typeof(State));
             Assert.Equal(State.A, (State)binding.UnderlyingState);
             //
             Assert.Equal(0, binding.Substates.Count());
@@ -49,7 +49,6 @@ namespace Stateless.Tests
             foreach (TransitionInfo trans in binding.Transitions)
             {
                 Assert.True(trans.Trigger.Value is Trigger);
-                Assert.Equal(trans.Trigger.TriggerType, typeof(Trigger));
                 Assert.Equal(Trigger.X, (Trigger)trans.Trigger.Value);
                 //
                 Assert.True(trans.DestinationState.UnderlyingState is State);
@@ -72,11 +71,12 @@ namespace Stateless.Tests
 
             StateMachineInfo inf = sm.GetInfo();
 
+            Assert.True(inf.StateType == typeof(State));
+            Assert.Equal(inf.TriggerType, typeof(Trigger));
             Assert.Equal(inf.States.Count(), 3);
             var binding = inf.States.Single(s => (State)s.UnderlyingState == State.A);
 
             Assert.True(binding.UnderlyingState is State);
-            Assert.True(binding.StateType == typeof(State));
             Assert.Equal(State.A, (State)binding.UnderlyingState); // Binding state value mismatch
             //
             Assert.Equal(0, binding.Substates.Count()); //  Binding substate count mismatch"
@@ -91,7 +91,6 @@ namespace Stateless.Tests
             foreach (TransitionInfo trans in binding.Transitions)
             {
                 Assert.True(trans.Trigger.Value is Trigger);
-                Assert.True(trans.Trigger.TriggerType == typeof(Trigger));
                 //
                 Assert.True(trans.DestinationState.UnderlyingState is State);
                 Assert.Equal(null, trans.GuardDescription);
@@ -131,11 +130,12 @@ namespace Stateless.Tests
 
             StateMachineInfo inf = sm.GetInfo();
 
+            Assert.True(inf.StateType == typeof(State));
+            Assert.Equal(inf.TriggerType, typeof(Trigger));
             Assert.Equal(inf.States.Count(), 2);
             var binding = inf.States.Single(s => (State)s.UnderlyingState == State.A);
 
             Assert.True(binding.UnderlyingState is State);
-            Assert.Equal(typeof(State), binding.StateType);
             Assert.Equal(State.A, (State)binding.UnderlyingState);
             //
             Assert.Equal(0, binding.Substates.Count());
@@ -147,7 +147,6 @@ namespace Stateless.Tests
             foreach (TransitionInfo trans in binding.Transitions)
             {
                 Assert.True(trans.Trigger.Value is Trigger);
-                Assert.Equal(typeof(Trigger), trans.Trigger.TriggerType);
                 Assert.Equal(Trigger.X, (Trigger)trans.Trigger.Value);
                 //
                 Assert.True(trans.DestinationState.UnderlyingState is State);
@@ -172,11 +171,12 @@ namespace Stateless.Tests
 
             StateMachineInfo inf = sm.GetInfo();
 
+            Assert.True(inf.StateType == typeof(State));
+            Assert.Equal(inf.TriggerType, typeof(Trigger));
             Assert.Equal(inf.States.Count(), 2);
             var binding = inf.States.Single(s => (State)s.UnderlyingState == State.A);
 
             Assert.True(binding.UnderlyingState is State);
-            Assert.Equal(typeof(State), binding.StateType);
             Assert.Equal(State.A, (State)binding.UnderlyingState);
             //
             Assert.Equal(0, binding.Substates.Count());
@@ -188,7 +188,6 @@ namespace Stateless.Tests
             foreach (TransitionInfo trans in binding.Transitions)
             {
                 Assert.True(trans.Trigger.Value is Trigger);
-                Assert.Equal(typeof(Trigger), trans.Trigger.TriggerType);
                 Assert.Equal(Trigger.X, (Trigger)trans.Trigger.Value);
                 //
                 Assert.True(trans.DestinationState.UnderlyingState is State);
@@ -212,11 +211,12 @@ namespace Stateless.Tests
 
             StateMachineInfo inf = sm.GetInfo();
 
+            Assert.True(inf.StateType == typeof(State));
+            Assert.Equal(inf.TriggerType, typeof(Trigger));
             Assert.Equal(inf.States.Count(), 2);
             var binding = inf.States.Single(s => (State)s.UnderlyingState == State.A);
 
             Assert.True(binding.UnderlyingState is State);
-            Assert.Equal(typeof(State), binding.StateType);
             Assert.Equal(State.A, (State)binding.UnderlyingState);
             //
             Assert.Equal(0, binding.Substates.Count());
@@ -228,7 +228,6 @@ namespace Stateless.Tests
             foreach (TransitionInfo trans in binding.Transitions)
             {
                 Assert.True(trans.Trigger.Value is Trigger);
-                Assert.Equal(typeof(Trigger), trans.Trigger.TriggerType);
                 Assert.Equal(Trigger.X, (Trigger)trans.Trigger.Value);
                 //
                 Assert.True(trans.DestinationState.UnderlyingState is State);
@@ -252,11 +251,12 @@ namespace Stateless.Tests
 
             StateMachineInfo inf = sm.GetInfo();
 
+            Assert.True(inf.StateType == typeof(State));
+            Assert.Equal(inf.TriggerType, typeof(Trigger));
             Assert.Equal(inf.States.Count(), 2);
             var binding = inf.States.Single(s => (State)s.UnderlyingState == State.A);
 
             Assert.True(binding.UnderlyingState is State);
-            Assert.Equal(typeof(State), binding.StateType);
             Assert.Equal(State.A, (State)binding.UnderlyingState);
             //
             Assert.Equal(0, binding.Substates.Count());
@@ -268,7 +268,6 @@ namespace Stateless.Tests
             foreach (TransitionInfo trans in binding.Transitions)
             {
                 Assert.True(trans.Trigger.Value is Trigger);
-                Assert.Equal(typeof(Trigger), trans.Trigger.TriggerType);
                 Assert.Equal(Trigger.X, (Trigger)trans.Trigger.Value);
                 //
                 Assert.True(trans.DestinationState.UnderlyingState is State);
@@ -291,11 +290,12 @@ namespace Stateless.Tests
 
             StateMachineInfo inf = sm.GetInfo();
 
+            Assert.True(inf.StateType == typeof(State));
+            Assert.Equal(inf.TriggerType, typeof(Trigger));
             Assert.Equal(inf.States.Count(), 1);
             var binding = inf.States.Single(s => (State)s.UnderlyingState == State.A);
 
             Assert.True(binding.UnderlyingState is State);
-            Assert.Equal(typeof(State), binding.StateType);
             Assert.Equal(State.A, (State)binding.UnderlyingState);
             //
             Assert.Equal(0, binding.Substates.Count());
@@ -310,7 +310,6 @@ namespace Stateless.Tests
             foreach (DynamicTransitionInfo trans in binding.DynamicTransitions)
             {
                 Assert.True(trans.Trigger.Value is Trigger);
-                Assert.Equal(typeof(Trigger), trans.Trigger.TriggerType);
                 Assert.Equal(Trigger.X, (Trigger)trans.Trigger.Value);
                 Assert.NotEqual(null, trans.Destination);
                 Assert.Equal(null, trans.GuardDescription);
@@ -327,11 +326,12 @@ namespace Stateless.Tests
 
             StateMachineInfo inf = sm.GetInfo();
 
+            Assert.True(inf.StateType == typeof(State));
+            Assert.Equal(inf.TriggerType, typeof(Trigger));
             Assert.Equal(inf.States.Count(), 1);
             var binding = inf.States.Single(s => (State)s.UnderlyingState == State.A);
 
             Assert.True(binding.UnderlyingState is State);
-            Assert.Equal(typeof(State), binding.StateType);
             Assert.Equal(State.A, (State)binding.UnderlyingState);
             //
             Assert.Equal(0, binding.Substates.Count());
@@ -346,7 +346,6 @@ namespace Stateless.Tests
             foreach (DynamicTransitionInfo trans in binding.DynamicTransitions)
             {
                 Assert.True(trans.Trigger.Value is Trigger);
-                Assert.Equal(typeof(Trigger), trans.Trigger.TriggerType);
                 Assert.Equal(Trigger.X, (Trigger)trans.Trigger.Value);
                 Assert.NotEqual(null, trans.Destination);
                 Assert.Equal(null, trans.GuardDescription);
@@ -363,11 +362,11 @@ namespace Stateless.Tests
 
             StateMachineInfo inf = sm.GetInfo();
 
+            Assert.True(inf.StateType == typeof(State));
             Assert.Equal(inf.States.Count(), 1);
             var binding = inf.States.Single(s => (State)s.UnderlyingState == State.A);
 
             Assert.True(binding.UnderlyingState is State);
-            Assert.Equal(typeof(State), binding.StateType);
             Assert.Equal(State.A, (State)binding.UnderlyingState);
             //
             Assert.Equal(0, binding.Substates.Count());
@@ -395,11 +394,11 @@ namespace Stateless.Tests
 
             StateMachineInfo inf = sm.GetInfo();
 
+            Assert.True(inf.StateType == typeof(State));
             Assert.Equal(inf.States.Count(), 1);
             var binding = inf.States.Single(s => (State)s.UnderlyingState == State.A);
 
             Assert.True(binding.UnderlyingState is State);
-            Assert.Equal(typeof(State), binding.StateType);
             Assert.Equal(State.A, (State)binding.UnderlyingState);
             //
             Assert.Equal(0, binding.Substates.Count());
@@ -426,11 +425,11 @@ namespace Stateless.Tests
 
             StateMachineInfo inf = sm.GetInfo();
 
+            Assert.True(inf.StateType == typeof(State));
             Assert.Equal(inf.States.Count(), 1);
             var binding = inf.States.Single(s => (State)s.UnderlyingState == State.A);
 
             Assert.True(binding.UnderlyingState is State);
-            Assert.Equal(typeof(State), binding.StateType);
             Assert.Equal(State.A, (State)binding.UnderlyingState);
             //
             Assert.Equal(0, binding.Substates.Count());
@@ -457,11 +456,11 @@ namespace Stateless.Tests
 
             StateMachineInfo inf = sm.GetInfo();
 
+            Assert.True(inf.StateType == typeof(State));
             Assert.Equal(inf.States.Count(), 1);
             var binding = inf.States.Single(s => (State)s.UnderlyingState == State.A);
 
             Assert.True(binding.UnderlyingState is State);
-            Assert.Equal(typeof(State), binding.StateType);
             Assert.Equal(State.A, (State)binding.UnderlyingState);
             //
             Assert.Equal(0, binding.Substates.Count());
@@ -489,18 +488,18 @@ namespace Stateless.Tests
 
             StateMachineInfo inf = sm.GetInfo();
 
+            Assert.True(inf.StateType == typeof(State));
+            Assert.Equal(inf.TriggerType, typeof(Trigger));
             Assert.Equal(inf.States.Count(), 2);
             var binding = inf.States.Single(s => (State)s.UnderlyingState == State.A);
 
             Assert.True(binding.UnderlyingState is State);
-            Assert.Equal(typeof(State), binding.StateType);
             Assert.Equal(State.A, (State)binding.UnderlyingState);
             //
             Assert.Equal(1, binding.Transitions.Count()); // Transition count mismatch"
             foreach (TransitionInfo trans in binding.Transitions)
             {
                 Assert.True(trans.Trigger.Value is Trigger);
-                Assert.Equal(trans.Trigger.TriggerType, typeof(Trigger));
                 Assert.Equal(Trigger.X, (Trigger)trans.Trigger.Value);
                 //
                 Assert.True(trans.DestinationState.UnderlyingState is State);
@@ -512,7 +511,6 @@ namespace Stateless.Tests
             foreach (TriggerInfo ignore in binding.IgnoredTriggers)
             {
                 Assert.True(ignore.Value is Trigger);
-                Assert.Equal(typeof(Trigger), ignore.TriggerType);
                 Assert.Equal(Trigger.Y, (Trigger)ignore.Value); // Ignored trigger value mismatch
             }
             //

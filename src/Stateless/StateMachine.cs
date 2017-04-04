@@ -115,7 +115,7 @@ namespace Stateless
             foreach (var state in info)
                 StateInfo.AddRelationships(state.Value, representations[state.Key], k => info[k]);
 
-            return new StateMachineInfo(info.Values);
+            return new StateMachineInfo(info.Values, typeof(TState), typeof(TTrigger));
         }
 
         StateRepresentation GetRepresentation(TState state)

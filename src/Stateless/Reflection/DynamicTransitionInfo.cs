@@ -9,7 +9,7 @@
         {
             var transition = new DynamicTransitionInfo
             {
-                Trigger = new TriggerInfo(trigger, typeof(TTrigger)),
+                Trigger = new TriggerInfo(trigger),
                 Destination = destination
             };
 
