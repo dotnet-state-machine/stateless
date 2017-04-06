@@ -15,7 +15,7 @@ namespace Stateless.Reflection
         /// <summary>
         /// The instance or value this trigger represents.
         /// </summary>
-        public object Value { get; private set; }
+        public object Value { get; }
         
         /// <summary>
         /// Passes through to the value's ToString.

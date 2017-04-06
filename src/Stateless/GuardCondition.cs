@@ -6,15 +6,14 @@ namespace Stateless
     {
         internal class GuardCondition
         {
-            Func<bool> _guard;
-            string _description;
+            private readonly string _description;
             internal GuardCondition(Func<bool> guard, string description)
             {
-                _guard = Enforce.ArgumentNotNull(guard, nameof(guard));
+                Guard = Enforce.ArgumentNotNull(guard, nameof(guard));
                 _description = description;
             }
-            internal Func<bool> Guard { get { return _guard; } }
-            internal string Description { get { return _description ?? _guard.TryGetMethodName(); } }
+            internal Func<bool> Guard { get; }
+            internal string Description => _description ?? Guard.TryGetMethodName();
         }
     }
 }
