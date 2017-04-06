@@ -4,16 +4,16 @@ namespace Stateless
 {
     public partial class StateMachine<TState, TTrigger>
     {
-        internal class GuardCondition
+        internal class GuardCondition : InvocationInfo
         {
-            private readonly string _description;
             internal GuardCondition(Func<bool> guard, string description)
+                : base(description)
             {
                 Guard = Enforce.ArgumentNotNull(guard, nameof(guard));
-                _description = description;
             }
             internal Func<bool> Guard { get; }
-            internal string Description => _description ?? Guard.TryGetMethodName();
+            internal override string MethodName { get { return Guard.TryGetMethodName(); } }
+            internal override bool IsAsync { get { return false; } }
         }
     }
 }

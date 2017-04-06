@@ -11,15 +11,15 @@ namespace Stateless.Reflection
     {
         static readonly string _defaultFunctionName = "Function";
 
-        internal static ActionInfo CreateActionInfo(ActionBehaviour action)
+        internal static ActionInfo CreateActionInfo(InvocationInfo action)
         {
             string descrip;
 
-            descrip = action.ActionDescription;
+            descrip = action.Description;
 
             // If the action description was calculated based on the method name, and the method was a delegate or lambda,
             // don't use the compiler-generated method name.
-            if ( (action.ActionDescriptionIsCalculated) && (descrip.IndexOfAny(new char[] { '<', '>' }) >= 0) )
+            if ( (action.DescriptionIsCalculated) && (descrip.IndexOfAny(new char[] { '<', '>' }) >= 0) )
                 descrip = _defaultFunctionName;
 
             ActionInfo actionInfo = new ActionInfo(descrip, action.IsAsync);

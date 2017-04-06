@@ -8,12 +8,15 @@ namespace Stateless
 {
     public partial class StateMachine<TState, TTrigger>
     {
-        internal abstract class EntryActionBehavior : ActionBehaviour
+        internal abstract class EntryActionBehavior : InvocationInfo
         {
             protected EntryActionBehavior(string actionDescription)
                 : base(actionDescription)
             {
             }
+
+            // Rename base class 'Description' for backward compatibility
+            public string ActionDescription => Description;
 
             public abstract void Execute(Transition transition, object[] args);
             public abstract Task ExecuteAsync(Transition transition, object[] args);
@@ -27,7 +30,7 @@ namespace Stateless
                     _action = action;
                 }
 
-                internal override string ActionMethodName {  get { return _action.TryGetMethodName(); } }
+                internal override string MethodName {  get { return _action.TryGetMethodName(); } }
                 internal override bool IsAsync {  get { return false;  } }
 
                 public override void Execute(Transition transition, object[] args)
@@ -51,7 +54,7 @@ namespace Stateless
                     _action = action;
                 }
 
-                internal override string ActionMethodName { get { return _action.TryGetMethodName(); } }
+                internal override string MethodName { get { return _action.TryGetMethodName(); } }
                 internal override bool IsAsync { get { return true; } }
 
                 public override void Execute(Transition transition, object[] args)
