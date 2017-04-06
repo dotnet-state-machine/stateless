@@ -11,7 +11,7 @@ namespace Stateless.Reflection
         {
             var transition = new TransitionInfo
             {
-                Trigger = trigger,
+                Trigger = new TriggerInfo(trigger),
                 DestinationState = lookupState(behavior.Destination),
                 GuardDescription = string.IsNullOrWhiteSpace(behavior.GuardsDescriptions) ? null : behavior.GuardsDescriptions
             };
@@ -23,7 +23,7 @@ namespace Stateless.Reflection
         {
             var transition = new TransitionInfo
             {
-                Trigger = trigger,
+                Trigger = new TriggerInfo(trigger),
                 DestinationState = lookupState(destination),
                 GuardDescription = string.IsNullOrWhiteSpace(behavior.GuardsDescriptions) ? null : behavior.GuardsDescriptions
             };
@@ -36,7 +36,7 @@ namespace Stateless.Reflection
         /// <summary>
         /// The trigger whose firing resulted in this transition.
         /// </summary>
-        public object Trigger { get; private set; }
+        public TriggerInfo Trigger { get; private set; }
 
         /// <summary>
         /// The state that will be transitioned into on activation.

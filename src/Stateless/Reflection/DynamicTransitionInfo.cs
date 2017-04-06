@@ -9,7 +9,7 @@
         {
             var transition = new DynamicTransitionInfo
             {
-                Trigger = trigger,
+                Trigger = new TriggerInfo(trigger),
                 Destination = destination
             };
 
@@ -21,7 +21,7 @@
         /// <summary>
         /// The trigger whose firing resulted in this transition.
         /// </summary>
-        public object Trigger { get; private set; }
+        public TriggerInfo Trigger { get; private set; }
 
         /// <summary>
         /// Friendly text for dynamic transitions.
