@@ -40,7 +40,7 @@ namespace Stateless
 
                         return TaskResult.Done;
                     },
-                    Enforce.ArgumentNotNull(entryActionDescription, nameof(entryActionDescription))));
+                    entryActionDescription));
             }
 
             public void AddEntryAction(Func<Transition, object[], Task> action, string entryActionDescription)
@@ -48,7 +48,7 @@ namespace Stateless
                 _entryActions.Add(
                     new EntryActionBehavior.Async(
                         Enforce.ArgumentNotNull(action, nameof(action)),
-                        Enforce.ArgumentNotNull(entryActionDescription, nameof(entryActionDescription))));
+                        entryActionDescription));
             }
 
             public void AddExitAction(Func<Transition, Task> action, string exitActionDescription)
