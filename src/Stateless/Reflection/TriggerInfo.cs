@@ -1,28 +1,26 @@
-﻿using System;
-
-namespace Stateless.Reflection
+﻿namespace Stateless.Reflection
 {
     /// <summary>
     /// Represents a trigger in a statemachine.
     /// </summary>
     public class TriggerInfo
     {
-        internal TriggerInfo(object value)
+        internal TriggerInfo(object underlyingTrigger)
         {
-            Value = value;
+            UnderlyingTrigger = underlyingTrigger;
         }
 
         /// <summary>
         /// The instance or value this trigger represents.
         /// </summary>
-        public object Value { get; }
+        public object UnderlyingTrigger { get; }
         
         /// <summary>
-        /// Passes through to the value's ToString.
+        /// Describes the trigger.
         /// </summary>
         public override string ToString()
         {
-            return Value?.ToString() ?? "<null>";
+            return UnderlyingTrigger?.ToString() ?? "<null>";
         }
     }
 }
