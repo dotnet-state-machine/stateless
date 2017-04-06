@@ -8,7 +8,7 @@
         /// <summary>
         /// The trigger whose firing resulted in this transition.
         /// </summary>
-        public object Trigger { get; protected set; }
+        public object UnderlyingTrigger { get; protected set; }
 
         /// <summary>
         /// Description of provided guard clause, if any.
