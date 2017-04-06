@@ -33,7 +33,7 @@ namespace Stateless.Tests
 
             sm.Configure(State.A)
                 .Permit(Trigger.X, State.B);
-            var resukt = DotGraphFormatter.Format(sm.GetInfo());
+
             Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo()));
         }
 
