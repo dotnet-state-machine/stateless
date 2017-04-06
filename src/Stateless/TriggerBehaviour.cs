@@ -9,16 +9,15 @@ namespace Stateless
     {
         internal abstract class TriggerBehaviour
         {
-            readonly TTrigger _trigger;
             readonly TransitionGuard _guard;
 
             protected TriggerBehaviour(TTrigger trigger, TransitionGuard guard)
             {
                 _guard = Enforce.ArgumentNotNull(guard, nameof(guard));
-                _trigger = trigger;
+                Trigger = trigger;
             }
 
-            public TTrigger Trigger { get { return _trigger; } }
+            public TTrigger Trigger { get; }
             internal ICollection<Func<bool>> Guards { get { return _guard.Conditions.Select(g => g.Guard).ToList(); } }
             internal string GuardsDescriptions
             {

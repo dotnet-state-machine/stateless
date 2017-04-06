@@ -38,34 +38,28 @@ namespace Stateless.Reflection
             if (stateReperesentation.Superstate != null)
                 superstate = lookupState(stateReperesentation.Superstate.UnderlyingState);
 
-            var transitions = new List<TransitionInfo>();
-            var internalTransitions = new List<TransitionInfo>();
+            var fixedTransitions = new List<FixedTransitionInfo>();
             var dynamicTransitions = new List<DynamicTransitionInfo>();
 
             foreach (var triggerBehaviours in stateReperesentation.TriggerBehaviours)
             {
-                var triggerText = triggerBehaviours.Key.ToString();
-
                 int unknowns = 0;
-
-                foreach (var item in triggerBehaviours.Value)
+                // First add all the deterministic transitions
+                foreach (var item in triggerBehaviours.Value.Where(behaviour => ((behaviour is StateMachine<TState, TTrigger>.TransitioningTriggerBehaviour)
+                                                                              || (behaviour is StateMachine<TState, TTrigger>.InternalTriggerBehaviour))))
                 {
-                    if (item is StateMachine<TState, TTrigger>.TransitioningTriggerBehaviour)
-                        transitions.Add(TransitionInfo.CreateTransitionInfo(triggerBehaviours.Key, (StateMachine<TState, TTrigger>.TransitioningTriggerBehaviour)item, lookupState));
-
-                    if (item is StateMachine<TState, TTrigger>.InternalTriggerBehaviour)
-                        transitions.Add(TransitionInfo.CreateInternalTransitionInfo(triggerBehaviours.Key, (StateMachine<TState, TTrigger>.InternalTriggerBehaviour)item, stateReperesentation.UnderlyingState, lookupState));
-
-                    if (item is StateMachine<TState, TTrigger>.DynamicTriggerBehaviour)
-                    {
-                        var label = $"unknownDestination_{unknowns++}";
-
-                        dynamicTransitions.Add(DynamicTransitionInfo.Create(triggerBehaviours.Key, (StateMachine<TState, TTrigger>.DynamicTriggerBehaviour)item, label));
-                    }
+                    var destinationInfo = lookupState(((StateMachine<TState, TTrigger>.TransitioningTriggerBehaviour)item).Destination);
+                    fixedTransitions.Add(FixedTransitionInfo.Create(item, destinationInfo));
+                }
+                // Then add all the dynamic transitions
+                foreach (var item in triggerBehaviours.Value.Where(behaviour => behaviour is StateMachine<TState, TTrigger>.DynamicTriggerBehaviour))
+                {
+                    var label = $"unknownDestination_{unknowns++}";
+                    dynamicTransitions.Add(DynamicTransitionInfo.Create(triggerBehaviours.Key, (StateMachine<TState, TTrigger>.DynamicTriggerBehaviour)item, label));
                 }
             }
 
-            info.AddRelationships(superstate, substates, transitions, internalTransitions, dynamicTransitions);
+            info.AddRelationships(superstate, substates, fixedTransitions, dynamicTransitions);
         }
 
         private StateInfo(
@@ -85,21 +79,19 @@ namespace Stateless.Reflection
         private void AddRelationships(
             StateInfo superstate,
             IEnumerable<StateInfo> substates,
-            IEnumerable<TransitionInfo> transitions,
-            IEnumerable<TransitionInfo> internalTransitions,
+            IEnumerable<FixedTransitionInfo> transitions,
             IEnumerable<DynamicTransitionInfo> dynamicTransitions)
         {
             Superstate = superstate;
             Substates = substates ?? throw new ArgumentNullException(nameof(substates));
-            Transitions = transitions ?? throw new ArgumentNullException(nameof(transitions));
-            InternalTransitions = internalTransitions ?? throw new ArgumentNullException(nameof(internalTransitions));
+            FixedTransitions = transitions ?? throw new ArgumentNullException(nameof(transitions));
             DynamicTransitions = dynamicTransitions ?? throw new ArgumentNullException(nameof(dynamicTransitions));
         }
 
         /// <summary>
         /// The instance or value this state represents.
         /// </summary>
-        public object UnderlyingState { get; private set; }
+        public object UnderlyingState { get; }
 
         /// <summary>
         /// The type of the underlying state.
@@ -127,15 +119,14 @@ namespace Stateless.Reflection
         /// </summary>
         public IEnumerable<string> ExitActions { get; private set; }
 
+        /// <summary> 
+        /// Transitions defined for this state. 
+        /// </summary> 
+        public IEnumerable<TransitionInfo> Transitions { get { return FixedTransitions.Concat<TransitionInfo>(DynamicTransitions); } }
         /// <summary>
         /// Transitions defined for this state.
         /// </summary>
-        public IEnumerable<TransitionInfo> Transitions { get; private set; }
-
-        /// <summary>
-        /// Transitions defined for this state internally.
-        /// </summary>
-        public IEnumerable<TransitionInfo> InternalTransitions { get; private set; }
+        public IEnumerable<FixedTransitionInfo> FixedTransitions { get; private set; }
 
         /// <summary>
         /// Dynamic Transitions defined for this state internally.

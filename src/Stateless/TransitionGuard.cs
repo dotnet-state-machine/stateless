@@ -8,7 +8,7 @@ namespace Stateless
     {
         internal class TransitionGuard
         {
-            internal IList<GuardCondition> Conditions { get; private set; }
+            internal IList<GuardCondition> Conditions { get; }
             internal TransitionGuard(Tuple<Func<bool>, string>[] guards)
             {
                 Enforce.ArgumentNotNull(guards, nameof(guards));

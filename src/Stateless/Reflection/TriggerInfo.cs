@@ -16,7 +16,7 @@ namespace Stateless.Reflection
         /// <summary>
         /// The instance or value this trigger represents.
         /// </summary>
-        public object Value { get; private set; }
+        public object Value { get; }
         
         /// <summary>
         /// The type of the underlying trigger.
