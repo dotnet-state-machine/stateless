@@ -16,14 +16,14 @@ namespace Stateless.Reflection
 
             var entryActions = stateReperesentation.EntryActions.Select(e => e.ActionDescription).ToList();
             var exitActions = stateReperesentation.ExitActions.Select(e => e.ActionDescription).ToList();
-            var ignoredTriggers = new List<object>();
+            var ignoredTriggers = new List<TriggerInfo>();
 
             foreach (var triggerBehaviours in stateReperesentation.TriggerBehaviours)
             {
                 foreach (var item in triggerBehaviours.Value)
                 {
                     if (item is StateMachine<TState, TTrigger>.IgnoredTriggerBehaviour)
-                        ignoredTriggers.Add(triggerBehaviours.Key);
+                        ignoredTriggers.Add(new TriggerInfo(triggerBehaviours.Key));
                 }
             }
 
@@ -66,7 +66,7 @@ namespace Stateless.Reflection
             object underlyingState, 
             IEnumerable<string> entryActions,
             IEnumerable<string> exitActions,
-            IEnumerable<object> ignoredTriggers)
+            IEnumerable<TriggerInfo> ignoredTriggers)
         {
             UnderlyingState = underlyingState;
             EntryActions = entryActions ?? throw new ArgumentNullException(nameof(entryActions));
@@ -128,7 +128,7 @@ namespace Stateless.Reflection
         /// <summary>
         /// Triggers ignored for this state.
         /// </summary>
-        public IEnumerable<object> IgnoredTriggers { get; private set; }
+        public IEnumerable<TriggerInfo> IgnoredTriggers { get; private set; }
 
         /// <summary>
         /// Passes through to the value's ToString.
