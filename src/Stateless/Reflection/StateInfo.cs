@@ -84,7 +84,7 @@ namespace Stateless.Reflection
         {
             Superstate = superstate;
             Substates = substates ?? throw new ArgumentNullException(nameof(substates));
-            ExternalTransitions = transitions ?? throw new ArgumentNullException(nameof(transitions));
+            FixedTransitions = transitions ?? throw new ArgumentNullException(nameof(transitions));
             DynamicTransitions = dynamicTransitions ?? throw new ArgumentNullException(nameof(dynamicTransitions));
         }
 
@@ -119,10 +119,14 @@ namespace Stateless.Reflection
         /// </summary>
         public IEnumerable<string> ExitActions { get; private set; }
 
+        /// <summary> 
+        /// Transitions defined for this state. 
+        /// </summary> 
+        public IEnumerable<TransitionInfo> Transitions { get { return FixedTransitions.Concat<TransitionInfo>(DynamicTransitions); } }
         /// <summary>
         /// Transitions defined for this state.
         /// </summary>
-        public IEnumerable<FixedTransitionInfo> ExternalTransitions { get; private set; }
+        public IEnumerable<FixedTransitionInfo> FixedTransitions { get; private set; }
 
         /// <summary>
         /// Dynamic Transitions defined for this state internally.
