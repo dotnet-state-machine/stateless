@@ -28,12 +28,12 @@ namespace Stateless.DotGraph
                 var source = binding.ToString();
                 foreach (var transition in binding.FixedTransitions)
                 {
-                    HandleTransitions(ref lines, source, transition.Trigger.ToString(), transition.DestinationState.ToString(), transition.GuardDescription);
+                    HandleTransitions(ref lines, source, transition.UnderlyingTrigger.ToString(), transition.DestinationState.ToString(), transition.GuardDescription);
                 }
                 
                 foreach (var transition in binding.DynamicTransitions)
                 {
-                    HandleTransitions(ref lines, source, transition.Trigger.ToString(), transition.Destination, transition.GuardDescription);
+                    HandleTransitions(ref lines, source, transition.UnderlyingTrigger.ToString(), transition.Destination, transition.GuardDescription);
                 }
             }
 

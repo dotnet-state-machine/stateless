@@ -9,8 +9,8 @@
         {
             var transition = new DynamicTransitionInfo
             {
-                Trigger = new TriggerInfo(behaviour.Trigger, typeof(TTrigger)),
-                Destination = destination,
+                UnderlyingTrigger = trigger,
+                Destination = destination
             };
 
             return transition;

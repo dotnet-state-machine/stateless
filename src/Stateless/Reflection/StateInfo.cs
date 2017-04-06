@@ -16,18 +16,18 @@ namespace Stateless.Reflection
 
             var entryActions = stateReperesentation.EntryActions.Select(e => e.ActionDescription).ToList();
             var exitActions = stateReperesentation.ExitActions.Select(e => e.ActionDescription).ToList();
-            var ignoredTriggers = new List<TriggerInfo>();
+            var ignoredTriggers = new List<object>();
 
             foreach (var triggerBehaviours in stateReperesentation.TriggerBehaviours)
             {
                 foreach (var item in triggerBehaviours.Value)
                 {
                     if (item is StateMachine<TState, TTrigger>.IgnoredTriggerBehaviour)
-                        ignoredTriggers.Add(new TriggerInfo(triggerBehaviours.Key, typeof(TTrigger) ));
+                        ignoredTriggers.Add(triggerBehaviours.Key);
                 }
             }
 
-            return new StateInfo(stateReperesentation.UnderlyingState, typeof(TState), entryActions, exitActions, ignoredTriggers);
+            return new StateInfo(stateReperesentation.UnderlyingState, entryActions, exitActions, ignoredTriggers);
         }
 
         internal static void AddRelationships<TState, TTrigger>(StateInfo info, StateMachine<TState, TTrigger>.StateRepresentation stateReperesentation, Func<TState, StateInfo> lookupState)
@@ -64,13 +64,11 @@ namespace Stateless.Reflection
 
         private StateInfo(
             object underlyingState, 
-            Type stateType,
             IEnumerable<string> entryActions,
             IEnumerable<string> exitActions,
-            IEnumerable<TriggerInfo> ignoredTriggers)
+            IEnumerable<object> ignoredTriggers)
         {
             UnderlyingState = underlyingState;
-            StateType = stateType;
             EntryActions = entryActions ?? throw new ArgumentNullException(nameof(entryActions));
             ExitActions = exitActions ?? throw new ArgumentNullException(nameof(exitActions));
             IgnoredTriggers = ignoredTriggers ?? throw new ArgumentNullException(nameof(ignoredTriggers));
@@ -92,12 +90,6 @@ namespace Stateless.Reflection
         /// The instance or value this state represents.
         /// </summary>
         public object UnderlyingState { get; }
-
-        /// <summary>
-        /// The type of the underlying state.
-        /// </summary>
-        /// <returns></returns>
-        public Type StateType { get; private set; }
 
         /// <summary>
         /// Substates defined for this StateResource.
@@ -136,7 +128,7 @@ namespace Stateless.Reflection
         /// <summary>
         /// Triggers ignored for this state.
         /// </summary>
-        public IEnumerable<TriggerInfo> IgnoredTriggers { get; private set; }
+        public IEnumerable<object> IgnoredTriggers { get; private set; }
 
         /// <summary>
         /// Passes through to the value's ToString.

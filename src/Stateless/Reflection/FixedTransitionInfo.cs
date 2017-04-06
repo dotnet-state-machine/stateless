@@ -10,7 +10,7 @@ namespace Stateless.Reflection
         {
             var transition = new FixedTransitionInfo
             {
-                Trigger = new TriggerInfo(behaviour.Trigger, behaviour.Trigger.GetType()),
+                UnderlyingTrigger = behaviour.Trigger,
                 DestinationState = destinationStateInfo,
                 GuardDescription = string.IsNullOrWhiteSpace(behaviour.GuardsDescriptions) ? null : behaviour.GuardsDescriptions
             };
