@@ -413,9 +413,11 @@ namespace Stateless
             public StateConfiguration OnEntry(Action entryAction, string entryActionDescription = null)
             {
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                return OnEntry(
-                    t => entryAction(),
-                    entryActionDescription);
+                _representation.AddEntryAction(
+                    (t, args) => entryAction(),
+                    MethodDescription.Create(entryAction, entryActionDescription));
+                return this;
+
             }
 
             /// <summary>
@@ -445,10 +447,12 @@ namespace Stateless
             public StateConfiguration OnEntryFrom(TTrigger trigger, Action entryAction, string entryActionDescription = null)
             {
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                return OnEntryFrom(
+                _representation.AddEntryAction(
                     trigger,
-                    t => entryAction(),
-                    entryActionDescription);
+                    (t, args) => entryAction(),
+                    MethodDescription.Create(entryAction, entryActionDescription));
+                return this;
+
             }
 
             /// <summary>
@@ -481,10 +485,14 @@ namespace Stateless
             public StateConfiguration OnEntryFrom<TArg0>(TriggerWithParameters<TArg0> trigger, Action<TArg0> entryAction, string entryActionDescription = null)
             {
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                return OnEntryFrom<TArg0>(
-                    trigger,
-                    (a0, t) => entryAction(a0),
-                    entryActionDescription);
+                Enforce.ArgumentNotNull(trigger, nameof(trigger));
+                _representation.AddEntryAction(
+                    trigger.Trigger,
+                    (t, args) => entryAction(
+                        ParameterConversion.Unpack<TArg0>(args, 0)),
+                    MethodDescription.Create(entryAction, entryActionDescription));
+                return this;
+
             }
 
             /// <summary>
@@ -504,7 +512,7 @@ namespace Stateless
                     trigger.Trigger,
                     (t, args) => entryAction(
                         ParameterConversion.Unpack<TArg0>(args, 0), t),
-                        MethodDescription.Create(entryAction, entryActionDescription));
+                    MethodDescription.Create(entryAction, entryActionDescription));
                 return this;
             }
 
@@ -521,9 +529,15 @@ namespace Stateless
             public StateConfiguration OnEntryFrom<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Action<TArg0, TArg1> entryAction, string entryActionDescription = null)
             {
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                return OnEntryFrom<TArg0, TArg1>(
-                    trigger,
-                    (a0, a1, t) => entryAction(a0, a1), entryActionDescription);
+                Enforce.ArgumentNotNull(trigger, nameof(trigger));
+
+                _representation.AddEntryAction(trigger.Trigger,
+                    (t, args) => entryAction(
+                        ParameterConversion.Unpack<TArg0>(args, 0),
+                        ParameterConversion.Unpack<TArg1>(args, 1)),
+                    MethodDescription.Create(entryAction, entryActionDescription));
+                return this;
+
             }
 
             /// <summary>
@@ -561,9 +575,14 @@ namespace Stateless
             public StateConfiguration OnEntryFrom<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Action<TArg0, TArg1, TArg2> entryAction, string entryActionDescription = null)
             {
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                return OnEntryFrom<TArg0, TArg1, TArg2>(
-                    trigger,
-                    (a0, a1, a2, t) => entryAction(a0, a1, a2), entryActionDescription);
+                Enforce.ArgumentNotNull(trigger, nameof(trigger));
+                _representation.AddEntryAction(trigger.Trigger, (t, args) => entryAction(
+                    ParameterConversion.Unpack<TArg0>(args, 0),
+                    ParameterConversion.Unpack<TArg1>(args, 1),
+                    ParameterConversion.Unpack<TArg2>(args, 2)),
+                    MethodDescription.Create(entryAction, entryActionDescription));
+                return this;
+
             }
 
             /// <summary>

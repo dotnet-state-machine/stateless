@@ -112,7 +112,7 @@ namespace Stateless
                         if (t.Trigger.Equals(trigger))
                             action(t, args);
                     },
-                    entryActionDescription
+                    Enforce.ArgumentNotNull(entryActionDescription, nameof(entryActionDescription))
                     ));
             }
 
