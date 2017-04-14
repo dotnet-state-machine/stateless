@@ -2,11 +2,11 @@
 
 namespace Stateless
 {
-    internal abstract class InvocationInfo
+    internal abstract class MethodDescription
     {
         readonly string _description;                     // _description can be null if user didn't specify a description
 
-        protected InvocationInfo(string description)      // description can be null if user didn't specify a description
+        protected MethodDescription(string description)      // description can be null if user didn't specify a description
         {
             _description = description;
         }

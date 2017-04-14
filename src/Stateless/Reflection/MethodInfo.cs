@@ -5,13 +5,13 @@ using System.Linq;
 namespace Stateless.Reflection
 {
     /// <summary>
-    /// Describes an internal Action through the reflection API.
+    /// Describes an internal method through the reflection API.
     /// </summary>
-    public class ActionInfo
+    public class MethodInfo
     {
         static readonly string _defaultFunctionName = "Function";
 
-        internal static ActionInfo CreateActionInfo(InvocationInfo action)
+        internal static MethodInfo CreateMethodInfo(MethodDescription action)
         {
             string descrip;
 
@@ -22,12 +22,12 @@ namespace Stateless.Reflection
             if ( (action.DescriptionIsCalculated) && (descrip.IndexOfAny(new char[] { '<', '>' }) >= 0) )
                 descrip = _defaultFunctionName;
 
-            ActionInfo actionInfo = new ActionInfo(descrip, action.IsAsync);
+            MethodInfo actionInfo = new MethodInfo(descrip, action.IsAsync);
 
             return actionInfo;
         }
 
-        private ActionInfo(string description, bool isAsync)
+        private MethodInfo(string description, bool isAsync)
         {
             Description = description;
             IsAsync = isAsync;

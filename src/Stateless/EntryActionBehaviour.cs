@@ -8,7 +8,7 @@ namespace Stateless
 {
     public partial class StateMachine<TState, TTrigger>
     {
-        internal abstract class EntryActionBehavior : InvocationInfo
+        internal abstract class EntryActionBehavior : MethodDescription
         {
             protected EntryActionBehavior(string actionDescription)
                 : base(actionDescription)
