@@ -430,7 +430,7 @@ namespace Stateless
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
                 _representation.AddEntryAction(
                     (t, args) => entryAction(t),
-                    entryActionDescription);
+                    MethodDescription.Create(entryAction, entryActionDescription));
                 return this;
             }
 
@@ -465,7 +465,7 @@ namespace Stateless
                 _representation.AddEntryAction(
                     trigger,
                     (t, args) => entryAction(t),
-                    entryActionDescription);
+                    MethodDescription.Create(entryAction, entryActionDescription));
                 return this;
             }
 
@@ -504,7 +504,7 @@ namespace Stateless
                     trigger.Trigger,
                     (t, args) => entryAction(
                         ParameterConversion.Unpack<TArg0>(args, 0), t),
-                        entryActionDescription);
+                        MethodDescription.Create(entryAction, entryActionDescription));
                 return this;
             }
 
@@ -542,7 +542,8 @@ namespace Stateless
                 Enforce.ArgumentNotNull(trigger, nameof(trigger));
                 _representation.AddEntryAction(trigger.Trigger, (t, args) => entryAction(
                     ParameterConversion.Unpack<TArg0>(args, 0),
-                    ParameterConversion.Unpack<TArg1>(args, 1), t), entryActionDescription);
+                    ParameterConversion.Unpack<TArg1>(args, 1), t),
+                    MethodDescription.Create(entryAction, entryActionDescription));
                 return this;
             }
 
@@ -583,7 +584,8 @@ namespace Stateless
                 _representation.AddEntryAction(trigger.Trigger, (t, args) => entryAction(
                     ParameterConversion.Unpack<TArg0>(args, 0),
                     ParameterConversion.Unpack<TArg1>(args, 1),
-                    ParameterConversion.Unpack<TArg2>(args, 2), t), entryActionDescription);
+                    ParameterConversion.Unpack<TArg2>(args, 2), t),
+                    MethodDescription.Create(entryAction, entryActionDescription));
                 return this;
             }
 
@@ -614,7 +616,7 @@ namespace Stateless
                 Enforce.ArgumentNotNull(exitAction, nameof(exitAction));
                 _representation.AddExitAction(
                     exitAction,
-                    exitActionDescription ?? exitAction.TryGetMethodName());
+                    MethodDescription.Create(exitAction, exitActionDescription));
                 return this;
             }
 

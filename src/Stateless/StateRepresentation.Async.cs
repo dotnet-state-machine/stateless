@@ -40,7 +40,7 @@ namespace Stateless
 
                         return TaskResult.Done;
                     },
-                    entryActionDescription));
+                    MethodDescription.Create(action, entryActionDescription, MethodDescription.Timing.Asynchronous)));
             }
 
             public void AddEntryAction(Func<Transition, object[], Task> action, string entryActionDescription)
@@ -48,7 +48,7 @@ namespace Stateless
                 _entryActions.Add(
                     new EntryActionBehavior.Async(
                         Enforce.ArgumentNotNull(action, nameof(action)),
-                        entryActionDescription));
+                        MethodDescription.Create(action, entryActionDescription, MethodDescription.Timing.Asynchronous)));
             }
 
             public void AddExitAction(Func<Transition, Task> action, string exitActionDescription)
@@ -56,7 +56,7 @@ namespace Stateless
                 _exitActions.Add(
                     new ExitActionBehavior.Async(
                         Enforce.ArgumentNotNull(action, nameof(action)),
-                        Enforce.ArgumentNotNull(exitActionDescription, nameof(exitActionDescription))));
+                        MethodDescription.Create(action, exitActionDescription, MethodDescription.Timing.Asynchronous)));
             }
 
             internal void AddInternalAction(TTrigger trigger, Func<Transition, object[], Task> action)

@@ -8,15 +8,17 @@ namespace Stateless
 {
     public partial class StateMachine<TState, TTrigger>
     {
-        internal abstract class EntryActionBehavior : MethodDescription
+        internal abstract class EntryActionBehavior
         {
-            protected EntryActionBehavior(string actionDescription)
-                : base(actionDescription)
+            MethodDescription _description;
+
+            protected EntryActionBehavior(MethodDescription description)
             {
+                _description = description;
             }
 
             // Rename base class 'Description' for backward compatibility
-            public string ActionDescription => Description;
+            public string ActionDescription => _description.Description;
 
             public abstract void Execute(Transition transition, object[] args);
             public abstract Task ExecuteAsync(Transition transition, object[] args);
@@ -25,13 +27,13 @@ namespace Stateless
             {
                 readonly Action<Transition, object[]> _action;
 
-                public Sync(Action<Transition, object[]> action, string actionDescription) : base(actionDescription)
+                public Sync(Action<Transition, object[]> action, MethodDescription description) : base(description)
                 {
                     _action = action;
                 }
 
-                internal override string MethodName {  get { return _action.TryGetMethodName(); } }
-                internal override bool IsAsync {  get { return false;  } }
+                //internal override string MethodName {  get { return _action.TryGetMethodName(); } }
+                //internal override bool IsAsync {  get { return false;  } }
 
                 public override void Execute(Transition transition, object[] args)
                 {
@@ -49,13 +51,13 @@ namespace Stateless
             {
                 readonly Func<Transition, object[], Task> _action;
 
-                public Async(Func<Transition, object[], Task> action, string actionDescription) : base(actionDescription)
+                public Async(Func<Transition, object[], Task> action, MethodDescription description) : base(description)
                 {
                     _action = action;
                 }
 
-                internal override string MethodName { get { return _action.TryGetMethodName(); } }
-                internal override bool IsAsync { get { return true; } }
+                //internal override string MethodName { get { return _action.TryGetMethodName(); } }
+                //internal override bool IsAsync { get { return true; } }
 
                 public override void Execute(Transition transition, object[] args)
                 {

@@ -14,7 +14,7 @@ namespace Stateless
                 Enforce.ArgumentNotNull(guards, nameof(guards));
 
                 Conditions = guards
-                    .Select(g => new GuardCondition(g.Item1, g.Item2))
+                    .Select(g => new GuardCondition(g.Item1, MethodDescription.Create(g.Item1, g.Item2)))
                     .ToList();
             }
 
@@ -22,7 +22,7 @@ namespace Stateless
             {
                 Enforce.ArgumentNotNull(guard, nameof(guard));
 
-                Conditions = new List<GuardCondition> { new GuardCondition(guard, description) };
+                Conditions = new List<GuardCondition> { new GuardCondition(guard, MethodDescription.Create(guard, description)) };
             }
         }
     }

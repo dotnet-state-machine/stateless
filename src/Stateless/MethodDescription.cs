@@ -2,20 +2,34 @@
 
 namespace Stateless
 {
-    internal abstract class MethodDescription
+    internal class MethodDescription
     {
         readonly string _description;                     // _description can be null if user didn't specify a description
 
-        protected MethodDescription(string description)      // description can be null if user didn't specify a description
+        public enum Timing
         {
+            Synchronous,
+            Asynchronous
+        }
+        Timing _timing;
+
+        public static MethodDescription Create(Delegate method, string description, Timing timing = Timing.Synchronous)
+        {
+            return new MethodDescription(method?.TryGetMethodName(), description, timing);
+        }
+
+        private MethodDescription(string methodName, string description, Timing timing)      // description can be null if user didn't specify a description
+        {
+            MethodName = methodName;
             _description = description;
+            _timing = timing;
         }
 
         /// <summary>
         /// The name of the invoked method.  If the method is a lambda or delegate, the name will be a compiler-generated
         /// name that is often not human-friendly (e.g. "(.ctor)b__2_0" except with angle brackets instead of parentheses)
         /// </summary>
-        internal abstract string MethodName { get; }
+        internal string MethodName { get; private set; }
 
         /// <summary>
         /// A description of the invoked method.  If the user has specified the description, returns that, otherwise
@@ -32,6 +46,6 @@ namespace Stateless
         /// <summary>
         /// Returns true if the method is invoked asynchronously.
         /// </summary>
-        internal abstract bool IsAsync { get; }
+        internal bool IsAsync => (_timing == Timing.Asynchronous);
     }
 }

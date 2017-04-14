@@ -103,7 +103,7 @@ namespace Stateless
                         Enforce.ArgumentNotNull(deactivateActionDescription, nameof(deactivateActionDescription))));
             }
 
-            public void AddEntryAction(TTrigger trigger, Action<Transition, object[]> action, string entryActionDescription)
+            public void AddEntryAction(TTrigger trigger, Action<Transition, object[]> action, MethodDescription entryActionDescription)
             {
                 Enforce.ArgumentNotNull(action, nameof(action));
                 _entryActions.Add(
@@ -112,18 +112,19 @@ namespace Stateless
                         if (t.Trigger.Equals(trigger))
                             action(t, args);
                     },
-                    entryActionDescription));
+                    entryActionDescription
+                    ));
             }
 
-            public void AddEntryAction(Action<Transition, object[]> action, string entryActionDescription)
+            public void AddEntryAction(Action<Transition, object[]> action, MethodDescription entryActionDescription)
             {
                 _entryActions.Add(
                     new EntryActionBehavior.Sync(
                         Enforce.ArgumentNotNull(action, nameof(action)),
-                        entryActionDescription));
+                        Enforce.ArgumentNotNull(entryActionDescription, nameof(entryActionDescription))));
             }
 
-            public void AddExitAction(Action<Transition> action, string exitActionDescription)
+            public void AddExitAction(Action<Transition> action, MethodDescription exitActionDescription)
             {
                 _exitActions.Add(
                     new ExitActionBehavior.Sync(
