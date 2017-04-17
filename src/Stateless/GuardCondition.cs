@@ -15,7 +15,12 @@ namespace Stateless
             }
             internal Func<bool> Guard { get; }
 
+            // Return the description of the guard method: the caller-defined description if one
+            // was provided, else the name of the method itself
             internal string Description => _methodDescription.Description;
+
+            // Return a more complete description of the guard method
+            internal MethodDescription MethodDescription => _methodDescription;
         }
     }
 }

@@ -19,17 +19,8 @@ namespace Stateless
 
             public TTrigger Trigger { get; }
             internal ICollection<Func<bool>> Guards { get { return _guard.Conditions.Select(g => g.Guard).ToList(); } }
-            internal string GuardsDescriptions
-            {
-                get
-                {
-                    var guardsDescriptions = _guard.Conditions
-                        .Select(c => c.Description);
+            internal TransitionGuard Guard => _guard;
 
-                    return string
-                        .Join(",", guardsDescriptions);
-                }
-            }
             public bool GuardConditionsMet
             {
                 get

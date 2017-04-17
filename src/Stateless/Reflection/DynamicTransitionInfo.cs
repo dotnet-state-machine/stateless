@@ -1,4 +1,6 @@
-﻿namespace Stateless.Reflection
+﻿using System.Linq;
+
+namespace Stateless.Reflection
 {
     /// <summary>
     /// Describes a transition that can be initiated from a trigger, but whose result is non-deterministic.
@@ -10,7 +12,8 @@
             var transition = new DynamicTransitionInfo
             {
                 Trigger = new TriggerInfo(trigger),
-                Destination = destination
+                Destination = destination,
+                GuardConditionsMethodDescriptions = behaviour.Guard.Conditions.Select(c => MethodInfo.Create(c.MethodDescription))
             };
 
             return transition;

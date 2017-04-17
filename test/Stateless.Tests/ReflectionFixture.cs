@@ -108,7 +108,7 @@ namespace Stateless.Tests
                 //
                 Assert.True(trans.DestinationState.UnderlyingState is State);
                 Assert.Equal(State.B, (State)trans.DestinationState.UnderlyingState);
-                Assert.Equal(null, trans.GuardDescription);
+                Assert.Equal(0, trans.GuardConditionsMethodDescriptions.Count());
             }
             Assert.Equal(0, binding.IgnoredTriggers.Count());
             Assert.Equal(0, binding.DynamicTransitions.Count());
@@ -147,7 +147,7 @@ namespace Stateless.Tests
                 Assert.True(trans.Trigger.UnderlyingTrigger is Trigger);
                 //
                 Assert.True(trans.DestinationState.UnderlyingState is State);
-                Assert.Equal(null, trans.GuardDescription);
+                Assert.Equal(0, trans.GuardConditionsMethodDescriptions.Count());
                 //
                 // Can't make assumptions about which trigger/destination comes first in the list
                 if ((Trigger)trans.Trigger.UnderlyingTrigger == Trigger.X)
@@ -205,7 +205,7 @@ namespace Stateless.Tests
                 Assert.True(trans.DestinationState.UnderlyingState is State);
                 Assert.Equal(State.B, (State)trans.DestinationState.UnderlyingState);
                 //
-                Assert.NotEqual(null, trans.GuardDescription);
+                Assert.NotEqual(0, trans.GuardConditionsMethodDescriptions.Count());
             }
             Assert.Equal(0, binding.IgnoredTriggers.Count());
             Assert.Equal(0, binding.DynamicTransitions.Count());
@@ -245,8 +245,8 @@ namespace Stateless.Tests
                 Assert.True(trans.DestinationState.UnderlyingState is State);
                 Assert.Equal(State.B, (State)trans.DestinationState.UnderlyingState);
                 //
-                Assert.NotEqual(null, trans.GuardDescription);
-                Assert.Equal("description", trans.GuardDescription);
+                Assert.Equal(1, trans.GuardConditionsMethodDescriptions.Count());
+                Assert.Equal("description", trans.GuardConditionsMethodDescriptions.First().Description);
             }
             Assert.Equal(0, binding.IgnoredTriggers.Count());
             Assert.Equal(0, binding.DynamicTransitions.Count());
@@ -284,8 +284,8 @@ namespace Stateless.Tests
                 Assert.True(trans.DestinationState.UnderlyingState is State);
                 Assert.Equal(State.B, (State)trans.DestinationState.UnderlyingState);
                 //
-                Assert.NotEqual(null, trans.GuardDescription);
-                Assert.Equal("IsTrue", trans.GuardDescription);
+                Assert.Equal(1, trans.GuardConditionsMethodDescriptions.Count());
+                Assert.Equal("IsTrue", trans.GuardConditionsMethodDescriptions.First().Description);
             }
             Assert.Equal(0, binding.IgnoredTriggers.Count());
             Assert.Equal(0, binding.DynamicTransitions.Count());
@@ -323,8 +323,8 @@ namespace Stateless.Tests
                 Assert.True(trans.DestinationState.UnderlyingState is State);
                 Assert.Equal(State.B, (State)trans.DestinationState.UnderlyingState);
                 //
-                Assert.NotEqual(null, trans.GuardDescription);
-                Assert.Equal("description", trans.GuardDescription);
+                Assert.Equal(1, trans.GuardConditionsMethodDescriptions.Count());
+                Assert.Equal("description", trans.GuardConditionsMethodDescriptions.First().Description);
             }
             Assert.Equal(0, binding.IgnoredTriggers.Count());
             Assert.Equal(0, binding.DynamicTransitions.Count());
@@ -360,7 +360,7 @@ namespace Stateless.Tests
                 Assert.True(trans.Trigger.UnderlyingTrigger is Trigger);
                 Assert.Equal(Trigger.X, (Trigger)trans.Trigger.UnderlyingTrigger);
                 Assert.NotEqual(null, trans.Destination);
-                Assert.Equal(null, trans.GuardDescription);
+                Assert.Equal(0, trans.GuardConditionsMethodDescriptions.Count());
             }
         }
 
@@ -395,7 +395,7 @@ namespace Stateless.Tests
                 Assert.True(trans.Trigger.UnderlyingTrigger is Trigger);
                 Assert.Equal(Trigger.X, (Trigger)trans.Trigger.UnderlyingTrigger);
                 Assert.NotEqual(null, trans.Destination);
-                Assert.Equal(null, trans.GuardDescription);
+                Assert.Equal(0, trans.GuardConditionsMethodDescriptions.Count());
             }
         }
 
@@ -547,7 +547,7 @@ namespace Stateless.Tests
                 //
                 Assert.True(trans.DestinationState.UnderlyingState is State);
                 Assert.Equal(State.B, (State)trans.DestinationState.UnderlyingState);
-                Assert.Equal(null, trans.GuardDescription);
+                Assert.Equal(0, trans.GuardConditionsMethodDescriptions.Count());
             }
             //
             Assert.Equal(1, binding.IgnoredTriggers.Count()); //  Ignored triggers count mismatch
@@ -731,16 +731,18 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .PermitIf(Trigger.X, State.B, Permit);
             sm.Configure(State.B)
-                .PermitIf(Trigger.X, State.C, Permit, UserDescription);
+                .PermitIf(Trigger.X, State.C, Permit, UserDescription + "B");
+            sm.Configure(State.C)
+                .PermitIf(Trigger.X, State.B, () => Permit());
+            sm.Configure(State.D)
+                .PermitIf(Trigger.X, State.C, () => Permit(), UserDescription + "D");
 
             StateMachineInfo inf = sm.GetInfo();
 
             foreach (StateInfo stateInfo in inf.States)
             {
-                if ((State)stateInfo.UnderlyingState == State.A)
-                {
-
-                }
+                Assert.Equal(stateInfo.Transitions.Count(), 1);
+                TransitionInfo transInfo = stateInfo.Transitions.First();
             }
 
             /*
