@@ -204,7 +204,7 @@ namespace Stateless
                 Enforce.ArgumentNotNull(activateAction, nameof(activateAction));
                 _representation.AddActivateAction(
                     activateAction,
-                    MethodDescription.Create(activateAction, activateActionDescription));
+                    MethodDescription.Create(activateAction, activateActionDescription, MethodDescription.Timing.Asynchronous));
                 return this;
             }
 
@@ -220,7 +220,7 @@ namespace Stateless
                 Enforce.ArgumentNotNull(deactivateAction, nameof(deactivateAction));
                 _representation.AddDeactivateAction(
                     deactivateAction,
-                    MethodDescription.Create(deactivateAction, deactivateActionDescription));
+                    MethodDescription.Create(deactivateAction, deactivateActionDescription, MethodDescription.Timing.Asynchronous));
                 return this;
             }
 
