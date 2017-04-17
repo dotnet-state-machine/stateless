@@ -47,6 +47,29 @@ namespace Stateless
                 }
             }
 
+            public class SyncFrom<TTriggerType> : Sync
+            {
+                TTriggerType _trigger;
+
+                public SyncFrom(TTriggerType trigger, Action<Transition, object[]> action, MethodDescription description)
+                    : base(action, description)
+                {
+                    _trigger = trigger;
+                }
+
+                public override void Execute(Transition transition, object[] args)
+                {
+                    if (transition.Trigger.Equals(_trigger))
+                        base.Execute(transition, args);
+                }
+
+                public override Task ExecuteAsync(Transition transition, object[] args)
+                {
+                    Execute(transition, args);
+                    return TaskResult.Done;
+                }
+            }
+
             public class Async : EntryActionBehavior
             {
                 readonly Func<Transition, object[], Task> _action;

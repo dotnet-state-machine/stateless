@@ -111,12 +111,9 @@ namespace Stateless
             {
                 Enforce.ArgumentNotNull(action, nameof(action));
                 _entryActions.Add(
-                    new EntryActionBehavior.Sync((t, args) =>
-                    {
-                        if (t.Trigger.Equals(trigger))
-                            action(t, args);
-                    },
-                    Enforce.ArgumentNotNull(entryActionDescription, nameof(entryActionDescription))
+                    new EntryActionBehavior.SyncFrom<TTrigger>(trigger,
+                        Enforce.ArgumentNotNull(action, nameof(action)),
+                        Enforce.ArgumentNotNull(entryActionDescription, nameof(entryActionDescription))
                     ));
             }
 

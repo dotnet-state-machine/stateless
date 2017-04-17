@@ -12,7 +12,7 @@ namespace Stateless.Tests
     {
         static readonly string UserDescription = "UserDescription";
 
-        bool IsTrue() 
+        bool IsTrue()
         {
             return true;
         }
@@ -32,6 +32,14 @@ namespace Stateless.Tests
             return TaskResult.Done;
         }
 
+        void OnActivate()
+        {
+        }
+
+        void OnEntryTrans(StateMachine<State, Trigger>.Transition trans)
+        {
+        }
+
         Task OnEntryTransAsync(StateMachine<State, Trigger>.Transition trans)
         {
             return TaskResult.Done;
@@ -45,6 +53,14 @@ namespace Stateless.Tests
         Task OnDeactivateAsync()
         {
             return TaskResult.Done;
+        }
+
+        void OnDeactivate()
+        {
+        }
+
+        void OnExitTrans(StateMachine<State, Trigger>.Transition trans)
+        {
         }
 
         Task OnExitAsync()
@@ -543,7 +559,7 @@ namespace Stateless.Tests
             Assert.Equal(0, binding.DynamicTransitions.Count()); // Dynamic transition count mismatch
         }
 
-        void VerifyMethodNamesAsync(IEnumerable<MethodInfo> methods, string prefix, State state, MethodDescription.Timing timing)
+        void VerifyMethodNames(IEnumerable<MethodInfo> methods, string prefix, State state, MethodDescription.Timing timing)
         {
             Assert.Equal(1, methods.Count());
 
@@ -557,6 +573,78 @@ namespace Stateless.Tests
                 Assert.Equal(UserDescription + "D-" + prefix, methods.First().Description);
 
             Assert.Equal(true, methods.First().IsAsync);
+        }
+
+        [Fact]
+        public void ReflectionMethodNames()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .OnActivate(OnActivate)
+                .OnEntry(OnEntry)
+                .OnExit(OnExit)
+                .OnDeactivate(OnDeactivate);
+            sm.Configure(State.B)
+                .OnActivate(OnActivate, UserDescription + "B-Activate")
+                .OnEntry(OnEntry, UserDescription + "B-Entry")
+                .OnExit(OnExit, UserDescription + "B-Exit")
+                .OnDeactivate(OnDeactivate, UserDescription + "B-Deactivate");
+            sm.Configure(State.C)
+                .OnActivate(() => OnActivate())
+                .OnEntry(() => OnEntry())
+                .OnExit(() => OnExit())
+                .OnDeactivate(() => OnDeactivate());
+            sm.Configure(State.D)
+                .OnActivate(() => OnActivate(), UserDescription + "D-Activate")
+                .OnEntry(() => OnEntry(), UserDescription + "D-Entry")
+                .OnExit(() => OnExit(), UserDescription + "D-Exit")
+                .OnDeactivate(() => OnDeactivate(), UserDescription + "D-Deactivate");
+
+            StateMachineInfo inf = sm.GetInfo();
+
+            foreach (StateInfo stateInfo in inf.States)
+            {
+                VerifyMethodNames(stateInfo.ActivateActions, "Activate", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Synchronous);
+                VerifyMethodNames(stateInfo.EntryActions, "Entry", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Synchronous);
+                VerifyMethodNames(stateInfo.ExitActions, "Exit", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Synchronous);
+                VerifyMethodNames(stateInfo.DeactivateActions, "Deactivate", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Synchronous);
+            }
+
+            // New StateMachine, new tests: entry and exit, functions that take the transition as an argument
+            sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .OnEntry(OnEntryTrans)
+                .OnExit(OnExitTrans);
+            sm.Configure(State.B)
+                .OnEntry(OnEntryTrans, UserDescription + "B-EntryTrans")
+                .OnExit(OnExitTrans, UserDescription + "B-ExitTrans");
+            sm.Configure(State.C)
+                .OnEntry((t) => OnEntryTrans(t))
+                .OnExit((t) => OnExitTrans(t));
+            sm.Configure(State.D)
+                .OnEntry((t) => OnEntryTrans(t), UserDescription + "D-EntryTrans")
+                .OnExit((t) => OnExitTrans(t), UserDescription + "D-ExitTrans");
+
+            inf = sm.GetInfo();
+
+            foreach (StateInfo stateInfo in inf.States)
+            {
+                VerifyMethodNames(stateInfo.EntryActions, "EntryTrans", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Synchronous);
+                VerifyMethodNames(stateInfo.ExitActions, "ExitTrans", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Synchronous);
+            }
+
+            /*
+            public StateConfiguration OnEntryFrom(TTrigger trigger, Action entryAction, string entryActionDescription = null)
+            public StateConfiguration OnEntryFrom(TTrigger trigger, Action<Transition> entryAction, string entryActionDescription = null)
+            public StateConfiguration OnEntryFrom<TArg0>(TriggerWithParameters<TArg0> trigger, Action<TArg0> entryAction, string entryActionDescription = null)
+            public StateConfiguration OnEntryFrom<TArg0>(TriggerWithParameters<TArg0> trigger, Action<TArg0, Transition> entryAction, string entryActionDescription = null)
+            public StateConfiguration OnEntryFrom<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Action<TArg0, TArg1> entryAction, string entryActionDescription = null)
+            public StateConfiguration OnEntryFrom<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Action<TArg0, TArg1, Transition> entryAction, string entryActionDescription = null)
+            public StateConfiguration OnEntryFrom<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Action<TArg0, TArg1, TArg2> entryAction, string entryActionDescription = null)
+            public StateConfiguration OnEntryFrom<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Action<TArg0, TArg1, TArg2, Transition> entryAction, string entryActionDescription = null)
+             */
         }
 
         [Fact]
@@ -589,10 +677,10 @@ namespace Stateless.Tests
 
             foreach (StateInfo stateInfo in inf.States)
             {
-                VerifyMethodNamesAsync(stateInfo.ActivateActions, "Activate", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Asynchronous);
-                VerifyMethodNamesAsync(stateInfo.EntryActions, "Entry", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Asynchronous);
-                VerifyMethodNamesAsync(stateInfo.ExitActions, "Exit", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Asynchronous);
-                VerifyMethodNamesAsync(stateInfo.DeactivateActions, "Deactivate", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Asynchronous);
+                VerifyMethodNames(stateInfo.ActivateActions, "Activate", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Asynchronous);
+                VerifyMethodNames(stateInfo.EntryActions, "Entry", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Asynchronous);
+                VerifyMethodNames(stateInfo.ExitActions, "Exit", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Asynchronous);
+                VerifyMethodNames(stateInfo.DeactivateActions, "Deactivate", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Asynchronous);
             }
 
             // New StateMachine, new tests: entry and exit, functions that take the transition as an argument
@@ -615,8 +703,8 @@ namespace Stateless.Tests
 
             foreach (StateInfo stateInfo in inf.States)
             {
-                VerifyMethodNamesAsync(stateInfo.EntryActions, "EntryTrans", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Asynchronous);
-                VerifyMethodNamesAsync(stateInfo.ExitActions, "ExitTrans", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Asynchronous);
+                VerifyMethodNames(stateInfo.EntryActions, "EntryTrans", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Asynchronous);
+                VerifyMethodNames(stateInfo.ExitActions, "ExitTrans", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Asynchronous);
             }
             /*
             public StateConfiguration OnEntryFromAsync(TTrigger trigger, Func<Task> entryAction, string entryActionDescription = null)
@@ -627,25 +715,37 @@ namespace Stateless.Tests
             public StateConfiguration OnEntryFromAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, Transition, Task> entryAction, string entryActionDescription = null)
             public StateConfiguration OnEntryFromAsync<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, Task> entryAction, string entryActionDescription = null)
             public StateConfiguration OnEntryFromAsync<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, Transition, Task> entryAction, string entryActionDescription = null)
+            */
+        }
 
-            public StateConfiguration OnActivate(Action activateAction, string activateActionDescription = null)
-            public StateConfiguration OnDeactivate(Action deactivateAction, string deactivateActionDescription = null)
-            public StateConfiguration OnEntry(Action entryAction, string entryActionDescription = null)
-            public StateConfiguration OnEntry(Action<Transition> entryAction, string entryActionDescription = null)
-            public StateConfiguration OnEntryFrom(TTrigger trigger, Action entryAction, string entryActionDescription = null)
-            public StateConfiguration OnEntryFrom(TTrigger trigger, Action<Transition> entryAction, string entryActionDescription = null)
-            public StateConfiguration OnEntryFrom<TArg0>(TriggerWithParameters<TArg0> trigger, Action<TArg0> entryAction, string entryActionDescription = null)
-            public StateConfiguration OnEntryFrom<TArg0>(TriggerWithParameters<TArg0> trigger, Action<TArg0, Transition> entryAction, string entryActionDescription = null)
-            public StateConfiguration OnEntryFrom<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Action<TArg0, TArg1> entryAction, string entryActionDescription = null)
-            public StateConfiguration OnEntryFrom<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Action<TArg0, TArg1, Transition> entryAction, string entryActionDescription = null)
-            public StateConfiguration OnEntryFrom<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Action<TArg0, TArg1, TArg2> entryAction, string entryActionDescription = null)
-            public StateConfiguration OnEntryFrom<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Action<TArg0, TArg1, TArg2, Transition> entryAction, string entryActionDescription = null)
-            public StateConfiguration OnExit(Action exitAction, string exitActionDescription = null)
-            public StateConfiguration OnExit(Action<Transition> exitAction, string exitActionDescription = null)
+        [Fact]
+        public void TransitionGuardNames()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
 
+            sm.Configure(State.A);
+
+            /*
             internal TransitionGuard(Tuple<Func<bool>, string>[] guards)
             internal TransitionGuard(Func<bool> guard, string description = null)
-            */
+             */
+            /*
+           public IgnoredTriggerBehaviour(TTrigger trigger, Func<bool> guard, string description = null)
+               : base(trigger, new TransitionGuard(guard, description))
+            public InternalTriggerBehaviour(TTrigger trigger, Func<bool> guard)
+                : base(trigger, new TransitionGuard(guard, "Internal Transition"))
+            public TransitioningTriggerBehaviour(TTrigger trigger, TState destination, Func<bool> guard = null, string guardDescription = null)
+                : base(trigger, new TransitionGuard(guard, guardDescription))
+            public StateConfiguration PermitIf(TTrigger trigger, TState destinationState, Func<bool> guard, string guardDescription = null)
+            public StateConfiguration PermitReentryIf(TTrigger trigger, Func<bool> guard, string guardDescription = null)
+            public StateConfiguration PermitDynamicIf(TTrigger trigger, Func<TState> destinationStateSelector, Func<bool> guard, string guardDescription = null)
+            public StateConfiguration PermitDynamicIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, TState> destinationStateSelector, Func<bool> guard, string guardDescription = null)
+            public StateConfiguration PermitDynamicIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, TState> destinationStateSelector, Func<bool> guard, string guardDescription = null)
+            public StateConfiguration PermitDynamicIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, TState> destinationStateSelector, Func<bool> guard, string guardDescription = null)
+            StateConfiguration InternalPermit(TTrigger trigger, TState destinationState, string guardDescription)
+            StateConfiguration InternalPermitDynamic(TTrigger trigger, Func<object[], TState> destinationStateSelector, string guardDescription)
+             */
         }
     }
 }
+
