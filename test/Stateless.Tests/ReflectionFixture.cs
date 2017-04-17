@@ -3,12 +3,15 @@ using Xunit;
 using Stateless.Reflection;
 using Xunit.Sdk;
 using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Stateless.Tests
 {
     public class ReflectionFixture
     {
+        static readonly string UserDescription = "UserDescription";
+
         bool IsTrue() 
         {
             return true;
@@ -25,6 +28,31 @@ namespace Stateless.Tests
         }
 
         Task OnActivateAsync()
+        {
+            return TaskResult.Done;
+        }
+
+        Task OnEntryTransAsync(StateMachine<State, Trigger>.Transition trans)
+        {
+            return TaskResult.Done;
+        }
+
+        Task OnEntryAsync()
+        {
+            return TaskResult.Done;
+        }
+
+        Task OnDeactivateAsync()
+        {
+            return TaskResult.Done;
+        }
+
+        Task OnExitAsync()
+        {
+            return TaskResult.Done;
+        }
+
+        Task OnExitTransAsync(StateMachine<State, Trigger>.Transition trans)
         {
             return TaskResult.Done;
         }
@@ -515,57 +543,82 @@ namespace Stateless.Tests
             Assert.Equal(0, binding.DynamicTransitions.Count()); // Dynamic transition count mismatch
         }
 
-        [Fact]
-        public void ReflectionMethodNames()
+        void VerifyMethodNamesAsync(IEnumerable<MethodInfo> methods, string prefix, State state, MethodDescription.Timing timing)
         {
-            string UserDescription = "UserDescription";
+            Assert.Equal(1, methods.Count());
 
+            if (state == State.A)
+                Assert.Equal("On" + prefix + ((timing == MethodDescription.Timing.Asynchronous) ? "Async" : ""), methods.First().Description);
+            else if (state == State.B)
+                Assert.Equal(UserDescription + "B-" + prefix, methods.First().Description);
+            else if (state == State.C)
+                Assert.Equal(MethodInfo.DefaultFunctionName, methods.First().Description);
+            else if (state == State.D)
+                Assert.Equal(UserDescription + "D-" + prefix, methods.First().Description);
+
+            Assert.Equal(true, methods.First().IsAsync);
+        }
+
+        [Fact]
+        public void ReflectionMethodNamesAsync()
+        {
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .OnActivateAsync(OnActivateAsync);
+                .OnActivateAsync(OnActivateAsync)
+                .OnEntryAsync(OnEntryAsync)
+                .OnExitAsync(OnExitAsync)
+                .OnDeactivateAsync(OnDeactivateAsync);
             sm.Configure(State.B)
-                .OnActivateAsync(OnActivateAsync, UserDescription + "B");
+                .OnActivateAsync(OnActivateAsync, UserDescription + "B-Activate")
+                .OnEntryAsync(OnEntryAsync, UserDescription + "B-Entry")
+                .OnExitAsync(OnExitAsync, UserDescription + "B-Exit")
+                .OnDeactivateAsync(OnDeactivateAsync, UserDescription + "B-Deactivate");
             sm.Configure(State.C)
-                .OnActivateAsync(() => OnActivateAsync());
+                .OnActivateAsync(() => OnActivateAsync())
+                .OnEntryAsync(() => OnEntryAsync())
+                .OnExitAsync(() => OnExitAsync())
+                .OnDeactivateAsync(() => OnDeactivateAsync());
             sm.Configure(State.D)
-                .OnActivateAsync(() => OnActivateAsync(), UserDescription + "D");
+                .OnActivateAsync(() => OnActivateAsync(), UserDescription + "D-Activate")
+                .OnEntryAsync(() => OnEntryAsync(), UserDescription + "D-Entry")
+                .OnExitAsync(() => OnExitAsync(), UserDescription + "D-Exit")
+                .OnDeactivateAsync(() => OnDeactivateAsync(), UserDescription + "D-Deactivate");
 
             StateMachineInfo inf = sm.GetInfo();
 
             foreach (StateInfo stateInfo in inf.States)
             {
-                var activateActions = stateInfo.ActivateActions;
-                if ((State)stateInfo.UnderlyingState == State.A)
-                {
-                    Assert.Equal(1, activateActions.Count());
-                    Assert.Equal("OnActivateAsync", activateActions.First().Description);
-                    Assert.Equal(true, activateActions.First().IsAsync);
-                }
-                else if ((State)stateInfo.UnderlyingState == State.B)
-                {
-                    Assert.Equal(1, activateActions.Count());
-                    Assert.Equal(UserDescription + "B", activateActions.First().Description);
-                    Assert.Equal(true, activateActions.First().IsAsync);
-                }
-                else if ((State)stateInfo.UnderlyingState == State.C)
-                {
-                    Assert.Equal(1, activateActions.Count());
-                    Assert.Equal(MethodInfo.DefaultFunctionName, activateActions.First().Description);
-                    Assert.Equal(true, activateActions.First().IsAsync);
-                }
-                else if ((State)stateInfo.UnderlyingState == State.D)
-                {
-                    Assert.Equal(1, activateActions.Count());
-                    Assert.Equal(UserDescription + "D", activateActions.First().Description);
-                    Assert.Equal(true, activateActions.First().IsAsync);
-                }
+                VerifyMethodNamesAsync(stateInfo.ActivateActions, "Activate", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Asynchronous);
+                VerifyMethodNamesAsync(stateInfo.EntryActions, "Entry", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Asynchronous);
+                VerifyMethodNamesAsync(stateInfo.ExitActions, "Exit", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Asynchronous);
+                VerifyMethodNamesAsync(stateInfo.DeactivateActions, "Deactivate", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Asynchronous);
             }
 
+            // New StateMachine, new tests: entry and exit, functions that take the transition as an argument
+            sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .OnEntryAsync(OnEntryTransAsync)
+                .OnExitAsync(OnExitTransAsync);
+            sm.Configure(State.B)
+                .OnEntryAsync(OnEntryTransAsync, UserDescription + "B-EntryTrans")
+                .OnExitAsync(OnExitTransAsync, UserDescription + "B-ExitTrans");
+            sm.Configure(State.C)
+                .OnEntryAsync((t) => OnEntryTransAsync(t))
+                .OnExitAsync((t) => OnExitTransAsync(t));
+            sm.Configure(State.D)
+                .OnEntryAsync((t) => OnEntryTransAsync(t), UserDescription + "D-EntryTrans")
+                .OnExitAsync((t) => OnExitTransAsync(t), UserDescription + "D-ExitTrans");
+
+            inf = sm.GetInfo();
+
+            foreach (StateInfo stateInfo in inf.States)
+            {
+                VerifyMethodNamesAsync(stateInfo.EntryActions, "EntryTrans", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Asynchronous);
+                VerifyMethodNamesAsync(stateInfo.ExitActions, "ExitTrans", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Asynchronous);
+            }
             /*
-            public StateConfiguration OnDeactivateAsync(Func<Task> deactivateAction, string deactivateActionDescription = null)
-            public StateConfiguration OnEntryAsync(Func<Task> entryAction, string entryActionDescription = null)
-            public StateConfiguration OnEntryAsync(Func<Transition, Task> entryAction, string entryActionDescription = null)
             public StateConfiguration OnEntryFromAsync(TTrigger trigger, Func<Task> entryAction, string entryActionDescription = null)
             public StateConfiguration OnEntryFromAsync(TTrigger trigger, Func<Transition, Task> entryAction, string entryActionDescription = null)
             public StateConfiguration OnEntryFromAsync<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, Task> entryAction, string entryActionDescription = null)
@@ -574,8 +627,6 @@ namespace Stateless.Tests
             public StateConfiguration OnEntryFromAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, Transition, Task> entryAction, string entryActionDescription = null)
             public StateConfiguration OnEntryFromAsync<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, Task> entryAction, string entryActionDescription = null)
             public StateConfiguration OnEntryFromAsync<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, Transition, Task> entryAction, string entryActionDescription = null)
-            public StateConfiguration OnExitAsync(Func<Task> exitAction, string exitActionDescription = null)
-            public StateConfiguration OnExitAsync(Func<Transition, Task> exitAction, string exitActionDescription = null
 
             public StateConfiguration OnActivate(Action activateAction, string activateActionDescription = null)
             public StateConfiguration OnDeactivate(Action deactivateAction, string deactivateActionDescription = null)
@@ -596,5 +647,5 @@ namespace Stateless.Tests
             internal TransitionGuard(Func<bool> guard, string description = null)
             */
         }
-}
+    }
 }

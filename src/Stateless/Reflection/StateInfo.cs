@@ -30,6 +30,7 @@ namespace Stateless.Reflection
             stateInfo.EntryActions = stateReperesentation.EntryActions.Select(e => MethodInfo.Create(e.MethodDescription)).ToList();
             stateInfo.ActivateActions = stateReperesentation.ActivateActions.Select(e => MethodInfo.Create(e.MethodDescription)).ToList();
             stateInfo.ExitActions = stateReperesentation.ExitActions.Select(e => MethodInfo.Create(e.MethodDescription)).ToList();
+            stateInfo.DeactivateActions = stateReperesentation.DeactivateActions.Select(e => MethodInfo.Create(e.MethodDescription)).ToList();
 
             return stateInfo;
         }
@@ -110,6 +111,11 @@ namespace Stateless.Reflection
         /// Actions that are defined to be executed on activation.
         /// </summary>
         public IEnumerable<MethodInfo> ActivateActions { get; private set; }
+
+        /// <summary>
+        /// Actions that are defined to be executed on deactivation.
+        /// </summary>
+        public IEnumerable<MethodInfo> DeactivateActions { get; private set; }
 
         /// <summary>
         /// Actions that are defined to be exectuted on state-exit.

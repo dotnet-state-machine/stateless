@@ -26,6 +26,7 @@ namespace Stateless
             internal ICollection<ActivateActionBehaviour> ActivateActions { get { return _activateActions; } }
 
             readonly ICollection<DeactivateActionBehaviour> _deactivateActions = new List<DeactivateActionBehaviour>();
+            internal ICollection<DeactivateActionBehaviour> DeactivateActions { get { return _deactivateActions; } }
 
             readonly ICollection<InternalActionBehaviour> _internalActions = new List<InternalActionBehaviour>();
 
