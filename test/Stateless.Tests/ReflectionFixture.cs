@@ -73,6 +73,11 @@ namespace Stateless.Tests
             return TaskResult.Done;
         }
 
+        bool Permit()
+        {
+            return true;
+        }
+
         [Fact]
         public void SimpleTransition_Binding()
         {
@@ -572,7 +577,7 @@ namespace Stateless.Tests
             else if (state == State.D)
                 Assert.Equal(UserDescription + "D-" + prefix, methods.First().Description);
 
-            Assert.Equal(true, methods.First().IsAsync);
+            Assert.Equal(timing == MethodDescription.Timing.Asynchronous, methods.First().IsAsync);
         }
 
         [Fact]
@@ -723,7 +728,20 @@ namespace Stateless.Tests
         {
             var sm = new StateMachine<State, Trigger>(State.A);
 
-            sm.Configure(State.A);
+            sm.Configure(State.A)
+                .PermitIf(Trigger.X, State.B, Permit);
+            sm.Configure(State.B)
+                .PermitIf(Trigger.X, State.C, Permit, UserDescription);
+
+            StateMachineInfo inf = sm.GetInfo();
+
+            foreach (StateInfo stateInfo in inf.States)
+            {
+                if ((State)stateInfo.UnderlyingState == State.A)
+                {
+
+                }
+            }
 
             /*
             internal TransitionGuard(Tuple<Func<bool>, string>[] guards)
@@ -736,7 +754,7 @@ namespace Stateless.Tests
                 : base(trigger, new TransitionGuard(guard, "Internal Transition"))
             public TransitioningTriggerBehaviour(TTrigger trigger, TState destination, Func<bool> guard = null, string guardDescription = null)
                 : base(trigger, new TransitionGuard(guard, guardDescription))
-            public StateConfiguration PermitIf(TTrigger trigger, TState destinationState, Func<bool> guard, string guardDescription = null)
+
             public StateConfiguration PermitReentryIf(TTrigger trigger, Func<bool> guard, string guardDescription = null)
             public StateConfiguration PermitDynamicIf(TTrigger trigger, Func<TState> destinationStateSelector, Func<bool> guard, string guardDescription = null)
             public StateConfiguration PermitDynamicIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, TState> destinationStateSelector, Func<bool> guard, string guardDescription = null)
