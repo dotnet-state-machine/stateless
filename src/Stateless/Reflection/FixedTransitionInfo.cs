@@ -14,7 +14,8 @@ namespace Stateless.Reflection
             {
                 Trigger = new TriggerInfo(behaviour.Trigger),
                 DestinationState = destinationStateInfo,
-                GuardConditionsMethodDescriptions = behaviour.Guard.Conditions.Select(c => MethodInfo.Create(c.MethodDescription))
+                GuardConditionsMethodDescriptions = (behaviour.Guard == null)
+                    ? new List<MethodInfo>() : behaviour.Guard.Conditions.Select(c => MethodInfo.Create(c.MethodDescription))
             };
 
             return transition;

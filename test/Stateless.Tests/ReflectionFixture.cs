@@ -731,18 +731,19 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .PermitIf(Trigger.X, State.B, Permit);
             sm.Configure(State.B)
-                .PermitIf(Trigger.X, State.C, Permit, UserDescription + "B");
+                .PermitIf(Trigger.X, State.C, Permit, UserDescription + "B-Permit");
             sm.Configure(State.C)
                 .PermitIf(Trigger.X, State.B, () => Permit());
             sm.Configure(State.D)
-                .PermitIf(Trigger.X, State.C, () => Permit(), UserDescription + "D");
+                .PermitIf(Trigger.X, State.C, () => Permit(), UserDescription + "D-Permit");
 
             StateMachineInfo inf = sm.GetInfo();
 
             foreach (StateInfo stateInfo in inf.States)
             {
-                Assert.Equal(stateInfo.Transitions.Count(), 1);
+                Assert.Equal(1, stateInfo.Transitions.Count());
                 TransitionInfo transInfo = stateInfo.Transitions.First();
+                Assert.Equal(1, transInfo.GuardConditionsMethodDescriptions.Count());
             }
 
             /*

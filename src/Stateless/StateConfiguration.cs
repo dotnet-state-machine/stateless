@@ -45,7 +45,7 @@ namespace Stateless
             public StateConfiguration Permit(TTrigger trigger, TState destinationState)
             {
                 EnforceNotIdentityTransition(destinationState);
-                return InternalPermit(trigger, destinationState, string.Empty);
+                return InternalPermit(trigger, destinationState);
             }
 
             /// <summary>
@@ -279,7 +279,7 @@ namespace Stateless
             /// </remarks>
             public StateConfiguration PermitReentry(TTrigger trigger)
             {
-                return InternalPermit(trigger, _representation.UnderlyingState, string.Empty);
+                return InternalPermit(trigger, _representation.UnderlyingState);
             }
 
             /// <summary>
@@ -944,9 +944,10 @@ namespace Stateless
                 }
             }
 
-            StateConfiguration InternalPermit(TTrigger trigger, TState destinationState, string guardDescription)
+            StateConfiguration InternalPermit(TTrigger trigger, TState destinationState)
             {
-                return InternalPermitIf(trigger, destinationState, new TransitionGuard(() => true, guardDescription));
+                _representation.AddTriggerBehaviour(new TransitioningTriggerBehaviour(trigger, destinationState, null));
+                return this;
             }
 
             StateConfiguration InternalPermitIf(TTrigger trigger, TState destinationState, TransitionGuard transitionGuard)
