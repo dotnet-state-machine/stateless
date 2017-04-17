@@ -17,7 +17,8 @@ namespace Stateless
                 _description = description;
             }
 
-            // Rename base class 'Description' for backward compatibility
+            // Returns a description of the entry action.  If the caller specified a description, it
+            // is returned, else the name of the method itself.
             public string ActionDescription => _description.Description;
 
             public abstract void Execute(Transition transition, object[] args);
@@ -31,9 +32,6 @@ namespace Stateless
                 {
                     _action = action;
                 }
-
-                //internal override string MethodName {  get { return _action.TryGetMethodName(); } }
-                //internal override bool IsAsync {  get { return false;  } }
 
                 public override void Execute(Transition transition, object[] args)
                 {
@@ -55,9 +53,6 @@ namespace Stateless
                 {
                     _action = action;
                 }
-
-                //internal override string MethodName { get { return _action.TryGetMethodName(); } }
-                //internal override bool IsAsync { get { return true; } }
 
                 public override void Execute(Transition transition, object[] args)
                 {

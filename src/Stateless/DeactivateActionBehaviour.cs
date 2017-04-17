@@ -11,15 +11,15 @@ namespace Stateless
         internal abstract class DeactivateActionBehaviour
         {
             readonly TState _state;
-            readonly string _actionDescription;
+            readonly MethodDescription _actionDescription;
 
-            protected DeactivateActionBehaviour(TState state, string actionDescription)
+            protected DeactivateActionBehaviour(TState state, MethodDescription actionDescription)
             {
                 _state = state;
                 _actionDescription = Enforce.ArgumentNotNull(actionDescription, nameof(actionDescription));
             }
 
-            internal string ActionDescription { get { return _actionDescription; } }
+            internal string ActionDescription { get { return _actionDescription.Description; } }
 
             public abstract void Execute();
             public abstract Task ExecuteAsync();
@@ -28,7 +28,7 @@ namespace Stateless
             {
                 readonly Action _action;
 
-                public Sync(TState state, Action action, string actionDescription)
+                public Sync(TState state, Action action, MethodDescription actionDescription)
                     : base(state, actionDescription)
                 {
                     _action = action;
@@ -50,7 +50,7 @@ namespace Stateless
             {
                 readonly Func<Task> _action;
 
-                public Async(TState state, Func<Task> action, string actionDescription)
+                public Async(TState state, Func<Task> action, MethodDescription actionDescription)
                     : base(state, actionDescription)
                 {
                     _action = action;

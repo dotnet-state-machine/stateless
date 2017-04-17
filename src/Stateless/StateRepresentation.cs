@@ -85,7 +85,7 @@ namespace Stateless
                 return actual
                     .FirstOrDefault();
             }
-            public void AddActivateAction(Action action, string activateActionDescription)
+            public void AddActivateAction(Action action, MethodDescription activateActionDescription)
             {
                 _activateActions.Add(
                     new ActivateActionBehaviour.Sync(
@@ -94,7 +94,7 @@ namespace Stateless
                         Enforce.ArgumentNotNull(activateActionDescription, nameof(activateActionDescription))));
             }
 
-            public void AddDeactivateAction(Action action, string deactivateActionDescription)
+            public void AddDeactivateAction(Action action, MethodDescription deactivateActionDescription)
             {
                 _deactivateActions.Add(
                     new DeactivateActionBehaviour.Sync(

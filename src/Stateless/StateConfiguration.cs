@@ -349,7 +349,7 @@ namespace Stateless
                     new IgnoredTriggerBehaviour(
                         trigger,
                         guard,
-                        guardDescription ?? guard?.TryGetMethodName()));
+                        guardDescription));
                 return this;
             }
 
@@ -383,7 +383,7 @@ namespace Stateless
                 Enforce.ArgumentNotNull(activateAction, nameof(activateAction));
                 _representation.AddActivateAction(
                     activateAction,
-                    activateActionDescription ?? activateAction.TryGetMethodName());
+                    MethodDescription.Create(activateAction, activateActionDescription));
                 return this;
             }
 
@@ -399,7 +399,7 @@ namespace Stateless
                 Enforce.ArgumentNotNull(deactivateAction, nameof(deactivateAction));
                 _representation.AddDeactivateAction(
                     deactivateAction,
-                    deactivateActionDescription ?? deactivateAction.TryGetMethodName());
+                    MethodDescription.Create(deactivateAction, deactivateActionDescription));
                 return this;
             }
 
@@ -618,9 +618,10 @@ namespace Stateless
             public StateConfiguration OnExit(Action exitAction, string exitActionDescription = null)
             {
                 Enforce.ArgumentNotNull(exitAction, nameof(exitAction));
-                return OnExit(
+                _representation.AddExitAction(
                     t => exitAction(),
-                    exitActionDescription ?? exitAction.TryGetMethodName());
+                    MethodDescription.Create(exitAction, exitActionDescription));
+                return this;
             }
 
             /// <summary>

@@ -9,12 +9,12 @@ namespace Stateless
     {
         internal class IgnoredTriggerBehaviour : TriggerBehaviour
         {
-            public IgnoredTriggerBehaviour(TTrigger trigger, Func<bool> guard)
-                : this(trigger, guard, string.Empty)
-            {
-            }
+            //public IgnoredTriggerBehaviour(TTrigger trigger, Func<bool> guard)
+            //    : this(trigger, guard, string.Empty)
+            //{
+            //}
 
-            public IgnoredTriggerBehaviour(TTrigger trigger, Func<bool> guard, string description)
+            public IgnoredTriggerBehaviour(TTrigger trigger, Func<bool> guard, string description = null)
                 : base(trigger, new TransitionGuard(guard, description))
             {
             }

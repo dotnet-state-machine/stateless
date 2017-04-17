@@ -11,7 +11,7 @@ namespace Stateless
     {
         internal partial class StateRepresentation
         {
-            public void AddActivateAction(Func<Task> action, string activateActionDescription)
+            public void AddActivateAction(Func<Task> action, MethodDescription activateActionDescription)
             {
                 _activateActions.Add(
                     new ActivateActionBehaviour.Async(
@@ -20,7 +20,7 @@ namespace Stateless
                         Enforce.ArgumentNotNull(activateActionDescription, nameof(activateActionDescription))));
             }
 
-            public void AddDeactivateAction(Func<Task> action, string deactivateActionDescription)
+            public void AddDeactivateAction(Func<Task> action, MethodDescription deactivateActionDescription)
             {
                 _deactivateActions.Add(
                     new DeactivateActionBehaviour.Async(
@@ -29,7 +29,7 @@ namespace Stateless
                         Enforce.ArgumentNotNull(deactivateActionDescription, nameof(deactivateActionDescription))));
             }
 
-            public void AddEntryAction(TTrigger trigger, Func<Transition, object[], Task> action, string entryActionDescription)
+            public void AddEntryAction(TTrigger trigger, Func<Transition, object[], Task> action, MethodDescription entryActionDescription)
             {
                 Enforce.ArgumentNotNull(action, nameof(action));
                 _entryActions.Add(
@@ -40,23 +40,23 @@ namespace Stateless
 
                         return TaskResult.Done;
                     },
-                    MethodDescription.Create(action, entryActionDescription, MethodDescription.Timing.Asynchronous)));
+                    entryActionDescription));
             }
 
-            public void AddEntryAction(Func<Transition, object[], Task> action, string entryActionDescription)
+            public void AddEntryAction(Func<Transition, object[], Task> action, MethodDescription entryActionDescription)
             {
                 _entryActions.Add(
                     new EntryActionBehavior.Async(
                         Enforce.ArgumentNotNull(action, nameof(action)),
-                        MethodDescription.Create(action, entryActionDescription, MethodDescription.Timing.Asynchronous)));
+                        Enforce.ArgumentNotNull(entryActionDescription, nameof(entryActionDescription))));
             }
 
-            public void AddExitAction(Func<Transition, Task> action, string exitActionDescription)
+            public void AddExitAction(Func<Transition, Task> action, MethodDescription exitActionDescription)
             {
                 _exitActions.Add(
                     new ExitActionBehavior.Async(
                         Enforce.ArgumentNotNull(action, nameof(action)),
-                        MethodDescription.Create(action, exitActionDescription, MethodDescription.Timing.Asynchronous)));
+                        Enforce.ArgumentNotNull(exitActionDescription, nameof(exitActionDescription))));
             }
 
             internal void AddInternalAction(TTrigger trigger, Func<Transition, object[], Task> action)
