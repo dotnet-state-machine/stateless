@@ -11,14 +11,14 @@ namespace Stateless
             Synchronous,
             Asynchronous
         }
-        Timing _timing;
+        readonly Timing _timing;
 
         public static MethodDescription Create(Delegate method, string description, Timing timing = Timing.Synchronous)
         {
             return new MethodDescription(method?.TryGetMethodName(), description, timing);
         }
 
-        private MethodDescription(string methodName, string description, Timing timing)      // description can be null if user didn't specify a description
+        MethodDescription(string methodName, string description, Timing timing)      // description can be null if user didn't specify a description
         {
             MethodName = methodName;
             _description = description;

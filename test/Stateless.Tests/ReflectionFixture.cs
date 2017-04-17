@@ -3,6 +3,7 @@ using Xunit;
 using Stateless.Reflection;
 using Xunit.Sdk;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Stateless.Tests
 {
@@ -21,6 +22,11 @@ namespace Stateless.Tests
         void OnExit()
         {
 
+        }
+
+        Task OnActivateAsync()
+        {
+            return TaskResult.Done;
         }
 
         [Fact]
@@ -364,9 +370,9 @@ namespace Stateless.Tests
             Assert.Equal(0, binding.Substates.Count());
             Assert.Equal(null, binding.Superstate);
             Assert.Equal(1, binding.EntryActions.Count());
-            foreach (string entryAction in binding.EntryActions)
+            foreach (MethodInfo entryAction in binding.EntryActions)
             {
-                Assert.Equal("enteredA", entryAction);
+                Assert.Equal("enteredA", entryAction.Description);
             }
             Assert.Equal(0, binding.ExitActions.Count());
             //
@@ -396,8 +402,8 @@ namespace Stateless.Tests
             Assert.Equal(null, binding.Superstate);
             //
             Assert.Equal(1, binding.EntryActions.Count());
-            foreach (string entryAction in binding.EntryActions)
-                Assert.Equal("enteredA", entryAction);
+            foreach (MethodInfo entryAction in binding.EntryActions)
+                Assert.Equal("enteredA", entryAction.Description);
             Assert.Equal(0, binding.ExitActions.Count());
             //
             Assert.Equal(0, binding.FixedTransitions.Count()); // Binding count mismatch
@@ -427,8 +433,8 @@ namespace Stateless.Tests
             //
             Assert.Equal(0, binding.EntryActions.Count());
             Assert.Equal(1, binding.ExitActions.Count());
-            foreach (string entryAction in binding.ExitActions)
-                Assert.Equal("exitA", entryAction);
+            foreach (MethodInfo exitAction in binding.ExitActions)
+                Assert.Equal("exitA", exitAction.Description);
             //
             Assert.Equal(0, binding.FixedTransitions.Count()); // Binding count mismatch
             Assert.Equal(0, binding.IgnoredTriggers.Count());
@@ -457,8 +463,8 @@ namespace Stateless.Tests
             //
             Assert.Equal(0, binding.EntryActions.Count());
             Assert.Equal(1, binding.ExitActions.Count());
-            foreach (string entryAction in binding.ExitActions)
-                Assert.Equal("exitA", entryAction);
+            foreach (MethodInfo entryAction in binding.ExitActions)
+                Assert.Equal("exitA", entryAction.Description);
             //
             Assert.Equal(0, binding.FixedTransitions.Count()); // Binding count mismatch
             Assert.Equal(0, binding.IgnoredTriggers.Count());
@@ -508,5 +514,87 @@ namespace Stateless.Tests
             Assert.Equal(0, binding.ExitActions.Count());
             Assert.Equal(0, binding.DynamicTransitions.Count()); // Dynamic transition count mismatch
         }
-    }
+
+        [Fact]
+        public void ReflectionMethodNames()
+        {
+            string UserDescription = "UserDescription";
+
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .OnActivateAsync(OnActivateAsync);
+            sm.Configure(State.B)
+                .OnActivateAsync(OnActivateAsync, UserDescription + "B");
+            sm.Configure(State.C)
+                .OnActivateAsync(() => OnActivateAsync());
+            sm.Configure(State.D)
+                .OnActivateAsync(() => OnActivateAsync(), UserDescription + "D");
+
+            StateMachineInfo inf = sm.GetInfo();
+
+            foreach (StateInfo stateInfo in inf.States)
+            {
+                var activateActions = stateInfo.ActivateActions;
+                if ((State)stateInfo.UnderlyingState == State.A)
+                {
+                    Assert.Equal(1, activateActions.Count());
+                    Assert.Equal("OnActivateAsync", activateActions.First().Description);
+                    Assert.Equal(true, activateActions.First().IsAsync);
+                }
+                else if ((State)stateInfo.UnderlyingState == State.B)
+                {
+                    Assert.Equal(1, activateActions.Count());
+                    Assert.Equal(UserDescription + "B", activateActions.First().Description);
+                    Assert.Equal(true, activateActions.First().IsAsync);
+                }
+                else if ((State)stateInfo.UnderlyingState == State.C)
+                {
+                    Assert.Equal(1, activateActions.Count());
+                    Assert.Equal(MethodInfo.DefaultFunctionName, activateActions.First().Description);
+                    Assert.Equal(true, activateActions.First().IsAsync);
+                }
+                else if ((State)stateInfo.UnderlyingState == State.D)
+                {
+                    Assert.Equal(1, activateActions.Count());
+                    Assert.Equal(UserDescription + "D", activateActions.First().Description);
+                    Assert.Equal(true, activateActions.First().IsAsync);
+                }
+            }
+
+            /*
+            public StateConfiguration OnDeactivateAsync(Func<Task> deactivateAction, string deactivateActionDescription = null)
+            public StateConfiguration OnEntryAsync(Func<Task> entryAction, string entryActionDescription = null)
+            public StateConfiguration OnEntryAsync(Func<Transition, Task> entryAction, string entryActionDescription = null)
+            public StateConfiguration OnEntryFromAsync(TTrigger trigger, Func<Task> entryAction, string entryActionDescription = null)
+            public StateConfiguration OnEntryFromAsync(TTrigger trigger, Func<Transition, Task> entryAction, string entryActionDescription = null)
+            public StateConfiguration OnEntryFromAsync<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, Task> entryAction, string entryActionDescription = null)
+            public StateConfiguration OnEntryFromAsync<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, Transition, Task> entryAction, string entryActionDescription = null)
+            public StateConfiguration OnEntryFromAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, Task> entryAction, string entryActionDescription = null)
+            public StateConfiguration OnEntryFromAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, Transition, Task> entryAction, string entryActionDescription = null)
+            public StateConfiguration OnEntryFromAsync<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, Task> entryAction, string entryActionDescription = null)
+            public StateConfiguration OnEntryFromAsync<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, Transition, Task> entryAction, string entryActionDescription = null)
+            public StateConfiguration OnExitAsync(Func<Task> exitAction, string exitActionDescription = null)
+            public StateConfiguration OnExitAsync(Func<Transition, Task> exitAction, string exitActionDescription = null
+
+            public StateConfiguration OnActivate(Action activateAction, string activateActionDescription = null)
+            public StateConfiguration OnDeactivate(Action deactivateAction, string deactivateActionDescription = null)
+            public StateConfiguration OnEntry(Action entryAction, string entryActionDescription = null)
+            public StateConfiguration OnEntry(Action<Transition> entryAction, string entryActionDescription = null)
+            public StateConfiguration OnEntryFrom(TTrigger trigger, Action entryAction, string entryActionDescription = null)
+            public StateConfiguration OnEntryFrom(TTrigger trigger, Action<Transition> entryAction, string entryActionDescription = null)
+            public StateConfiguration OnEntryFrom<TArg0>(TriggerWithParameters<TArg0> trigger, Action<TArg0> entryAction, string entryActionDescription = null)
+            public StateConfiguration OnEntryFrom<TArg0>(TriggerWithParameters<TArg0> trigger, Action<TArg0, Transition> entryAction, string entryActionDescription = null)
+            public StateConfiguration OnEntryFrom<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Action<TArg0, TArg1> entryAction, string entryActionDescription = null)
+            public StateConfiguration OnEntryFrom<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Action<TArg0, TArg1, Transition> entryAction, string entryActionDescription = null)
+            public StateConfiguration OnEntryFrom<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Action<TArg0, TArg1, TArg2> entryAction, string entryActionDescription = null)
+            public StateConfiguration OnEntryFrom<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Action<TArg0, TArg1, TArg2, Transition> entryAction, string entryActionDescription = null)
+            public StateConfiguration OnExit(Action exitAction, string exitActionDescription = null)
+            public StateConfiguration OnExit(Action<Transition> exitAction, string exitActionDescription = null)
+
+            internal TransitionGuard(Tuple<Func<bool>, string>[] guards)
+            internal TransitionGuard(Func<bool> guard, string description = null)
+            */
+        }
+}
 }

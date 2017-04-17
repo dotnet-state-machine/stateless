@@ -17,6 +17,7 @@ namespace Stateless
             }
 
             internal string ActionDescription { get { return _actionDescription.Description; } }
+            internal MethodDescription MethodDescription => _actionDescription;
 
             public abstract void Execute();
             public abstract Task ExecuteAsync();

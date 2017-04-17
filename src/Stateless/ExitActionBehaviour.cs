@@ -21,6 +21,7 @@ namespace Stateless
             }
 
             internal string ActionDescription { get { return _actionDescription.Description; } }
+            internal MethodDescription MethodDescription => _actionDescription;
 
             public class Sync : ExitActionBehavior
             {

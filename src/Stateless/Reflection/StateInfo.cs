@@ -14,8 +14,6 @@ namespace Stateless.Reflection
             if (stateReperesentation == null)
                 throw new ArgumentException(nameof(stateReperesentation));
 
-            var entryActions = stateReperesentation.EntryActions.Select(e => e.ActionDescription).ToList();
-            var exitActions = stateReperesentation.ExitActions.Select(e => e.ActionDescription).ToList();
             var ignoredTriggers = new List<TriggerInfo>();
 
             foreach (var triggerBehaviours in stateReperesentation.TriggerBehaviours)
@@ -27,7 +25,13 @@ namespace Stateless.Reflection
                 }
             }
 
-            return new StateInfo(stateReperesentation.UnderlyingState, entryActions, exitActions, ignoredTriggers);
+            StateInfo stateInfo = new StateInfo(stateReperesentation.UnderlyingState, ignoredTriggers);
+
+            stateInfo.EntryActions = stateReperesentation.EntryActions.Select(e => MethodInfo.Create(e.MethodDescription)).ToList();
+            stateInfo.ActivateActions = stateReperesentation.ActivateActions.Select(e => MethodInfo.Create(e.MethodDescription)).ToList();
+            stateInfo.ExitActions = stateReperesentation.ExitActions.Select(e => MethodInfo.Create(e.MethodDescription)).ToList();
+
+            return stateInfo;
         }
 
         internal static void AddRelationships<TState, TTrigger>(StateInfo info, StateMachine<TState, TTrigger>.StateRepresentation stateReperesentation, Func<TState, StateInfo> lookupState)
@@ -63,14 +67,10 @@ namespace Stateless.Reflection
         }
 
         private StateInfo(
-            object underlyingState, 
-            IEnumerable<string> entryActions,
-            IEnumerable<string> exitActions,
+            object underlyingState,
             IEnumerable<TriggerInfo> ignoredTriggers)
         {
             UnderlyingState = underlyingState;
-            EntryActions = entryActions ?? throw new ArgumentNullException(nameof(entryActions));
-            ExitActions = exitActions ?? throw new ArgumentNullException(nameof(exitActions));
             IgnoredTriggers = ignoredTriggers ?? throw new ArgumentNullException(nameof(ignoredTriggers));
         }
 
@@ -102,14 +102,19 @@ namespace Stateless.Reflection
         public StateInfo Superstate { get; private set; }
 
         /// <summary>
-        /// Actions that are defined to be exectuted on state-entry.
+        /// Actions that are defined to be executed on state-entry.
         /// </summary>
-        public IEnumerable<string> EntryActions { get; private set; }
+        public IEnumerable<MethodInfo> EntryActions { get; private set; }
+
+        /// <summary>
+        /// Actions that are defined to be executed on activation.
+        /// </summary>
+        public IEnumerable<MethodInfo> ActivateActions { get; private set; }
 
         /// <summary>
         /// Actions that are defined to be exectuted on state-exit.
         /// </summary>
-        public IEnumerable<string> ExitActions { get; private set; }
+        public IEnumerable<MethodInfo> ExitActions { get; private set; }
 
         /// <summary> 
         /// Transitions defined for this state. 

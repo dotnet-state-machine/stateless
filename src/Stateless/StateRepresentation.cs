@@ -18,10 +18,13 @@ namespace Stateless
 
             readonly ICollection<EntryActionBehavior> _entryActions = new List<EntryActionBehavior>();
             internal ICollection<EntryActionBehavior> EntryActions { get { return _entryActions; } }
+
             readonly ICollection<ExitActionBehavior> _exitActions = new List<ExitActionBehavior>();
             internal ICollection<ExitActionBehavior> ExitActions { get { return _exitActions; } }
 
             readonly ICollection<ActivateActionBehaviour> _activateActions = new List<ActivateActionBehaviour>();
+            internal ICollection<ActivateActionBehaviour> ActivateActions { get { return _activateActions; } }
+
             readonly ICollection<DeactivateActionBehaviour> _deactivateActions = new List<DeactivateActionBehaviour>();
 
             readonly ICollection<InternalActionBehaviour> _internalActions = new List<InternalActionBehaviour>();

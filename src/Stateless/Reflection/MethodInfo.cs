@@ -9,20 +9,23 @@ namespace Stateless.Reflection
     /// </summary>
     public class MethodInfo
     {
-        static readonly string _defaultFunctionName = "Function";
+        /// <summary>
+        /// Text returned for compiler-generated functions where the caller has not specified a description
+        /// </summary>
+        static public string DefaultFunctionName { get; set; }  = "Function";
 
-        internal static MethodInfo CreateMethodInfo(MethodDescription action)
+        internal static MethodInfo Create(MethodDescription methodDescription)
         {
-            // Get the default action description (which is the description provided from the user (if any)
+            // Get the default method description (which is the description provided from the user (if any)
             // else the name of the method)
-            string descrip = action.Description;
+            string descrip = methodDescription.Description;
 
-            // If the action description was calculated based on the method name, and the method was a delegate or lambda,
+            // If the method description was calculated based on the method name, and the method was a delegate or lambda,
             // don't use the compiler-generated method name.
-            if ( (action.DescriptionIsCalculated) && (descrip.IndexOfAny(new char[] { '<', '>' }) >= 0) )
-                descrip = _defaultFunctionName;
+            if ( (methodDescription.DescriptionIsCalculated) && (descrip.IndexOfAny(new char[] { '<', '>' }) >= 0) )
+                descrip = DefaultFunctionName;
 
-            return new MethodInfo(descrip, action.IsAsync);
+            return new MethodInfo(descrip, methodDescription.IsAsync);
         }
 
         private MethodInfo(string description, bool isAsync)
