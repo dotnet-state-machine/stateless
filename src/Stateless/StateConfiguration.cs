@@ -16,7 +16,6 @@ namespace Stateless
             private readonly StateMachine<TState, TTrigger> _machine;
             readonly StateRepresentation _representation;
             readonly Func<TState, StateRepresentation> _lookup;
-            static readonly Func<bool> NoGuard = () => true;
 
             internal StateConfiguration(StateMachine<TState, TTrigger> machine, StateRepresentation representation, Func<TState, StateRepresentation> lookup)
             {
@@ -330,7 +329,13 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration Ignore(TTrigger trigger)
             {
-                return IgnoreIf(trigger, NoGuard);
+                // return IgnoreIf(trigger, NoGuard);
+                // Enforce.ArgumentNotNull(guard, nameof(guard));
+                _representation.AddTriggerBehaviour(
+                    new IgnoredTriggerBehaviour(
+                        trigger,
+                        null));
+                return this;
             }
 
             /// <summary>
@@ -348,8 +353,8 @@ namespace Stateless
                 _representation.AddTriggerBehaviour(
                     new IgnoredTriggerBehaviour(
                         trigger,
-                        guard,
-                        guardDescription));
+                        new TransitionGuard(guard, guardDescription)
+                        ));
                 return this;
             }
 
@@ -694,7 +699,10 @@ namespace Stateless
             /// <returns>The reciever.</returns>
             public StateConfiguration PermitDynamic(TTrigger trigger, Func<TState> destinationStateSelector)
             {
-                return PermitDynamicIf(trigger, destinationStateSelector, NoGuard);
+                Enforce.ArgumentNotNull(destinationStateSelector, nameof(destinationStateSelector));
+                _representation.AddTriggerBehaviour(
+                    new DynamicTriggerBehaviour(trigger, args => destinationStateSelector(), null));
+                return this;
             }
 
             /// <summary>
@@ -708,7 +716,15 @@ namespace Stateless
             /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
             public StateConfiguration PermitDynamic<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, TState> destinationStateSelector)
             {
-                return PermitDynamicIf(trigger, destinationStateSelector, NoGuard);
+                Enforce.ArgumentNotNull(trigger, nameof(trigger));
+                Enforce.ArgumentNotNull(destinationStateSelector, nameof(destinationStateSelector));
+                _representation.AddTriggerBehaviour(
+                    new DynamicTriggerBehaviour(trigger.Trigger,
+                    args => destinationStateSelector(
+                        ParameterConversion.Unpack<TArg0>(args, 0)),
+                    null));
+                return this;
+
             }
 
             /// <summary>
@@ -723,7 +739,15 @@ namespace Stateless
             /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
             public StateConfiguration PermitDynamic<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, TState> destinationStateSelector)
             {
-                return PermitDynamicIf(trigger, destinationStateSelector, NoGuard);
+                Enforce.ArgumentNotNull(trigger, nameof(trigger));
+                Enforce.ArgumentNotNull(destinationStateSelector, nameof(destinationStateSelector));
+                _representation.AddTriggerBehaviour(
+                    new DynamicTriggerBehaviour(trigger.Trigger, args => destinationStateSelector(
+                        ParameterConversion.Unpack<TArg0>(args, 0),
+                        ParameterConversion.Unpack<TArg1>(args, 1)),
+                        null));
+                return this;
+
             }
 
             /// <summary>
@@ -739,7 +763,16 @@ namespace Stateless
             /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
             public StateConfiguration PermitDynamic<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, TState> destinationStateSelector)
             {
-                return PermitDynamicIf(trigger, destinationStateSelector, NoGuard);
+                Enforce.ArgumentNotNull(trigger, nameof(trigger));
+                Enforce.ArgumentNotNull(destinationStateSelector, nameof(destinationStateSelector));
+                _representation.AddTriggerBehaviour(
+                    new DynamicTriggerBehaviour(trigger.Trigger,
+                    args => destinationStateSelector(
+                        ParameterConversion.Unpack<TArg0>(args, 0),
+                        ParameterConversion.Unpack<TArg1>(args, 1),
+                        ParameterConversion.Unpack<TArg2>(args, 2)),
+                    null));
+                return this;
             }
 
             /// <summary>
@@ -957,9 +990,13 @@ namespace Stateless
                 return this;
             }
 
-            StateConfiguration InternalPermitDynamic(TTrigger trigger, Func<object[], TState> destinationStateSelector, string guardDescription)
+            StateConfiguration InternalPermitDynamic(TTrigger trigger, Func<object[], TState> destinationStateSelector)
             {
-                return InternalPermitDynamicIf(trigger, destinationStateSelector, new TransitionGuard(NoGuard, guardDescription));
+                Enforce.ArgumentNotNull(destinationStateSelector, nameof(destinationStateSelector));
+                _representation.AddTriggerBehaviour(
+                    new DynamicTriggerBehaviour(trigger, destinationStateSelector, null));
+                return this;
+
             }
 
             StateConfiguration InternalPermitDynamicIf(TTrigger trigger, Func<object[], TState> destinationStateSelector, TransitionGuard transitionGuard)

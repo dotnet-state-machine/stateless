@@ -2,6 +2,7 @@
 using System.Linq;
 
 using Stateless;
+using Stateless.DotGraph;
 using Stateless.Reflection;
 
 namespace ReflectionExample
@@ -34,13 +35,20 @@ namespace ReflectionExample
                 {
                     Console.WriteLine("State " + stateInfo.UnderlyingState + " transitions to " + trans.DestinationState
                         + ", has " + trans.GuardConditionsMethodDescriptions.Count() + " guard conditions");
-                    // Assert.Equal(0, trans.GuardConditionsMethodDescriptions.Count());
                     foreach (MethodInfo methodInfo in trans.GuardConditionsMethodDescriptions)
                     {
                         Console.WriteLine("   Guard condition method \"" + methodInfo.Description + "\"");
                     }
                 }
             }
+
+            sm = new StateMachine<State, Trigger>(State.A);
+            var trigger = sm.SetTriggerParameters<int>(Trigger.X);
+            sm.Configure(State.A)
+                .PermitDynamic(trigger, i => i == 1 ? State.B : State.C);
+
+            Console.WriteLine("Exported as DOT graph:");
+            Console.WriteLine(DotGraphFormatter.Format(sm.GetInfo()));
         }
     }
 }

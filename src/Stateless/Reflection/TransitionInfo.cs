@@ -13,7 +13,8 @@ namespace Stateless.Reflection
         public TriggerInfo Trigger { get; protected set; }
 
         /// <summary>
-        /// Method descriptions of the guard conditions
+        /// Method descriptions of the guard conditions.
+        /// Returns a non-null but empty list if there are no guard conditions
         /// </summary>
         public IEnumerable<MethodInfo> GuardConditionsMethodDescriptions;
     }
