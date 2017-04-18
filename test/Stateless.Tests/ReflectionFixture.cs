@@ -3,6 +3,7 @@ using Xunit;
 using Stateless.Reflection;
 using Xunit.Sdk;
 using System.Linq;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -22,6 +23,29 @@ namespace Stateless.Tests
 
         }
 
+        void OnEntryInt(int i)
+        {
+
+        }
+
+        void OnEntryIntInt(int i, int j)
+        {
+
+        }
+
+        void OnEntryIntIntInt(int i, int j, int k)
+        {
+
+        }
+
+        void OnEntryTrans(StateMachine<State, Trigger>.Transition trans)
+        {
+        }
+
+        void OnEntryIntTrans(int i, StateMachine<State, Trigger>.Transition trans)
+        {
+        }
+
         void OnExit()
         {
 
@@ -33,10 +57,6 @@ namespace Stateless.Tests
         }
 
         void OnActivate()
-        {
-        }
-
-        void OnEntryTrans(StateMachine<State, Trigger>.Transition trans)
         {
         }
 
@@ -581,6 +601,44 @@ namespace Stateless.Tests
             Assert.Equal(timing == MethodDescription.Timing.Asynchronous, method.IsAsync);
         }
 
+        void VerifyMethodNameses(IEnumerable<MethodInfo> methods, string prefix, string body, State state,
+            MethodDescription.Timing timing, HashSet<string> suffixes)
+        {
+            Assert.Equal(suffixes.Count, methods.Count());
+
+            foreach (MethodInfo method in methods)
+            {
+                Debug.WriteLine("Method description is \"" + method.Description + "\"");
+                //
+                bool matches = false;
+                foreach (string suffix in suffixes)
+                {
+                    if (state == State.A)
+                    {
+                        matches = (method.Description == (prefix + body
+                            + ((timing == MethodDescription.Timing.Asynchronous) ? "Async" : "" + suffix)));
+                    }
+                    else if (state == State.B)
+                        matches = (UserDescription + "B-" + body + suffix == method.Description);
+                    else if (state == State.C)
+                        matches = (MethodInfo.DefaultFunctionName == method.Description);
+                    else if (state == State.D)
+                        matches = (UserDescription + "D-" + body + suffix == method.Description);
+                    //
+                    if (matches)
+                    {
+                        suffixes.Remove(suffix);
+                        break;
+                    }
+                }
+                if (!matches)
+                    Debug.WriteLine("No match for \"" + method.Description + "\"");
+                Assert.True(matches);
+                //
+                Assert.Equal(timing == MethodDescription.Timing.Asynchronous, method.IsAsync);
+            }
+        }
+
         [Fact]
         public void ReflectionMethodNames()
         {
@@ -617,6 +675,8 @@ namespace Stateless.Tests
                 VerifyMethodNames(stateInfo.DeactivateActions, "On", "Deactivate", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Synchronous);
             }
 
+            // --------------------------------------------------------
+
             // New StateMachine, new tests: entry and exit, functions that take the transition as an argument
             sm = new StateMachine<State, Trigger>(State.A);
 
@@ -641,14 +701,54 @@ namespace Stateless.Tests
                 VerifyMethodNames(stateInfo.ExitActions, "On", "ExitTrans", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Synchronous);
             }
 
+            // --------------------------------------------------------
+
+            sm = new StateMachine<State, Trigger>(State.A);
+
+            var triggerX = sm.SetTriggerParameters<int>(Trigger.X);
+            var triggerY = sm.SetTriggerParameters<int, int>(Trigger.Y);
+            var triggerZ = sm.SetTriggerParameters<int, int, int>(Trigger.Z);
+
+            sm.Configure(State.A)
+                .OnEntryFrom(Trigger.X, OnEntry)
+                .OnEntryFrom(Trigger.Y, OnEntryTrans)
+                .OnEntryFrom(triggerX, OnEntryInt)
+                .OnEntryFrom(triggerX, OnEntryIntTrans)
+                .OnEntryFrom(triggerY, OnEntryIntInt)
+                .OnEntryFrom(triggerZ, OnEntryIntIntInt);
+            sm.Configure(State.B)
+                .OnEntryFrom(Trigger.X, OnEntry, UserDescription + "B-Entry")
+                .OnEntryFrom(Trigger.Y, OnEntryTrans, UserDescription + "B-EntryTrans")
+                .OnEntryFrom(triggerX, OnEntryInt, UserDescription + "B-EntryInt")
+                .OnEntryFrom(triggerX, OnEntryIntTrans, UserDescription + "B-EntryIntTrans")
+                .OnEntryFrom(triggerY, OnEntryIntInt, UserDescription + "B-EntryIntInt")
+                .OnEntryFrom(triggerZ, OnEntryIntIntInt, UserDescription + "B-EntryIntIntInt");
+            sm.Configure(State.C)
+                .OnEntryFrom(Trigger.X, () => OnEntry())
+                .OnEntryFrom(Trigger.Y, (trans) => OnEntryTrans(trans))
+                .OnEntryFrom(triggerX, (i) => OnEntryInt(i))
+                .OnEntryFrom(triggerX, (i, trans) => OnEntryIntTrans(i, trans))
+                .OnEntryFrom(triggerY, (i, j) => OnEntryIntInt(i, j))
+                .OnEntryFrom(triggerZ, (i, j, k) => OnEntryIntIntInt(i, j, k));
+            sm.Configure(State.D)
+                .OnEntryFrom(Trigger.X, () => OnEntry(), UserDescription + "D-Entry")
+                .OnEntryFrom(Trigger.Y, (trans) => OnEntryTrans(trans), UserDescription + "D-EntryTrans")
+                .OnEntryFrom(triggerX, (i) => OnEntryInt(i), UserDescription + "D-EntryInt")
+                .OnEntryFrom(triggerX, (i, trans) => OnEntryIntTrans(i, trans), UserDescription + "D-EntryIntTrans")
+                .OnEntryFrom(triggerY, (i, j) => OnEntryIntInt(i, j), UserDescription + "D-EntryIntInt")
+                .OnEntryFrom(triggerZ, (i, j, k) => OnEntryIntIntInt(i, j, k), UserDescription + "D-EntryIntIntInt");
+
+            inf = sm.GetInfo();
+
+            foreach (StateInfo stateInfo in inf.States)
+            {
+                VerifyMethodNameses(stateInfo.EntryActions, "On", "Entry", (State)stateInfo.UnderlyingState,
+                    MethodDescription.Timing.Synchronous,
+                    new HashSet<string> { "", "Trans", "Int", "IntTrans", "IntInt", "IntIntInt" });
+            }
+
             /*
-            public StateConfiguration OnEntryFrom(TTrigger trigger, Action entryAction, string entryActionDescription = null)
-            public StateConfiguration OnEntryFrom(TTrigger trigger, Action<Transition> entryAction, string entryActionDescription = null)
-            public StateConfiguration OnEntryFrom<TArg0>(TriggerWithParameters<TArg0> trigger, Action<TArg0> entryAction, string entryActionDescription = null)
-            public StateConfiguration OnEntryFrom<TArg0>(TriggerWithParameters<TArg0> trigger, Action<TArg0, Transition> entryAction, string entryActionDescription = null)
-            public StateConfiguration OnEntryFrom<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Action<TArg0, TArg1> entryAction, string entryActionDescription = null)
             public StateConfiguration OnEntryFrom<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Action<TArg0, TArg1, Transition> entryAction, string entryActionDescription = null)
-            public StateConfiguration OnEntryFrom<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Action<TArg0, TArg1, TArg2> entryAction, string entryActionDescription = null)
             public StateConfiguration OnEntryFrom<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Action<TArg0, TArg1, TArg2, Transition> entryAction, string entryActionDescription = null)
              */
         }
@@ -724,6 +824,11 @@ namespace Stateless.Tests
             */
         }
 
+        State NextState()
+        {
+            return State.D;
+        }
+
         [Fact]
         public void TransitionGuardNames()
         {
@@ -748,10 +853,30 @@ namespace Stateless.Tests
                 VerifyMethodNames(transInfo.GuardConditionsMethodDescriptions, "", "Permit", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Synchronous);
             }
 
-            /*
-            internal TransitionGuard(Tuple<Func<bool>, string>[] guards)
-            internal TransitionGuard(Func<bool> guard, string description = null)
-             */
+
+            // --------------------------------------------------------
+
+            sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .PermitDynamicIf(Trigger.X, NextState, Permit);
+            sm.Configure(State.B)
+                .PermitDynamicIf(Trigger.X, NextState, Permit, UserDescription + "B-Permit");
+            sm.Configure(State.C)
+                .PermitDynamicIf(Trigger.X, NextState, () => Permit());
+            sm.Configure(State.D)
+                .PermitDynamicIf(Trigger.X, NextState, () => Permit(), UserDescription + "D-Permit");
+
+            inf = sm.GetInfo();
+
+            foreach (StateInfo stateInfo in inf.States)
+            {
+                Assert.Equal(1, stateInfo.Transitions.Count());
+                TransitionInfo transInfo = stateInfo.Transitions.First();
+                Assert.Equal(1, transInfo.GuardConditionsMethodDescriptions.Count());
+                VerifyMethodNames(transInfo.GuardConditionsMethodDescriptions, "", "Permit", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Synchronous);
+            }
+
             /*
            public IgnoredTriggerBehaviour(TTrigger trigger, Func<bool> guard, string description = null)
                : base(trigger, new TransitionGuard(guard, description))
@@ -761,10 +886,11 @@ namespace Stateless.Tests
                 : base(trigger, new TransitionGuard(guard, guardDescription))
 
             public StateConfiguration PermitReentryIf(TTrigger trigger, Func<bool> guard, string guardDescription = null)
-            public StateConfiguration PermitDynamicIf(TTrigger trigger, Func<TState> destinationStateSelector, Func<bool> guard, string guardDescription = null)
+
             public StateConfiguration PermitDynamicIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, TState> destinationStateSelector, Func<bool> guard, string guardDescription = null)
             public StateConfiguration PermitDynamicIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, TState> destinationStateSelector, Func<bool> guard, string guardDescription = null)
             public StateConfiguration PermitDynamicIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, TState> destinationStateSelector, Func<bool> guard, string guardDescription = null)
+
             StateConfiguration InternalPermit(TTrigger trigger, TState destinationState, string guardDescription)
             StateConfiguration InternalPermitDynamic(TTrigger trigger, Func<object[], TState> destinationStateSelector, string guardDescription)
              */
