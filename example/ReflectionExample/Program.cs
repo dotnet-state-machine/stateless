@@ -42,6 +42,8 @@ namespace ReflectionExample
                 }
             }
 
+            // --------------------------------------------------------
+
             sm = new StateMachine<State, Trigger>(State.A);
             var trigger = sm.SetTriggerParameters<int>(Trigger.X);
             sm.Configure(State.A)
@@ -49,6 +51,23 @@ namespace ReflectionExample
 
             Console.WriteLine("Exported as DOT graph:");
             Console.WriteLine(DotGraphFormatter.Format(sm.GetInfo()));
+
+            // --------------------------------------------------------
+
+            Func<bool> anonymousGuard = () => true;
+
+            sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .PermitIf(Trigger.X, State.B, anonymousGuard);
+
+            inf = sm.GetInfo();
+
+            StateInfo state = inf.States.First();
+            FixedTransitionInfo ft = state.FixedTransitions.First();
+            MethodInfo method = ft.GuardConditionsMethodDescriptions.First();
+
+            Console.WriteLine("Method name is \"" + method.Description + "\" (raw \"" + method.MethodName + "\")");
         }
     }
 }

@@ -564,20 +564,21 @@ namespace Stateless.Tests
             Assert.Equal(0, binding.DynamicTransitions.Count()); // Dynamic transition count mismatch
         }
 
-        void VerifyMethodNames(IEnumerable<MethodInfo> methods, string prefix, State state, MethodDescription.Timing timing)
+        void VerifyMethodNames(IEnumerable<MethodInfo> methods, string prefix, string body, State state, MethodDescription.Timing timing)
         {
             Assert.Equal(1, methods.Count());
+            MethodInfo method = methods.First();
 
             if (state == State.A)
-                Assert.Equal("On" + prefix + ((timing == MethodDescription.Timing.Asynchronous) ? "Async" : ""), methods.First().Description);
+                Assert.Equal(prefix + body + ((timing == MethodDescription.Timing.Asynchronous) ? "Async" : ""), method.Description);
             else if (state == State.B)
-                Assert.Equal(UserDescription + "B-" + prefix, methods.First().Description);
+                Assert.Equal(UserDescription + "B-" + body, method.Description);
             else if (state == State.C)
-                Assert.Equal(MethodInfo.DefaultFunctionName, methods.First().Description);
+                Assert.Equal(MethodInfo.DefaultFunctionName, method.Description);
             else if (state == State.D)
-                Assert.Equal(UserDescription + "D-" + prefix, methods.First().Description);
+                Assert.Equal(UserDescription + "D-" + body, method.Description);
 
-            Assert.Equal(timing == MethodDescription.Timing.Asynchronous, methods.First().IsAsync);
+            Assert.Equal(timing == MethodDescription.Timing.Asynchronous, method.IsAsync);
         }
 
         [Fact]
@@ -610,10 +611,10 @@ namespace Stateless.Tests
 
             foreach (StateInfo stateInfo in inf.States)
             {
-                VerifyMethodNames(stateInfo.ActivateActions, "Activate", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Synchronous);
-                VerifyMethodNames(stateInfo.EntryActions, "Entry", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Synchronous);
-                VerifyMethodNames(stateInfo.ExitActions, "Exit", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Synchronous);
-                VerifyMethodNames(stateInfo.DeactivateActions, "Deactivate", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Synchronous);
+                VerifyMethodNames(stateInfo.ActivateActions, "On", "Activate", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Synchronous);
+                VerifyMethodNames(stateInfo.EntryActions, "On", "Entry", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Synchronous);
+                VerifyMethodNames(stateInfo.ExitActions, "On", "Exit", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Synchronous);
+                VerifyMethodNames(stateInfo.DeactivateActions, "On", "Deactivate", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Synchronous);
             }
 
             // New StateMachine, new tests: entry and exit, functions that take the transition as an argument
@@ -636,8 +637,8 @@ namespace Stateless.Tests
 
             foreach (StateInfo stateInfo in inf.States)
             {
-                VerifyMethodNames(stateInfo.EntryActions, "EntryTrans", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Synchronous);
-                VerifyMethodNames(stateInfo.ExitActions, "ExitTrans", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Synchronous);
+                VerifyMethodNames(stateInfo.EntryActions, "On", "EntryTrans", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Synchronous);
+                VerifyMethodNames(stateInfo.ExitActions, "On", "ExitTrans", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Synchronous);
             }
 
             /*
@@ -682,10 +683,10 @@ namespace Stateless.Tests
 
             foreach (StateInfo stateInfo in inf.States)
             {
-                VerifyMethodNames(stateInfo.ActivateActions, "Activate", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Asynchronous);
-                VerifyMethodNames(stateInfo.EntryActions, "Entry", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Asynchronous);
-                VerifyMethodNames(stateInfo.ExitActions, "Exit", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Asynchronous);
-                VerifyMethodNames(stateInfo.DeactivateActions, "Deactivate", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Asynchronous);
+                VerifyMethodNames(stateInfo.ActivateActions, "On", "Activate", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Asynchronous);
+                VerifyMethodNames(stateInfo.EntryActions, "On", "Entry", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Asynchronous);
+                VerifyMethodNames(stateInfo.ExitActions, "On", "Exit", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Asynchronous);
+                VerifyMethodNames(stateInfo.DeactivateActions, "On", "Deactivate", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Asynchronous);
             }
 
             // New StateMachine, new tests: entry and exit, functions that take the transition as an argument
@@ -708,8 +709,8 @@ namespace Stateless.Tests
 
             foreach (StateInfo stateInfo in inf.States)
             {
-                VerifyMethodNames(stateInfo.EntryActions, "EntryTrans", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Asynchronous);
-                VerifyMethodNames(stateInfo.ExitActions, "ExitTrans", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Asynchronous);
+                VerifyMethodNames(stateInfo.EntryActions, "On", "EntryTrans", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Asynchronous);
+                VerifyMethodNames(stateInfo.ExitActions, "On", "ExitTrans", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Asynchronous);
             }
             /*
             public StateConfiguration OnEntryFromAsync(TTrigger trigger, Func<Task> entryAction, string entryActionDescription = null)
@@ -744,6 +745,7 @@ namespace Stateless.Tests
                 Assert.Equal(1, stateInfo.Transitions.Count());
                 TransitionInfo transInfo = stateInfo.Transitions.First();
                 Assert.Equal(1, transInfo.GuardConditionsMethodDescriptions.Count());
+                VerifyMethodNames(transInfo.GuardConditionsMethodDescriptions, "", "Permit", (State)stateInfo.UnderlyingState, MethodDescription.Timing.Synchronous);
             }
 
             /*

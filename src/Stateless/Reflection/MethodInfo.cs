@@ -25,13 +25,16 @@ namespace Stateless.Reflection
             if ( (methodDescription.DescriptionIsCalculated) && (descrip.IndexOfAny(new char[] { '<', '>' }) >= 0) )
                 descrip = DefaultFunctionName;
 
-            return new MethodInfo(descrip, methodDescription.IsAsync);
+            return new MethodInfo(descrip)
+            {
+                IsAsync = methodDescription.IsAsync,
+                MethodName = methodDescription.MethodName
+            };
         }
 
-        private MethodInfo(string description, bool isAsync)
+        private MethodInfo(string description)
         {
             Description = description;
-            IsAsync = isAsync;
         }
 
         /// <summary>
@@ -43,6 +46,11 @@ namespace Stateless.Reflection
         /// Whether the action is synchronous or asynchronous
         /// </summary>
         public bool IsAsync { get; private set; }
+
+        /// <summary>
+        /// The name of the method, as reported by C#
+        /// </summary>
+        public string MethodName { get; private set; }
 
         /// <summary>
         /// Passes through to the value's ToString.
