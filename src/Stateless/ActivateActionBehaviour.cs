@@ -16,8 +16,7 @@ namespace Stateless
                 _actionDescription = Enforce.ArgumentNotNull(actionDescription, nameof(actionDescription));
             }
 
-            internal string ActionDescription { get { return _actionDescription.Description; } }
-            internal MethodDescription MethodDescription => _actionDescription;
+            internal MethodDescription Description => _actionDescription;
 
             public abstract void Execute();
             public abstract Task ExecuteAsync();

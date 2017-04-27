@@ -27,10 +27,10 @@ namespace Stateless.Reflection
 
             StateInfo stateInfo = new StateInfo(stateReperesentation.UnderlyingState, ignoredTriggers);
 
-            stateInfo.EntryActions = stateReperesentation.EntryActions.Select(e => MethodInfo.Create(e.MethodDescription)).ToList();
-            stateInfo.ActivateActions = stateReperesentation.ActivateActions.Select(e => MethodInfo.Create(e.MethodDescription)).ToList();
-            stateInfo.ExitActions = stateReperesentation.ExitActions.Select(e => MethodInfo.Create(e.MethodDescription)).ToList();
-            stateInfo.DeactivateActions = stateReperesentation.DeactivateActions.Select(e => MethodInfo.Create(e.MethodDescription)).ToList();
+            stateInfo.EntryActions = stateReperesentation.EntryActions.Select(e => MethodInfo.Create(e.Description)).ToList();
+            stateInfo.ActivateActions = stateReperesentation.ActivateActions.Select(e => MethodInfo.Create(e.Description)).ToList();
+            stateInfo.ExitActions = stateReperesentation.ExitActions.Select(e => MethodInfo.Create(e.Description)).ToList();
+            stateInfo.DeactivateActions = stateReperesentation.DeactivateActions.Select(e => MethodInfo.Create(e.Description)).ToList();
 
             return stateInfo;
         }

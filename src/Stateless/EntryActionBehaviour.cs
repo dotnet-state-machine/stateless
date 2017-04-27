@@ -17,11 +17,7 @@ namespace Stateless
                 _description = description;
             }
 
-            // Returns a description of the entry action.  If the caller specified a description, it
-            // is returned, else the name of the method itself.
-            public string ActionDescription => _description.Description;
-
-            public MethodDescription MethodDescription => _description;
+            public MethodDescription Description => _description;
 
             public abstract void Execute(Transition transition, object[] args);
             public abstract Task ExecuteAsync(Transition transition, object[] args);
