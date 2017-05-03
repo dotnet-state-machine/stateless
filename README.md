@@ -16,7 +16,6 @@ phoneCall.Configure(State.Connected)
     .OnEntry(() => StartCallTimer())
     .OnExit(() => StopCallTimer())
     .Permit(Trigger.LeftMessage, State.OffHook)
-    .Permit(Trigger.HungUp, State.OffHook)
     .Permit(Trigger.PlacedOnHold, State.OnHold);
 
 // ...
@@ -52,7 +51,6 @@ In the example below, the `OnHold` state is a substate of the `Connected` state.
 phoneCall.Configure(State.OnHold)
     .SubstateOf(State.Connected)
     .Permit(Trigger.TakenOffHold, State.Connected)
-    .Permit(Trigger.HungUp, State.OffHook)
     .Permit(Trigger.PhoneHurledAgainstWall, State.PhoneDestroyed);
 ```
 
