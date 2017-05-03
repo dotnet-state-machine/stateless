@@ -9,7 +9,6 @@ phoneCall.Configure(State.OffHook)
     .Permit(Trigger.CallDialled, State.Ringing);
 	
 phoneCall.Configure(State.Ringing)
-    .Permit(Trigger.HungUp, State.OffHook)
     .Permit(Trigger.CallConnected, State.Connected);
  
 phoneCall.Configure(State.Connected)
