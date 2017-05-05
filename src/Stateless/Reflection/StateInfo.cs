@@ -27,10 +27,10 @@ namespace Stateless.Reflection
 
             StateInfo stateInfo = new StateInfo(stateReperesentation.UnderlyingState, ignoredTriggers);
 
-            stateInfo.EntryActions = stateReperesentation.EntryActions.Select(e => MethodInfo.Create(e.Description)).ToList();
-            stateInfo.ActivateActions = stateReperesentation.ActivateActions.Select(e => MethodInfo.Create(e.Description)).ToList();
-            stateInfo.ExitActions = stateReperesentation.ExitActions.Select(e => MethodInfo.Create(e.Description)).ToList();
-            stateInfo.DeactivateActions = stateReperesentation.DeactivateActions.Select(e => MethodInfo.Create(e.Description)).ToList();
+            stateInfo.EntryActions = stateReperesentation.EntryActions.Select(e => e.Description).ToList();
+            stateInfo.ActivateActions = stateReperesentation.ActivateActions.Select(e => e.Description).ToList();
+            stateInfo.ExitActions = stateReperesentation.ExitActions.Select(e => e.Description).ToList();
+            stateInfo.DeactivateActions = stateReperesentation.DeactivateActions.Select(e => e.Description).ToList();
 
             return stateInfo;
         }
@@ -105,22 +105,22 @@ namespace Stateless.Reflection
         /// <summary>
         /// Actions that are defined to be executed on state-entry.
         /// </summary>
-        public IEnumerable<MethodInfo> EntryActions { get; private set; }
+        public IEnumerable<MethodDescription> EntryActions { get; private set; }
 
         /// <summary>
         /// Actions that are defined to be executed on activation.
         /// </summary>
-        public IEnumerable<MethodInfo> ActivateActions { get; private set; }
+        public IEnumerable<MethodDescription> ActivateActions { get; private set; }
 
         /// <summary>
         /// Actions that are defined to be executed on deactivation.
         /// </summary>
-        public IEnumerable<MethodInfo> DeactivateActions { get; private set; }
+        public IEnumerable<MethodDescription> DeactivateActions { get; private set; }
 
         /// <summary>
         /// Actions that are defined to be exectuted on state-exit.
         /// </summary>
-        public IEnumerable<MethodInfo> ExitActions { get; private set; }
+        public IEnumerable<MethodDescription> ExitActions { get; private set; }
 
         /// <summary> 
         /// Transitions defined for this state. 

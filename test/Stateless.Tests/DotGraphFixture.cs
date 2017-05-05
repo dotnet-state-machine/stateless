@@ -60,7 +60,7 @@ namespace Stateless.Tests
             Func<bool> anonymousGuard = () => true;
 
             var expected = "digraph {" + System.Environment.NewLine
-                         + " A -> B [label=\"X [" + MethodInfo.DefaultFunctionName +"]\"];" + System.Environment.NewLine
+                         + " A -> B [label=\"X [" + MethodDescription.DefaultFunctionDescription +"]\"];" + System.Environment.NewLine
                          + "}";
 
             var sm = new StateMachine<State, Trigger>(State.A);

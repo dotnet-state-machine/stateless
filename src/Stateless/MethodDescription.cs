@@ -2,18 +2,27 @@
 
 namespace Stateless
 {
-    internal class MethodDescription
+    /// <summary>
+    /// Describes a method - either an action (activate, deactivate, etc.) or a transition guard
+    /// </summary>
+    public class MethodDescription
     {
         readonly string _description;                     // _description can be null if user didn't specify a description
 
+        /// <summary>
+        /// Is the method synchronous or asynchronous?
+        /// </summary>
         public enum Timing
         {
+            /// <summary>Method is synchronous</summary>
             Synchronous,
+
+            /// <summary>Method is asynchronous</summary>
             Asynchronous
         }
         readonly Timing _timing;
 
-        public static MethodDescription Create(Delegate method, string description, Timing timing = Timing.Synchronous)
+        internal static MethodDescription Create(Delegate method, string description, Timing timing = Timing.Synchronous)
         {
             return new MethodDescription(method?.TryGetMethodName(), description, timing);
         }
@@ -32,16 +41,27 @@ namespace Stateless
         public string MethodName { get; private set; }
 
         /// <summary>
-        /// A description of the invoked method.  If the user has specified the description, returns that, otherwise
-        /// returns the name of the invoked method.
+        /// Text returned for compiler-generated functions where the caller has not specified a description
         /// </summary>
-        public string Description { get { return _description ?? MethodName; } }
+        static public string DefaultFunctionDescription { get; set; } = "Function";
 
         /// <summary>
-        /// Returns true if the value returned from ActionDescription is calculated from the action's method,
-        /// false if it is a value specified by the user.
+        /// A description of the invoked method.  Returns:
+        /// 1) The user-specified description, if any
+        /// 2) else if the method name is compiler-generated, returns DefaultFunctionDescription
+        /// 3) else the method name
         /// </summary>
-        public bool DescriptionIsCalculated { get { return (_description == null);  } }
+        public string Description
+        {
+            get
+            {
+                if (_description != null)
+                    return _description;
+                if (MethodName.IndexOfAny(new char[] { '<', '>' }) >= 0)
+                    return DefaultFunctionDescription;
+                return MethodName ?? "<null>";
+            }
+        }
 
         /// <summary>
         /// Returns true if the method is invoked asynchronously.

@@ -439,7 +439,7 @@ namespace Stateless.Tests
             Assert.Equal(0, binding.Substates.Count());
             Assert.Equal(null, binding.Superstate);
             Assert.Equal(1, binding.EntryActions.Count());
-            foreach (MethodInfo entryAction in binding.EntryActions)
+            foreach (MethodDescription entryAction in binding.EntryActions)
             {
                 Assert.Equal("enteredA", entryAction.Description);
             }
@@ -471,7 +471,7 @@ namespace Stateless.Tests
             Assert.Equal(null, binding.Superstate);
             //
             Assert.Equal(1, binding.EntryActions.Count());
-            foreach (MethodInfo entryAction in binding.EntryActions)
+            foreach (MethodDescription entryAction in binding.EntryActions)
                 Assert.Equal("enteredA", entryAction.Description);
             Assert.Equal(0, binding.ExitActions.Count());
             //
@@ -502,7 +502,7 @@ namespace Stateless.Tests
             //
             Assert.Equal(0, binding.EntryActions.Count());
             Assert.Equal(1, binding.ExitActions.Count());
-            foreach (MethodInfo exitAction in binding.ExitActions)
+            foreach (MethodDescription exitAction in binding.ExitActions)
                 Assert.Equal("exitA", exitAction.Description);
             //
             Assert.Equal(0, binding.FixedTransitions.Count()); // Binding count mismatch
@@ -532,7 +532,7 @@ namespace Stateless.Tests
             //
             Assert.Equal(0, binding.EntryActions.Count());
             Assert.Equal(1, binding.ExitActions.Count());
-            foreach (MethodInfo entryAction in binding.ExitActions)
+            foreach (MethodDescription entryAction in binding.ExitActions)
                 Assert.Equal("exitA", entryAction.Description);
             //
             Assert.Equal(0, binding.FixedTransitions.Count()); // Binding count mismatch
@@ -584,29 +584,29 @@ namespace Stateless.Tests
             Assert.Equal(0, binding.DynamicTransitions.Count()); // Dynamic transition count mismatch
         }
 
-        void VerifyMethodNames(IEnumerable<MethodInfo> methods, string prefix, string body, State state, MethodDescription.Timing timing)
+        void VerifyMethodNames(IEnumerable<MethodDescription> methods, string prefix, string body, State state, MethodDescription.Timing timing)
         {
             Assert.Equal(1, methods.Count());
-            MethodInfo method = methods.First();
+            MethodDescription method = methods.First();
 
             if (state == State.A)
                 Assert.Equal(prefix + body + ((timing == MethodDescription.Timing.Asynchronous) ? "Async" : ""), method.Description);
             else if (state == State.B)
                 Assert.Equal(UserDescription + "B-" + body, method.Description);
             else if (state == State.C)
-                Assert.Equal(MethodInfo.DefaultFunctionName, method.Description);
+                Assert.Equal(MethodDescription.DefaultFunctionDescription, method.Description);
             else if (state == State.D)
                 Assert.Equal(UserDescription + "D-" + body, method.Description);
 
             Assert.Equal(timing == MethodDescription.Timing.Asynchronous, method.IsAsync);
         }
 
-        void VerifyMethodNameses(IEnumerable<MethodInfo> methods, string prefix, string body, State state,
+        void VerifyMethodNameses(IEnumerable<MethodDescription> methods, string prefix, string body, State state,
             MethodDescription.Timing timing, HashSet<string> suffixes)
         {
             Assert.Equal(suffixes.Count, methods.Count());
 
-            foreach (MethodInfo method in methods)
+            foreach (MethodDescription method in methods)
             {
                 Debug.WriteLine("Method description is \"" + method.Description + "\"");
                 //
@@ -621,7 +621,7 @@ namespace Stateless.Tests
                     else if (state == State.B)
                         matches = (UserDescription + "B-" + body + suffix == method.Description);
                     else if (state == State.C)
-                        matches = (MethodInfo.DefaultFunctionName == method.Description);
+                        matches = (MethodDescription.DefaultFunctionDescription == method.Description);
                     else if (state == State.D)
                         matches = (UserDescription + "D-" + body + suffix == method.Description);
                     //

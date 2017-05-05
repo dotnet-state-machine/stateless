@@ -55,13 +55,13 @@ namespace Stateless.DotGraph
 
                     foreach (var entryActionBehaviour in binding.EntryActions)
                     {
-                        string line = string.Format(" {0} -> \"{1}\" [label=\"On Entry\" style=dotted];", source, entryActionBehaviour);
+                        string line = string.Format(" {0} -> \"{1}\" [label=\"On Entry\" style=dotted];", source, entryActionBehaviour.Description);
                         lines.Add(line);
                     }
 
                     foreach (var exitActionBehaviour in binding.ExitActions)
                     {
-                        string line = string.Format(" {0} -> \"{1}\" [label=\"On Exit\" style=dotted];", source, exitActionBehaviour);
+                        string line = string.Format(" {0} -> \"{1}\" [label=\"On Exit\" style=dotted];", source, exitActionBehaviour.Description);
                         lines.Add(line);
                     }
                 }
