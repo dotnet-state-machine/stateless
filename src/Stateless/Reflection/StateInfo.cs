@@ -45,10 +45,15 @@ namespace Stateless.Reflection
             {
                 int unknowns = 0;
                 // First add all the deterministic transitions
-                foreach (var item in triggerBehaviours.Value.Where(behaviour => ((behaviour is StateMachine<TState, TTrigger>.TransitioningTriggerBehaviour)
-                                                                              || (behaviour is StateMachine<TState, TTrigger>.InternalTriggerBehaviour))))
+                foreach (var item in triggerBehaviours.Value.Where(behaviour => (behaviour is StateMachine<TState, TTrigger>.TransitioningTriggerBehaviour)))
                 {
                     var destinationInfo = lookupState(((StateMachine<TState, TTrigger>.TransitioningTriggerBehaviour)item).Destination);
+                    fixedTransitions.Add(FixedTransitionInfo.Create(item, destinationInfo));
+                }
+                //Then add all the internal transitions
+                foreach (var item in triggerBehaviours.Value.Where(behaviour => (behaviour is StateMachine<TState, TTrigger>.InternalTriggerBehaviour)))
+                {
+                    var destinationInfo = lookupState(stateReperesentation.UnderlyingState);
                     fixedTransitions.Add(FixedTransitionInfo.Create(item, destinationInfo));
                 }
                 // Then add all the dynamic transitions
