@@ -25,13 +25,12 @@ namespace Stateless.Reflection
                 }
             }
 
-            StateInfo stateInfo = new StateInfo(stateReperesentation.UnderlyingState, ignoredTriggers);
-
-            stateInfo.EntryActions = stateReperesentation.EntryActions.Select(e => e.Description).ToList();
-            stateInfo.ActivateActions = stateReperesentation.ActivateActions.Select(e => e.Description).ToList();
-            stateInfo.ExitActions = stateReperesentation.ExitActions.Select(e => e.Description).ToList();
-            stateInfo.DeactivateActions = stateReperesentation.DeactivateActions.Select(e => e.Description).ToList();
-
+            StateInfo stateInfo = new StateInfo(stateReperesentation.UnderlyingState, ignoredTriggers,
+                stateReperesentation.EntryActions.Select(e => e.Description).ToList(),
+                stateReperesentation.ActivateActions.Select(e => e.Description).ToList(),
+                stateReperesentation.DeactivateActions.Select(e => e.Description).ToList(),
+                stateReperesentation.ExitActions.Select(e => e.Description).ToList());
+       
             return stateInfo;
         }
 
@@ -69,10 +68,18 @@ namespace Stateless.Reflection
 
         private StateInfo(
             object underlyingState,
-            IEnumerable<TriggerInfo> ignoredTriggers)
+            IEnumerable<TriggerInfo> ignoredTriggers,
+            IEnumerable<MethodDescription> entryActions,
+            IEnumerable<MethodDescription> activateActions,
+            IEnumerable<MethodDescription> deactivateActions,
+            IEnumerable<MethodDescription> exitActions)
         {
             UnderlyingState = underlyingState;
             IgnoredTriggers = ignoredTriggers ?? throw new ArgumentNullException(nameof(ignoredTriggers));
+            EntryActions = entryActions;
+            ActivateActions = activateActions;
+            DeactivateActions = deactivateActions;
+            ExitActions = exitActions;
         }
 
         private void AddRelationships(

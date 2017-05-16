@@ -12,7 +12,7 @@ namespace Stateless
         /// <summary>
         /// Is the method synchronous or asynchronous?
         /// </summary>
-        public enum Timing
+        internal enum Timing
         {
             /// <summary>Method is synchronous</summary>
             Synchronous,
