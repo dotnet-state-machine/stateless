@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
-namespace Stateless
+namespace Stateless.Reflection
 {
     /// <summary>
     /// Describes a method - either an action (activate, deactivate, etc.) or a transition guard
     /// </summary>
-    public class MethodDescription
+    public class InvocationInfo
     {
         readonly string _description;                     // _description can be null if user didn't specify a description
 
@@ -22,12 +24,12 @@ namespace Stateless
         }
         readonly Timing _timing;
 
-        internal static MethodDescription Create(Delegate method, string description, Timing timing = Timing.Synchronous)
+        internal static InvocationInfo Create(Delegate method, string description, Timing timing = Timing.Synchronous)
         {
-            return new MethodDescription(method?.TryGetMethodName(), description, timing);
+            return new InvocationInfo(method?.TryGetMethodName(), description, timing);
         }
 
-        MethodDescription(string methodName, string description, Timing timing)      // description can be null if user didn't specify a description
+        InvocationInfo(string methodName, string description, Timing timing)      // description can be null if user didn't specify a description
         {
             MethodName = methodName;
             _description = description;

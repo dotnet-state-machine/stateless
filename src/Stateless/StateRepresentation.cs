@@ -89,7 +89,7 @@ namespace Stateless
                 return actual
                     .FirstOrDefault();
             }
-            public void AddActivateAction(Action action, MethodDescription activateActionDescription)
+            public void AddActivateAction(Action action, Reflection.InvocationInfo activateActionDescription)
             {
                 _activateActions.Add(
                     new ActivateActionBehaviour.Sync(
@@ -98,7 +98,7 @@ namespace Stateless
                         Enforce.ArgumentNotNull(activateActionDescription, nameof(activateActionDescription))));
             }
 
-            public void AddDeactivateAction(Action action, MethodDescription deactivateActionDescription)
+            public void AddDeactivateAction(Action action, Reflection.InvocationInfo deactivateActionDescription)
             {
                 _deactivateActions.Add(
                     new DeactivateActionBehaviour.Sync(
@@ -107,7 +107,7 @@ namespace Stateless
                         Enforce.ArgumentNotNull(deactivateActionDescription, nameof(deactivateActionDescription))));
             }
 
-            public void AddEntryAction(TTrigger trigger, Action<Transition, object[]> action, MethodDescription entryActionDescription)
+            public void AddEntryAction(TTrigger trigger, Action<Transition, object[]> action, Reflection.InvocationInfo entryActionDescription)
             {
                 Enforce.ArgumentNotNull(action, nameof(action));
                 _entryActions.Add(
@@ -117,7 +117,7 @@ namespace Stateless
                     ));
             }
 
-            public void AddEntryAction(Action<Transition, object[]> action, MethodDescription entryActionDescription)
+            public void AddEntryAction(Action<Transition, object[]> action, Reflection.InvocationInfo entryActionDescription)
             {
                 _entryActions.Add(
                     new EntryActionBehavior.Sync(
@@ -125,7 +125,7 @@ namespace Stateless
                         Enforce.ArgumentNotNull(entryActionDescription, nameof(entryActionDescription))));
             }
 
-            public void AddExitAction(Action<Transition> action, MethodDescription exitActionDescription)
+            public void AddExitAction(Action<Transition> action, Reflection.InvocationInfo exitActionDescription)
             {
                 _exitActions.Add(
                     new ExitActionBehavior.Sync(

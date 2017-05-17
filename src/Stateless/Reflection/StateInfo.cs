@@ -69,10 +69,10 @@ namespace Stateless.Reflection
         private StateInfo(
             object underlyingState,
             IEnumerable<TriggerInfo> ignoredTriggers,
-            IEnumerable<MethodDescription> entryActions,
-            IEnumerable<MethodDescription> activateActions,
-            IEnumerable<MethodDescription> deactivateActions,
-            IEnumerable<MethodDescription> exitActions)
+            IEnumerable<InvocationInfo> entryActions,
+            IEnumerable<InvocationInfo> activateActions,
+            IEnumerable<InvocationInfo> deactivateActions,
+            IEnumerable<InvocationInfo> exitActions)
         {
             UnderlyingState = underlyingState;
             IgnoredTriggers = ignoredTriggers ?? throw new ArgumentNullException(nameof(ignoredTriggers));
@@ -112,22 +112,22 @@ namespace Stateless.Reflection
         /// <summary>
         /// Actions that are defined to be executed on state-entry.
         /// </summary>
-        public IEnumerable<MethodDescription> EntryActions { get; private set; }
+        public IEnumerable<InvocationInfo> EntryActions { get; private set; }
 
         /// <summary>
         /// Actions that are defined to be executed on activation.
         /// </summary>
-        public IEnumerable<MethodDescription> ActivateActions { get; private set; }
+        public IEnumerable<InvocationInfo> ActivateActions { get; private set; }
 
         /// <summary>
         /// Actions that are defined to be executed on deactivation.
         /// </summary>
-        public IEnumerable<MethodDescription> DeactivateActions { get; private set; }
+        public IEnumerable<InvocationInfo> DeactivateActions { get; private set; }
 
         /// <summary>
         /// Actions that are defined to be exectuted on state-exit.
         /// </summary>
-        public IEnumerable<MethodDescription> ExitActions { get; private set; }
+        public IEnumerable<InvocationInfo> ExitActions { get; private set; }
 
         /// <summary> 
         /// Transitions defined for this state. 

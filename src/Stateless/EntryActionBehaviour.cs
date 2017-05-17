@@ -10,14 +10,14 @@ namespace Stateless
     {
         internal abstract class EntryActionBehavior
         {
-            MethodDescription _description;
+            Reflection.InvocationInfo _description;
 
-            protected EntryActionBehavior(MethodDescription description)
+            protected EntryActionBehavior(Reflection.InvocationInfo description)
             {
                 _description = description;
             }
 
-            public MethodDescription Description => _description;
+            public Reflection.InvocationInfo Description => _description;
 
             public abstract void Execute(Transition transition, object[] args);
             public abstract Task ExecuteAsync(Transition transition, object[] args);
@@ -26,7 +26,7 @@ namespace Stateless
             {
                 readonly Action<Transition, object[]> _action;
 
-                public Sync(Action<Transition, object[]> action, MethodDescription description) : base(description)
+                public Sync(Action<Transition, object[]> action, Reflection.InvocationInfo description) : base(description)
                 {
                     Enforce.Equals(description.IsAsync, false);
                     _action = action;
@@ -48,7 +48,7 @@ namespace Stateless
             {
                 TTriggerType _trigger;
 
-                public SyncFrom(TTriggerType trigger, Action<Transition, object[]> action, MethodDescription description)
+                public SyncFrom(TTriggerType trigger, Action<Transition, object[]> action, Reflection.InvocationInfo description)
                     : base(action, description)
                 {
                     _trigger = trigger;
@@ -71,7 +71,7 @@ namespace Stateless
             {
                 readonly Func<Transition, object[], Task> _action;
 
-                public Async(Func<Transition, object[], Task> action, MethodDescription description) : base(description)
+                public Async(Func<Transition, object[], Task> action, Reflection.InvocationInfo description) : base(description)
                 {
                     Enforce.Equals(description.IsAsync, true);
                     _action = action;

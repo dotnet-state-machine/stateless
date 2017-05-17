@@ -11,7 +11,7 @@ namespace Stateless
     {
         internal partial class StateRepresentation
         {
-            public void AddActivateAction(Func<Task> action, MethodDescription activateActionDescription)
+            public void AddActivateAction(Func<Task> action, Reflection.InvocationInfo activateActionDescription)
             {
                 _activateActions.Add(
                     new ActivateActionBehaviour.Async(
@@ -20,7 +20,7 @@ namespace Stateless
                         Enforce.ArgumentNotNull(activateActionDescription, nameof(activateActionDescription))));
             }
 
-            public void AddDeactivateAction(Func<Task> action, MethodDescription deactivateActionDescription)
+            public void AddDeactivateAction(Func<Task> action, Reflection.InvocationInfo deactivateActionDescription)
             {
                 _deactivateActions.Add(
                     new DeactivateActionBehaviour.Async(
@@ -29,7 +29,7 @@ namespace Stateless
                         Enforce.ArgumentNotNull(deactivateActionDescription, nameof(deactivateActionDescription))));
             }
 
-            public void AddEntryAction(TTrigger trigger, Func<Transition, object[], Task> action, MethodDescription entryActionDescription)
+            public void AddEntryAction(TTrigger trigger, Func<Transition, object[], Task> action, Reflection.InvocationInfo entryActionDescription)
             {
                 Enforce.ArgumentNotNull(action, nameof(action));
                 _entryActions.Add(
@@ -43,7 +43,7 @@ namespace Stateless
                     entryActionDescription));
             }
 
-            public void AddEntryAction(Func<Transition, object[], Task> action, MethodDescription entryActionDescription)
+            public void AddEntryAction(Func<Transition, object[], Task> action, Reflection.InvocationInfo entryActionDescription)
             {
                 _entryActions.Add(
                     new EntryActionBehavior.Async(
@@ -51,7 +51,7 @@ namespace Stateless
                         Enforce.ArgumentNotNull(entryActionDescription, nameof(entryActionDescription))));
             }
 
-            public void AddExitAction(Func<Transition, Task> action, MethodDescription exitActionDescription)
+            public void AddExitAction(Func<Transition, Task> action, Reflection.InvocationInfo exitActionDescription)
             {
                 _exitActions.Add(
                     new ExitActionBehavior.Async(
