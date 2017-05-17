@@ -28,12 +28,14 @@ namespace Stateless.DotGraph
                 var source = binding.ToString();
                 foreach (var transition in binding.FixedTransitions)
                 {
-                    HandleTransitions(ref lines, source, transition.Trigger.ToString(), transition.DestinationState.ToString(), transition.GuardDescription);
+                    string guardConditionsMethods = string.Join(", ", transition.GuardConditionsMethodDescriptions.Select(d => d.Description));
+                    HandleTransitions(ref lines, source, transition.Trigger.ToString(), transition.DestinationState.ToString(), guardConditionsMethods);
                 }
                 
                 foreach (var transition in binding.DynamicTransitions)
                 {
-                    HandleTransitions(ref lines, source, transition.Trigger.ToString(), transition.Destination, transition.GuardDescription);
+                    string guardConditionsMethods = string.Join(", ", transition.GuardConditionsMethodDescriptions.Select(d => d.Description));
+                    HandleTransitions(ref lines, source, transition.Trigger.ToString(), transition.Destination, guardConditionsMethods);
                 }
             }
 
@@ -53,13 +55,13 @@ namespace Stateless.DotGraph
 
                     foreach (var entryActionBehaviour in binding.EntryActions)
                     {
-                        string line = string.Format(" {0} -> \"{1}\" [label=\"On Entry\" style=dotted];", source, entryActionBehaviour);
+                        string line = string.Format(" {0} -> \"{1}\" [label=\"On Entry\" style=dotted];", source, entryActionBehaviour.Description);
                         lines.Add(line);
                     }
 
                     foreach (var exitActionBehaviour in binding.ExitActions)
                     {
-                        string line = string.Format(" {0} -> \"{1}\" [label=\"On Exit\" style=dotted];", source, exitActionBehaviour);
+                        string line = string.Format(" {0} -> \"{1}\" [label=\"On Exit\" style=dotted];", source, exitActionBehaviour.Description);
                         lines.Add(line);
                     }
                 }

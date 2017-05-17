@@ -1,4 +1,6 @@
-﻿namespace Stateless.Reflection
+﻿using System.Collections.Generic;
+
+namespace Stateless.Reflection
 {
     /// <summary>
     /// 
@@ -11,8 +13,9 @@
         public TriggerInfo Trigger { get; protected set; }
 
         /// <summary>
-        /// Description of provided guard clause, if any.
+        /// Method descriptions of the guard conditions.
+        /// Returns a non-null but empty list if there are no guard conditions
         /// </summary>
-        public string GuardDescription { get; protected set; }
+        public IEnumerable<InvocationInfo> GuardConditionsMethodDescriptions;
     }
 }

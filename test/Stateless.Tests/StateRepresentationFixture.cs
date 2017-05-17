@@ -16,7 +16,7 @@ namespace Stateless.Tests
             StateMachine<State, Trigger>.Transition
                 transition = new StateMachine<State, Trigger>.Transition(State.A, State.B, Trigger.X),
                 actualTransition = null;
-            stateRepresentation.AddEntryAction((t, a) => actualTransition = t, "entryActionDescription");
+            stateRepresentation.AddEntryAction((t, a) => actualTransition = t, Reflection.InvocationInfo.Create(null, "entryActionDescription"));
             stateRepresentation.Enter(transition);
             Assert.Equal(transition, actualTransition);
         }
@@ -28,7 +28,7 @@ namespace Stateless.Tests
             StateMachine<State, Trigger>.Transition
                 transition = new StateMachine<State, Trigger>.Transition(State.A, State.B, Trigger.X),
                 actualTransition = null;
-            stateRepresentation.AddEntryAction((t, a) => actualTransition = t, "entryActionDescription");
+            stateRepresentation.AddEntryAction((t, a) => actualTransition = t, Reflection.InvocationInfo.Create(null, "entryActionDescription"));
             stateRepresentation.Exit(transition);
             Assert.Null(actualTransition);
         }
@@ -40,7 +40,7 @@ namespace Stateless.Tests
             StateMachine<State, Trigger>.Transition
                 transition = new StateMachine<State, Trigger>.Transition(State.A, State.B, Trigger.X),
                 actualTransition = null;
-            stateRepresentation.AddExitAction(t => actualTransition = t, "entryActionDescription");
+            stateRepresentation.AddExitAction(t => actualTransition = t, Reflection.InvocationInfo.Create(null, "entryActionDescription"));
             stateRepresentation.Exit(transition);
             Assert.Equal(transition, actualTransition);
         }
@@ -52,7 +52,7 @@ namespace Stateless.Tests
             StateMachine<State, Trigger>.Transition
                 transition = new StateMachine<State, Trigger>.Transition(State.A, State.B, Trigger.X),
                 actualTransition = null;
-            stateRepresentation.AddExitAction(t => actualTransition = t, "exitActionDescription");
+            stateRepresentation.AddExitAction(t => actualTransition = t, Reflection.InvocationInfo.Create(null, "exitActionDescription"));
             stateRepresentation.Enter(transition);
             Assert.Null(actualTransition);
         }
@@ -125,7 +125,7 @@ namespace Stateless.Tests
             CreateSuperSubstatePair(out super, out sub);
 
             var executed = false;
-            sub.AddEntryAction((t, a) => executed = true, "entryActionDescription");
+            sub.AddEntryAction((t, a) => executed = true, Reflection.InvocationInfo.Create(null, "entryActionDescription"));
             var transition = new StateMachine<State, Trigger>.Transition(super.UnderlyingState, sub.UnderlyingState, Trigger.X);
             sub.Enter(transition);
             Assert.True(executed);
@@ -139,7 +139,7 @@ namespace Stateless.Tests
             CreateSuperSubstatePair(out super, out sub);
 
             var executed = false;
-            sub.AddExitAction(t => executed = true, "exitActionDescription");
+            sub.AddExitAction(t => executed = true, Reflection.InvocationInfo.Create(null, "exitActionDescription"));
             var transition = new StateMachine<State, Trigger>.Transition(sub.UnderlyingState, super.UnderlyingState, Trigger.X);
             sub.Exit(transition);
             Assert.True(executed);
@@ -153,7 +153,7 @@ namespace Stateless.Tests
             CreateSuperSubstatePair(out super, out sub);
 
             var executed = false;
-            super.AddEntryAction((t, a) => executed = true, "entryActionDescription");
+            super.AddEntryAction((t, a) => executed = true, Reflection.InvocationInfo.Create(null, "entryActionDescription"));
             var transition = new StateMachine<State, Trigger>.Transition(super.UnderlyingState, sub.UnderlyingState, Trigger.X);
             super.Enter(transition);
             Assert.False(executed);
@@ -167,7 +167,7 @@ namespace Stateless.Tests
             CreateSuperSubstatePair(out super, out sub);
 
             var executed = false;
-            super.AddExitAction(t => executed = true, "exitActionDescription");
+            super.AddExitAction(t => executed = true, Reflection.InvocationInfo.Create(null, "exitActionDescription"));
             var transition = new StateMachine<State, Trigger>.Transition(super.UnderlyingState, sub.UnderlyingState, Trigger.X);
             super.Exit(transition);
             Assert.False(executed);
@@ -181,7 +181,7 @@ namespace Stateless.Tests
             CreateSuperSubstatePair(out super, out sub);
 
             var executed = false;
-            super.AddEntryAction((t, a) => executed = true, "entryActionDescription");
+            super.AddEntryAction((t, a) => executed = true, Reflection.InvocationInfo.Create(null, "entryActionDescription"));
             var transition = new StateMachine<State, Trigger>.Transition(State.C, sub.UnderlyingState, Trigger.X);
             sub.Enter(transition);
             Assert.True(executed);
@@ -195,7 +195,7 @@ namespace Stateless.Tests
             CreateSuperSubstatePair(out super, out sub);
 
             var executed = false;
-            super.AddExitAction(t => executed = true, "exitActionDescription");
+            super.AddExitAction(t => executed = true, Reflection.InvocationInfo.Create(null, "exitActionDescription"));
             var transition = new StateMachine<State, Trigger>.Transition(sub.UnderlyingState, State.C, Trigger.X);
             sub.Exit(transition);
             Assert.True(executed);
@@ -207,8 +207,8 @@ namespace Stateless.Tests
             var actual = new List<int>();
 
             var rep = CreateRepresentation(State.B);
-            rep.AddEntryAction((t, a) => actual.Add(0), "entryActionDescription");
-            rep.AddEntryAction((t, a) => actual.Add(1), "entryActionDescription");
+            rep.AddEntryAction((t, a) => actual.Add(0), Reflection.InvocationInfo.Create(null, "entryActionDescription"));
+            rep.AddEntryAction((t, a) => actual.Add(1), Reflection.InvocationInfo.Create(null, "entryActionDescription"));
 
             rep.Enter(new StateMachine<State, Trigger>.Transition(State.A, State.B, Trigger.X));
 
@@ -223,8 +223,8 @@ namespace Stateless.Tests
             var actual = new List<int>();
 
             var rep = CreateRepresentation(State.B);
-            rep.AddExitAction(t => actual.Add(0), "entryActionDescription");
-            rep.AddExitAction(t => actual.Add(1), "entryActionDescription");
+            rep.AddExitAction(t => actual.Add(0), Reflection.InvocationInfo.Create(null, "entryActionDescription"));
+            rep.AddExitAction(t => actual.Add(1), Reflection.InvocationInfo.Create(null, "entryActionDescription"));
 
             rep.Exit(new StateMachine<State, Trigger>.Transition(State.B, State.C, Trigger.X));
 
@@ -244,7 +244,7 @@ namespace Stateless.Tests
         public void WhenTransitionDoesNotExist_TriggerCanBeFired()
         {
             var rep = CreateRepresentation(State.B);
-            rep.AddTriggerBehaviour(new StateMachine<State, Trigger>.IgnoredTriggerBehaviour(Trigger.X, () => true));
+            rep.AddTriggerBehaviour(new StateMachine<State, Trigger>.IgnoredTriggerBehaviour(Trigger.X, null));
             Assert.True(rep.CanHandle(Trigger.X));
         }
 
@@ -252,7 +252,7 @@ namespace Stateless.Tests
         public void WhenTransitionExistsInSupersate_TriggerCanBeFired()
         {
             var rep = CreateRepresentation(State.B);
-            rep.AddTriggerBehaviour(new StateMachine<State, Trigger>.IgnoredTriggerBehaviour(Trigger.X, () => true));
+            rep.AddTriggerBehaviour(new StateMachine<State, Trigger>.IgnoredTriggerBehaviour(Trigger.X, null));
             var sub = CreateRepresentation(State.C);
             sub.Superstate = rep;
             rep.AddSubstate(sub);
@@ -267,8 +267,8 @@ namespace Stateless.Tests
             CreateSuperSubstatePair(out super, out sub);
 
             int order = 0, subOrder = 0, superOrder = 0;
-            super.AddEntryAction((t, a) => superOrder = order++, "entryActionDescription");
-            sub.AddEntryAction((t, a) => subOrder = order++, "entryActionDescription");
+            super.AddEntryAction((t, a) => superOrder = order++, Reflection.InvocationInfo.Create(null, "entryActionDescription"));
+            sub.AddEntryAction((t, a) => subOrder = order++, Reflection.InvocationInfo.Create(null, "entryActionDescription"));
             var transition = new StateMachine<State, Trigger>.Transition(State.C, sub.UnderlyingState, Trigger.X);
             sub.Enter(transition);
             Assert.True(superOrder < subOrder);
@@ -282,8 +282,8 @@ namespace Stateless.Tests
             CreateSuperSubstatePair(out super, out sub);
 
             int order = 0, subOrder = 0, superOrder = 0;
-            super.AddExitAction(t => superOrder = order++, "entryActionDescription");
-            sub.AddExitAction(t => subOrder = order++, "entryActionDescription");
+            super.AddExitAction(t => superOrder = order++, Reflection.InvocationInfo.Create(null, "entryActionDescription"));
+            sub.AddExitAction(t => subOrder = order++, Reflection.InvocationInfo.Create(null, "entryActionDescription"));
             var transition = new StateMachine<State, Trigger>.Transition(sub.UnderlyingState, State.C, Trigger.X);
             sub.Exit(transition);
             Assert.True(subOrder < superOrder);

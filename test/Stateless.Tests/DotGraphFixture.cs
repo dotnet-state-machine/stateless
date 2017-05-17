@@ -59,12 +59,8 @@ namespace Stateless.Tests
         {
             Func<bool> anonymousGuard = () => true;
 
-            // TODO: Does the spec specify that when you have a guard function, the
-            // description will be the result of TryGetMethodName()?  If not, we
-            // shouldn't test for that exact value
-
             var expected = "digraph {" + System.Environment.NewLine
-                         + " A -> B [label=\"X ["+ anonymousGuard.TryGetMethodName() +"]\"];" + System.Environment.NewLine
+                         + " A -> B [label=\"X [" + InvocationInfo.DefaultFunctionDescription +"]\"];" + System.Environment.NewLine
                          + "}";
 
             var sm = new StateMachine<State, Trigger>(State.A);
