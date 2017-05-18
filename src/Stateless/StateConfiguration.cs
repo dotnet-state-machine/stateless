@@ -48,6 +48,30 @@ namespace Stateless
             }
 
             /// <summary>
+            /// Accept the specified trigger and transition to the destination state, executing
+            /// the specified action.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationState">The state that the trigger will cause a
+            /// transition to.</param>
+            /// <param name="triggerAction">Action to execute when the trigger is fired.</param>
+            /// <param name="triggerActionDescription">Action description.</param>
+            /// <returns>The reciever.</returns>
+            public StateConfiguration Permit(TTrigger trigger, TState destinationState, Action triggerAction, string triggerActionDescription = null)
+            {
+                EnforceNotIdentityTransition(destinationState);
+                if (triggerAction == null) throw new ArgumentNullException(nameof(triggerAction));
+                _representation.AddTriggerBehaviour(
+                    new TransitioningTriggerBehaviour(
+                        trigger,
+                        destinationState,
+                        null,               // No guard function
+                        triggerAction,
+                        Reflection.InvocationInfo.Create(triggerAction, triggerActionDescription)));
+                return this;
+            }
+
+            /// <summary>
             /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
             /// </summary>
             /// <param name="trigger"></param>
@@ -239,7 +263,8 @@ namespace Stateless
             /// trigger to be accepted.</param>
             /// <param name="guardDescription">Guard description</param>
             /// <returns>The reciever.</returns>
-            public StateConfiguration PermitIf(TTrigger trigger, TState destinationState, Func<bool> guard, string guardDescription = null)
+            public StateConfiguration PermitIf(TTrigger trigger, TState destinationState,
+                Func<bool> guard, string guardDescription = null)
             {
                 EnforceNotIdentityTransition(destinationState);
 
@@ -247,6 +272,53 @@ namespace Stateless
                     trigger,
                     destinationState,
                     new TransitionGuard(guard, guardDescription));
+            }
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationState">The state that the trigger will cause a
+            /// transition to.</param>
+            /// <param name="guard">Function that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <param name="guardDescription">Guard description</param>
+            /// <param name="triggerAction">Action to execute when the trigger is fired.</param>
+            /// <param name="triggerActionDescription">Action description.</param>
+            /// <returns>The reciever.</returns>
+            public StateConfiguration PermitIf(TTrigger trigger, TState destinationState,
+                Func<bool> guard, string guardDescription,
+                Action triggerAction, string triggerActionDescription = null)
+            {
+                EnforceNotIdentityTransition(destinationState);
+                if (triggerAction == null) throw new ArgumentNullException(nameof(triggerAction));
+
+                _representation.AddTriggerBehaviour(
+                    new TransitioningTriggerBehaviour(
+                        trigger,
+                        destinationState,
+                        new TransitionGuard(guard, guardDescription),
+                        triggerAction,
+                        Reflection.InvocationInfo.Create(triggerAction, triggerActionDescription)
+                        )
+                    );
+                return this;
+            }
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationState">The state that the trigger will cause a
+            /// transition to.</param>
+            /// <param name="guard">Function that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <param name="triggerAction">Action to execute when the trigger is fired.</param>
+            /// <param name="triggerActionDescription">Action description.</param>
+            /// <returns>The reciever.</returns>
+            public StateConfiguration PermitIf(TTrigger trigger, TState destinationState,
+                Func<bool> guard, 
+                Action triggerAction, string triggerActionDescription = null)
+            {
+                return PermitIf(trigger, destinationState, guard, null, triggerAction, triggerActionDescription);
             }
             /// <summary>
             /// Accept the specified trigger and transition to the destination state.

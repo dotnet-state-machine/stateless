@@ -286,6 +286,8 @@ namespace Stateless
             TState destination;
             if (result.Handler.ResultsInTransitionFrom(source, args, out destination))
             {
+                result.Handler.IsFiring();
+
                 var transition = new Transition(source, destination, trigger);
 
                 representativeState.Exit(transition);

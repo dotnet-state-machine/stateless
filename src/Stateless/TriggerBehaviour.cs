@@ -51,6 +51,9 @@ namespace Stateless
             public ICollection<string> UnmetGuardConditions => _guard.UnmetGuardConditions;
 
             public abstract bool ResultsInTransitionFrom(TState source, object[] args, out TState destination);
+
+            public virtual void IsFiring()
+            { }
         }
     }
 }
