@@ -725,7 +725,7 @@ namespace Stateless
             /// <param name="exitAction">Action to execute.</param>
             /// <param name="exitActionDescription">Action description.</param>
             /// <returns>The receiver.</returns>
-            public StateConfiguration OnExitFrom(TTrigger trigger, Action exitAction, string exitActionDescription = null)
+            public StateConfiguration OnExitBy(TTrigger trigger, Action exitAction, string exitActionDescription = null)
             {
                 Enforce.ArgumentNotNull(exitAction, nameof(exitAction));
 

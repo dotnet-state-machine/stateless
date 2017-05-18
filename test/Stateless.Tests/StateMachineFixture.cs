@@ -415,13 +415,13 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        public void ActionOnExitFrom()
+        public void ActionOnExitBy()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
             bool fired = false;
 
             sm.Configure(State.A)
-                .Permit(Trigger.X, State.B).OnExitFrom(Trigger.X, () => fired = true);
+                .Permit(Trigger.X, State.B).OnExitBy(Trigger.X, () => fired = true);
 
             sm.Fire(Trigger.X);
 
@@ -445,16 +445,16 @@ namespace Stateless.Tests
             Assert.Equal(value, 1);
         }
 
-        // OnExitFrom doesn't work as well with PermitIf():
+        // OnExitBy doesn't work as well with PermitIf():
         //[Fact]
-        //public void ActionOnExitFromIf()
+        //public void ActionOnExitByIf()
         //{
         //    var sm = new StateMachine<State, Trigger>(State.A);
         //    int value = 0;
 
         //    sm.Configure(State.A)
-        //        .PermitIf(Trigger.X, State.B, () => true).OnExitFrom(Trigger.X, () => value = 1)
-        //        .PermitIf(Trigger.X, State.C, () => false).OnExitFrom(Trigger.X,  () => value = 2);
+        //        .PermitIf(Trigger.X, State.B, () => true).OnExitBy(Trigger.X, () => value = 1)
+        //        .PermitIf(Trigger.X, State.C, () => false).OnExitBy(Trigger.X,  () => value = 2);
 
         //    sm.Fire(Trigger.X);
 
