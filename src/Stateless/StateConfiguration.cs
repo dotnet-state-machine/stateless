@@ -718,6 +718,29 @@ namespace Stateless
             }
 
             /// <summary>
+            /// Specify an action that will execute when transitioning from
+            /// the configured state.
+            /// </summary>
+            /// <param name="trigger">The trigger by which the state must be exited in order for the action to execute.</param>
+            /// <param name="exitAction">Action to execute.</param>
+            /// <param name="exitActionDescription">Action description.</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration OnExitFrom(TTrigger trigger, Action exitAction, string exitActionDescription = null)
+            {
+                Enforce.ArgumentNotNull(exitAction, nameof(exitAction));
+
+                // Downside of doing it this way: the reflection API won't be able to tell
+                // that this action is only performed for the specific trigger
+
+                _representation.AddExitAction(
+                    (t) => { if (t.Trigger.Equals(trigger)) exitAction(); },
+                    Reflection.InvocationInfo.Create(exitAction, exitActionDescription));
+                return this;
+
+            }
+
+
+            /// <summary>
             /// Sets the superstate that the configured state is a substate of.
             /// </summary>
             /// <remarks>
