@@ -9,10 +9,11 @@ namespace Stateless.DotGraph
     /// </summary>
     public class DotGraphFormatter
     {
+        IDotGraphStyle _style;
+
         Dictionary<string, string> clusterDictionary;
         List<string> _handledStates;
         List<string> _formattedNodesList;
-        FormatList _nodeShapeState;
         FormatList _clusterFormat;
         FormatList _edgeShape;
         FormatList _exitEdges;
@@ -20,11 +21,10 @@ namespace Stateless.DotGraph
         /// <summary>
         /// Constructor
         /// </summary>
-        public DotGraphFormatter()
+        public DotGraphFormatter(IDotGraphStyle style)
         {
-            _nodeShapeState = new FormatList()
-                .Add(new Shape(ShapeType.Mrecord))
-                .Add(new Color(HtmlColor.blue));
+            _style = style;
+
             _clusterFormat = new FormatList()
                 .Add(new Label("placeholder"));
             _edgeShape = new FormatList()
@@ -49,7 +49,7 @@ namespace Stateless.DotGraph
 
             FillClusterNames(machineInfo);
 
-            string dirgraphText = $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}";
+            string dirgraphText = _style.GetPrefix().Replace("\n", System.Environment.NewLine);
 
             // Start with the clusters
             foreach (StateInfo stateInfo in machineInfo.States.Where(v => v.Substates.Count() > 0))
@@ -118,10 +118,14 @@ namespace Stateless.DotGraph
 
             if (stateInfo.Substates != null && stateInfo.Substates.Count() > 0)
             {
-                stateRepresentationString +=
-                    $"{System.Environment.NewLine}subgraph {ResolveEntityName(sourceName)}  {{{System.Environment.NewLine} \tlabel = \"{sourceName}\"  {System.Environment.NewLine}";
+                stateRepresentationString = System.Environment.NewLine
+                    + $"subgraph {ResolveEntityName(sourceName)}" + System.Environment.NewLine
+                    + "\t{" + System.Environment.NewLine
+                    + $"\tlabel = \"{sourceName}\"" + System.Environment.NewLine;
+
                 // The parent node needs to be added to the cluster so that we can draw edges on the cluster borders
                 stateRepresentationString += StateRepresentationString(stateInfo, sourceName);
+
                 stateRepresentationString = stateInfo.Substates.Aggregate(stateRepresentationString,
                     (current, subStateRepresentation) => current + BuildNodesRepresentation(subStateRepresentation));
 
@@ -139,32 +143,7 @@ namespace Stateless.DotGraph
 
         private string StateRepresentationString(StateInfo stateInfo, string sourceName)
         {
-            string label = $"{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >";
-            label += $"{System.Environment.NewLine}\t<tr><td>";
-            if (stateInfo != null && ProcessEntries(stateInfo).Any())
-            {
-                label += $"{System.Environment.NewLine}\t\t<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" BGCOLOR=\"yellow\">";
-                label += string.Join("", ProcessEntries(stateInfo).Select(l => $"{System.Environment.NewLine}\t\t<TR><TD><sup>{l}</sup></TD></TR>"));
-                label += $"{System.Environment.NewLine}\t\t</TABLE>{System.Environment.NewLine}";
-            }
-
-            label += $"{System.Environment.NewLine}\t</td></tr>";
-            label += $"{System.Environment.NewLine}\t<TR><TD PORT=\"{sourceName}\">{sourceName}</TD></TR>";
-            label += "<tr><td>";
-            if (stateInfo != null && ProcessExits(stateInfo).Any())
-            {
-                label += $"{System.Environment.NewLine}\t\t<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" BGCOLOR=\"yellow\">";
-                label += string.Join("", ProcessExits(stateInfo).Select(l => $"{System.Environment.NewLine}\t\t<TR><TD><sup>{l}</sup></TD></TR>"));
-                label += $"{System.Environment.NewLine}\t\t</TABLE>{System.Environment.NewLine}";
-            }
-            label += $"{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>";
-
-            _nodeShapeState = new FormatList()
-                .Add(new Label(label).IsHTML())
-                .Add(new Shape(ShapeType.plaintext))
-                .Add(new Color(HtmlColor.blue))
-                ;
-            return $"\t{sourceName} {_nodeShapeState}{System.Environment.NewLine}";
+            return _style.FormatOneState(sourceName, ProcessEntries(stateInfo), ProcessExits(stateInfo)).Replace("\n", System.Environment.NewLine);
         }
 
         private List<string> ProcessTriggerBehaviour(StateInfo stateInfo, string sourceName = "")
@@ -204,7 +183,8 @@ namespace Stateless.DotGraph
             }
             FormatList head = _edgeShape
                 .SetLHead(destinationString, ResolveEntityName(destinationString))
-                .SetLTail(source, ResolveEntityName(source)).Add(new Label(label));
+                .SetLTail(source, ResolveEntityName(source))
+                .Add(new Label(label));
             return source + " -> " + destinationString + " " + head;
         }
 
