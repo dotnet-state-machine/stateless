@@ -7,78 +7,237 @@ namespace Stateless.DotGraph
     /// <summary>
     /// DOT GraphViz text writer for reflection API.
     /// </summary>
-    public static class DotGraphFormatter
+    public class DotGraphFormatter
     {
+        Dictionary<string, string> clusterDictionary;
+        List<string> _handledStates;
+        List<string> _formattedNodesList;
+        FormatList _nodeShapeState;
+        FormatList _clusterFormat;
+        FormatList _edgeShape;
+        FormatList _exitEdges;
+
         /// <summary>
-        /// Produces a DOT GraphViz graph.
+        /// Constructor
         /// </summary>
-        /// <param name="stateMachineInfo">The StateMachineInfo to be mapped.</param>
-        /// <returns>DOT GraphViz text.</returns>
-        public static string Format(StateMachineInfo stateMachineInfo)
+        public DotGraphFormatter()
         {
-            var bindings = stateMachineInfo.States;
+            _nodeShapeState = new FormatList()
+                .Add(new Shape(ShapeType.Mrecord))
+                .Add(new Color(HtmlColor.blue));
+            _clusterFormat = new FormatList()
+                .Add(new Label("placeholder"));
+            _edgeShape = new FormatList()
+                .Add(new Label("placeholder"))
+                .Add(new Style(ShapeStyle.solid));
+            _exitEdges = new FormatList()
+                .Add(new Label("placeholder"))
+                .Add(new Style(ShapeStyle.dotted));
+        }
+
+        // TODO: Is this the way we want to create DOT graphs?  new DotGraphFormatter().ToDotGraph(sm)?
+
+        /// <summary>
+        /// A string representation of the stateRepresentation machine in the DOT graph language.
+        /// </summary>
+        /// <returns>A description of all simple source states, triggers and destination states.</returns>
+        public string ToDotGraph(StateMachineInfo machineInfo)
+        {
+            clusterDictionary = new Dictionary<string, string>();
+            _handledStates = new List<string>();
+            _formattedNodesList = new List<string>();
+
+            FillClusterNames(machineInfo);
+
+            string dirgraphText = $"digraph {{{System.Environment.NewLine}compound=true;{System.Environment.NewLine}rankdir=\"LR\"{System.Environment.NewLine}";
+
+            // Start with the clusters
+            foreach (StateInfo stateInfo in machineInfo.States.Where(v => v.Substates.Count() > 0))
+            {
+                dirgraphText += BuildNodesRepresentation(stateInfo);
+            }
+
+            // Next process all non-cluster elements
+            foreach (var stateRep in machineInfo.States.Where(v => v.Superstate == null && v.Substates.Count() == 0))
+            {
+                dirgraphText += BuildNodesRepresentation(stateRep);
+            }
+            // now build behaviours
+            foreach (StateInfo stateInfo in machineInfo.States)
+            {
+                var behaviours = ProcessTriggerBehaviour(stateInfo).ToArray();
+                if (behaviours.Length > 0)
+                    dirgraphText += $"{System.Environment.NewLine}{string.Join(System.Environment.NewLine, behaviours)} ";
+            }
+
+            dirgraphText += $"{System.Environment.NewLine}}}";
+            return dirgraphText;
+
+        }
+
+
+        private List<string> ProcessEntries(StateInfo stateInfo)
+        {
+            List<string> lines = new List<string>();
+            foreach (InvocationInfo entryAction in stateInfo.EntryActions)
+                lines.Add(entryAction.Description);
+            return lines;
+        }
+        private List<string> ProcessExits(StateInfo stateInfo)
+        {
+            List<string> lines = new List<string>();
+            foreach (InvocationInfo exitAction in stateInfo.ExitActions)
+                lines.Add(exitAction.Description);
+            return lines;
+        }
+
+        private void FillClusterNames(StateMachineInfo machineInfo)
+        {
+            int i = 0;
+
+            foreach (StateInfo stateInfo in machineInfo.States.Where(sc => sc.Substates != null && sc.Substates.Count() > 0))
+            {
+                var clusterName = $"cluster{i++}";
+                clusterDictionary.Add(stateInfo.UnderlyingState.ToString(), clusterName);
+            }
+        }
+        /// <summary>
+        /// This function builds a representation for nodes and clusters, grouping states together under
+        /// a super state as required.  It is implemented as a recursive that drills through the 
+        /// the sub states when they are found.
+        /// </summary>
+        /// <param name="stateInfo"></param>
+        /// <returns></returns>
+        private string BuildNodesRepresentation(StateInfo stateInfo)
+        {
+            string stateRepresentationString = "";
+            var sourceName = stateInfo.UnderlyingState.ToString();
+
+            if (_handledStates.Any(hs => hs == sourceName))
+                return string.Empty;
+
+            if (stateInfo.Substates != null && stateInfo.Substates.Count() > 0)
+            {
+                stateRepresentationString +=
+                    $"{System.Environment.NewLine}subgraph {ResolveEntityName(sourceName)}  {{{System.Environment.NewLine} \tlabel = \"{sourceName}\"  {System.Environment.NewLine}";
+                // The parent node needs to be added to the cluster so that we can draw edges on the cluster borders
+                stateRepresentationString += StateRepresentationString(stateInfo, sourceName);
+                stateRepresentationString = stateInfo.Substates.Aggregate(stateRepresentationString,
+                    (current, subStateRepresentation) => current + BuildNodesRepresentation(subStateRepresentation));
+
+                stateRepresentationString += $"}}{System.Environment.NewLine}";
+            }
+            else
+            {
+                // Single node representation
+                stateRepresentationString = StateRepresentationString(stateInfo, sourceName);
+            }
+            _handledStates.Add(sourceName);
+
+            return stateRepresentationString;
+        }
+
+        private string StateRepresentationString(StateInfo stateInfo, string sourceName)
+        {
+            string label = $"{System.Environment.NewLine}\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >";
+            label += $"{System.Environment.NewLine}\t<tr><td>";
+            if (stateInfo != null && ProcessEntries(stateInfo).Any())
+            {
+                label += $"{System.Environment.NewLine}\t\t<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" BGCOLOR=\"yellow\">";
+                label += string.Join("", ProcessEntries(stateInfo).Select(l => $"{System.Environment.NewLine}\t\t<TR><TD><sup>{l}</sup></TD></TR>"));
+                label += $"{System.Environment.NewLine}\t\t</TABLE>{System.Environment.NewLine}";
+            }
+
+            label += $"{System.Environment.NewLine}\t</td></tr>";
+            label += $"{System.Environment.NewLine}\t<TR><TD PORT=\"{sourceName}\">{sourceName}</TD></TR>";
+            label += "<tr><td>";
+            if (stateInfo != null && ProcessExits(stateInfo).Any())
+            {
+                label += $"{System.Environment.NewLine}\t\t<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" BGCOLOR=\"yellow\">";
+                label += string.Join("", ProcessExits(stateInfo).Select(l => $"{System.Environment.NewLine}\t\t<TR><TD><sup>{l}</sup></TD></TR>"));
+                label += $"{System.Environment.NewLine}\t\t</TABLE>{System.Environment.NewLine}";
+            }
+            label += $"{System.Environment.NewLine}\t</td></tr>{System.Environment.NewLine}\t</TABLE>";
+
+            _nodeShapeState = new FormatList()
+                .Add(new Label(label).IsHTML())
+                .Add(new Shape(ShapeType.plaintext))
+                .Add(new Color(HtmlColor.blue))
+                ;
+            return $"\t{sourceName} {_nodeShapeState}{System.Environment.NewLine}";
+        }
+
+        private List<string> ProcessTriggerBehaviour(StateInfo stateInfo, string sourceName = "")
+        {
 
             List<string> lines = new List<string>();
             List<string> unknownDestinations = new List<string>();
 
-            foreach (var binding in bindings)
-            {
-                unknownDestinations.AddRange(binding.DynamicTransitions.Select(t => t.Destination));
+            var source = string.IsNullOrEmpty(sourceName) ? stateInfo.UnderlyingState.ToString() : sourceName;
 
-                var source = binding.ToString();
-                foreach (var transition in binding.FixedTransitions)
-                {
-                    string guardConditionsMethods = string.Join(", ", transition.GuardConditionsMethodDescriptions.Select(d => d.Description));
-                    HandleTransitions(ref lines, source, transition.Trigger.ToString(), transition.DestinationState.ToString(), guardConditionsMethods);
-                }
-                
-                foreach (var transition in binding.DynamicTransitions)
-                {
-                    string guardConditionsMethods = string.Join(", ", transition.GuardConditionsMethodDescriptions.Select(d => d.Description));
-                    HandleTransitions(ref lines, source, transition.Trigger.ToString(), transition.Destination, guardConditionsMethods);
-                }
-            }
+            foreach (FixedTransitionInfo t in stateInfo.FixedTransitions)
+                lines.Add(ProcessTransition(source, t));
 
-            if (unknownDestinations.Any())
-            {
-                string label = string.Format(" {{ node [label=\"?\"] {0} }};", string.Join(" ", unknownDestinations));
-                lines.Insert(0, label);
-            }
+            foreach (DynamicTransitionInfo t in stateInfo.DynamicTransitions)
+                lines.Add(ProcessTransition(source, t));
 
-            if (bindings.Any(s => s.EntryActions.Any() || s.ExitActions.Any()))
-            {
-                lines.Add("node [shape=box];");
-
-                foreach (var binding in bindings)
-                {
-                    var source = binding.ToString();
-
-                    foreach (var entryActionBehaviour in binding.EntryActions)
-                    {
-                        string line = string.Format(" {0} -> \"{1}\" [label=\"On Entry\" style=dotted];", source, entryActionBehaviour.Description);
-                        lines.Add(line);
-                    }
-
-                    foreach (var exitActionBehaviour in binding.ExitActions)
-                    {
-                        string line = string.Format(" {0} -> \"{1}\" [label=\"On Exit\" style=dotted];", source, exitActionBehaviour.Description);
-                        lines.Add(line);
-                    }
-                }
-            }
-
-            return "digraph {" + System.Environment.NewLine +
-                     string.Join(System.Environment.NewLine, lines) + System.Environment.NewLine +
-                   "}";
+            return lines;
         }
 
-        private static void HandleTransitions(ref List<string> lines, string sourceState, string trigger, string destination, string guardDescription)
+        private string ProcessTransition(string source, FixedTransitionInfo t)
         {
-            string line = string.IsNullOrWhiteSpace(guardDescription) ?
-                string.Format(" {0} -> {1} [label=\"{2}\"];", sourceState, destination, trigger) :
-                string.Format(" {0} -> {1} [label=\"{2} [{3}]\"];", sourceState, destination, trigger, guardDescription);
-
-            lines.Add(line);
+            string label;
+            string destinationString = t.DestinationState.ToString();
+            if (t.GuardConditionsMethodDescriptions.Count() == 0)
+            {
+                label = t.Trigger.ToString();
+            }
+            else
+            {
+                InvocationInfo first = null;
+                foreach (InvocationInfo info in t.GuardConditionsMethodDescriptions)
+                {
+                    first = info;
+                    break;
+                }
+                label = t.Trigger + " " + first.Description;
+            }
+            FormatList head = _edgeShape
+                .SetLHead(destinationString, ResolveEntityName(destinationString))
+                .SetLTail(source, ResolveEntityName(source)).Add(new Label(label));
+            return source + " -> " + destinationString + " " + head;
         }
+
+        // TODO: How do we want to handle dynamic transitions?
+        private string ProcessTransition(string source, DynamicTransitionInfo t)
+        {
+            string label;
+
+            if (t.GuardConditionsMethodDescriptions.Count() == 0)
+            {
+                label = t.Trigger.ToString();
+            }
+            else
+            {
+                InvocationInfo first = null;
+                foreach (InvocationInfo info in t.GuardConditionsMethodDescriptions)
+                {
+                    first = info;
+                    break;
+                }
+                label = t.Trigger + " " + first.Description;
+            }
+
+            FormatList head = _edgeShape
+                .SetLHead("Dynamic", ResolveEntityName("Dynamic"))
+                .SetLTail(source, ResolveEntityName(source)).Add(new Label(label));
+            return source + " -> " + "Dynamic" + " " + head;
+        }
+
+        private string ResolveEntityName(string entityName) => clusterDictionary.All(cd => cd.Key != entityName)
+            ? entityName
+            : clusterDictionary.First(cd => cd.Key == entityName).Value;
+
+
     }
 }

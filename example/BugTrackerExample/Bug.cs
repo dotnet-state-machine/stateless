@@ -87,7 +87,7 @@ namespace BugTrackerExample
 
         public string ToDotGraph()
         {
-            return DotGraphFormatter.Format(_machine.GetInfo());
+            return new DotGraphFormatter().ToDotGraph(_machine.GetInfo());
         }
     }
 }
