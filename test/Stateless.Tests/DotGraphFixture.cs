@@ -78,7 +78,13 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .Permit(Trigger.X, State.B);
 
-            Assert.Equal(expected, new DotGraphFormatter().ToDotGraph(sm.GetInfo()));
+            string dotGraph = new DotGraphFormatter().ToDotGraph(sm.GetInfo());
+
+#if WRITE_DOTS_TO_FOLDER
+            System.IO.File.WriteAllText(DestinationFolder + "SimpleTransition.dot", dotGraph);
+#endif
+
+            Assert.Equal(expected, dotGraph);
         }
 
         [Fact]
