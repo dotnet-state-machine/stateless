@@ -126,7 +126,13 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .PermitIf(Trigger.X, State.B, anonymousGuard, "description");
 
-            Assert.Equal(expected, new DotGraphFormatter().ToDotGraph(sm.GetInfo()));
+            string dotGraph = new DotGraphFormatter().ToDotGraph(sm.GetInfo());
+
+#if WRITE_DOTS_TO_FOLDER
+            System.IO.File.WriteAllText(DestinationFolder + "WhenDiscriminatedByAnonymousGuardWithDescription.dot", dotGraph);
+#endif
+
+            Assert.Equal(expected, dotGraph);
         }
 
         [Fact]
@@ -209,7 +215,13 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .OnEntry(() => { }, "enteredA");
 
-            Assert.Equal(expected, new DotGraphFormatter().ToDotGraph(sm.GetInfo()));
+            string dotGraph = new DotGraphFormatter().ToDotGraph(sm.GetInfo());
+
+#if WRITE_DOTS_TO_FOLDER
+            System.IO.File.WriteAllText(DestinationFolder + "OnEntryWithAnonymousActionAndDescription.dot", dotGraph);
+#endif
+
+            Assert.Equal(expected, dotGraph);
         }
 
         [Fact]
