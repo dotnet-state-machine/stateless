@@ -1,6 +1,6 @@
 ﻿namespace Stateless.DotGraph
 {
-    class Format
+    internal class Format
     {
         protected string FormatName;
         protected string FormatValue;

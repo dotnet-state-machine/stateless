@@ -696,12 +696,19 @@ namespace Stateless
             /// <param name="trigger">The accepted trigger.</param>
             /// <param name="destinationStateSelector">Function to calculate the state 
             /// that the trigger will cause a transition to.</param>
+            /// <param name="destinationStateSelectorDescription">Optional description for the function to calculate the state </param>
+            /// <param name="possibleDestinationStates">Optional array of possible destination states (used by output formatters) </param>
             /// <returns>The reciever.</returns>
-            public StateConfiguration PermitDynamic(TTrigger trigger, Func<TState> destinationStateSelector)
+            public StateConfiguration PermitDynamic(TTrigger trigger, Func<TState> destinationStateSelector,
+                string destinationStateSelectorDescription = null, TState[] possibleDestinationStates = null)
             {
                 Enforce.ArgumentNotNull(destinationStateSelector, nameof(destinationStateSelector));
                 _representation.AddTriggerBehaviour(
-                    new DynamicTriggerBehaviour(trigger, args => destinationStateSelector(), null));
+                    new DynamicTriggerBehaviour(trigger,
+                        args => destinationStateSelector(),
+                        Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),
+                        null,       // No transition guard
+                        possibleDestinationStates));
                 return this;
             }
 
@@ -712,17 +719,21 @@ namespace Stateless
             /// <param name="trigger">The accepted trigger.</param>
             /// <param name="destinationStateSelector">Function to calculate the state 
             /// that the trigger will cause a transition to.</param>
+            /// <param name="destinationStateSelectorDescription">Optional description of the function to calculate the state </param>
             /// <returns>The reciever.</returns>
             /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
-            public StateConfiguration PermitDynamic<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, TState> destinationStateSelector)
+            public StateConfiguration PermitDynamic<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, TState> destinationStateSelector,
+                string destinationStateSelectorDescription = null)
             {
                 Enforce.ArgumentNotNull(trigger, nameof(trigger));
                 Enforce.ArgumentNotNull(destinationStateSelector, nameof(destinationStateSelector));
                 _representation.AddTriggerBehaviour(
                     new DynamicTriggerBehaviour(trigger.Trigger,
-                    args => destinationStateSelector(
-                        ParameterConversion.Unpack<TArg0>(args, 0)),
-                    null));
+                        args => destinationStateSelector(
+                            ParameterConversion.Unpack<TArg0>(args, 0)),
+                        Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),
+                        null,       // No transition guard
+                        null));     // List of destination states not specified
                 return this;
 
             }
@@ -734,10 +745,12 @@ namespace Stateless
             /// <param name="trigger">The accepted trigger.</param>
             /// <param name="destinationStateSelector">Function to calculate the state 
             /// that the trigger will cause a transition to.</param>
+            /// <param name="destinationStateSelectorDescription">Optional description of the function to calculate the state </param>
             /// <returns>The reciever.</returns>
             /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
             /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
-            public StateConfiguration PermitDynamic<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, TState> destinationStateSelector)
+            public StateConfiguration PermitDynamic<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger,
+                Func<TArg0, TArg1, TState> destinationStateSelector, string destinationStateSelectorDescription = null)
             {
                 Enforce.ArgumentNotNull(trigger, nameof(trigger));
                 Enforce.ArgumentNotNull(destinationStateSelector, nameof(destinationStateSelector));
@@ -745,7 +758,9 @@ namespace Stateless
                     new DynamicTriggerBehaviour(trigger.Trigger, args => destinationStateSelector(
                         ParameterConversion.Unpack<TArg0>(args, 0),
                         ParameterConversion.Unpack<TArg1>(args, 1)),
-                        null));
+                    Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),
+                    null,       // No transition guard
+                    null));     // List of destination states not specified
                 return this;
 
             }
@@ -757,11 +772,13 @@ namespace Stateless
             /// <param name="trigger">The accepted trigger.</param>
             /// <param name="destinationStateSelector">Function to calculate the state 
             /// that the trigger will cause a transition to.</param>
+            /// <param name="destinationStateSelectorDescription">Optional description of the function to calculate the state </param>
             /// <returns>The reciever.</returns>
             /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
             /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
             /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
-            public StateConfiguration PermitDynamic<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, TState> destinationStateSelector)
+            public StateConfiguration PermitDynamic<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger,
+                Func<TArg0, TArg1, TArg2, TState> destinationStateSelector, string destinationStateSelectorDescription = null)
             {
                 Enforce.ArgumentNotNull(trigger, nameof(trigger));
                 Enforce.ArgumentNotNull(destinationStateSelector, nameof(destinationStateSelector));
@@ -771,7 +788,9 @@ namespace Stateless
                         ParameterConversion.Unpack<TArg0>(args, 0),
                         ParameterConversion.Unpack<TArg1>(args, 1),
                         ParameterConversion.Unpack<TArg2>(args, 2)),
-                    null));
+                    Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),
+                    null,       // No transition guard
+                    null));     // List of destination states not specified
                 return this;
             }
 
@@ -786,14 +805,34 @@ namespace Stateless
             /// trigger to be accepted.</param>
             /// <param name="guardDescription">Guard description</param>
             /// <returns>The reciever.</returns>
-            public StateConfiguration PermitDynamicIf(TTrigger trigger, Func<TState> destinationStateSelector, Func<bool> guard, string guardDescription = null)
+            public StateConfiguration PermitDynamicIf(TTrigger trigger, Func<TState> destinationStateSelector,
+                Func<bool> guard, string guardDescription = null)
+            {
+                return PermitDynamicIf(trigger, destinationStateSelector, null, guard, guardDescription);
+            }
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state, calculated
+            /// dynamically by the supplied function.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationStateSelector">Function to calculate the state 
+            /// that the trigger will cause a transition to.</param>
+            /// <param name="destinationStateSelectorDescription">Description of the function to calculate the state </param>
+            /// <param name="guard">Function that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <param name="guardDescription">Guard description</param>
+            /// <returns>The reciever.</returns>
+            public StateConfiguration PermitDynamicIf(TTrigger trigger, Func<TState> destinationStateSelector,
+                string destinationStateSelectorDescription, Func<bool> guard, string guardDescription = null)
             {
                 Enforce.ArgumentNotNull(destinationStateSelector, nameof(destinationStateSelector));
 
                 return InternalPermitDynamicIf(
                     trigger,
                     args => destinationStateSelector(),
-                    new TransitionGuard(guard, guardDescription));
+                    destinationStateSelectorDescription,
+                    new TransitionGuard(guard, guardDescription),
+                    null);      // List of possible destination states not specified
             }
 
             /// <summary>
@@ -808,12 +847,30 @@ namespace Stateless
             /// <returns>The reciever.</returns>
             public StateConfiguration PermitDynamicIf(TTrigger trigger, Func<TState> destinationStateSelector, params Tuple<Func<bool>, string>[] guards)
             {
+                return PermitDynamicIf(trigger, destinationStateSelector, null, guards);
+            }
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state, calculated
+            /// dynamically by the supplied function.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationStateSelector">Function to calculate the state 
+            /// that the trigger will cause a transition to.</param>
+            /// <param name="destinationStateSelectorDescription">Description of the function to calculate the state </param>
+            /// <param name="guards">Functions and their descriptions that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <returns>The reciever.</returns>
+            public StateConfiguration PermitDynamicIf(TTrigger trigger, Func<TState> destinationStateSelector,
+                string destinationStateSelectorDescription, params Tuple<Func<bool>, string>[] guards)
+            {
                 Enforce.ArgumentNotNull(destinationStateSelector, nameof(destinationStateSelector));
 
                 return InternalPermitDynamicIf(
                     trigger,
                     args => destinationStateSelector(),
-                    new TransitionGuard(guards));
+                    destinationStateSelectorDescription,
+                    new TransitionGuard(guards),
+                    null);      // List of possible destination states not specified
             }
 
             /// <summary>
@@ -837,7 +894,9 @@ namespace Stateless
                     trigger.Trigger,
                     args => destinationStateSelector(
                         ParameterConversion.Unpack<TArg0>(args, 0)),
-                    new TransitionGuard(guard, guardDescription));
+                    null,    // destinationStateSelectorString
+                    new TransitionGuard(guard, guardDescription),
+                    null);      // List of possible destination states not specified
             }
 
             /// <summary>
@@ -860,7 +919,9 @@ namespace Stateless
                     trigger.Trigger,
                     args => destinationStateSelector(
                         ParameterConversion.Unpack<TArg0>(args, 0)),
-                    new TransitionGuard(guards));
+                    null,    // destinationStateSelectorString
+                    new TransitionGuard(guards),
+                    null);      // List of possible destination states not specified
             }
 
             /// <summary>
@@ -886,7 +947,9 @@ namespace Stateless
                     args => destinationStateSelector(
                         ParameterConversion.Unpack<TArg0>(args, 0),
                         ParameterConversion.Unpack<TArg1>(args, 1)),
-                    new TransitionGuard(guard, guardDescription));
+                    null,    // destinationStateSelectorString
+                    new TransitionGuard(guard, guardDescription),
+                    null);      // List of possible destination states not specified
             }
 
             /// <summary>
@@ -911,7 +974,9 @@ namespace Stateless
                     args => destinationStateSelector(
                         ParameterConversion.Unpack<TArg0>(args, 0),
                         ParameterConversion.Unpack<TArg1>(args, 1)),
-                    new TransitionGuard(guards));
+                    null,    // destinationStateSelectorString
+                    new TransitionGuard(guards),
+                    null);      // List of possible destination states not specified
             }
 
             /// <summary>
@@ -939,7 +1004,9 @@ namespace Stateless
                         ParameterConversion.Unpack<TArg0>(args, 0),
                         ParameterConversion.Unpack<TArg1>(args, 1),
                         ParameterConversion.Unpack<TArg2>(args, 2)),
-                    new TransitionGuard(guard, guardDescription));
+                    null,    // destinationStateSelectorString
+                    new TransitionGuard(guard, guardDescription),
+                    null);      // List of possible destination states not specified
             }
 
             /// <summary>
@@ -966,7 +1033,9 @@ namespace Stateless
                         ParameterConversion.Unpack<TArg0>(args, 0),
                         ParameterConversion.Unpack<TArg1>(args, 1),
                         ParameterConversion.Unpack<TArg2>(args, 2)),
-                    new TransitionGuard(guards));
+                    null,    // destinationStateSelectorString
+                    new TransitionGuard(guards),
+                    null);      // List of possible destination states not specified
             }
 
             void EnforceNotIdentityTransition(TState destination)
@@ -990,20 +1059,31 @@ namespace Stateless
                 return this;
             }
 
-            StateConfiguration InternalPermitDynamic(TTrigger trigger, Func<object[], TState> destinationStateSelector)
+            // TODO: Never called
+            StateConfiguration InternalPermitDynamic(TTrigger trigger, Func<object[], TState> destinationStateSelector,
+                string destinationStateSelectorDescription, TState[] possibleDestinationStates)
             {
                 Enforce.ArgumentNotNull(destinationStateSelector, nameof(destinationStateSelector));
                 _representation.AddTriggerBehaviour(
-                    new DynamicTriggerBehaviour(trigger, destinationStateSelector, null));
+                    new DynamicTriggerBehaviour(trigger,
+                        destinationStateSelector,
+                        Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),
+                        null,       // No transition guard
+                        possibleDestinationStates));
                 return this;
 
             }
 
-            StateConfiguration InternalPermitDynamicIf(TTrigger trigger, Func<object[], TState> destinationStateSelector, TransitionGuard transitionGuard)
+            StateConfiguration InternalPermitDynamicIf(TTrigger trigger, Func<object[], TState> destinationStateSelector,
+                string destinationStateSelectorDescription, TransitionGuard transitionGuard, TState[] possibleDestinationStates)
             {
                 Enforce.ArgumentNotNull(destinationStateSelector, nameof(destinationStateSelector));
                 Enforce.ArgumentNotNull(transitionGuard, nameof(transitionGuard));
-                _representation.AddTriggerBehaviour(new DynamicTriggerBehaviour(trigger, destinationStateSelector, transitionGuard));
+                _representation.AddTriggerBehaviour(new DynamicTriggerBehaviour(trigger,
+                    destinationStateSelector,
+                    Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),
+                    transitionGuard,
+                    possibleDestinationStates));
                 return this;
             }
         }

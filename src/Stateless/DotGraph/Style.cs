@@ -1,8 +1,11 @@
 ﻿namespace Stateless.DotGraph
 {
-    class Style : Format
+    /// <summary>
+    /// Style of an item
+    /// </summary>
+    internal class Style : Format
     {
-        public Style(ShapeStyle value)
+        internal Style(ShapeStyle value)
         {
             FormatName = "style";
             FormatValue = value.ToString();

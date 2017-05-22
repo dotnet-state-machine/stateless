@@ -1,4 +1,4 @@
-﻿// #define WRITE_DOTS_TO_FOLDER
+﻿#define WRITE_DOTS_TO_FOLDER
 
 using System;
 using System.Collections.Generic;
@@ -110,9 +110,26 @@ namespace Stateless.Tests
             return b.Replace("\n", System.Environment.NewLine);
         }
 
+        string decision(Style style, string nodeName, string label)
+        {
+            string b;
+
+            b = "\n" + nodeName + " [shape = \"diamond\"; label = \"" + label + "\"]\n";
+
+            return b.Replace("\n", System.Environment.NewLine);
+        }
+
         string line(string from, string to, string label)
         {
-            return $"{System.Environment.NewLine}" + from + " -> " + to + " [   style=\"solid\",label=\"" + label + "\" ];";
+            string s = "\n" + from + " -> " + to
+                + " [   style=\"solid\"";
+
+            if (label != null)
+                s += ",label=\"" + label + "\"";
+
+            s += " ];";
+
+            return s.Replace("\n", System.Environment.NewLine);
         }
 
         string subgraph(Style style, string graphName, string label, string contents)
@@ -253,7 +270,10 @@ namespace Stateless.Tests
         [Fact]
         public void DestinationStateIsDynamic()
         {
-            var expected = prefix(Style.SLE) + box(Style.SLE, "A") + line("A", "Dynamic", "X") + " " + suffix;
+            var expected = prefix(Style.SLE)
+                + box(Style.SLE, "A")
+                + decision(Style.SLE, "Decision1", "Function")
+                + line("A", "Decision1", "X") + " " + suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A)
@@ -279,7 +299,10 @@ namespace Stateless.Tests
         [Fact]
         public void DestinationStateIsCalculatedBasedOnTriggerParameters()
         {
-            var expected = prefix(Style.SLE) + box(Style.SLE, "A") + line("A", "Dynamic", "X") + " " + suffix;
+            var expected = prefix(Style.SLE)
+                + box(Style.SLE, "A")
+                + decision(Style.SLE, "Decision1", "Function")
+                + line("A", "Decision1", "X") + " " + suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
             var trigger = sm.SetTriggerParameters<int>(Trigger.X);
@@ -396,7 +419,7 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        public void WithSubstate()
+        public void UmlWithSubstate()
         {
             var expected = prefix(Style.UML)
                 + subgraph(Style.UML, "cluster0", "D",
@@ -422,7 +445,31 @@ namespace Stateless.Tests
 
             string dotGraph = DotGraphFormatter.Format(sm.GetInfo(), new UmlGraphStyle());
 #if WRITE_DOTS_TO_FOLDER
-            System.IO.File.WriteAllText(DestinationFolder + "WithSubstate.dot", dotGraph);
+            System.IO.File.WriteAllText(DestinationFolder + "UmlWithSubstate.dot", dotGraph);
+#endif
+
+            Assert.Equal(expected, dotGraph);
+        }
+
+        [Fact]
+        public void UmlWithDynamic()
+        {
+            var expected = prefix(Style.UML)
+                + box(Style.UML, "A")
+                + decision(Style.UML, "Decision1", "DestinationSelector")
+                + line("A", "Decision1", "X")
+                + line("Decision1", "B", null)
+                + line("Decision1", "C", null)
+                + " " + suffix;
+
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .PermitDynamic(Trigger.X, DestinationSelector, null, new State[] { State.B, State.C });
+
+            string dotGraph = DotGraphFormatter.Format(sm.GetInfo(), new UmlGraphStyle());
+#if WRITE_DOTS_TO_FOLDER
+            System.IO.File.WriteAllText(DestinationFolder + "UmlWithDynamic.dot", dotGraph);
 #endif
 
             Assert.Equal(expected, dotGraph);
@@ -430,5 +477,6 @@ namespace Stateless.Tests
 
         private void TestEntryAction() { }
         private void TestEntryActionString(string val) { }
+        private State DestinationSelector() { return State.A; }
     }
 }

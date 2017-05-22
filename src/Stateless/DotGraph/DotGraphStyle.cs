@@ -7,13 +7,18 @@ namespace Stateless.DotGraph
     /// <summary>
     /// Style definition for DotGraphFormatter
     /// </summary>
-    public interface IDotGraphStyle
+    public abstract class IDotGraphStyle
     {
+        /// <summary>
+        /// Style to be used for edges
+        /// </summary>
+        public ShapeStyle EdgeStyle { get; set; } = ShapeStyle.solid;
+
         /// <summary>
         /// Get the text that starts a new graph
         /// </summary>
         /// <returns></returns>
-        string GetPrefix();
+        abstract internal string GetPrefix();
 
         /// <summary>
         /// Generate the text for a single state
@@ -22,7 +27,29 @@ namespace Stateless.DotGraph
         /// <param name="entries"></param>
         /// <param name="exits"></param>
         /// <returns></returns>
-        string FormatOneState(string sourceName, List<String> entries, List<String> exits);
+        abstract internal string FormatOneState(string sourceName, List<String> entries, List<String> exits);
+
+        /// <summary>
+        /// Generate the text for a single decision node
+        /// </summary>
+        /// <param name="nodeName">Name of the node</param>
+        /// <param name="label">Label for the node</param>
+        /// <returns></returns>
+        virtual internal string FormatOneDecisionNode(string nodeName, string label)
+        {
+            return nodeName + " [shape = \"diamond\"; label = \"" + label + "\"]\n";
+        }
+
+        virtual internal string FormatOneLine(string fromNodeName, string toNodeName, string label)
+        {
+            FormatList edgeShape = new FormatList()
+                .Add(new Style(EdgeStyle));
+
+            if (label != null)
+                edgeShape.Add(new Label(label));
+
+            return fromNodeName + " -> " + toNodeName + " " + edgeShape;
+        }
     }
 
     /// <summary>
@@ -32,7 +59,7 @@ namespace Stateless.DotGraph
     {
         /// <summary>Get the text that starts a new graph</summary>
         /// <returns></returns>
-        string IDotGraphStyle.GetPrefix()
+        override internal string GetPrefix()
         { return $"digraph {{\ncompound=true;\nrankdir=\"LR\"\n"; }
 
         /// <summary>
@@ -42,7 +69,7 @@ namespace Stateless.DotGraph
         /// <param name="entries"></param>
         /// <param name="exits"></param>
         /// <returns></returns>
-        string IDotGraphStyle.FormatOneState(string sourceName, List<String> entries, List<String> exits)
+        override internal string FormatOneState(string sourceName, List<String> entries, List<String> exits)
         {
             string label = $"\n\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >";
 
@@ -74,44 +101,6 @@ namespace Stateless.DotGraph
                 ;
             return $"\t{sourceName} {_nodeShapeState}\n";
         }
-        /*
-	A [   label=<
-	<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" >
-	<tr><td>
-	</td></tr>
-	<TR><TD PORT="A">A</TD></TR><tr><td>
-	</td></tr>
-	</TABLE>>,shape="plaintext",color="blue" ];
-         */
-        /*
-            string label = $"\n\t<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >";
-
-            label += $"\n\t<tr><td>";
-            if (stateInfo != null && ProcessEntries(stateInfo).Any())
-            {
-                label += $"\n\t\t<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" BGCOLOR=\"yellow\">";
-                label += string.Join("", ProcessEntries(stateInfo).Select(l => $"\n\t\t<TR><TD><sup>{l}</sup></TD></TR>"));
-                label += $"\n\t\t</TABLE>\n";
-            }
-
-            label += $"\n\t</td></tr>";
-            label += $"\n\t<TR><TD PORT=\"{sourceName}\">{sourceName}</TD></TR>";
-            label += "<tr><td>";
-            if (stateInfo != null && ProcessExits(stateInfo).Any())
-            {
-                label += $"\n\t\t<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" BGCOLOR=\"yellow\">";
-                label += string.Join("", ProcessExits(stateInfo).Select(l => $"\n\t\t<TR><TD><sup>{l}</sup></TD></TR>"));
-                label += $"\n\t\t</TABLE>\n";
-            }
-            label += $"\n\t</td></tr>\n\t</TABLE>";
-
-            _nodeShapeState = new FormatList()
-                .Add(new Label(label).IsHTML())
-                .Add(new Shape(ShapeType.plaintext))
-                .Add(new Color(HtmlColor.blue))
-                ;
-            return $"\t{sourceName} {_nodeShapeState}\n";
-         */
     }
 
     /// <summary>
@@ -121,7 +110,7 @@ namespace Stateless.DotGraph
     {
         /// <summary>Get the text that starts a new graph</summary>
         /// <returns></returns>
-        string IDotGraphStyle.GetPrefix()
+        override internal string GetPrefix()
         { return "digraph {\n"
                     + "compound=true;\n"
                     + "node [shape=Mrecord]\n"
@@ -134,7 +123,7 @@ namespace Stateless.DotGraph
         /// <param name="entries"></param>
         /// <param name="exits"></param>
         /// <returns></returns>
-        public string FormatOneState(string sourceName, List<String> entries, List<String> exits)
+        override internal string FormatOneState(string sourceName, List<String> entries, List<String> exits)
         {
             if ((entries.Count == 0)&&(exits.Count == 0))
                 return sourceName + " [label = \"" + sourceName + "\"]\n";

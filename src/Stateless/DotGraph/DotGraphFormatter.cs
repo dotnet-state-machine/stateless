@@ -15,8 +15,8 @@ namespace Stateless.DotGraph
         List<string> _handledStates = new List<string>();
         List<string> _formattedNodes = new List<string>();
         FormatList _clusterFormat;
-        FormatList _edgeShape;
         FormatList _exitEdges;
+        int _numDecisionNodes = 0;
 
         /// <summary>
         /// Constructor
@@ -27,18 +27,13 @@ namespace Stateless.DotGraph
 
             _clusterFormat = new FormatList()
                 .Add(new Label("placeholder"));
-            _edgeShape = new FormatList()
-                .Add(new Label("placeholder"))
-                .Add(new Style(ShapeStyle.solid));
             _exitEdges = new FormatList()
                 .Add(new Label("placeholder"))
                 .Add(new Style(ShapeStyle.dotted));
         }
 
-        // TODO: Is this the way we want to create DOT graphs?  new DotGraphFormatter().ToDotGraph(sm)?
-
         /// <summary>
-        /// A string representation of the stateRepresentation machine in the DOT graph language.
+        /// Generates a string representation of the stateRepresentation machine in the DOT graph language.
         /// </summary>
         /// <returns>A description of all simple source states, triggers and destination states.</returns>
         public static string Format(StateMachineInfo machineInfo, IDotGraphStyle style)
@@ -73,7 +68,7 @@ namespace Stateless.DotGraph
                     dirgraphText += $"{System.Environment.NewLine}{string.Join(System.Environment.NewLine, behaviours)} ";
             }
 
-            dirgraphText += $"{System.Environment.NewLine}}}";
+            dirgraphText += System.Environment.NewLine + "}";
 
             return dirgraphText;
         }
@@ -189,17 +184,20 @@ namespace Stateless.DotGraph
                 }
                 label = t.Trigger + " " + first.Description;
             }
-            FormatList head = _edgeShape
-                .SetLHead(destinationString, ResolveEntityName(destinationString))
-                .SetLTail(source, ResolveEntityName(source))
-                .Add(new Label(label));
-            return source + " -> " + destinationString + " " + head;
+
+            return _style.FormatOneLine(source, destinationString, label);
         }
 
         // TODO: How do we want to handle dynamic transitions?
         string ProcessTransition(string source, DynamicTransitionInfo t)
         {
             string label;
+            string nodeName = $"Decision{++_numDecisionNodes}";
+
+            string node = _style.FormatOneDecisionNode(nodeName, t.DestinationStateSelectorDescription.Description)
+                .Replace("\n", System.Environment.NewLine);
+
+            // ;
 
             if (t.GuardConditionsMethodDescriptions.Count() == 0)
             {
@@ -216,10 +214,18 @@ namespace Stateless.DotGraph
                 label = t.Trigger + " " + first.Description;
             }
 
-            FormatList head = _edgeShape
-                .SetLHead("Dynamic", ResolveEntityName("Dynamic"))
-                .SetLTail(source, ResolveEntityName(source)).Add(new Label(label));
-            return source + " -> " + "Dynamic" + " " + head;
+            string s = node + System.Environment.NewLine
+                + _style.FormatOneLine(source, nodeName, label);
+
+            if (t.PossibleDestinationStates != null)
+            {
+                foreach (string possibleState in t.PossibleDestinationStates)
+                {
+                    s += System.Environment.NewLine + _style.FormatOneLine(nodeName, possibleState, null);
+                }
+            }
+
+            return s;
         }
 
         string ResolveEntityName(string entityName) => _clusters.All(cd => cd.Key != entityName)

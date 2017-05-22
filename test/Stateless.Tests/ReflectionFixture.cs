@@ -379,7 +379,6 @@ namespace Stateless.Tests
             {
                 Assert.True(trans.Trigger.UnderlyingTrigger is Trigger);
                 Assert.Equal(Trigger.X, (Trigger)trans.Trigger.UnderlyingTrigger);
-                Assert.NotEqual(null, trans.Destination);
                 Assert.Equal(0, trans.GuardConditionsMethodDescriptions.Count());
             }
         }
@@ -414,7 +413,6 @@ namespace Stateless.Tests
             {
                 Assert.True(trans.Trigger.UnderlyingTrigger is Trigger);
                 Assert.Equal(Trigger.X, (Trigger)trans.Trigger.UnderlyingTrigger);
-                Assert.NotEqual(null, trans.Destination);
                 Assert.Equal(0, trans.GuardConditionsMethodDescriptions.Count());
             }
         }

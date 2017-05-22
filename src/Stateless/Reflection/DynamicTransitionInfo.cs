@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Stateless.Reflection
@@ -8,24 +9,25 @@ namespace Stateless.Reflection
     /// </summary>
     public class DynamicTransitionInfo : TransitionInfo
     {
-        internal static DynamicTransitionInfo Create<TState, TTrigger>(TTrigger trigger, StateMachine<TState, TTrigger>.DynamicTriggerBehaviour behaviour, string destination)
+        internal InvocationInfo DestinationStateSelectorDescription { get; private set; }
+        internal string[] PossibleDestinationStates { get; private set; }
+
+        internal static DynamicTransitionInfo Create<TState, TTrigger>(TTrigger trigger, StateMachine<TState, TTrigger>.DynamicTriggerBehaviour behaviour)
         {
+            ;
+
             var transition = new DynamicTransitionInfo
             {
                 Trigger = new TriggerInfo(trigger),
-                Destination = destination,
                 GuardConditionsMethodDescriptions = (behaviour.Guard == null)
-                    ? new List<InvocationInfo>() : behaviour.Guard.Conditions.Select(c => c.MethodDescription)
+                    ? new List<InvocationInfo>() : behaviour.Guard.Conditions.Select(c => c.MethodDescription),
+                DestinationStateSelectorDescription = behaviour.DestinationInfo,
+                PossibleDestinationStates = behaviour.PossibleDestinationStates?.Select(x => x.ToString()).ToArray()
             };
 
             return transition;
         }
 
         private DynamicTransitionInfo() { }
-
-        /// <summary>
-        /// Friendly text for dynamic transitions.
-        /// </summary>
-        public string Destination { get; private set; }
     }
 }
