@@ -115,6 +115,23 @@ namespace Stateless.Tests
             return $"{System.Environment.NewLine}" + from + " -> " + to + " [   style=\"solid\",label=\"" + label + "\" ];";
         }
 
+        string subgraph(Style style, string graphName, string label, string contents)
+        {
+            if (style != Style.UML)
+                throw new Exception("WRITE MORE CODE");
+
+            string s = "\n"
+                + "subgraph " + graphName + "\n"
+                + "\t{\n"
+                + "\tlabel = \"" + label + "\"\n";
+
+            s = s.Replace("\n", System.Environment.NewLine)
+                + contents          // \n already replaced with NewLine
+                + "}" + System.Environment.NewLine;
+
+            return s;
+        }
+
         [Fact]
         public void SimpleTransition()
         {
@@ -125,7 +142,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .Permit(Trigger.X, State.B);
 
-            string dotGraph = new DotGraphFormatter(new SleGraphStyle()).ToDotGraph(sm.GetInfo());
+            string dotGraph = DotGraphFormatter.Format(sm.GetInfo(), new SleGraphStyle());
 
 #if WRITE_DOTS_TO_FOLDER
             System.IO.File.WriteAllText(DestinationFolder + "SimpleTransition.dot", dotGraph);
@@ -144,7 +161,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .Permit(Trigger.X, State.B);
 
-            string dotGraph = new DotGraphFormatter(new UmlGraphStyle()).ToDotGraph(sm.GetInfo());
+            string dotGraph = DotGraphFormatter.Format(sm.GetInfo(), new UmlGraphStyle());
 
 #if WRITE_DOTS_TO_FOLDER
             System.IO.File.WriteAllText(DestinationFolder + "SimpleTransitionUML.dot", dotGraph);
@@ -166,7 +183,7 @@ namespace Stateless.Tests
                 .Permit(Trigger.X, State.B)
                 .Permit(Trigger.Y, State.C);
 
-            Assert.Equal(expected, new DotGraphFormatter(new SleGraphStyle()).ToDotGraph(sm.GetInfo()));
+            Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo(), new SleGraphStyle()));
         }
 
         [Fact]
@@ -183,7 +200,7 @@ namespace Stateless.Tests
                 .PermitIf(Trigger.X, State.B, anonymousGuard);
             sm.Configure(State.B);
 
-            Assert.Equal(expected, new DotGraphFormatter(new SleGraphStyle()).ToDotGraph(sm.GetInfo()));
+            Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo(), new SleGraphStyle()));
         }
 
         [Fact]
@@ -198,7 +215,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .PermitIf(Trigger.X, State.B, anonymousGuard, "description");
 
-            string dotGraph = new DotGraphFormatter(new SleGraphStyle()).ToDotGraph(sm.GetInfo());
+            string dotGraph = DotGraphFormatter.Format(sm.GetInfo(), new SleGraphStyle());
 
 #if WRITE_DOTS_TO_FOLDER
             System.IO.File.WriteAllText(DestinationFolder + "WhenDiscriminatedByAnonymousGuardWithDescription.dot", dotGraph);
@@ -217,7 +234,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .PermitIf(Trigger.X, State.B, IsTrue);
 
-            Assert.Equal(expected, new DotGraphFormatter(new SleGraphStyle()).ToDotGraph(sm.GetInfo()));
+            Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo(), new SleGraphStyle()));
         }
 
         [Fact]
@@ -230,7 +247,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .PermitIf(Trigger.X, State.B, IsTrue, "description");
             sm.Configure(State.B);
-            Assert.Equal(expected, new DotGraphFormatter(new SleGraphStyle()).ToDotGraph(sm.GetInfo()));
+            Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo(), new SleGraphStyle()));
         }
 
         [Fact]
@@ -242,7 +259,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .PermitDynamic(Trigger.X, () => State.B);
 
-            string dotGraph = new DotGraphFormatter(new SleGraphStyle()).ToDotGraph(sm.GetInfo());
+            string dotGraph = DotGraphFormatter.Format(sm.GetInfo(), new SleGraphStyle());
 
             int len = Math.Min(dotGraph.Length, expected.Length);
             for (int i = 0; i < len; i += 10)
@@ -269,7 +286,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .PermitDynamic(trigger, i => i == 1 ? State.B : State.C);
 
-            string dotGraph = new DotGraphFormatter(new SleGraphStyle()).ToDotGraph(sm.GetInfo());
+            string dotGraph = DotGraphFormatter.Format(sm.GetInfo(), new SleGraphStyle());
 
 #if WRITE_DOTS_TO_FOLDER
             System.IO.File.WriteAllText(DestinationFolder + "DestinationStateIsCalculatedBasedOnTriggerParameters.dot", dotGraph);
@@ -287,7 +304,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .OnEntry(() => { }, "enteredA");
 
-            string dotGraph = new DotGraphFormatter(new SleGraphStyle()).ToDotGraph(sm.GetInfo());
+            string dotGraph = DotGraphFormatter.Format(sm.GetInfo(), new SleGraphStyle());
 
 #if WRITE_DOTS_TO_FOLDER
             System.IO.File.WriteAllText(DestinationFolder + "OnEntryWithAnonymousActionAndDescription.dot", dotGraph);
@@ -306,7 +323,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .OnEntry(OnEntry, "enteredA");
 
-            Assert.Equal(expected, new DotGraphFormatter(new SleGraphStyle()).ToDotGraph(sm.GetInfo()));
+            Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo(), new SleGraphStyle()));
         }
 
         [Fact]
@@ -319,7 +336,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .OnExit(() => { }, "exitA");
 
-            Assert.Equal(expected, new DotGraphFormatter(new SleGraphStyle()).ToDotGraph(sm.GetInfo()));
+            Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo(), new SleGraphStyle()));
         }
 
         [Fact]
@@ -332,7 +349,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .OnExit(OnExit, "exitA");
 
-            Assert.Equal(expected, new DotGraphFormatter(new SleGraphStyle()).ToDotGraph(sm.GetInfo()));
+            Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo(), new SleGraphStyle()));
         }
 
         [Fact]
@@ -347,7 +364,7 @@ namespace Stateless.Tests
                 .Ignore(Trigger.Y)
                 .Permit(Trigger.X, State.B);
 
-            Assert.Equal(expected, new DotGraphFormatter(new SleGraphStyle()).ToDotGraph(sm.GetInfo()));
+            Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo(), new SleGraphStyle()));
         }
 
         [Fact]
@@ -370,7 +387,7 @@ namespace Stateless.Tests
                 .PermitIf(Trigger.Y, State.C, anonymousGuard, "IsTriggerY")
                 .PermitIf(Trigger.Z, State.B, anonymousGuard, "IsTriggerZ");
 
-            string dotGraph = new DotGraphFormatter(new SleGraphStyle()).ToDotGraph(sm.GetInfo());
+            string dotGraph = DotGraphFormatter.Format(sm.GetInfo(), new SleGraphStyle());
 #if WRITE_DOTS_TO_FOLDER
             System.IO.File.WriteAllText(DestinationFolder + "OnEntryWithTriggerParameter.dot", dotGraph);
 #endif
@@ -381,9 +398,13 @@ namespace Stateless.Tests
         [Fact]
         public void WithSubstate()
         {
-            var expected = prefix(Style.UML) + box(Style.UML, "A")
-                + box(Style.UML, "B") + box(Style.UML, "C")
-                + line("A", "B", "X") + line("A", "C", "Y IsTriggerY") + line("A", "B", "Z IsTriggerZ")
+            var expected = prefix(Style.UML)
+                + subgraph(Style.UML, "cluster0", "D",
+                    box(Style.UML, "D")
+                    + box(Style.UML, "B")
+                    + box(Style.UML, "C"))
+                + box(Style.UML, "A", new List<string>() { "EnterA" }, new List<string>() { "ExitA" })
+                + line("A", "B", "X") + line("A", "C", "Y")
                 + " " + suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -399,7 +420,7 @@ namespace Stateless.Tests
             sm.Configure(State.C)
                 .SubstateOf(State.D);
 
-            string dotGraph = new DotGraphFormatter(new UmlGraphStyle()).ToDotGraph(sm.GetInfo());
+            string dotGraph = DotGraphFormatter.Format(sm.GetInfo(), new UmlGraphStyle());
 #if WRITE_DOTS_TO_FOLDER
             System.IO.File.WriteAllText(DestinationFolder + "WithSubstate.dot", dotGraph);
 #endif

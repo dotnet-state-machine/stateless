@@ -21,7 +21,7 @@ namespace Stateless.DotGraph
         /// <summary>
         /// Constructor
         /// </summary>
-        public DotGraphFormatter(IDotGraphStyle style)
+        DotGraphFormatter(IDotGraphStyle style)
         {
             _style = style;
 
@@ -41,8 +41,15 @@ namespace Stateless.DotGraph
         /// A string representation of the stateRepresentation machine in the DOT graph language.
         /// </summary>
         /// <returns>A description of all simple source states, triggers and destination states.</returns>
-        public string ToDotGraph(StateMachineInfo machineInfo)
+        public static string Format(StateMachineInfo machineInfo, IDotGraphStyle style)
         {
+            DotGraphFormatter fmtr = new DotGraphFormatter(style);
+
+            return fmtr.Format(machineInfo);
+        }
+
+        string Format(StateMachineInfo machineInfo)
+        { 
             clusterDictionary = new Dictionary<string, string>();
             _handledStates = new List<string>();
             _formattedNodesList = new List<string>();
