@@ -11,9 +11,9 @@ namespace Stateless.DotGraph
     {
         IDotGraphStyle _style;
 
-        Dictionary<string, string> clusterDictionary;
-        List<string> _handledStates;
-        List<string> _formattedNodesList;
+        Dictionary<string, string> _clusters = new Dictionary<string, string>();
+        List<string> _handledStates = new List<string>();
+        List<string> _formattedNodes = new List<string>();
         FormatList _clusterFormat;
         FormatList _edgeShape;
         FormatList _exitEdges;
@@ -50,16 +50,12 @@ namespace Stateless.DotGraph
 
         string Format(StateMachineInfo machineInfo)
         { 
-            clusterDictionary = new Dictionary<string, string>();
-            _handledStates = new List<string>();
-            _formattedNodesList = new List<string>();
-
             FillClusterNames(machineInfo);
 
             string dirgraphText = _style.GetPrefix().Replace("\n", System.Environment.NewLine);
 
             // Start with the clusters
-            foreach (StateInfo stateInfo in machineInfo.States.Where(v => v.Substates.Count() > 0))
+            foreach (var stateInfo in machineInfo.States.Where(v => v.Substates.Count() > 0))
             {
                 dirgraphText += BuildNodesRepresentation(stateInfo);
             }
@@ -70,7 +66,7 @@ namespace Stateless.DotGraph
                 dirgraphText += BuildNodesRepresentation(stateRep);
             }
             // now build behaviours
-            foreach (StateInfo stateInfo in machineInfo.States)
+            foreach (var stateInfo in machineInfo.States)
             {
                 var behaviours = ProcessTriggerBehaviour(stateInfo).ToArray();
                 if (behaviours.Length > 0)
@@ -78,34 +74,39 @@ namespace Stateless.DotGraph
             }
 
             dirgraphText += $"{System.Environment.NewLine}}}";
+
             return dirgraphText;
-
         }
 
 
-        private List<string> ProcessEntries(StateInfo stateInfo)
+        List<string> ProcessEntries(StateInfo stateInfo)
         {
             List<string> lines = new List<string>();
-            foreach (InvocationInfo entryAction in stateInfo.EntryActions)
+
+            foreach (var entryAction in stateInfo.EntryActions)
                 lines.Add(entryAction.Description);
-            return lines;
-        }
-        private List<string> ProcessExits(StateInfo stateInfo)
-        {
-            List<string> lines = new List<string>();
-            foreach (InvocationInfo exitAction in stateInfo.ExitActions)
-                lines.Add(exitAction.Description);
+
             return lines;
         }
 
-        private void FillClusterNames(StateMachineInfo machineInfo)
+        List<string> ProcessExits(StateInfo stateInfo)
+        {
+            List<string> lines = new List<string>();
+
+            foreach (var exitAction in stateInfo.ExitActions)
+                lines.Add(exitAction.Description);
+
+            return lines;
+        }
+
+        void FillClusterNames(StateMachineInfo machineInfo)
         {
             int i = 0;
 
-            foreach (StateInfo stateInfo in machineInfo.States.Where(sc => sc.Substates != null && sc.Substates.Count() > 0))
+            foreach (var stateInfo in machineInfo.States.Where(sc => sc.Substates?.Count() > 0))
             {
                 var clusterName = $"cluster{i++}";
-                clusterDictionary.Add(stateInfo.UnderlyingState.ToString(), clusterName);
+                _clusters.Add(stateInfo.UnderlyingState.ToString(), clusterName);
             }
         }
         /// <summary>
@@ -115,7 +116,7 @@ namespace Stateless.DotGraph
         /// </summary>
         /// <param name="stateInfo"></param>
         /// <returns></returns>
-        private string BuildNodesRepresentation(StateInfo stateInfo)
+        string BuildNodesRepresentation(StateInfo stateInfo)
         {
             string stateRepresentationString = "";
             var sourceName = stateInfo.UnderlyingState.ToString();
@@ -123,7 +124,7 @@ namespace Stateless.DotGraph
             if (_handledStates.Any(hs => hs == sourceName))
                 return string.Empty;
 
-            if (stateInfo.Substates != null && stateInfo.Substates.Count() > 0)
+            if (stateInfo.Substates?.Count() > 0)
             {
                 stateRepresentationString = System.Environment.NewLine
                     + $"subgraph {ResolveEntityName(sourceName)}" + System.Environment.NewLine
@@ -148,12 +149,12 @@ namespace Stateless.DotGraph
             return stateRepresentationString;
         }
 
-        private string StateRepresentationString(StateInfo stateInfo, string sourceName)
+        string StateRepresentationString(StateInfo stateInfo, string sourceName)
         {
             return _style.FormatOneState(sourceName, ProcessEntries(stateInfo), ProcessExits(stateInfo)).Replace("\n", System.Environment.NewLine);
         }
 
-        private List<string> ProcessTriggerBehaviour(StateInfo stateInfo, string sourceName = "")
+        List<string> ProcessTriggerBehaviour(StateInfo stateInfo, string sourceName = "")
         {
 
             List<string> lines = new List<string>();
@@ -161,16 +162,16 @@ namespace Stateless.DotGraph
 
             var source = string.IsNullOrEmpty(sourceName) ? stateInfo.UnderlyingState.ToString() : sourceName;
 
-            foreach (FixedTransitionInfo t in stateInfo.FixedTransitions)
+            foreach (var t in stateInfo.FixedTransitions)
                 lines.Add(ProcessTransition(source, t));
 
-            foreach (DynamicTransitionInfo t in stateInfo.DynamicTransitions)
+            foreach (var t in stateInfo.DynamicTransitions)
                 lines.Add(ProcessTransition(source, t));
 
             return lines;
         }
 
-        private string ProcessTransition(string source, FixedTransitionInfo t)
+        string ProcessTransition(string source, FixedTransitionInfo t)
         {
             string label;
             string destinationString = t.DestinationState.ToString();
@@ -181,7 +182,7 @@ namespace Stateless.DotGraph
             else
             {
                 InvocationInfo first = null;
-                foreach (InvocationInfo info in t.GuardConditionsMethodDescriptions)
+                foreach (var info in t.GuardConditionsMethodDescriptions)
                 {
                     first = info;
                     break;
@@ -196,7 +197,7 @@ namespace Stateless.DotGraph
         }
 
         // TODO: How do we want to handle dynamic transitions?
-        private string ProcessTransition(string source, DynamicTransitionInfo t)
+        string ProcessTransition(string source, DynamicTransitionInfo t)
         {
             string label;
 
@@ -207,7 +208,7 @@ namespace Stateless.DotGraph
             else
             {
                 InvocationInfo first = null;
-                foreach (InvocationInfo info in t.GuardConditionsMethodDescriptions)
+                foreach (var info in t.GuardConditionsMethodDescriptions)
                 {
                     first = info;
                     break;
@@ -221,9 +222,9 @@ namespace Stateless.DotGraph
             return source + " -> " + "Dynamic" + " " + head;
         }
 
-        private string ResolveEntityName(string entityName) => clusterDictionary.All(cd => cd.Key != entityName)
+        string ResolveEntityName(string entityName) => _clusters.All(cd => cd.Key != entityName)
             ? entityName
-            : clusterDictionary.First(cd => cd.Key == entityName).Value;
+            : _clusters.First(cd => cd.Key == entityName).Value;
 
 
     }

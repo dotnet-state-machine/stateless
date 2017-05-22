@@ -1,4 +1,4 @@
-﻿#define WRITE_DOTS_TO_FOLDER
+﻿// #define WRITE_DOTS_TO_FOLDER
 
 using System;
 using System.Collections.Generic;
