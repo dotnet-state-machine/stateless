@@ -458,14 +458,18 @@ namespace Stateless.Tests
                 + box(Style.UML, "A")
                 + decision(Style.UML, "Decision1", "DestinationSelector")
                 + line("A", "Decision1", "X")
-                + line("Decision1", "B", null)
-                + line("Decision1", "C", null)
+                + line("Decision1", "B", "ChoseB")
+                + line("Decision1", "C", "ChoseC")
                 + " " + suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
+            Reflection.DynamicStateInfos infos = new Reflection.DynamicStateInfos {
+                { State.B, "ChoseB"},
+                { State.C, "ChoseC" } };
+
             sm.Configure(State.A)
-                .PermitDynamic(Trigger.X, DestinationSelector, null, new State[] { State.B, State.C });
+                .PermitDynamic(Trigger.X, DestinationSelector, null, infos);
 
             string dotGraph = DotGraphFormatter.Format(sm.GetInfo(), new UmlGraphStyle());
 #if WRITE_DOTS_TO_FOLDER

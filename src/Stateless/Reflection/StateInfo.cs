@@ -62,7 +62,7 @@ namespace Stateless.Reflection
                 // Then add all the dynamic transitions
                 foreach (var item in triggerBehaviours.Value.Where(behaviour => behaviour is StateMachine<TState, TTrigger>.DynamicTriggerBehaviour))
                 {
-                    dynamicTransitions.Add(DynamicTransitionInfo.Create(triggerBehaviours.Key, (StateMachine<TState, TTrigger>.DynamicTriggerBehaviour)item));
+                    dynamicTransitions.Add(((StateMachine<TState, TTrigger>.DynamicTriggerBehaviour)item).TransitionInfo);
                 }
             }
 

@@ -188,7 +188,6 @@ namespace Stateless.DotGraph
             return _style.FormatOneLine(source, destinationString, label);
         }
 
-        // TODO: How do we want to handle dynamic transitions?
         string ProcessTransition(string source, DynamicTransitionInfo t)
         {
             string label;
@@ -197,21 +196,14 @@ namespace Stateless.DotGraph
             string node = _style.FormatOneDecisionNode(nodeName, t.DestinationStateSelectorDescription.Description)
                 .Replace("\n", System.Environment.NewLine);
 
-            // ;
+            label = t.Trigger.UnderlyingTrigger.ToString();
 
-            if (t.GuardConditionsMethodDescriptions.Count() == 0)
+            if (t.GuardConditionsMethodDescriptions != null)
             {
-                label = t.Trigger.ToString();
-            }
-            else
-            {
-                InvocationInfo first = null;
                 foreach (var info in t.GuardConditionsMethodDescriptions)
                 {
-                    first = info;
-                    break;
+                    label = t.Trigger + " [" + info.Description + "]";
                 }
-                label = t.Trigger + " " + first.Description;
             }
 
             string s = node + System.Environment.NewLine
@@ -219,9 +211,10 @@ namespace Stateless.DotGraph
 
             if (t.PossibleDestinationStates != null)
             {
-                foreach (string possibleState in t.PossibleDestinationStates)
+                foreach (DynamicStateInfo possibleState in t.PossibleDestinationStates)
                 {
-                    s += System.Environment.NewLine + _style.FormatOneLine(nodeName, possibleState, null);
+                    s += System.Environment.NewLine
+                        + _style.FormatOneLine(nodeName, possibleState.DestinationState, possibleState.Criterion);
                 }
             }
 
