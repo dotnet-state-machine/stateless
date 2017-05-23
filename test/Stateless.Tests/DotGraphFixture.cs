@@ -1,4 +1,4 @@
-﻿#define WRITE_DOTS_TO_FOLDER
+﻿// #define WRITE_DOTS_TO_FOLDER
 
 using System;
 using System.Collections.Generic;
@@ -114,7 +114,7 @@ namespace Stateless.Tests
         {
             string b;
 
-            b = "\n" + nodeName + " [shape = \"diamond\"; label = \"" + label + "\"]\n";
+            b = "\n" + nodeName + " [shape = \"diamond\", label = \"" + label + "\"]\n";
 
             return b.Replace("\n", System.Environment.NewLine);
         }

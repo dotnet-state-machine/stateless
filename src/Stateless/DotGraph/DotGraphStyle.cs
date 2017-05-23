@@ -37,7 +37,7 @@ namespace Stateless.DotGraph
         /// <returns></returns>
         virtual internal string FormatOneDecisionNode(string nodeName, string label)
         {
-            return nodeName + " [shape = \"diamond\"; label = \"" + label + "\"]\n";
+            return nodeName + " [shape = \"diamond\", label = \"" + label + "\"]\n";
         }
 
         virtual internal string FormatOneLine(string fromNodeName, string toNodeName, string label)
