@@ -464,12 +464,8 @@ namespace Stateless.Tests
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
-            Reflection.DynamicStateInfos infos = new Reflection.DynamicStateInfos {
-                { State.B, "ChoseB"},
-                { State.C, "ChoseC" } };
-
             sm.Configure(State.A)
-                .PermitDynamic(Trigger.X, DestinationSelector, null, infos);
+                .PermitDynamic(Trigger.X, DestinationSelector, null, new Reflection.DynamicStateInfos { { State.B, "ChoseB"}, { State.C, "ChoseC" } });
 
             string dotGraph = DotGraphFormatter.Format(sm.GetInfo(), new UmlGraphStyle());
 #if WRITE_DOTS_TO_FOLDER
