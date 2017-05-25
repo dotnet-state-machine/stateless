@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Stateless;
-using Stateless.DotGraph;
 using Stateless.Reflection;
 
 namespace TelephoneCallExample

@@ -11,6 +11,13 @@ namespace Stateless.Tests
             StateA = "A", StateB = "B", StateC = "C",
             TriggerX = "X", TriggerY = "Y";
 
+        int _numCalls = 0;
+
+        void CountCalls()
+        {
+            _numCalls++;
+        }
+
         [Fact]
         public void CanUseReferenceTypeMarkers()
         {
@@ -397,6 +404,43 @@ namespace Stateless.Tests
             sm.Configure(State.A).SubstateOf(State.C);
 
             Assert.Throws(typeof(ArgumentException), () => { sm.Configure(State.C).SubstateOf(State.B); });
+        }
+
+        [Fact]
+        public void IgnoreVsPermitReentry()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .OnEntry(CountCalls)
+                .PermitReentry(Trigger.X)
+                .Ignore(Trigger.Y);
+
+            _numCalls = 0;
+
+            sm.Fire(Trigger.X);
+            sm.Fire(Trigger.Y);
+
+            Assert.Equal(1, _numCalls);
+        }
+
+        [Fact]
+        public void IgnoreVsPermitReentryFrom()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .OnEntryFrom(Trigger.X, CountCalls)
+                .OnEntryFrom(Trigger.Y, CountCalls)
+                .PermitReentry(Trigger.X)
+                .Ignore(Trigger.Y);
+
+            _numCalls = 0;
+
+            sm.Fire(Trigger.X);
+            sm.Fire(Trigger.Y);
+
+            Assert.Equal(1, _numCalls);
         }
     }
 }

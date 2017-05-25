@@ -1072,23 +1072,23 @@ namespace Stateless
                 return this;
             }
 
-            // TODO: Never called
-            StateConfiguration InternalPermitDynamic(TTrigger trigger, Func<object[], TState> destinationStateSelector,
-                string destinationStateSelectorDescription, Reflection.DynamicStateInfos possibleDestinationStates)
-            {
-                Enforce.ArgumentNotNull(destinationStateSelector, nameof(destinationStateSelector));
-                _representation.AddTriggerBehaviour(
-                    new DynamicTriggerBehaviour(trigger,
-                        destinationStateSelector,
-                        null,       // No transition guard
-                    Reflection.DynamicTransitionInfo.Create(trigger,
-                        null,       // No guards
-                        Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),
-                        possibleDestinationStates)
-                    ));
-                return this;
+            // Never called
+            //StateConfiguration InternalPermitDynamic(TTrigger trigger, Func<object[], TState> destinationStateSelector,
+            //    string destinationStateSelectorDescription, Reflection.DynamicStateInfos possibleDestinationStates)
+            //{
+            //    Enforce.ArgumentNotNull(destinationStateSelector, nameof(destinationStateSelector));
+            //    _representation.AddTriggerBehaviour(
+            //        new DynamicTriggerBehaviour(trigger,
+            //            destinationStateSelector,
+            //            null,       // No transition guard
+            //        Reflection.DynamicTransitionInfo.Create(trigger,
+            //            null,       // No guards
+            //            Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),
+            //            possibleDestinationStates)
+            //        ));
+            //    return this;
 
-            }
+            //}
 
             StateConfiguration InternalPermitDynamicIf(TTrigger trigger, Func<object[], TState> destinationStateSelector,
                 string destinationStateSelectorDescription, TransitionGuard transitionGuard, Reflection.DynamicStateInfos possibleDestinationStates)

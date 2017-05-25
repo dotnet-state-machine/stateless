@@ -46,17 +46,17 @@ namespace Stateless
 
             public class SyncFrom<TTriggerType> : Sync
             {
-                TTriggerType _trigger;
+                internal TTriggerType Trigger { get; private set; }
 
                 public SyncFrom(TTriggerType trigger, Action<Transition, object[]> action, Reflection.InvocationInfo description)
                     : base(action, description)
                 {
-                    _trigger = trigger;
+                    Trigger = trigger;
                 }
 
                 public override void Execute(Transition transition, object[] args)
                 {
-                    if (transition.Trigger.Equals(_trigger))
+                    if (transition.Trigger.Equals(Trigger))
                         base.Execute(transition, args);
                 }
 

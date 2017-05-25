@@ -1,10 +1,11 @@
-﻿// #define WRITE_DOTS_TO_FOLDER
+﻿#define WRITE_DOTS_TO_FOLDER
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xunit;
 using Stateless.Reflection;
-using Stateless.DotGraph;
+using Stateless.Graph;
 
 namespace Stateless.Tests
 {
@@ -31,7 +32,6 @@ namespace Stateless.Tests
 
         enum Style
         {
-            SLE,
             UML
         }
 
@@ -41,15 +41,11 @@ namespace Stateless.Tests
         {
             string s;
 
-            if (style == Style.SLE)
-                s = "digraph {\ncompound=true;\nrankdir=\"LR\"\n";
-            else
-            { 
-                s = "digraph {\n"
-                    + "compound=true;\n"
-                    + "node [shape=Mrecord]\n"
-                    + "rankdir=\"LR\"\n";
-            }
+            s = "digraph {\n"
+                + "compound=true;\n"
+                + "node [shape=Mrecord]\n"
+                + "rankdir=\"LR\"\n";
+
             return s.Replace("\n", System.Environment.NewLine);
         }
 
@@ -57,54 +53,23 @@ namespace Stateless.Tests
         {
             string b;
 
-            if (style == Style.SLE)
+            List<string> es = new List<string>();
+            if (entries != null)
             {
-                b = $"\t{label} [   label=<\n\t"
-                    + $"<TABLE BORDER=\"1\" CELLBORDER=\"1\" CELLSPACING=\"0\" >\n\t"
-                    + $"<tr><td>\n";
-
-                if (entries != null)
-                {
-                    b += $"\t\t<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" BGCOLOR=\"yellow\">\n";
-                    foreach (string entry in entries)
-                        b += $"\t\t<TR><TD><sup>" + entry + $"</sup></TD></TR>\n";
-                    b += "\t\t</TABLE>\n\n";
-                }
-
-                b += $"\t</td></tr>\n\t"
-                    + $"<TR><TD PORT=\"{label}\">{label}</TD></TR>"
-                    + $"<tr><td>\n";
-
-                if (exits != null)
-                {
-                    b += $"\t\t<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" BGCOLOR=\"yellow\">\n";
-                    foreach (string exit in exits)
-                        b += $"\t\t<TR><TD><sup>" + exit + $"</sup></TD></TR>\n";
-                    b += "\t\t</TABLE>\n\n";
-                }
-
-                b += $"\t</td></tr>\n\t</TABLE>>,shape=\"plaintext\",color=\"blue\" ];\n";
+                foreach (string entry in entries)
+                    es.Add("entry / " + entry);
             }
+            if (exits != null)
+            {
+                foreach (string exit in exits)
+                    es.Add("exit / " + exit);
+            }
+
+            if (es.Count == 0)
+                b = label + " [label=\"" + label + "\"];\n";
             else
             {
-                List<string> es = new List<string>();
-                if (entries != null)
-                {
-                    foreach (string entry in entries)
-                        es.Add("entry / " + entry);
-                }
-                if (exits != null)
-                {
-                    foreach (string exit in exits)
-                        es.Add("exit / " + exit);
-                }
-
-                if (es.Count == 0)
-                    b = label + " [label = \"" + label + "\"]\n";
-                else
-                {
-                    b = label + " [label = \"" + label + "|" + String.Join("\\n", es) + "\"]\n";
-                }
+                b = label + " [label=\"" + label + "|" + String.Join("\\n", es) + "\"];\n";
             }
 
             return b.Replace("\n", System.Environment.NewLine);
@@ -114,7 +79,7 @@ namespace Stateless.Tests
         {
             string b;
 
-            b = "\n" + nodeName + " [shape = \"diamond\", label = \"" + label + "\"]\n";
+            b = nodeName + " [shape = \"diamond\", label = \"" + label + "\"];\n";
 
             return b.Replace("\n", System.Environment.NewLine);
         }
@@ -122,12 +87,12 @@ namespace Stateless.Tests
         string line(string from, string to, string label)
         {
             string s = "\n" + from + " -> " + to
-                + " [   style=\"solid\"";
+                + " [style=\"solid\"";
 
             if (label != null)
-                s += ",label=\"" + label + "\"";
+                s += ", label=\"" + label + "\"";
 
-            s += " ];";
+            s += "];";
 
             return s.Replace("\n", System.Environment.NewLine);
         }
@@ -152,14 +117,14 @@ namespace Stateless.Tests
         [Fact]
         public void SimpleTransition()
         {
-            var expected = prefix(Style.SLE) + box(Style.SLE, "A") + box(Style.SLE, "B") + line("A", "B", "X") + " " + suffix;
+            var expected = prefix(Style.UML) + box(Style.UML, "A") + box(Style.UML, "B") + line("A", "B", "X") + suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
                 .Permit(Trigger.X, State.B);
 
-            string dotGraph = DotGraphFormatter.Format(sm.GetInfo(), new SleGraphStyle());
+            string dotGraph = UmlDotGraph.Format(sm.GetInfo());
 
 #if WRITE_DOTS_TO_FOLDER
             System.IO.File.WriteAllText(DestinationFolder + "SimpleTransition.dot", dotGraph);
@@ -171,14 +136,14 @@ namespace Stateless.Tests
         [Fact]
         public void SimpleTransitionUML()
         {
-            var expected = prefix(Style.UML) + box(Style.UML, "A") + box(Style.UML, "B") + line("A", "B", "X") + " " + suffix;
+            var expected = prefix(Style.UML) + box(Style.UML, "A") + box(Style.UML, "B") + line("A", "B", "X") + suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
                 .Permit(Trigger.X, State.B);
 
-            string dotGraph = DotGraphFormatter.Format(sm.GetInfo(), new UmlGraphStyle());
+            string dotGraph = UmlDotGraph.Format(sm.GetInfo());
 
 #if WRITE_DOTS_TO_FOLDER
             System.IO.File.WriteAllText(DestinationFolder + "SimpleTransitionUML.dot", dotGraph);
@@ -190,9 +155,10 @@ namespace Stateless.Tests
         [Fact]
         public void TwoSimpleTransitions()
         {
-            var expected = prefix(Style.SLE) + box(Style.SLE, "A") + box(Style.SLE, "B") + box(Style.SLE, "C")
-                + line("A", "B", "X") + line("A", "C", "Y")
-                + " " + suffix;
+            var expected = prefix(Style.UML) + box(Style.UML, "A") + box(Style.UML, "B") + box(Style.UML, "C")
+                + line("A", "B", "X")
+                + line("A", "C", "Y")
+                + suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -200,7 +166,7 @@ namespace Stateless.Tests
                 .Permit(Trigger.X, State.B)
                 .Permit(Trigger.Y, State.C);
 
-            Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo(), new SleGraphStyle()));
+            Assert.Equal(expected, UmlDotGraph.Format(sm.GetInfo()));
         }
 
         [Fact]
@@ -208,16 +174,16 @@ namespace Stateless.Tests
         {
             Func<bool> anonymousGuard = () => true;
 
-            var expected = prefix(Style.SLE) + box(Style.SLE, "A") + box(Style.SLE, "B")
-                + line("A", "B", "X " + InvocationInfo.DefaultFunctionDescription)
-                + " " + suffix;
+            var expected = prefix(Style.UML) + box(Style.UML, "A") + box(Style.UML, "B")
+                + line("A", "B", "X [" + InvocationInfo.DefaultFunctionDescription + "]")
+                + suffix;
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
                 .PermitIf(Trigger.X, State.B, anonymousGuard);
             sm.Configure(State.B);
 
-            Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo(), new SleGraphStyle()));
+            Assert.Equal(expected, UmlDotGraph.Format(sm.GetInfo()));
         }
 
         [Fact]
@@ -225,14 +191,17 @@ namespace Stateless.Tests
         {
             Func<bool> anonymousGuard = () => true;
 
-            var expected = prefix(Style.SLE) + box(Style.SLE, "A") + box(Style.SLE, "B") + line("A", "B", "X description") + " " + suffix;
+            var expected = prefix(Style.UML)
+                + box(Style.UML, "A") + box(Style.UML, "B")
+                + line("A", "B", "X [description]")
+                +  suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
                 .PermitIf(Trigger.X, State.B, anonymousGuard, "description");
 
-            string dotGraph = DotGraphFormatter.Format(sm.GetInfo(), new SleGraphStyle());
+            string dotGraph = UmlDotGraph.Format(sm.GetInfo());
 
 #if WRITE_DOTS_TO_FOLDER
             System.IO.File.WriteAllText(DestinationFolder + "WhenDiscriminatedByAnonymousGuardWithDescription.dot", dotGraph);
@@ -244,72 +213,70 @@ namespace Stateless.Tests
         [Fact]
         public void WhenDiscriminatedByNamedDelegate()
         {
-            var expected = prefix(Style.SLE) + box(Style.SLE, "A") + box(Style.SLE, "B") + line("A", "B", "X IsTrue") + " " + suffix;
+            var expected = prefix(Style.UML)
+                + box(Style.UML, "A") + box(Style.UML, "B")
+                + line("A", "B", "X [IsTrue]")
+                + suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
                 .PermitIf(Trigger.X, State.B, IsTrue);
 
-            Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo(), new SleGraphStyle()));
+            Assert.Equal(expected, UmlDotGraph.Format(sm.GetInfo()));
         }
 
         [Fact]
         public void WhenDiscriminatedByNamedDelegateWithDescription()
         {
-            var expected = prefix(Style.SLE) + box(Style.SLE, "A") + box(Style.SLE, "B") + line("A", "B", "X description") + " " + suffix;
+            var expected = prefix(Style.UML)
+                + box(Style.UML, "A") + box(Style.UML, "B")
+                + line("A", "B", "X [description]")
+                + suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
                 .PermitIf(Trigger.X, State.B, IsTrue, "description");
             sm.Configure(State.B);
-            Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo(), new SleGraphStyle()));
+            Assert.Equal(expected, UmlDotGraph.Format(sm.GetInfo()));
         }
 
         [Fact]
         public void DestinationStateIsDynamic()
         {
-            var expected = prefix(Style.SLE)
-                + box(Style.SLE, "A")
-                + decision(Style.SLE, "Decision1", "Function")
-                + line("A", "Decision1", "X") + " " + suffix;
+            var expected = prefix(Style.UML)
+                + box(Style.UML, "A")
+                + decision(Style.UML, "Decision1", "Function")
+                + line("A", "Decision1", "X") + suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A)
                 .PermitDynamic(Trigger.X, () => State.B);
 
-            string dotGraph = DotGraphFormatter.Format(sm.GetInfo(), new SleGraphStyle());
+            string dotGraph = UmlDotGraph.Format(sm.GetInfo());
 
-            int len = Math.Min(dotGraph.Length, expected.Length);
-            for (int i = 0; i < len; i += 10)
-            {
-                int c = Math.Min(10, len - i);
-                if (expected.Substring(i, c) != dotGraph.Substring(i, c))
-                {
-                    //for (int j = 0; j < c; j++)
-                    //    Assert.Equal(expected[i + j], dotGraph[i + j]);
-                    Assert.Equal(expected.Substring(i, c), dotGraph.Substring(i, c));
-                    break;
-                }
-            }
+#if WRITE_DOTS_TO_FOLDER
+            System.IO.File.WriteAllText(DestinationFolder + "DestinationStateIsDynamic.dot", dotGraph);
+#endif
+
             Assert.Equal(expected, dotGraph);
         }
 
         [Fact]
         public void DestinationStateIsCalculatedBasedOnTriggerParameters()
         {
-            var expected = prefix(Style.SLE)
-                + box(Style.SLE, "A")
-                + decision(Style.SLE, "Decision1", "Function")
-                + line("A", "Decision1", "X") + " " + suffix;
+            var expected = prefix(Style.UML)
+                + box(Style.UML, "A")
+                + decision(Style.UML, "Decision1", "Function")
+                + line("A", "Decision1", "X") + suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
             var trigger = sm.SetTriggerParameters<int>(Trigger.X);
             sm.Configure(State.A)
                 .PermitDynamic(trigger, i => i == 1 ? State.B : State.C);
 
-            string dotGraph = DotGraphFormatter.Format(sm.GetInfo(), new SleGraphStyle());
+            string dotGraph = UmlDotGraph.Format(sm.GetInfo());
 
 #if WRITE_DOTS_TO_FOLDER
             System.IO.File.WriteAllText(DestinationFolder + "DestinationStateIsCalculatedBasedOnTriggerParameters.dot", dotGraph);
@@ -320,14 +287,14 @@ namespace Stateless.Tests
         [Fact]
         public void OnEntryWithAnonymousActionAndDescription()
         {
-            var expected = prefix(Style.SLE) + box(Style.SLE, "A", new List<string>() { "enteredA" }) + suffix;
+            var expected = prefix(Style.UML) + box(Style.UML, "A", new List<string>() { "enteredA" }) + suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
                 .OnEntry(() => { }, "enteredA");
 
-            string dotGraph = DotGraphFormatter.Format(sm.GetInfo(), new SleGraphStyle());
+            string dotGraph = UmlDotGraph.Format(sm.GetInfo());
 
 #if WRITE_DOTS_TO_FOLDER
             System.IO.File.WriteAllText(DestinationFolder + "OnEntryWithAnonymousActionAndDescription.dot", dotGraph);
@@ -339,47 +306,53 @@ namespace Stateless.Tests
         [Fact]
         public void OnEntryWithNamedDelegateActionAndDescription()
         {
-            var expected = prefix(Style.SLE) + box(Style.SLE, "A", new List<string>() { "enteredA" }) + suffix;
+            var expected = prefix(Style.UML) + box(Style.UML, "A", new List<string>() { "enteredA" }) + suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
                 .OnEntry(OnEntry, "enteredA");
 
-            Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo(), new SleGraphStyle()));
+            Assert.Equal(expected, UmlDotGraph.Format(sm.GetInfo()));
         }
 
         [Fact]
         public void OnExitWithAnonymousActionAndDescription()
         {
-            var expected = prefix(Style.SLE) + box(Style.SLE, "A", null, new List<string>() { "exitA" }) + suffix;
+            var expected = prefix(Style.UML) + box(Style.UML, "A", null, new List<string>() { "exitA" }) + suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
                 .OnExit(() => { }, "exitA");
 
-            Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo(), new SleGraphStyle()));
+            Assert.Equal(expected, UmlDotGraph.Format(sm.GetInfo()));
         }
 
         [Fact]
         public void OnExitWithNamedDelegateActionAndDescription()
         {
-            var expected = prefix(Style.SLE) + box(Style.SLE, "A", null, new List<string>() { "exitA" }) + suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
                 .OnExit(OnExit, "exitA");
 
-            Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo(), new SleGraphStyle()));
+            var expected = prefix(Style.UML) + box(Style.UML, "A", null, new List<string>() { "exitA" }) + suffix;
+            Assert.Equal(expected, UmlDotGraph.Format(sm.GetInfo()));
+            expected = prefix(Style.UML) + box(Style.UML, "A", null, new List<string>() { "exitA" }) + suffix;
+            Assert.Equal(expected, UmlDotGraph.Format(sm.GetInfo()));
         }
 
         [Fact]
         public void TransitionWithIgnore()
         {
             // Ignored triggers do not appear in the graph
-            var expected = prefix(Style.SLE) + box(Style.SLE, "A") + box(Style.SLE, "B") + line("A", "B", "X") + " " + suffix;
+            var expected = prefix(Style.UML)
+                + box(Style.UML, "A") + box(Style.UML, "B")
+                + line("A", "B", "X")
+                + line("A", "A", "Y")
+                + suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -387,16 +360,20 @@ namespace Stateless.Tests
                 .Ignore(Trigger.Y)
                 .Permit(Trigger.X, State.B);
 
-            Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo(), new SleGraphStyle()));
+            Assert.Equal(expected, Graph.UmlDotGraph.Format(sm.GetInfo()));
         }
 
         [Fact]
         public void OnEntryWithTriggerParameter()
         {
-            var expected = prefix(Style.SLE) + box(Style.SLE, "A", new List<string>() { "OnEntry", "TestEntryAction", "TestEntryActionString" })
-                + box(Style.SLE, "B") + box(Style.SLE, "C")
-                + line("A", "B", "X") + line("A", "C", "Y IsTriggerY") + line("A", "B", "Z IsTriggerZ")
-                + " " + suffix;
+            Debug.WriteLine("DotGraphFixture.OnEntryWithTriggerParameter()");
+
+            var expected = prefix(Style.UML) + box(Style.UML, "A", new List<string>() { "OnEntry" })
+                + box(Style.UML, "B") + box(Style.UML, "C")
+                + line("A", "B", "X / BX")
+                + line("A", "C", "Y / TestEntryActionString [IsTriggerY]")
+                + line("A", "B", "Z [IsTriggerZ]")
+                + suffix;
 
             Func<bool> anonymousGuard = () => true;
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -404,13 +381,17 @@ namespace Stateless.Tests
 
             sm.Configure(State.A)
                 .OnEntry(() => { }, "OnEntry")
-                .OnEntryFrom(Trigger.X, TestEntryAction)
-                .OnEntryFrom(parmTrig, TestEntryActionString)
                 .Permit(Trigger.X, State.B)
                 .PermitIf(Trigger.Y, State.C, anonymousGuard, "IsTriggerY")
                 .PermitIf(Trigger.Z, State.B, anonymousGuard, "IsTriggerZ");
 
-            string dotGraph = DotGraphFormatter.Format(sm.GetInfo(), new SleGraphStyle());
+            sm.Configure(State.B)
+                .OnEntryFrom(Trigger.X, TestEntryAction, "BX");
+
+            sm.Configure(State.C)
+                .OnEntryFrom(parmTrig, TestEntryActionString);
+
+            string dotGraph = UmlDotGraph.Format(sm.GetInfo());
 #if WRITE_DOTS_TO_FOLDER
             System.IO.File.WriteAllText(DestinationFolder + "OnEntryWithTriggerParameter.dot", dotGraph);
 #endif
@@ -421,14 +402,15 @@ namespace Stateless.Tests
         [Fact]
         public void UmlWithSubstate()
         {
+            Debug.WriteLine("DotGraphFixture.UmlWithSubstate()");
+
             var expected = prefix(Style.UML)
-                + subgraph(Style.UML, "cluster0", "D",
-                    box(Style.UML, "D")
-                    + box(Style.UML, "B")
+                + subgraph(Style.UML, "D", "D",
+                    box(Style.UML, "B")
                     + box(Style.UML, "C"))
                 + box(Style.UML, "A", new List<string>() { "EnterA" }, new List<string>() { "ExitA" })
                 + line("A", "B", "X") + line("A", "C", "Y")
-                + " " + suffix;
+                + suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -443,7 +425,7 @@ namespace Stateless.Tests
             sm.Configure(State.C)
                 .SubstateOf(State.D);
 
-            string dotGraph = DotGraphFormatter.Format(sm.GetInfo(), new UmlGraphStyle());
+            string dotGraph = UmlDotGraph.Format(sm.GetInfo());
 #if WRITE_DOTS_TO_FOLDER
             System.IO.File.WriteAllText(DestinationFolder + "UmlWithSubstate.dot", dotGraph);
 #endif
@@ -454,22 +436,60 @@ namespace Stateless.Tests
         [Fact]
         public void UmlWithDynamic()
         {
+            Debug.WriteLine("DotGraphFixture.UmlWithDynamic()");
+
             var expected = prefix(Style.UML)
                 + box(Style.UML, "A")
+                + box(Style.UML, "B")
+                + box(Style.UML, "C")
                 + decision(Style.UML, "Decision1", "DestinationSelector")
                 + line("A", "Decision1", "X")
-                + line("Decision1", "B", "ChoseB")
-                + line("Decision1", "C", "ChoseC")
-                + " " + suffix;
+                + line("Decision1", "B", "X [ChoseB]")
+                + line("Decision1", "C", "X [ChoseC]")
+                + suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
                 .PermitDynamic(Trigger.X, DestinationSelector, null, new Reflection.DynamicStateInfos { { State.B, "ChoseB"}, { State.C, "ChoseC" } });
 
-            string dotGraph = DotGraphFormatter.Format(sm.GetInfo(), new UmlGraphStyle());
+            sm.Configure(State.B);
+            sm.Configure(State.C);
+
+            string dotGraph = UmlDotGraph.Format(sm.GetInfo());
 #if WRITE_DOTS_TO_FOLDER
             System.IO.File.WriteAllText(DestinationFolder + "UmlWithDynamic.dot", dotGraph);
+#endif
+
+            Assert.Equal(expected, dotGraph);
+        }
+
+        [Fact]
+        public void TransitionWithIgnoreAndEntry()
+        {
+            var expected = prefix(Style.UML)
+                + box(Style.UML, "A", new List<string>() { "DoEntry" })
+                + box(Style.UML, "B", new List<string>() { "DoThisEntry" })
+                + line("A", "B", "X")
+                + line("A", "A", "Y") 
+                + line("B", "B", "Z / DoThisEntry")
+                + suffix;
+
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .OnEntry(TestEntryAction, "DoEntry")
+                .Ignore(Trigger.Y)
+                .Permit(Trigger.X, State.B);
+
+            sm.Configure(State.B)
+                .OnEntry(TestEntryAction, "DoThisEntry")
+                .PermitReentry(Trigger.Z);
+
+            string dotGraph = UmlDotGraph.Format(sm.GetInfo());
+
+#if WRITE_DOTS_TO_FOLDER
+            System.IO.File.WriteAllText(DestinationFolder + "TransitionWithIgnoreAndEntry.dot", dotGraph);
 #endif
 
             Assert.Equal(expected, dotGraph);
