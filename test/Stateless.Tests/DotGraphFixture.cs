@@ -1,8 +1,7 @@
-﻿#define WRITE_DOTS_TO_FOLDER
+﻿// #define WRITE_DOTS_TO_FOLDER
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Xunit;
 using Stateless.Reflection;
 using Stateless.Graph;
@@ -366,8 +365,6 @@ namespace Stateless.Tests
         [Fact]
         public void OnEntryWithTriggerParameter()
         {
-            Debug.WriteLine("DotGraphFixture.OnEntryWithTriggerParameter()");
-
             var expected = prefix(Style.UML) + box(Style.UML, "A", new List<string>() { "OnEntry" })
                 + box(Style.UML, "B") + box(Style.UML, "C")
                 + line("A", "B", "X / BX")
@@ -402,8 +399,6 @@ namespace Stateless.Tests
         [Fact]
         public void UmlWithSubstate()
         {
-            Debug.WriteLine("DotGraphFixture.UmlWithSubstate()");
-
             var expected = prefix(Style.UML)
                 + subgraph(Style.UML, "D", "D",
                     box(Style.UML, "B")
@@ -436,8 +431,6 @@ namespace Stateless.Tests
         [Fact]
         public void UmlWithDynamic()
         {
-            Debug.WriteLine("DotGraphFixture.UmlWithDynamic()");
-
             var expected = prefix(Style.UML)
                 + box(Style.UML, "A")
                 + box(Style.UML, "B")

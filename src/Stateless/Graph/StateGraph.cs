@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 using Stateless.Reflection;
@@ -20,8 +19,6 @@ namespace Stateless.Graph
 
         public StateGraph(StateMachineInfo machineInfo)
         {
-            Debug.WriteLine("Graph.Graph(machineInfo)");
-
             // Start with top-level superstates
             foreach (var stateInfo in machineInfo.States.Where(sc => (sc.Substates?.Count() > 0) && (sc.Superstate == null)))
             {
@@ -43,7 +40,6 @@ namespace Stateless.Graph
                 State fromState = States[stateInfo.UnderlyingState.ToString()];
                 foreach (var fix in stateInfo.FixedTransitions)
                 {
-                    Debug.WriteLine("   Processing fixed transition from " + stateInfo.UnderlyingState + " to " + fix.DestinationState);
                     State toState = States[fix.DestinationState.UnderlyingState.ToString()];
                     if (fromState == toState)
                     {
@@ -75,9 +71,7 @@ namespace Stateless.Graph
                         {
                             State toState = null;
                             States.TryGetValue(dynamicStateInfo.DestinationState, out toState);
-                            if (toState == null)
-                                Debug.WriteLine("*** Dynamic state info specifies unexpected destination state \"" + dynamicStateInfo.DestinationState + "\"");
-                            else
+                            if (toState != null)
                             {
                                 DynamicTransition dtrans = new DynamicTransition(decide, toState, dyno.Trigger, dynamicStateInfo.Criterion);
                                 Transitions.Add(dtrans);
@@ -104,23 +98,15 @@ namespace Stateless.Graph
                 {
                     if (entryAction.FromTrigger != null)
                     {
-                        Debug.WriteLine("   Processing EntryAction into state " + stateInfo.UnderlyingState + " with trigger " + entryAction.FromTrigger);
                         // This 'state' has an 'entryAction' that only fires when it gets the trigger 'entryAction.FromTrigger'
                         // Does it have any incoming transitions that specify that trigger?
-                        int numMatches = 0;
                         foreach (var transit in state.Arriving)
                         {
                             if ( (transit.ExecuteEntryExitActions)
                                 && (transit.Trigger.UnderlyingTrigger.ToString() == entryAction.FromTrigger) )
                             {
                                 transit.DestinationEntryActions.Add(entryAction);
-                                numMatches++;
                             }
-                        }
-                        if (numMatches == 0)
-                        {
-                            Debug.WriteLine("Warning: State(" + state.NodeName + ").OnEntryFrom(" + entryAction.FromTrigger.ToString()
-                                + ") found no matching transitions");
                         }
                     }
                 }
@@ -168,7 +154,7 @@ namespace Stateless.Graph
             {
                 if (States.ContainsKey(subState.UnderlyingState.ToString()))
                 {
-                    Debug.WriteLine("*** Attempt to add state multiple times");
+                    // This shouldn't happen
                 }
                 else if (subState.Substates.Count() > 0)
                 {
