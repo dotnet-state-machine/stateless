@@ -406,7 +406,7 @@ namespace Stateless.Tests
             bool fired = false;
 
             sm.Configure(State.A)
-                .Permit(Trigger.X, State.B, () => fired = true);
+                .Permit(Trigger.X, State.B).Do(() => fired = true);
 
             sm.Fire(Trigger.X);
 
@@ -436,8 +436,8 @@ namespace Stateless.Tests
             int value = 0;
 
             sm.Configure(State.A)
-                .PermitIf(Trigger.X, State.B, () => true, () => value = 1)
-                .PermitIf(Trigger.X, State.C, () => false, () => value = 2);
+                .Permit(Trigger.X, State.B).If(() => true).Do(() => value = 1)
+                .Permit(Trigger.X, State.C).If(() => false).Do(() => value = 2);
 
             sm.Fire(Trigger.X);
 

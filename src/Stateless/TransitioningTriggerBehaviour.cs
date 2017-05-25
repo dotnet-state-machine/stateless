@@ -10,8 +10,10 @@ namespace Stateless
         internal class TransitioningTriggerBehaviour : TriggerBehaviour
         {
             readonly TState _destination;
-            readonly Action _triggerAction = null;
-            readonly Reflection.InvocationInfo _triggerActionInfo = null;
+            Action _triggerAction = null;
+            Reflection.InvocationInfo _triggerActionInfo = null;
+
+            public object Tag { get; internal set; } = null;
 
             internal TState Destination { get { return _destination; } }
 
@@ -29,6 +31,12 @@ namespace Stateless
                 _destination = destination;
                 _triggerAction = action;
                 _triggerActionInfo = invocationInfo;
+            }
+
+            public void SetAction(Action action, Reflection.InvocationInfo info)
+            {
+                _triggerAction = action;
+                _triggerActionInfo = info;
             }
 
             public override bool ResultsInTransitionFrom(TState source, object[] args, out TState destination)

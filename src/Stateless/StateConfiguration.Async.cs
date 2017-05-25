@@ -24,8 +24,8 @@ namespace Stateless
             {
                 if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard));
-                _representation.AddInternalAction(trigger, (t, args) => entryAction(t));
+                Representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard));
+                Representation.AddInternalAction(trigger, (t, args) => entryAction(t));
                 return this;
             }
 
@@ -40,8 +40,8 @@ namespace Stateless
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard));
-                _representation.AddInternalAction(trigger, (t, args) => internalAction());
+                Representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard));
+                Representation.AddInternalAction(trigger, (t, args) => internalAction());
                 return this;
             }
 
@@ -57,8 +57,8 @@ namespace Stateless
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard));
-                _representation.AddInternalAction(trigger, (t, args) => internalAction(t));
+                Representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard));
+                Representation.AddInternalAction(trigger, (t, args) => internalAction(t));
                 return this;
             }
 
@@ -74,8 +74,8 @@ namespace Stateless
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard));
-                _representation.AddInternalAction(trigger.Trigger, (t, args) => internalAction(ParameterConversion.Unpack<TArg0>(args, 0), t));
+                Representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard));
+                Representation.AddInternalAction(trigger.Trigger, (t, args) => internalAction(ParameterConversion.Unpack<TArg0>(args, 0), t));
                 return this;
             }
 
@@ -92,8 +92,8 @@ namespace Stateless
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard));
-                _representation.AddInternalAction(trigger.Trigger, (t, args) => internalAction(
+                Representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard));
+                Representation.AddInternalAction(trigger.Trigger, (t, args) => internalAction(
                     ParameterConversion.Unpack<TArg0>(args, 0),
                     ParameterConversion.Unpack<TArg1>(args, 1), t));
                 return this;
@@ -113,8 +113,8 @@ namespace Stateless
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard));
-                _representation.AddInternalAction(trigger.Trigger, (t, args) => internalAction(
+                Representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard));
+                Representation.AddInternalAction(trigger.Trigger, (t, args) => internalAction(
                     ParameterConversion.Unpack<TArg0>(args, 0),
                     ParameterConversion.Unpack<TArg1>(args, 1),
                     ParameterConversion.Unpack<TArg2>(args, 2), t));
@@ -202,7 +202,7 @@ namespace Stateless
             public StateConfiguration OnActivateAsync(Func<Task> activateAction, string activateActionDescription = null)
             {
                 Enforce.ArgumentNotNull(activateAction, nameof(activateAction));
-                _representation.AddActivateAction(
+                Representation.AddActivateAction(
                     activateAction,
                     Reflection.InvocationInfo.Create(activateAction, activateActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
                 return this;
@@ -218,7 +218,7 @@ namespace Stateless
             public StateConfiguration OnDeactivateAsync(Func<Task> deactivateAction, string deactivateActionDescription = null)
             {
                 Enforce.ArgumentNotNull(deactivateAction, nameof(deactivateAction));
-                _representation.AddDeactivateAction(
+                Representation.AddDeactivateAction(
                     deactivateAction,
                     Reflection.InvocationInfo.Create(deactivateAction, deactivateActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
                 return this;
@@ -234,7 +234,7 @@ namespace Stateless
             public StateConfiguration OnEntryAsync(Func<Task> entryAction, string entryActionDescription = null)
             {
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                _representation.AddEntryAction(
+                Representation.AddEntryAction(
                     (t, args) => entryAction(),
                     Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
                 return this;
@@ -251,7 +251,7 @@ namespace Stateless
             public StateConfiguration OnEntryAsync(Func<Transition, Task> entryAction, string entryActionDescription = null)
             {
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                _representation.AddEntryAction(
+                Representation.AddEntryAction(
                     (t, args) => entryAction(t),
                     Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
                 return this;
@@ -268,7 +268,7 @@ namespace Stateless
             public StateConfiguration OnEntryFromAsync(TTrigger trigger, Func<Task> entryAction, string entryActionDescription = null)
             {
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                _representation.AddEntryAction(
+                Representation.AddEntryAction(
                     trigger,
                     (t, args) => entryAction(),
                     Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
@@ -286,7 +286,7 @@ namespace Stateless
             public StateConfiguration OnEntryFromAsync(TTrigger trigger, Func<Transition, Task> entryAction, string entryActionDescription = null)
             {
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                _representation.AddEntryAction(
+                Representation.AddEntryAction(
                     trigger,
                     (t, args) => entryAction(t),
                     Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
@@ -306,7 +306,7 @@ namespace Stateless
             {
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
                 Enforce.ArgumentNotNull(trigger, nameof(trigger));
-                _representation.AddEntryAction(
+                Representation.AddEntryAction(
                     trigger.Trigger,
                     (t, args) => entryAction(
                         ParameterConversion.Unpack<TArg0>(args, 0)),
@@ -327,7 +327,7 @@ namespace Stateless
             {
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
                 Enforce.ArgumentNotNull(trigger, nameof(trigger));
-                _representation.AddEntryAction(
+                Representation.AddEntryAction(
                     trigger.Trigger,
                     (t, args) => entryAction(
                         ParameterConversion.Unpack<TArg0>(args, 0), t),
@@ -349,7 +349,7 @@ namespace Stateless
             {
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
                 Enforce.ArgumentNotNull(trigger, nameof(trigger));
-                _representation.AddEntryAction(trigger.Trigger,
+                Representation.AddEntryAction(trigger.Trigger,
                     (t, args) => entryAction(
                         ParameterConversion.Unpack<TArg0>(args, 0),
                         ParameterConversion.Unpack<TArg1>(args, 1)),
@@ -371,7 +371,7 @@ namespace Stateless
             {
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
                 Enforce.ArgumentNotNull(trigger, nameof(trigger));
-                _representation.AddEntryAction(trigger.Trigger,
+                Representation.AddEntryAction(trigger.Trigger,
                     (t, args) => entryAction(
                         ParameterConversion.Unpack<TArg0>(args, 0),
                         ParameterConversion.Unpack<TArg1>(args, 1), t),
@@ -394,7 +394,7 @@ namespace Stateless
             {
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
                 Enforce.ArgumentNotNull(trigger, nameof(trigger));
-                _representation.AddEntryAction(trigger.Trigger,
+                Representation.AddEntryAction(trigger.Trigger,
                     (t, args) => entryAction(
                         ParameterConversion.Unpack<TArg0>(args, 0),
                         ParameterConversion.Unpack<TArg1>(args, 1),
@@ -418,7 +418,7 @@ namespace Stateless
             {
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
                 Enforce.ArgumentNotNull(trigger, nameof(trigger));
-                _representation.AddEntryAction(trigger.Trigger,
+                Representation.AddEntryAction(trigger.Trigger,
                     (t, args) => entryAction(
                         ParameterConversion.Unpack<TArg0>(args, 0),
                         ParameterConversion.Unpack<TArg1>(args, 1),
@@ -437,7 +437,7 @@ namespace Stateless
             public StateConfiguration OnExitAsync(Func<Task> exitAction, string exitActionDescription = null)
             {
                 Enforce.ArgumentNotNull(exitAction, nameof(exitAction));
-                _representation.AddExitAction(
+                Representation.AddExitAction(
                     t => exitAction(),
                     Reflection.InvocationInfo.Create(exitAction, exitActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
                 return this;
@@ -453,7 +453,7 @@ namespace Stateless
             public StateConfiguration OnExitAsync(Func<Transition, Task> exitAction, string exitActionDescription = null)
             {
                 Enforce.ArgumentNotNull(exitAction, nameof(exitAction));
-                _representation.AddExitAction(
+                Representation.AddExitAction(
                     exitAction,
                     Reflection.InvocationInfo.Create(exitAction, exitActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
                 return this;

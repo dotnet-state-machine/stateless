@@ -9,25 +9,78 @@ namespace Stateless
     public partial class StateMachine<TState, TTrigger>
     {
         /// <summary>
+        /// Does everything StateConfiguration does, but only comes after a specific trigger has been
+        /// defined, so we can add options to the trigger's behaviour
+        /// </summary>
+        public class TriggerConfiguration : StateConfiguration
+        {
+            TransitioningTriggerBehaviour Trigger;
+
+            internal TriggerConfiguration(StateConfiguration config, TransitioningTriggerBehaviour trigger)
+                : base(config.Machine, config.Representation, config.Lookup)
+            {
+                Trigger = trigger;
+            }
+
+            /// <summary>
+            /// Specify a guard condition for this transition
+            /// </summary>
+            /// <param name="guard"></param>
+            /// <param name="guardDescription"></param>
+            /// <returns></returns>
+            public TriggerConfiguration If(Func<bool> guard, string guardDescription = null)
+            {
+                Trigger.Guard = new TransitionGuard(guard, guardDescription);
+
+                return this;
+            }
+
+            /// <summary>
+            /// Specify an action to be executed when this transition is executed
+            /// </summary>
+            /// <param name="action"></param>
+            /// <param name="actionDescription"></param>
+            /// <returns></returns>
+            public TriggerConfiguration Do(Action action, string actionDescription = null)
+            {
+                Trigger.SetAction(action, Reflection.InvocationInfo.Create(action, actionDescription));
+
+                return this;
+            }
+
+            /// <summary>
+            /// Specify a tag to be associated with this transition
+            /// </summary>
+            /// <param name="tag"></param>
+            /// <returns></returns>
+            public TriggerConfiguration Tag(object tag)
+            {
+                Trigger.Tag = tag;
+
+                return this;
+            }
+        }
+
+        /// <summary>
         /// The configuration for a single state value.
         /// </summary>
         public partial class StateConfiguration
         {
-            private readonly StateMachine<TState, TTrigger> _machine;
-            readonly StateRepresentation _representation;
-            readonly Func<TState, StateRepresentation> _lookup;
+            readonly StateMachine<TState, TTrigger> _machine;
+            internal readonly StateRepresentation Representation;
+            internal readonly Func<TState, StateRepresentation> Lookup;
 
             internal StateConfiguration(StateMachine<TState, TTrigger> machine, StateRepresentation representation, Func<TState, StateRepresentation> lookup)
             {
                 _machine = Enforce.ArgumentNotNull(machine, nameof(machine));
-                _representation = Enforce.ArgumentNotNull(representation, nameof(representation));
-                _lookup = Enforce.ArgumentNotNull(lookup, nameof(lookup));
+                Representation = Enforce.ArgumentNotNull(representation, nameof(representation));
+                Lookup = Enforce.ArgumentNotNull(lookup, nameof(lookup));
             }
 
             /// <summary>
             /// The state that is configured with this configuration.
             /// </summary>
-            public TState State { get { return _representation.UnderlyingState; } }
+            public TState State { get { return Representation.UnderlyingState; } }
 
             /// <summary>
             /// The machine that is configured with this configuration.
@@ -41,34 +94,15 @@ namespace Stateless
             /// <param name="destinationState">The state that the trigger will cause a
             /// transition to.</param>
             /// <returns>The reciever.</returns>
-            public StateConfiguration Permit(TTrigger trigger, TState destinationState)
+            public TriggerConfiguration Permit(TTrigger trigger, TState destinationState)
             {
                 EnforceNotIdentityTransition(destinationState);
-                return InternalPermit(trigger, destinationState);
-            }
 
-            /// <summary>
-            /// Accept the specified trigger and transition to the destination state, executing
-            /// the specified action.
-            /// </summary>
-            /// <param name="trigger">The accepted trigger.</param>
-            /// <param name="destinationState">The state that the trigger will cause a
-            /// transition to.</param>
-            /// <param name="triggerAction">Action to execute when the trigger is fired.</param>
-            /// <param name="triggerActionDescription">Action description.</param>
-            /// <returns>The reciever.</returns>
-            public StateConfiguration Permit(TTrigger trigger, TState destinationState, Action triggerAction, string triggerActionDescription = null)
-            {
-                EnforceNotIdentityTransition(destinationState);
-                if (triggerAction == null) throw new ArgumentNullException(nameof(triggerAction));
-                _representation.AddTriggerBehaviour(
-                    new TransitioningTriggerBehaviour(
-                        trigger,
-                        destinationState,
-                        null,               // No guard function
-                        triggerAction,
-                        Reflection.InvocationInfo.Create(triggerAction, triggerActionDescription)));
-                return this;
+                TransitioningTriggerBehaviour ttb = new TransitioningTriggerBehaviour(trigger, destinationState, null);
+
+                Representation.AddTriggerBehaviour(ttb);
+
+                return new TriggerConfiguration(this, ttb);
             }
 
             /// <summary>
@@ -93,8 +127,8 @@ namespace Stateless
             {
                 if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard));
-                _representation.AddInternalAction(trigger, (t, args) => entryAction(t));
+                Representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard));
+                Representation.AddInternalAction(trigger, (t, args) => entryAction(t));
                 return this;
             }
 
@@ -120,8 +154,8 @@ namespace Stateless
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard));
-                _representation.AddInternalAction(trigger, (t, args) => internalAction());
+                Representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard));
+                Representation.AddInternalAction(trigger, (t, args) => internalAction());
                 return this;
             }
 
@@ -137,8 +171,8 @@ namespace Stateless
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard));
-                _representation.AddInternalAction(trigger, (t, args) => internalAction(t));
+                Representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard));
+                Representation.AddInternalAction(trigger, (t, args) => internalAction(t));
                 return this;
             }
             
@@ -178,8 +212,8 @@ namespace Stateless
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard));
-                _representation.AddInternalAction(trigger.Trigger, (t, args) => internalAction(ParameterConversion.Unpack<TArg0>(args, 0), t));
+                Representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard));
+                Representation.AddInternalAction(trigger.Trigger, (t, args) => internalAction(ParameterConversion.Unpack<TArg0>(args, 0), t));
                 return this;
             }
 
@@ -210,8 +244,8 @@ namespace Stateless
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard));
-                _representation.AddInternalAction(trigger.Trigger, (t, args) => internalAction(
+                Representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard));
+                Representation.AddInternalAction(trigger.Trigger, (t, args) => internalAction(
                     ParameterConversion.Unpack<TArg0>(args, 0),
                     ParameterConversion.Unpack<TArg1>(args, 1), t));
                 return this;
@@ -231,8 +265,8 @@ namespace Stateless
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard));
-                _representation.AddInternalAction(trigger.Trigger, (t, args) => internalAction(
+                Representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard));
+                Representation.AddInternalAction(trigger.Trigger, (t, args) => internalAction(
                     ParameterConversion.Unpack<TArg0>(args, 0),
                     ParameterConversion.Unpack<TArg1>(args, 1),
                     ParameterConversion.Unpack<TArg2>(args, 2), t));
@@ -273,53 +307,7 @@ namespace Stateless
                     destinationState,
                     new TransitionGuard(guard, guardDescription));
             }
-            /// <summary>
-            /// Accept the specified trigger and transition to the destination state.
-            /// </summary>
-            /// <param name="trigger">The accepted trigger.</param>
-            /// <param name="destinationState">The state that the trigger will cause a
-            /// transition to.</param>
-            /// <param name="guard">Function that must return true in order for the
-            /// trigger to be accepted.</param>
-            /// <param name="guardDescription">Guard description</param>
-            /// <param name="triggerAction">Action to execute when the trigger is fired.</param>
-            /// <param name="triggerActionDescription">Action description.</param>
-            /// <returns>The reciever.</returns>
-            public StateConfiguration PermitIf(TTrigger trigger, TState destinationState,
-                Func<bool> guard, string guardDescription,
-                Action triggerAction, string triggerActionDescription = null)
-            {
-                EnforceNotIdentityTransition(destinationState);
-                if (triggerAction == null) throw new ArgumentNullException(nameof(triggerAction));
 
-                _representation.AddTriggerBehaviour(
-                    new TransitioningTriggerBehaviour(
-                        trigger,
-                        destinationState,
-                        new TransitionGuard(guard, guardDescription),
-                        triggerAction,
-                        Reflection.InvocationInfo.Create(triggerAction, triggerActionDescription)
-                        )
-                    );
-                return this;
-            }
-            /// <summary>
-            /// Accept the specified trigger and transition to the destination state.
-            /// </summary>
-            /// <param name="trigger">The accepted trigger.</param>
-            /// <param name="destinationState">The state that the trigger will cause a
-            /// transition to.</param>
-            /// <param name="guard">Function that must return true in order for the
-            /// trigger to be accepted.</param>
-            /// <param name="triggerAction">Action to execute when the trigger is fired.</param>
-            /// <param name="triggerActionDescription">Action description.</param>
-            /// <returns>The reciever.</returns>
-            public StateConfiguration PermitIf(TTrigger trigger, TState destinationState,
-                Func<bool> guard, 
-                Action triggerAction, string triggerActionDescription = null)
-            {
-                return PermitIf(trigger, destinationState, guard, null, triggerAction, triggerActionDescription);
-            }
             /// <summary>
             /// Accept the specified trigger and transition to the destination state.
             /// </summary>
@@ -350,7 +338,7 @@ namespace Stateless
             /// </remarks>
             public StateConfiguration PermitReentry(TTrigger trigger)
             {
-                return InternalPermit(trigger, _representation.UnderlyingState);
+                return InternalPermit(trigger, Representation.UnderlyingState);
             }
 
             /// <summary>
@@ -370,7 +358,7 @@ namespace Stateless
             {
                 return InternalPermitIf(
                     trigger,
-                    _representation.UnderlyingState,
+                    Representation.UnderlyingState,
                     new TransitionGuard(guard, guardDescription));
             }
 
@@ -390,7 +378,7 @@ namespace Stateless
             {
                 return InternalPermitIf(
                     trigger,
-                    _representation.UnderlyingState,
+                    Representation.UnderlyingState,
                     new TransitionGuard(guards));
             }
 
@@ -403,7 +391,7 @@ namespace Stateless
             {
                 // return IgnoreIf(trigger, NoGuard);
                 // Enforce.ArgumentNotNull(guard, nameof(guard));
-                _representation.AddTriggerBehaviour(
+                Representation.AddTriggerBehaviour(
                     new IgnoredTriggerBehaviour(
                         trigger,
                         null));
@@ -422,7 +410,7 @@ namespace Stateless
             public StateConfiguration IgnoreIf(TTrigger trigger, Func<bool> guard, string guardDescription = null)
             {
                 Enforce.ArgumentNotNull(guard, nameof(guard));
-                _representation.AddTriggerBehaviour(
+                Representation.AddTriggerBehaviour(
                     new IgnoredTriggerBehaviour(
                         trigger,
                         new TransitionGuard(guard, guardDescription)
@@ -441,7 +429,7 @@ namespace Stateless
             public StateConfiguration IgnoreIf(TTrigger trigger, params Tuple<Func<bool>, string>[] guards)
             {
                 Enforce.ArgumentNotNull(guards, nameof(guards));
-                _representation.AddTriggerBehaviour(
+                Representation.AddTriggerBehaviour(
                     new IgnoredTriggerBehaviour(
                         trigger,
                         new TransitionGuard(guards)));
@@ -458,7 +446,7 @@ namespace Stateless
             public StateConfiguration OnActivate(Action activateAction, string activateActionDescription = null)
             {
                 Enforce.ArgumentNotNull(activateAction, nameof(activateAction));
-                _representation.AddActivateAction(
+                Representation.AddActivateAction(
                     activateAction,
                     Reflection.InvocationInfo.Create(activateAction, activateActionDescription));
                 return this;
@@ -474,7 +462,7 @@ namespace Stateless
             public StateConfiguration OnDeactivate(Action deactivateAction, string deactivateActionDescription = null)
             {
                 Enforce.ArgumentNotNull(deactivateAction, nameof(deactivateAction));
-                _representation.AddDeactivateAction(
+                Representation.AddDeactivateAction(
                     deactivateAction,
                     Reflection.InvocationInfo.Create(deactivateAction, deactivateActionDescription));
                 return this;
@@ -490,7 +478,7 @@ namespace Stateless
             public StateConfiguration OnEntry(Action entryAction, string entryActionDescription = null)
             {
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                _representation.AddEntryAction(
+                Representation.AddEntryAction(
                     (t, args) => entryAction(),
                     Reflection.InvocationInfo.Create(entryAction, entryActionDescription));
                 return this;
@@ -507,7 +495,7 @@ namespace Stateless
             public StateConfiguration OnEntry(Action<Transition> entryAction, string entryActionDescription = null)
             {
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                _representation.AddEntryAction(
+                Representation.AddEntryAction(
                     (t, args) => entryAction(t),
                     Reflection.InvocationInfo.Create(entryAction, entryActionDescription));
                 return this;
@@ -524,7 +512,7 @@ namespace Stateless
             public StateConfiguration OnEntryFrom(TTrigger trigger, Action entryAction, string entryActionDescription = null)
             {
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                _representation.AddEntryAction(
+                Representation.AddEntryAction(
                     trigger,
                     (t, args) => entryAction(),
                     Reflection.InvocationInfo.Create(entryAction, entryActionDescription));
@@ -543,7 +531,7 @@ namespace Stateless
             public StateConfiguration OnEntryFrom(TTrigger trigger, Action<Transition> entryAction, string entryActionDescription = null)
             {
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                _representation.AddEntryAction(
+                Representation.AddEntryAction(
                     trigger,
                     (t, args) => entryAction(t),
                     Reflection.InvocationInfo.Create(entryAction, entryActionDescription));
@@ -563,7 +551,7 @@ namespace Stateless
             {
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
                 Enforce.ArgumentNotNull(trigger, nameof(trigger));
-                _representation.AddEntryAction(
+                Representation.AddEntryAction(
                     trigger.Trigger,
                     (t, args) => entryAction(
                         ParameterConversion.Unpack<TArg0>(args, 0)),
@@ -585,7 +573,7 @@ namespace Stateless
             {
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
                 Enforce.ArgumentNotNull(trigger, nameof(trigger));
-                _representation.AddEntryAction(
+                Representation.AddEntryAction(
                     trigger.Trigger,
                     (t, args) => entryAction(
                         ParameterConversion.Unpack<TArg0>(args, 0), t),
@@ -608,7 +596,7 @@ namespace Stateless
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
                 Enforce.ArgumentNotNull(trigger, nameof(trigger));
 
-                _representation.AddEntryAction(trigger.Trigger,
+                Representation.AddEntryAction(trigger.Trigger,
                     (t, args) => entryAction(
                         ParameterConversion.Unpack<TArg0>(args, 0),
                         ParameterConversion.Unpack<TArg1>(args, 1)),
@@ -631,7 +619,7 @@ namespace Stateless
             {
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
                 Enforce.ArgumentNotNull(trigger, nameof(trigger));
-                _representation.AddEntryAction(trigger.Trigger, (t, args) => entryAction(
+                Representation.AddEntryAction(trigger.Trigger, (t, args) => entryAction(
                     ParameterConversion.Unpack<TArg0>(args, 0),
                     ParameterConversion.Unpack<TArg1>(args, 1), t),
                     Reflection.InvocationInfo.Create(entryAction, entryActionDescription));
@@ -653,7 +641,7 @@ namespace Stateless
             {
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
                 Enforce.ArgumentNotNull(trigger, nameof(trigger));
-                _representation.AddEntryAction(trigger.Trigger, (t, args) => entryAction(
+                Representation.AddEntryAction(trigger.Trigger, (t, args) => entryAction(
                     ParameterConversion.Unpack<TArg0>(args, 0),
                     ParameterConversion.Unpack<TArg1>(args, 1),
                     ParameterConversion.Unpack<TArg2>(args, 2)),
@@ -677,7 +665,7 @@ namespace Stateless
             {
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
                 Enforce.ArgumentNotNull(trigger, nameof(trigger));
-                _representation.AddEntryAction(trigger.Trigger, (t, args) => entryAction(
+                Representation.AddEntryAction(trigger.Trigger, (t, args) => entryAction(
                     ParameterConversion.Unpack<TArg0>(args, 0),
                     ParameterConversion.Unpack<TArg1>(args, 1),
                     ParameterConversion.Unpack<TArg2>(args, 2), t),
@@ -695,7 +683,7 @@ namespace Stateless
             public StateConfiguration OnExit(Action exitAction, string exitActionDescription = null)
             {
                 Enforce.ArgumentNotNull(exitAction, nameof(exitAction));
-                _representation.AddExitAction(
+                Representation.AddExitAction(
                     t => exitAction(),
                     Reflection.InvocationInfo.Create(exitAction, exitActionDescription));
                 return this;
@@ -711,7 +699,7 @@ namespace Stateless
             public StateConfiguration OnExit(Action<Transition> exitAction, string exitActionDescription = null)
             {
                 Enforce.ArgumentNotNull(exitAction, nameof(exitAction));
-                _representation.AddExitAction(
+                Representation.AddExitAction(
                     exitAction,
                     Reflection.InvocationInfo.Create(exitAction, exitActionDescription));
                 return this;
@@ -732,7 +720,7 @@ namespace Stateless
                 // Downside of doing it this way: the reflection API won't be able to tell
                 // that this action is only performed for the specific trigger
 
-                _representation.AddExitAction(
+                Representation.AddExitAction(
                     (t) => { if (t.Trigger.Equals(trigger)) exitAction(); },
                     Reflection.InvocationInfo.Create(exitAction, exitActionDescription));
                 return this;
@@ -754,7 +742,7 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration SubstateOf(TState superstate)
             {
-                var State = _representation.UnderlyingState;
+                var State = Representation.UnderlyingState;
 
                 // Check for accidental identical cyclic configuration 
                 if (State.Equals(superstate))
@@ -766,7 +754,7 @@ namespace Stateless
                 var superstates = new HashSet<TState> { State };
 
                 // Build list of super states and check for 
-                var activeRepresentation = _lookup(superstate);
+                var activeRepresentation = Lookup(superstate);
                 while (activeRepresentation.Superstate != null)
                 {
                     // Check if superstate is already added to hashset
@@ -774,13 +762,13 @@ namespace Stateless
                         throw new ArgumentException($"Configuring {State} as a substate of {superstate} creates an illegal nested cyclic configuration.");
 
                     superstates.Add(activeRepresentation.Superstate.UnderlyingState);
-                    activeRepresentation = _lookup(activeRepresentation.Superstate.UnderlyingState);
+                    activeRepresentation = Lookup(activeRepresentation.Superstate.UnderlyingState);
                 }
 
                 // The check was OK, we can add this 
-                var superRepresentation = _lookup(superstate);
-                _representation.Superstate = superRepresentation;
-                superRepresentation.AddSubstate(_representation);
+                var superRepresentation = Lookup(superstate);
+                Representation.Superstate = superRepresentation;
+                superRepresentation.AddSubstate(Representation);
                 return this;
             }
 
@@ -795,7 +783,7 @@ namespace Stateless
             public StateConfiguration PermitDynamic(TTrigger trigger, Func<TState> destinationStateSelector)
             {
                 Enforce.ArgumentNotNull(destinationStateSelector, nameof(destinationStateSelector));
-                _representation.AddTriggerBehaviour(
+                Representation.AddTriggerBehaviour(
                     new DynamicTriggerBehaviour(trigger, args => destinationStateSelector(), null));
                 return this;
             }
@@ -813,7 +801,7 @@ namespace Stateless
             {
                 Enforce.ArgumentNotNull(trigger, nameof(trigger));
                 Enforce.ArgumentNotNull(destinationStateSelector, nameof(destinationStateSelector));
-                _representation.AddTriggerBehaviour(
+                Representation.AddTriggerBehaviour(
                     new DynamicTriggerBehaviour(trigger.Trigger,
                     args => destinationStateSelector(
                         ParameterConversion.Unpack<TArg0>(args, 0)),
@@ -836,7 +824,7 @@ namespace Stateless
             {
                 Enforce.ArgumentNotNull(trigger, nameof(trigger));
                 Enforce.ArgumentNotNull(destinationStateSelector, nameof(destinationStateSelector));
-                _representation.AddTriggerBehaviour(
+                Representation.AddTriggerBehaviour(
                     new DynamicTriggerBehaviour(trigger.Trigger, args => destinationStateSelector(
                         ParameterConversion.Unpack<TArg0>(args, 0),
                         ParameterConversion.Unpack<TArg1>(args, 1)),
@@ -860,7 +848,7 @@ namespace Stateless
             {
                 Enforce.ArgumentNotNull(trigger, nameof(trigger));
                 Enforce.ArgumentNotNull(destinationStateSelector, nameof(destinationStateSelector));
-                _representation.AddTriggerBehaviour(
+                Representation.AddTriggerBehaviour(
                     new DynamicTriggerBehaviour(trigger.Trigger,
                     args => destinationStateSelector(
                         ParameterConversion.Unpack<TArg0>(args, 0),
@@ -1066,7 +1054,7 @@ namespace Stateless
 
             void EnforceNotIdentityTransition(TState destination)
             {
-                if (destination.Equals(_representation.UnderlyingState))
+                if (destination.Equals(Representation.UnderlyingState))
                 {
                     throw new ArgumentException(StateConfigurationResources.SelfTransitionsEitherIgnoredOrReentrant);
                 }
@@ -1074,21 +1062,21 @@ namespace Stateless
 
             StateConfiguration InternalPermit(TTrigger trigger, TState destinationState)
             {
-                _representation.AddTriggerBehaviour(new TransitioningTriggerBehaviour(trigger, destinationState, null));
+                Representation.AddTriggerBehaviour(new TransitioningTriggerBehaviour(trigger, destinationState, null));
                 return this;
             }
 
             StateConfiguration InternalPermitIf(TTrigger trigger, TState destinationState, TransitionGuard transitionGuard)
             {
                 Enforce.ArgumentNotNull(transitionGuard, nameof(transitionGuard));
-                _representation.AddTriggerBehaviour(new TransitioningTriggerBehaviour(trigger, destinationState, transitionGuard));
+                Representation.AddTriggerBehaviour(new TransitioningTriggerBehaviour(trigger, destinationState, transitionGuard));
                 return this;
             }
 
             StateConfiguration InternalPermitDynamic(TTrigger trigger, Func<object[], TState> destinationStateSelector)
             {
                 Enforce.ArgumentNotNull(destinationStateSelector, nameof(destinationStateSelector));
-                _representation.AddTriggerBehaviour(
+                Representation.AddTriggerBehaviour(
                     new DynamicTriggerBehaviour(trigger, destinationStateSelector, null));
                 return this;
 
@@ -1098,7 +1086,7 @@ namespace Stateless
             {
                 Enforce.ArgumentNotNull(destinationStateSelector, nameof(destinationStateSelector));
                 Enforce.ArgumentNotNull(transitionGuard, nameof(transitionGuard));
-                _representation.AddTriggerBehaviour(new DynamicTriggerBehaviour(trigger, destinationStateSelector, transitionGuard));
+                Representation.AddTriggerBehaviour(new DynamicTriggerBehaviour(trigger, destinationStateSelector, transitionGuard));
                 return this;
             }
         }

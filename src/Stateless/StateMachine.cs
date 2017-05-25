@@ -283,12 +283,14 @@ namespace Stateless
                 return;
             }
 
+            TransitioningTriggerBehaviour ttb = result.Handler as TransitioningTriggerBehaviour;
+
             TState destination;
             if (result.Handler.ResultsInTransitionFrom(source, args, out destination))
             {
                 result.Handler.IsFiring();
 
-                var transition = new Transition(source, destination, trigger);
+                var transition = new Transition(source, destination, trigger, ttb?.Tag);
 
                 representativeState.Exit(transition);
 
@@ -300,7 +302,7 @@ namespace Stateless
             }
             else
             {
-                var transition = new Transition(source, destination, trigger);
+                var transition = new Transition(source, destination, trigger, ttb?.Tag);
 
                 CurrentRepresentation.InternalAction(transition, args);
             }

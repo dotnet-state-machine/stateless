@@ -148,10 +148,12 @@ namespace Stateless
                 return;
             }
 
+            TransitioningTriggerBehaviour ttb = result.Handler as TransitioningTriggerBehaviour;
+
             TState destination;
             if (result.Handler.ResultsInTransitionFrom(source, args, out destination))
             {
-                var transition = new Transition(source, destination, trigger);
+                var transition = new Transition(source, destination, trigger, ttb?.Tag);
 
                 await representativeState.ExitAsync(transition);
 
@@ -163,7 +165,7 @@ namespace Stateless
             }
             else
             {
-                var transition = new Transition(source, destination, trigger);
+                var transition = new Transition(source, destination, trigger, ttb?.Tag);
 
                 await CurrentRepresentation.InternalActionAsync(transition, args);
             }

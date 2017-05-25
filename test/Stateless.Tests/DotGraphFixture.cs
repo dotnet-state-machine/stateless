@@ -66,7 +66,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .PermitIf(Trigger.X, State.B, anonymousGuard);
+                .Permit(Trigger.X, State.B).If(anonymousGuard);
 
             Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo()));
         }
@@ -83,7 +83,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .PermitIf(Trigger.X, State.B, anonymousGuard, "description");
+                .Permit(Trigger.X, State.B).If(anonymousGuard, "description");
 
             Assert.Equal(expected, DotGraphFormatter.Format(sm.GetInfo()));
         }
