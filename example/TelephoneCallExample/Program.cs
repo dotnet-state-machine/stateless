@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Stateless;
+using Stateless.DotGraph;
+using Stateless.Reflection;
 
 namespace TelephoneCallExample
 {
@@ -11,7 +13,6 @@ namespace TelephoneCallExample
         enum Trigger
         {
             CallDialed,
-            HungUp,
             CallConnected,
             LeftMessage,
             PlacedOnHold,
@@ -42,7 +43,6 @@ namespace TelephoneCallExample
 	            .Permit(Trigger.CallDialed, State.Ringing);
 
             phoneCall.Configure(State.Ringing)
-	            .Permit(Trigger.HungUp, State.OffHook)
 	            .Permit(Trigger.CallConnected, State.Connected);
 
             phoneCall.Configure(State.Connected)
@@ -52,13 +52,11 @@ namespace TelephoneCallExample
                 .InternalTransition(Trigger.UnmuteMicrophone, t => OnUnmute())
                 .InternalTransition<int>(setVolumeTrigger, (volume, t) => OnSetVolume(volume))
                 .Permit(Trigger.LeftMessage, State.OffHook)
-	            .Permit(Trigger.HungUp, State.OffHook)
 	            .Permit(Trigger.PlacedOnHold, State.OnHold);
 
             phoneCall.Configure(State.OnHold)
                 .SubstateOf(State.Connected)
                 .Permit(Trigger.TakenOffHold, State.Connected)
-                .Permit(Trigger.HungUp, State.OffHook)
                 .Permit(Trigger.PhoneHurledAgainstWall, State.PhoneDestroyed);
 
             Print(phoneCall);
@@ -78,8 +76,6 @@ namespace TelephoneCallExample
             Print(phoneCall);
             SetVolume(phoneCall, 11);
             Print(phoneCall);
-            Fire(phoneCall, Trigger.HungUp);
-            Print(phoneCall);
 
             Console.WriteLine("Press any key...");
             Console.ReadKey(true);
@@ -92,7 +88,7 @@ namespace TelephoneCallExample
 
         private static void OnUnmute()
         {
-            Console.WriteLine("Microphone muted!");
+            Console.WriteLine("Microphone unmuted!");
         }
 
         private static void OnMute()

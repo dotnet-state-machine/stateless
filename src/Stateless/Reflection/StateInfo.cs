@@ -14,8 +14,6 @@ namespace Stateless.Reflection
             if (stateReperesentation == null)
                 throw new ArgumentException(nameof(stateReperesentation));
 
-            var entryActions = stateReperesentation.EntryActions.Select(e => e.ActionDescription).ToList();
-            var exitActions = stateReperesentation.ExitActions.Select(e => e.ActionDescription).ToList();
             var ignoredTriggers = new List<TriggerInfo>();
 
             foreach (var triggerBehaviours in stateReperesentation.TriggerBehaviours)
@@ -27,7 +25,13 @@ namespace Stateless.Reflection
                 }
             }
 
-            return new StateInfo(stateReperesentation.UnderlyingState, entryActions, exitActions, ignoredTriggers);
+            StateInfo stateInfo = new StateInfo(stateReperesentation.UnderlyingState, ignoredTriggers,
+                stateReperesentation.EntryActions.Select(e => e.Description).ToList(),
+                stateReperesentation.ActivateActions.Select(e => e.Description).ToList(),
+                stateReperesentation.DeactivateActions.Select(e => e.Description).ToList(),
+                stateReperesentation.ExitActions.Select(e => e.Description).ToList());
+       
+            return stateInfo;
         }
 
         internal static void AddRelationships<TState, TTrigger>(StateInfo info, StateMachine<TState, TTrigger>.StateRepresentation stateReperesentation, Func<TState, StateInfo> lookupState)
@@ -45,10 +49,15 @@ namespace Stateless.Reflection
             {
                 int unknowns = 0;
                 // First add all the deterministic transitions
-                foreach (var item in triggerBehaviours.Value.Where(behaviour => ((behaviour is StateMachine<TState, TTrigger>.TransitioningTriggerBehaviour)
-                                                                              || (behaviour is StateMachine<TState, TTrigger>.InternalTriggerBehaviour))))
+                foreach (var item in triggerBehaviours.Value.Where(behaviour => (behaviour is StateMachine<TState, TTrigger>.TransitioningTriggerBehaviour)))
                 {
                     var destinationInfo = lookupState(((StateMachine<TState, TTrigger>.TransitioningTriggerBehaviour)item).Destination);
+                    fixedTransitions.Add(FixedTransitionInfo.Create(item, destinationInfo));
+                }
+                //Then add all the internal transitions
+                foreach (var item in triggerBehaviours.Value.Where(behaviour => (behaviour is StateMachine<TState, TTrigger>.InternalTriggerBehaviour)))
+                {
+                    var destinationInfo = lookupState(stateReperesentation.UnderlyingState);
                     fixedTransitions.Add(FixedTransitionInfo.Create(item, destinationInfo));
                 }
                 // Then add all the dynamic transitions
@@ -63,15 +72,19 @@ namespace Stateless.Reflection
         }
 
         private StateInfo(
-            object underlyingState, 
-            IEnumerable<string> entryActions,
-            IEnumerable<string> exitActions,
-            IEnumerable<TriggerInfo> ignoredTriggers)
+            object underlyingState,
+            IEnumerable<TriggerInfo> ignoredTriggers,
+            IEnumerable<InvocationInfo> entryActions,
+            IEnumerable<InvocationInfo> activateActions,
+            IEnumerable<InvocationInfo> deactivateActions,
+            IEnumerable<InvocationInfo> exitActions)
         {
             UnderlyingState = underlyingState;
-            EntryActions = entryActions ?? throw new ArgumentNullException(nameof(entryActions));
-            ExitActions = exitActions ?? throw new ArgumentNullException(nameof(exitActions));
             IgnoredTriggers = ignoredTriggers ?? throw new ArgumentNullException(nameof(ignoredTriggers));
+            EntryActions = entryActions;
+            ActivateActions = activateActions;
+            DeactivateActions = deactivateActions;
+            ExitActions = exitActions;
         }
 
         private void AddRelationships(
@@ -102,14 +115,24 @@ namespace Stateless.Reflection
         public StateInfo Superstate { get; private set; }
 
         /// <summary>
-        /// Actions that are defined to be exectuted on state-entry.
+        /// Actions that are defined to be executed on state-entry.
         /// </summary>
-        public IEnumerable<string> EntryActions { get; private set; }
+        public IEnumerable<InvocationInfo> EntryActions { get; private set; }
+
+        /// <summary>
+        /// Actions that are defined to be executed on activation.
+        /// </summary>
+        public IEnumerable<InvocationInfo> ActivateActions { get; private set; }
+
+        /// <summary>
+        /// Actions that are defined to be executed on deactivation.
+        /// </summary>
+        public IEnumerable<InvocationInfo> DeactivateActions { get; private set; }
 
         /// <summary>
         /// Actions that are defined to be exectuted on state-exit.
         /// </summary>
-        public IEnumerable<string> ExitActions { get; private set; }
+        public IEnumerable<InvocationInfo> ExitActions { get; private set; }
 
         /// <summary> 
         /// Transitions defined for this state. 

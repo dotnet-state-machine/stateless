@@ -11,28 +11,38 @@ namespace Stateless.Tests
         [Fact]
         public void ExposesCorrectUnderlyingTrigger()
         {
-            var transtioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
-                Trigger.X, State.C, () => true);
+            var transitioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
+                Trigger.X, State.C, null);
 
-            Assert.Equal(Trigger.X, transtioning.Trigger);
+            Assert.Equal(Trigger.X, transitioning.Trigger);
+        }
+
+        protected bool False()
+        {
+            return false;
         }
 
         [Fact]
         public void WhenGuardConditionFalse_GuardConditionsMetIsFalse()
         {
-            var transtioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
-                Trigger.X, State.C, () => false);
+            var transitioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
+                Trigger.X, State.C, new StateMachine<State, Trigger>.TransitionGuard(False));
 
-            Assert.False(transtioning.GuardConditionsMet);
+            Assert.False(transitioning.GuardConditionsMet);
+        }
+
+        protected bool True()
+        {
+            return true;
         }
 
         [Fact]
         public void WhenGuardConditionTrue_GuardConditionsMetIsTrue()
         {
-            var transtioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
-                Trigger.X, State.C, () => true);
+            var transitioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
+                Trigger.X, State.C, new StateMachine<State, Trigger>.TransitionGuard(True));
 
-            Assert.True(transtioning.GuardConditionsMet);
+            Assert.True(transitioning.GuardConditionsMet);
         }
 
         [Fact]
@@ -43,10 +53,10 @@ namespace Stateless.Tests
                 new Tuple<Func<bool>, string>(() => true, "2")
             };
 
-            var transtioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
+            var transitioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
                 Trigger.X, State.C, new StateMachine<State, Trigger>.TransitionGuard(falseGuard));
 
-            Assert.True(transtioning.GuardConditionsMet);
+            Assert.True(transitioning.GuardConditionsMet);
         }
 
         [Fact]
@@ -57,10 +67,10 @@ namespace Stateless.Tests
                 new Tuple<Func<bool>, string>(() => false, "2")
             };
 
-            var transtioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
+            var transitioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
                 Trigger.X, State.C, new StateMachine<State, Trigger>.TransitionGuard(falseGuard));
 
-            Assert.False(transtioning.GuardConditionsMet);
+            Assert.False(transitioning.GuardConditionsMet);
         }
 
         [Fact]
@@ -71,10 +81,10 @@ namespace Stateless.Tests
                 new Tuple<Func<bool>, string>(() => true, "2")
             };
 
-            var transtioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
+            var transitioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
                 Trigger.X, State.C, new StateMachine<State, Trigger>.TransitionGuard(trueGuard));
 
-            Assert.True(transtioning.GuardConditionsMet);
+            Assert.True(transitioning.GuardConditionsMet);
         }
     }
 }

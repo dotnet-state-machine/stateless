@@ -204,7 +204,7 @@ namespace Stateless
                 Enforce.ArgumentNotNull(activateAction, nameof(activateAction));
                 _representation.AddActivateAction(
                     activateAction,
-                    activateActionDescription ?? activateAction.TryGetMethodName());
+                    Reflection.InvocationInfo.Create(activateAction, activateActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
                 return this;
             }
 
@@ -220,7 +220,7 @@ namespace Stateless
                 Enforce.ArgumentNotNull(deactivateAction, nameof(deactivateAction));
                 _representation.AddDeactivateAction(
                     deactivateAction,
-                    deactivateActionDescription ?? deactivateAction.TryGetMethodName());
+                    Reflection.InvocationInfo.Create(deactivateAction, deactivateActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
                 return this;
             }
 
@@ -234,9 +234,11 @@ namespace Stateless
             public StateConfiguration OnEntryAsync(Func<Task> entryAction, string entryActionDescription = null)
             {
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                return OnEntryAsync(
-                    t => entryAction(),
-                    entryActionDescription ?? entryAction.TryGetMethodName());
+                _representation.AddEntryAction(
+                    (t, args) => entryAction(),
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                return this;
+
             }
 
             /// <summary>
@@ -251,7 +253,7 @@ namespace Stateless
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
                 _representation.AddEntryAction(
                     (t, args) => entryAction(t),
-                    entryActionDescription ?? entryAction.TryGetMethodName());
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
                 return this;
             }
 
@@ -266,10 +268,11 @@ namespace Stateless
             public StateConfiguration OnEntryFromAsync(TTrigger trigger, Func<Task> entryAction, string entryActionDescription = null)
             {
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                return OnEntryFromAsync(
+                _representation.AddEntryAction(
                     trigger,
-                    t => entryAction(),
-                    entryActionDescription ?? entryAction.TryGetMethodName());
+                    (t, args) => entryAction(),
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                return this;
             }
 
             /// <summary>
@@ -286,7 +289,7 @@ namespace Stateless
                 _representation.AddEntryAction(
                     trigger,
                     (t, args) => entryAction(t),
-                    entryActionDescription ?? entryAction.TryGetMethodName());
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
                 return this;
             }
 
@@ -302,10 +305,13 @@ namespace Stateless
             public StateConfiguration OnEntryFromAsync<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, Task> entryAction, string entryActionDescription = null)
             {
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                return OnEntryFromAsync<TArg0>(
-                    trigger,
-                    (a0, t) => entryAction(a0),
-                    entryActionDescription ?? entryAction.TryGetMethodName());
+                Enforce.ArgumentNotNull(trigger, nameof(trigger));
+                _representation.AddEntryAction(
+                    trigger.Trigger,
+                    (t, args) => entryAction(
+                        ParameterConversion.Unpack<TArg0>(args, 0)),
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                return this;
             }
 
             /// <summary>
@@ -325,7 +331,7 @@ namespace Stateless
                     trigger.Trigger,
                     (t, args) => entryAction(
                         ParameterConversion.Unpack<TArg0>(args, 0), t),
-                        entryActionDescription ?? entryAction.TryGetMethodName());
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
                 return this;
             }
 
@@ -342,9 +348,13 @@ namespace Stateless
             public StateConfiguration OnEntryFromAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, Task> entryAction, string entryActionDescription = null)
             {
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                return OnEntryFromAsync<TArg0, TArg1>(
-                    trigger, 
-                    (a0, a1, t) => entryAction(a0, a1), entryActionDescription ?? entryAction.TryGetMethodName());
+                Enforce.ArgumentNotNull(trigger, nameof(trigger));
+                _representation.AddEntryAction(trigger.Trigger,
+                    (t, args) => entryAction(
+                        ParameterConversion.Unpack<TArg0>(args, 0),
+                        ParameterConversion.Unpack<TArg1>(args, 1)),
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                return this;
             }
 
             /// <summary>
@@ -361,9 +371,11 @@ namespace Stateless
             {
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
                 Enforce.ArgumentNotNull(trigger, nameof(trigger));
-                _representation.AddEntryAction(trigger.Trigger, (t, args) => entryAction(
-                    ParameterConversion.Unpack<TArg0>(args, 0),
-                    ParameterConversion.Unpack<TArg1>(args, 1), t), entryActionDescription ?? entryAction.TryGetMethodName());
+                _representation.AddEntryAction(trigger.Trigger,
+                    (t, args) => entryAction(
+                        ParameterConversion.Unpack<TArg0>(args, 0),
+                        ParameterConversion.Unpack<TArg1>(args, 1), t),
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
                 return this;
             }
 
@@ -381,9 +393,14 @@ namespace Stateless
             public StateConfiguration OnEntryFromAsync<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, Task> entryAction, string entryActionDescription = null)
             {
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                return OnEntryFromAsync<TArg0, TArg1, TArg2>(
-                    trigger, 
-                    (a0, a1, a2, t) => entryAction(a0, a1, a2), entryActionDescription ?? entryAction.TryGetMethodName());
+                Enforce.ArgumentNotNull(trigger, nameof(trigger));
+                _representation.AddEntryAction(trigger.Trigger,
+                    (t, args) => entryAction(
+                        ParameterConversion.Unpack<TArg0>(args, 0),
+                        ParameterConversion.Unpack<TArg1>(args, 1),
+                        ParameterConversion.Unpack<TArg2>(args, 2)),
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                return this;
             }
 
             /// <summary>
@@ -401,10 +418,12 @@ namespace Stateless
             {
                 Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
                 Enforce.ArgumentNotNull(trigger, nameof(trigger));
-                _representation.AddEntryAction(trigger.Trigger, (t, args) => entryAction(
-                    ParameterConversion.Unpack<TArg0>(args, 0),
-                    ParameterConversion.Unpack<TArg1>(args, 1),
-                    ParameterConversion.Unpack<TArg2>(args, 2), t), entryActionDescription ?? entryAction.TryGetMethodName());
+                _representation.AddEntryAction(trigger.Trigger,
+                    (t, args) => entryAction(
+                        ParameterConversion.Unpack<TArg0>(args, 0),
+                        ParameterConversion.Unpack<TArg1>(args, 1),
+                        ParameterConversion.Unpack<TArg2>(args, 2), t),
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
                 return this;
             }
 
@@ -418,9 +437,10 @@ namespace Stateless
             public StateConfiguration OnExitAsync(Func<Task> exitAction, string exitActionDescription = null)
             {
                 Enforce.ArgumentNotNull(exitAction, nameof(exitAction));
-                return OnExitAsync(
+                _representation.AddExitAction(
                     t => exitAction(),
-                    exitActionDescription ?? exitAction.TryGetMethodName());
+                    Reflection.InvocationInfo.Create(exitAction, exitActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                return this;
             }
 
             /// <summary>
@@ -435,7 +455,7 @@ namespace Stateless
                 Enforce.ArgumentNotNull(exitAction, nameof(exitAction));
                 _representation.AddExitAction(
                     exitAction,
-                    exitActionDescription ?? exitAction.TryGetMethodName());
+                    Reflection.InvocationInfo.Create(exitAction, exitActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
                 return this;
             }
         }
