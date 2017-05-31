@@ -9,44 +9,47 @@ namespace Stateless
     {
         internal abstract class TriggerBehaviour
         {
+            /// <summary>
+            /// If there is no guard function, _guard is set to TransitionGuard.Empty
+            /// </summary>
             readonly TransitionGuard _guard;
 
+            /// <summary>
+            /// TriggerBehaviour constructor
+            /// </summary>
+            /// <param name="trigger"></param>
+            /// <param name="guard">TransitionGuard (null if no guard function)</param>
             protected TriggerBehaviour(TTrigger trigger, TransitionGuard guard)
             {
-                _guard = Enforce.ArgumentNotNull(guard, nameof(guard));
+                _guard = guard ?? TransitionGuard.Empty;
                 Trigger = trigger;
             }
 
             public TTrigger Trigger { get; }
-            internal ICollection<Func<bool>> Guards { get { return _guard.Conditions.Select(g => g.Guard).ToList(); } }
-            internal string GuardsDescriptions
-            {
-                get
-                {
-                    var guardsDescriptions = _guard.Conditions
-                        .Select(c => c.Description);
 
-                    return string
-                        .Join(",", guardsDescriptions);
-                }
-            }
-            public bool GuardConditionsMet
-            {
-                get
-                {
-                    return _guard.Conditions.All(c => c.Guard());
-                }
-            }
-            public ICollection<string> UnmetGuardConditions
-            {
-                get
-                {
-                    return _guard.Conditions
-                        .Where(c => !c.Guard())
-                        .Select(c => c.Description)
-                        .ToList();
-                }
-            }
+            /// <summary>
+            /// Guard is the transition guard for this trigger.  Equal to
+            /// TransitionGuard.Empty if there is no transition guard
+            /// </summary>
+            internal TransitionGuard Guard => _guard;
+
+            /// <summary>
+            /// Guards is the list of guard functions for the transition guard for this trigger
+            /// </summary>
+            internal ICollection<Func<bool>> Guards =>_guard.Guards;
+
+            /// <summary>
+            /// GuardConditionsMet is true if all of the guard functions return true
+            /// or if there are no guard functions
+            /// </summary>
+            public bool GuardConditionsMet => _guard.GuardConditionsMet;
+
+            /// <summary>
+            /// UnmetGuardConditions is a list of the descriptions of all guard conditions
+            /// whose guard function returns false
+            /// </summary>
+            public ICollection<string> UnmetGuardConditions => _guard.UnmetGuardConditions;
+
             public abstract bool ResultsInTransitionFrom(TState source, object[] args, out TState destination);
         }
     }

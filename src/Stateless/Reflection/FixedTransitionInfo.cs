@@ -1,4 +1,6 @@
-﻿
+﻿using System.Collections.Generic;
+using System.Linq;
+
 namespace Stateless.Reflection
 {
     /// <summary>
@@ -12,7 +14,8 @@ namespace Stateless.Reflection
             {
                 Trigger = new TriggerInfo(behaviour.Trigger),
                 DestinationState = destinationStateInfo,
-                GuardDescription = string.IsNullOrWhiteSpace(behaviour.GuardsDescriptions) ? null : behaviour.GuardsDescriptions
+                GuardConditionsMethodDescriptions = (behaviour.Guard == null)
+                    ? new List<InvocationInfo>() : behaviour.Guard.Conditions.Select(c => c.MethodDescription)
             };
 
             return transition;

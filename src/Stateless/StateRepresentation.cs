@@ -18,11 +18,15 @@ namespace Stateless
 
             readonly ICollection<EntryActionBehavior> _entryActions = new List<EntryActionBehavior>();
             internal ICollection<EntryActionBehavior> EntryActions { get { return _entryActions; } }
+
             readonly ICollection<ExitActionBehavior> _exitActions = new List<ExitActionBehavior>();
             internal ICollection<ExitActionBehavior> ExitActions { get { return _exitActions; } }
 
             readonly ICollection<ActivateActionBehaviour> _activateActions = new List<ActivateActionBehaviour>();
+            internal ICollection<ActivateActionBehaviour> ActivateActions { get { return _activateActions; } }
+
             readonly ICollection<DeactivateActionBehaviour> _deactivateActions = new List<DeactivateActionBehaviour>();
+            internal ICollection<DeactivateActionBehaviour> DeactivateActions { get { return _deactivateActions; } }
 
             readonly ICollection<InternalActionBehaviour> _internalActions = new List<InternalActionBehaviour>();
 
@@ -85,7 +89,7 @@ namespace Stateless
                 return actual
                     .FirstOrDefault();
             }
-            public void AddActivateAction(Action action, string activateActionDescription)
+            public void AddActivateAction(Action action, Reflection.InvocationInfo activateActionDescription)
             {
                 _activateActions.Add(
                     new ActivateActionBehaviour.Sync(
@@ -94,7 +98,7 @@ namespace Stateless
                         Enforce.ArgumentNotNull(activateActionDescription, nameof(activateActionDescription))));
             }
 
-            public void AddDeactivateAction(Action action, string deactivateActionDescription)
+            public void AddDeactivateAction(Action action, Reflection.InvocationInfo deactivateActionDescription)
             {
                 _deactivateActions.Add(
                     new DeactivateActionBehaviour.Sync(
@@ -103,19 +107,17 @@ namespace Stateless
                         Enforce.ArgumentNotNull(deactivateActionDescription, nameof(deactivateActionDescription))));
             }
 
-            public void AddEntryAction(TTrigger trigger, Action<Transition, object[]> action, string entryActionDescription)
+            public void AddEntryAction(TTrigger trigger, Action<Transition, object[]> action, Reflection.InvocationInfo entryActionDescription)
             {
                 Enforce.ArgumentNotNull(action, nameof(action));
                 _entryActions.Add(
-                    new EntryActionBehavior.Sync((t, args) =>
-                    {
-                        if (t.Trigger.Equals(trigger))
-                            action(t, args);
-                    },
-                    Enforce.ArgumentNotNull(entryActionDescription, nameof(entryActionDescription))));
+                    new EntryActionBehavior.SyncFrom<TTrigger>(trigger,
+                        Enforce.ArgumentNotNull(action, nameof(action)),
+                        Enforce.ArgumentNotNull(entryActionDescription, nameof(entryActionDescription))
+                    ));
             }
 
-            public void AddEntryAction(Action<Transition, object[]> action, string entryActionDescription)
+            public void AddEntryAction(Action<Transition, object[]> action, Reflection.InvocationInfo entryActionDescription)
             {
                 _entryActions.Add(
                     new EntryActionBehavior.Sync(
@@ -123,7 +125,7 @@ namespace Stateless
                         Enforce.ArgumentNotNull(entryActionDescription, nameof(entryActionDescription))));
             }
 
-            public void AddExitAction(Action<Transition> action, string exitActionDescription)
+            public void AddExitAction(Action<Transition> action, Reflection.InvocationInfo exitActionDescription)
             {
                 _exitActions.Add(
                     new ExitActionBehavior.Sync(

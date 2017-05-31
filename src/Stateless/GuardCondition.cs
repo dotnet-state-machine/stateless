@@ -6,14 +6,21 @@ namespace Stateless
     {
         internal class GuardCondition
         {
-            private readonly string _description;
-            internal GuardCondition(Func<bool> guard, string description)
+            Reflection.InvocationInfo _methodDescription;
+
+            internal GuardCondition(Func<bool> guard, Reflection.InvocationInfo description)
             {
                 Guard = Enforce.ArgumentNotNull(guard, nameof(guard));
-                _description = description;
+                _methodDescription = Enforce.ArgumentNotNull(description, nameof(description));
             }
             internal Func<bool> Guard { get; }
-            internal string Description => _description ?? Guard.TryGetMethodName();
+
+            // Return the description of the guard method: the caller-defined description if one
+            // was provided, else the name of the method itself
+            internal string Description => _methodDescription.Description;
+
+            // Return a more complete description of the guard method
+            internal Reflection.InvocationInfo MethodDescription => _methodDescription;
         }
     }
 }

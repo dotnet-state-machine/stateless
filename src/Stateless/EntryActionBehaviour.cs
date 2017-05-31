@@ -10,14 +10,14 @@ namespace Stateless
     {
         internal abstract class EntryActionBehavior
         {
-            readonly string _actionDescription;
+            Reflection.InvocationInfo _description;
 
-            protected EntryActionBehavior(string actionDescription)
+            protected EntryActionBehavior(Reflection.InvocationInfo description)
             {
-                _actionDescription = Enforce.ArgumentNotNull(actionDescription, nameof(actionDescription));
+                _description = description;
             }
 
-            internal string ActionDescription { get { return _actionDescription; } }
+            public Reflection.InvocationInfo Description => _description;
 
             public abstract void Execute(Transition transition, object[] args);
             public abstract Task ExecuteAsync(Transition transition, object[] args);
@@ -26,8 +26,9 @@ namespace Stateless
             {
                 readonly Action<Transition, object[]> _action;
 
-                public Sync(Action<Transition, object[]> action, string actionDescription) : base(actionDescription)
+                public Sync(Action<Transition, object[]> action, Reflection.InvocationInfo description) : base(description)
                 {
+                    Enforce.Equals(description.IsAsync, false);
                     _action = action;
                 }
 
@@ -43,12 +44,36 @@ namespace Stateless
                 }
             }
 
+            public class SyncFrom<TTriggerType> : Sync
+            {
+                TTriggerType _trigger;
+
+                public SyncFrom(TTriggerType trigger, Action<Transition, object[]> action, Reflection.InvocationInfo description)
+                    : base(action, description)
+                {
+                    _trigger = trigger;
+                }
+
+                public override void Execute(Transition transition, object[] args)
+                {
+                    if (transition.Trigger.Equals(_trigger))
+                        base.Execute(transition, args);
+                }
+
+                public override Task ExecuteAsync(Transition transition, object[] args)
+                {
+                    Execute(transition, args);
+                    return TaskResult.Done;
+                }
+            }
+
             public class Async : EntryActionBehavior
             {
                 readonly Func<Transition, object[], Task> _action;
 
-                public Async(Func<Transition, object[], Task> action, string actionDescription) : base(actionDescription)
+                public Async(Func<Transition, object[], Task> action, Reflection.InvocationInfo description) : base(description)
                 {
+                    Enforce.Equals(description.IsAsync, true);
                     _action = action;
                 }
 
