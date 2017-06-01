@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Stateless.Tests
 {
-    class InternalTransitionFixture
+    public class InternalTransitionFixture
     {
 
         /// <summary>
@@ -213,6 +213,64 @@ namespace Stateless.Tests
             Assert.Equal(1, sm.PermittedTriggers.ToArray().Length);
             isPermitted = false;
             Assert.Equal(0, sm.PermittedTriggers.ToArray().Length);
+        }
+
+        [Fact]
+        public void InternalTriggerHandledOnlyOnceInSuper()
+        {
+            State handledIn = State.C;
+
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .InternalTransition(Trigger.X, () => handledIn = State.A);
+
+            sm.Configure(State.B)
+                .SubstateOf(State.A)
+                .InternalTransition(Trigger.X, () => handledIn = State.B);
+
+            // The state machine is in state A. It should only be handled in in State A, so handledIn should be equal to State.A
+            sm.Fire(Trigger.X);
+
+            Assert.Equal(State.A, handledIn);
+        }
+        [Fact]
+        public void InternalTriggerHandledOnlyOnceInSub()
+        {
+            State handledIn = State.C;
+
+            var sm = new StateMachine<State, Trigger>(State.B);
+
+            sm.Configure(State.A)
+                .InternalTransition(Trigger.X, () => handledIn = State.A);
+
+            sm.Configure(State.B)
+                .SubstateOf(State.A)
+                .InternalTransition(Trigger.X, () => handledIn = State.B);
+
+            // The state machine is in state B. It should only be handled in in State B, so handledIn should be equal to State.B
+            sm.Fire(Trigger.X);
+
+            Assert.Equal(State.B, handledIn);
+        }
+        [Fact]
+        public void OnlyOneHandlerExecuted()
+        {
+            var handled = 0;
+
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .InternalTransition(Trigger.X, () => handled++)
+                .InternalTransition(Trigger.Y, () => handled++);
+
+            sm.Fire(Trigger.X);
+
+            Assert.Equal(1, handled);
+
+            sm.Fire(Trigger.Y);
+
+            Assert.Equal(2, handled);
         }
     }
 }

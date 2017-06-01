@@ -13,7 +13,7 @@ namespace Stateless.Reflection
             var transition = new DynamicTransitionInfo
             {
                 Trigger = new TriggerInfo(trigger),
-                Destination = destination,
+                DestinationDescription = destination,
                 GuardConditionsMethodDescriptions = (behaviour.Guard == null)
                     ? new List<InvocationInfo>() : behaviour.Guard.Conditions.Select(c => c.MethodDescription)
             };
@@ -26,6 +26,6 @@ namespace Stateless.Reflection
         /// <summary>
         /// Friendly text for dynamic transitions.
         /// </summary>
-        public string Destination { get; private set; }
+        public string DestinationDescription { get; private set; }
     }
 }

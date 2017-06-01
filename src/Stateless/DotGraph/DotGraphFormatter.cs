@@ -23,7 +23,7 @@ namespace Stateless.DotGraph
 
             foreach (var binding in bindings)
             {
-                unknownDestinations.AddRange(binding.DynamicTransitions.Select(t => t.Destination));
+                unknownDestinations.AddRange(binding.DynamicTransitions.Select(t => t.DestinationDescription));
 
                 var source = binding.ToString();
                 foreach (var transition in binding.FixedTransitions)
@@ -35,7 +35,7 @@ namespace Stateless.DotGraph
                 foreach (var transition in binding.DynamicTransitions)
                 {
                     string guardConditionsMethods = string.Join(", ", transition.GuardConditionsMethodDescriptions.Select(d => d.Description));
-                    HandleTransitions(ref lines, source, transition.Trigger.ToString(), transition.Destination, guardConditionsMethods);
+                    HandleTransitions(ref lines, source, transition.Trigger.ToString(), transition.DestinationDescription, guardConditionsMethods);
                 }
             }
 
