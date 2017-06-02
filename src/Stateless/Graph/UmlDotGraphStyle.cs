@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Stateless.Graph
 {
@@ -24,21 +25,19 @@ namespace Stateless.Graph
             string stateRepresentationString = "";
             var sourceName = stateInfo.StateName;
 
-            string label = sourceName;
+            StringBuilder label = new StringBuilder(sourceName);
 
             if ((stateInfo.EntryActions.Count > 0) || (stateInfo.ExitActions.Count > 0))
             {
-                label += "\\n----------";
-                foreach (var entryAction in stateInfo.EntryActions)
-                    label += "\\nentry / " + entryAction;
-                foreach (var exitAction in stateInfo.ExitActions)
-                    label += "\\nexit / " + exitAction;
+                label.Append("\\n----------");
+                label.Append(string.Concat(stateInfo.EntryActions.Select(act => "\\nentry / " + act)));
+                label.Append(string.Concat(stateInfo.ExitActions.Select(act => "\\nexit / " + act)));
             }
 
             stateRepresentationString = "\n"
                 + $"subgraph {stateInfo.NodeName}" + "\n"
                 + "\t{" + "\n"
-                + $"\tlabel = \"{label}\"" + "\n";
+                + $"\tlabel = \"{label.ToString()}\"" + "\n";
 
             foreach (State subState in stateInfo.SubStates)
             {
@@ -63,10 +62,8 @@ namespace Stateless.Graph
             string f = state.StateName + " [label=\"" + state.StateName + "|";
 
             List<string> es = new List<string>();
-            foreach (string entry in state.EntryActions)
-                es.Add("entry / " + entry);
-            foreach (string exit in state.ExitActions)
-                es.Add("exit / " + exit);
+            es.AddRange(state.EntryActions.Select(act => "entry / " + act));
+            es.AddRange(state.ExitActions.Select(act => "exit / " + act));
 
             f += String.Join("\\n", es);
 
@@ -87,8 +84,7 @@ namespace Stateless.Graph
             foreach (var transit in transitions)
             {
                 string line = null;
-                StayTransition stay = transit as StayTransition;
-                if (stay != null)
+                if (transit is StayTransition stay)
                 {
                     if (!stay.ExecuteEntryExitActions)
                     {
@@ -110,8 +106,7 @@ namespace Stateless.Graph
                 }
                 else
                 {
-                    FixedTransition fix = transit as FixedTransition;
-                    if (fix != null)
+                    if (transit is FixedTransition fix)
                     {
                         line = FormatOneTransition(fix.SourceState.NodeName, fix.Trigger.UnderlyingTrigger.ToString(),
                             fix.DestinationEntryActions.Select(x => x.Method.Description),
@@ -119,8 +114,7 @@ namespace Stateless.Graph
                     }
                     else
                     {
-                        DynamicTransition dyn = transit as DynamicTransition;
-                        if (dyn != null)
+                        if (transit is DynamicTransition dyn)
                         {
                             line = FormatOneTransition(dyn.SourceState.NodeName, dyn.Trigger.UnderlyingTrigger.ToString(),
                                 dyn.DestinationEntryActions.Select(x => x.Method.Description),
@@ -151,18 +145,7 @@ namespace Stateless.Graph
             string label = trigger ?? "";
 
             if (actions?.Count() > 0)
-            {
-                label += " / ";
-                bool first = true;
-                foreach (string action in actions)
-                {
-                    if (first)
-                        first = false;
-                    else
-                        label += ", ";
-                    label += action;
-                }
-            }
+                label += " / " + string.Join(", ", actions);
 
             if (guards.Count() > 0)
             {

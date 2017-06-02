@@ -400,7 +400,7 @@ namespace Stateless.Tests
         public void UmlWithSubstate()
         {
             var expected = prefix(Style.UML)
-                + subgraph(Style.UML, "D", "D",
+                + subgraph(Style.UML, "D", "D\\n----------\\nentry / EnterD",
                     box(Style.UML, "B")
                     + box(Style.UML, "C"))
                 + box(Style.UML, "A", new List<string>() { "EnterA" }, new List<string>() { "ExitA" })
@@ -419,6 +419,8 @@ namespace Stateless.Tests
                 .SubstateOf(State.D);
             sm.Configure(State.C)
                 .SubstateOf(State.D);
+            sm.Configure(State.D)
+                .OnEntry(TestEntryAction, "EnterD");
 
             string dotGraph = UmlDotGraph.Format(sm.GetInfo());
 #if WRITE_DOTS_TO_FOLDER

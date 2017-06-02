@@ -25,17 +25,6 @@ namespace Stateless.Graph
         /// </summary>
         public List<Transition> Arriving { get; } = new List<Transition>();
 
-        // Returns only those entry actions that always apply
-        // (not those that only apply when it's a particular trigger)
-        //List<ActionInfo> EntryActions
-        //{
-        //    get
-        //    {
-        //        List<ActionInfo> entryActions = new List<ActionInfo>();
-        //        return entryActions;
-        //    }
-        //}
-
         /// <summary>
         /// Unique name of this object
         /// </summary>
