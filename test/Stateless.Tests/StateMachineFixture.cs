@@ -141,6 +141,28 @@ namespace Stateless.Tests
         }
 
         [Fact]
+        public void AcceptedTriggersRespectGuardsForIfSyntaxFalse()
+        {
+            var sm = new StateMachine<State, Trigger>(State.B);
+ 
+            sm.Configure(State.B)
+                .Permit(Trigger.X, State.A).If(() => false);
+ 
+            Assert.Equal(0, sm.PermittedTriggers.Count());
+        }
+ 
+        [Fact]
+        public void AcceptedTriggersRespectGuardsForIfSyntaxTrue()
+        {
+            var sm = new StateMachine<State, Trigger>(State.B);
+ 
+            sm.Configure(State.B)
+               .Permit(Trigger.X, State.A).If(() => true);
+ 
+            Assert.Equal(1, sm.PermittedTriggers.Count());
+        }
+
+        [Fact]
         public void AcceptedTriggersRespectMultipleGuards()
         {
             var sm = new StateMachine<State, Trigger>(State.B);
@@ -335,28 +357,23 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        public void TheOnTransitionEventFiresBeforeTheOnEntryEvent()
+        public void WhenATransitionOccurs_TheOnTransitionEventFiresAndProvidesTag()
         {
             var sm = new StateMachine<State, Trigger>(State.B);
-            var expectedOrdering = new List<string> { "OnExit", "OnTransitioned", "OnEntry" };
-            var actualOrdering = new List<string>();
-
+ 
             sm.Configure(State.B)
-                .Permit(Trigger.X, State.A)
-                .OnExit(() => actualOrdering.Add("OnExit"));
-
-            sm.Configure(State.A)
-                .OnEntry(() => actualOrdering.Add("OnEntry"));
-
-            sm.OnTransitioned(t => actualOrdering.Add("OnTransitioned"));
-
+                .Permit(Trigger.X, State.A).Tag("ThisOne");
+ 
+            StateMachine<State, Trigger>.Transition transition = null;
+            sm.OnTransitioned(t => transition = t);
+ 
             sm.Fire(Trigger.X);
-
-            Assert.Equal(expectedOrdering.Count, actualOrdering.Count);
-            for (int i = 0; i < expectedOrdering.Count; i++)
-            {
-                Assert.Equal(expectedOrdering[i], actualOrdering[i]);
-            }
+ 
+            Assert.NotNull(transition);
+            Assert.Equal(Trigger.X, transition.Trigger);
+            Assert.Equal("ThisOne", transition.Tag);
+            Assert.Equal(State.B, transition.Source);
+            Assert.Equal(State.A, transition.Destination);
         }
 
         [Fact]
@@ -364,7 +381,7 @@ namespace Stateless.Tests
         {
             var sm = new StateMachine<State, Trigger>(State.A);
 
-            Assert.Throws(typeof(ArgumentException),  () => { sm.Configure(State.A).SubstateOf(State.A); });
+            Assert.Throws(typeof(ArgumentException), () => { sm.Configure(State.A).SubstateOf(State.A); });
         }
 
         [Fact]
@@ -400,66 +417,75 @@ namespace Stateless.Tests
         }
 
         [Fact]
+        public void TheOnTransitionEventFiresBeforeTheOnEntryEvent()
+        {
+            var sm = new StateMachine<State, Trigger>(State.B);
+            var expectedOrdering = new List<string> { "OnExit", "OnTransitioned", "OnEntry" };
+            var actualOrdering = new List<string>();
+
+            sm.Configure(State.B)
+                .Permit(Trigger.X, State.A)
+                .OnExit(() => actualOrdering.Add("OnExit"));
+
+            sm.Configure(State.A)
+                .OnEntry(() => actualOrdering.Add("OnEntry"));
+
+            sm.OnTransitioned(t => actualOrdering.Add("OnTransitioned"));
+
+            sm.Fire(Trigger.X);
+
+            Assert.Equal(expectedOrdering.Count, actualOrdering.Count);
+            for (int i = 0; i < expectedOrdering.Count; i++)
+            {
+                Assert.Equal(expectedOrdering[i], actualOrdering[i]);
+            }
+        }
+
+
+        [Fact]
         public void ActionOnPermit()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
             bool fired = false;
-
+ 
             sm.Configure(State.A)
                 .Permit(Trigger.X, State.B).Do(() => fired = true);
-
+ 
             sm.Fire(Trigger.X);
-
+ 
             Assert.Equal(State.B, sm.State);
             Assert.True(fired);
         }
-
+ 
         [Fact]
         public void ActionOnExitBy()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
             bool fired = false;
-
+ 
             sm.Configure(State.A)
                 .Permit(Trigger.X, State.B).OnExitBy(Trigger.X, () => fired = true);
-
+ 
             sm.Fire(Trigger.X);
-
+ 
             Assert.Equal(State.B, sm.State);
             Assert.True(fired);
         }
-
+ 
         [Fact]
         public void ActionOnPermitIf()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
             int value = 0;
-
+ 
             sm.Configure(State.A)
                 .Permit(Trigger.X, State.B).If(() => true).Do(() => value = 1)
                 .Permit(Trigger.X, State.C).If(() => false).Do(() => value = 2);
-
+ 
             sm.Fire(Trigger.X);
-
+ 
             Assert.Equal(State.B, sm.State);
             Assert.Equal(value, 1);
         }
-
-        // OnExitBy doesn't work as well with PermitIf():
-        //[Fact]
-        //public void ActionOnExitByIf()
-        //{
-        //    var sm = new StateMachine<State, Trigger>(State.A);
-        //    int value = 0;
-
-        //    sm.Configure(State.A)
-        //        .PermitIf(Trigger.X, State.B, () => true).OnExitBy(Trigger.X, () => value = 1)
-        //        .PermitIf(Trigger.X, State.C, () => false).OnExitBy(Trigger.X,  () => value = 2);
-
-        //    sm.Fire(Trigger.X);
-
-        //    Assert.Equal(State.B, sm.State);
-        //    Assert.Equal(value, 1);
-        //}
     }
 }
