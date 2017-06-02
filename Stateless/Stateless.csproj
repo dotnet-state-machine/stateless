@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{BE6D8E33-6AF4-49AE-ADEE-3E31BAE8BF75}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Stateless</RootNamespace>
+    <AssemblyName>Stateless</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Threading, Version=1.0.2856.102, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\TaskParallelLibrary.1.0.2856.0\lib\Net35\System.Threading.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ActivateActionBehaviour.cs" />
+    <Compile Include="DeactivateActionBehaviour.cs" />
+    <Compile Include="DotGraph\DotGraphFormatter.cs" />
+    <Compile Include="DynamicTriggerBehaviour.cs" />
+    <Compile Include="Enforce.cs" />
+    <Compile Include="EntryActionBehaviour.cs" />
+    <Compile Include="ExitActionBehaviour.cs" />
+    <Compile Include="GuardCondition.cs" />
+    <Compile Include="IgnoredTriggerBehaviour.cs" />
+    <Compile Include="InternalActionBehaviour.cs" />
+    <Compile Include="InternalTriggerBehaviour.cs" />
+    <Compile Include="OnTransitionedEvent.cs" />
+    <Compile Include="ParameterConversion.cs" />
+    <Compile Include="ParameterConversionResources.Designer.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReflectionExtensions.cs" />
+    <Compile Include="Reflection\DynamicTransitionInfo.cs" />
+    <Compile Include="Reflection\FixedTransitionInfo.cs" />
+    <Compile Include="Reflection\InvocationInfo.cs" />
+    <Compile Include="Reflection\StateInfo.cs" />
+    <Compile Include="Reflection\StateMachineInfo.cs" />
+    <Compile Include="Reflection\TransitionInfo.cs" />
+    <Compile Include="Reflection\TriggerInfo.cs" />
+    <Compile Include="StateConfiguration.Async.cs" />
+    <Compile Include="StateConfiguration.cs" />
+    <Compile Include="StateConfigurationResources.Designer.cs" />
+    <Compile Include="StateMachine.Async.cs" />
+    <Compile Include="StateMachine.cs" />
+    <Compile Include="StateMachineResources.Designer.cs" />
+    <Compile Include="StateReference.cs" />
+    <Compile Include="StateRepresentation.Async.cs" />
+    <Compile Include="StateRepresentation.cs" />
+    <Compile Include="StateRepresentationResources.Designer.cs" />
+    <Compile Include="TaskResult.cs" />
+    <Compile Include="Transition.cs" />
+    <Compile Include="TransitionGuard.cs" />
+    <Compile Include="TransitioningTriggerBehaviour.cs" />
+    <Compile Include="TriggerBehaviour.cs" />
+    <Compile Include="TriggerBehaviourResult.cs" />
+    <Compile Include="TriggerWithParameters.cs" />
+    <Compile Include="Tuple.cs" />
+    <Compile Include="UnhandledTriggerAction.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ParameterConversionResources.resx" />
+    <EmbeddedResource Include="StateConfigurationResources.resx" />
+    <EmbeddedResource Include="StateMachineResources.resx" />
+    <EmbeddedResource Include="StateRepresentationResources.resx" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
