@@ -232,18 +232,23 @@ namespace Stateless
                 foreach (var action in _exitActions)
                     action.Execute(transition);
             }
-
-            void ExecuteInternalActions(Transition transition, object[] args)
+            internal void InternalAction(Transition transition, object[] args)
             {
                 var possibleActions = new List<InternalActionBehaviour>();
 
-                // Look for actions in superstate(s) recursivly until we hit the topmost superstate
+                // Look for actions in superstate(s) recursivly until we hit the topmost superstate, or we actually find some trigger handlers.
                 StateRepresentation aStateRep = this;
-                do
+                while (aStateRep != null)
                 {
-                    possibleActions.AddRange(aStateRep._internalActions);
+                    if (aStateRep.TryFindLocalHandler(transition.Trigger, out TriggerBehaviourResult result))
+                    {
+                        // Trigger handler(s) found in this state
+                        possibleActions.AddRange(aStateRep._internalActions);
+                        break;
+                    }
+                    // Try to look for trigger handlers in superstate (if it exists)
                     aStateRep = aStateRep._superstate;
-                } while (aStateRep != null);
+                }
 
                 // Execute internal transition event handler
                 foreach (var action in possibleActions)
@@ -251,7 +256,6 @@ namespace Stateless
                     action.Execute(transition, args);
                 }
             }
-
             public void AddTriggerBehaviour(TriggerBehaviour triggerBehaviour)
             {
                 ICollection<TriggerBehaviour> allowed;
@@ -314,12 +318,6 @@ namespace Stateless
 
                     return result.ToArray();
                 }
-            }
-
-            internal void InternalAction(Transition transition, object[] args)
-            {
-                Enforce.ArgumentNotNull(transition, nameof(transition));
-                ExecuteInternalActions(transition, args);
             }
         }
     }

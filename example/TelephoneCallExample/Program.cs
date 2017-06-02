@@ -87,7 +87,7 @@ namespace TelephoneCallExample
 
         private static void OnUnmute()
         {
-            Console.WriteLine("Microphone muted!");
+            Console.WriteLine("Microphone unmuted!");
         }
 
         private static void OnMute()
