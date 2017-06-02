@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Stateless</id>
+    <version>1.0.0.0</version>
+    <title>Stateless</title>
+    <authors>Stateless Contributors</authors>
+    <owners>Stateless Contributors</owners>
+    <projectUrl>https://github.com/dotnet-state-machine/stateless</projectUrl>
+    <iconUrl>https://github.com/Patroklo/stateless/blob/dev/asset/Stateless.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Stateless FSM machine compiled for .net 3.5</description>
+    <releaseNotes>First release based on the Dev branch of the main project</releaseNotes>
+    <copyright>Copyright © Stateless Contributors 2009-2016</copyright>
+    <tags>FSM Stateless Unity Monodevelop</tags>
+  </metadata>
+</package>
