@@ -109,7 +109,6 @@
             <exception cref="T:System.ArgumentException"><paramref name="collection"/> contains one or more
             duplicate keys.</exception>
         </member>
-        <member name="M:System.Collections.Concurrent.ConcurrentDictionary`2.#ctor(System.Collections.Generic.IEqualityComparer{`0})">
             <summary>
             Initializes a new instance of the <see cref="T:System.Collections.Concurrent.ConcurrentDictionary`2"/>
             class that is empty, has the specified concurrency level and capacity, and uses the specified

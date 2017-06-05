@@ -7,7 +7,7 @@
     <authors>Stateless Contributors and @Patroklo</authors>
     <owners>Stateless Contributors</owners>
     <projectUrl>https://github.com/Patroklo/stateless/tree/net-3.5</projectUrl>
-    <iconUrl>https://raw.githubusercontent.com/Patroklo/stateless/net-3.5/asset/Stateless.ico</iconUrl>
+    <iconUrl>https://raw.githubusercontent.com/Patroklo/stateless/net-3.5/asset/Stateless-net35.ico</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Stateless FSM machine compiled for .net 3.5, valid for using it with Monodevelop and Unity projects.</description>
     <releaseNotes>First release based on the Dev branch of the main project</releaseNotes>
