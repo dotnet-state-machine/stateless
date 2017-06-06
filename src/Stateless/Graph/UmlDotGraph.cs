@@ -16,7 +16,7 @@ namespace Stateless.Graph
         /// <returns></returns>
         public static string Format(StateMachineInfo machineInfo)
         {
-            Graph.StateGraph graph = new Graph.StateGraph(machineInfo);
+            var graph = new Graph.StateGraph(machineInfo);
 
             return graph.ToGraph(new UmlDotGraphStyle());
         }

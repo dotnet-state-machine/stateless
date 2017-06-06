@@ -117,7 +117,7 @@ namespace Stateless
                 _representation.AddInternalAction(trigger, (t, args) => internalAction(t));
                 return this;
             }
-            
+
             /// <summary>
             /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
             /// </summary>
@@ -129,7 +129,7 @@ namespace Stateless
             {
                 return InternalTransitionIf(trigger, () => true, internalAction);
             }
-            
+
             /// <summary>
             /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
             /// </summary>
@@ -1027,7 +1027,7 @@ namespace Stateless
             /// dynamically by the supplied function.
             /// </summary>
             /// <param name="trigger">The accepted trigger.</param>
-            /// <param name="destinationStateSelector">Function to calculate the state 
+            /// <param name="destinationStateSelector">Function to calculate the state
             /// that the trigger will cause a transition to.</param>
             /// <returns>The reciever.</returns>
             /// <param name="guards">Functions ant their descriptions that must return true in order for the

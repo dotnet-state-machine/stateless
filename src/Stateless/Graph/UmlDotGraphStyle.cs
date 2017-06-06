@@ -39,7 +39,7 @@ namespace Stateless.Graph
                 + "\t{" + "\n"
                 + $"\tlabel = \"{label.ToString()}\"" + "\n";
 
-            foreach (State subState in stateInfo.SubStates)
+            foreach (var subState in stateInfo.SubStates)
             {
                 stateRepresentationString += FormatOneState(subState);
             }

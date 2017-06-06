@@ -176,7 +176,7 @@ namespace Stateless
         /// <param name="unhandledTriggerAction"></param>
         public void OnUnhandledTriggerAsync(Func<TState, TTrigger, Task> unhandledTriggerAction)
         {
-            if (unhandledTriggerAction == null) throw new ArgumentNullException("unhandledTriggerAction");
+            Enforce.ArgumentNotNull(unhandledTriggerAction, nameof(unhandledTriggerAction));
             _unhandledTriggerAction = new UnhandledTriggerAction.Async((s, t, c) => unhandledTriggerAction(s, t));
         }
 
@@ -187,7 +187,7 @@ namespace Stateless
         /// <param name="unhandledTriggerAction">An asynchronous action to call when an unhandled trigger is fired.</param>
         public void OnUnhandledTriggerAsync(Func<TState, TTrigger, ICollection<string>, Task> unhandledTriggerAction)
         {
-            if (unhandledTriggerAction == null) throw new ArgumentNullException("unhandledTriggerAction");
+            Enforce.ArgumentNotNull(unhandledTriggerAction, nameof(unhandledTriggerAction));
             _unhandledTriggerAction = new UnhandledTriggerAction.Async(unhandledTriggerAction);
         }
 
@@ -199,7 +199,7 @@ namespace Stateless
         /// of the transition.</param>
         public void OnTransitionedAsync(Func<Transition, Task> onTransitionAction)
         {
-            if (onTransitionAction == null) throw new ArgumentNullException("onTransitionAction");
+            Enforce.ArgumentNotNull(onTransitionAction, nameof(onTransitionAction));
             _onTransitionedEvent.Register(onTransitionAction);
         }
     }

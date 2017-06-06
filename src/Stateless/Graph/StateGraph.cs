@@ -53,13 +53,13 @@ namespace Stateless.Graph
             string dirgraphText = style.GetPrefix().Replace("\n", System.Environment.NewLine);
 
             // Start with the clusters
-            foreach (State state in States.Values.Where(x => x is SuperState))
+            foreach (var state in States.Values.Where(x => x is SuperState))
             {
                 dirgraphText += style.FormatOneCluster((SuperState)state).Replace("\n", System.Environment.NewLine);
             }
 
             // Next process all non-cluster states
-            foreach (State state in States.Values)
+            foreach (var state in States.Values)
             {
                 if ((state is SuperState) || (state is Decision) || (state.SuperState != null))
                     continue;
@@ -67,7 +67,7 @@ namespace Stateless.Graph
             }
 
             // Finally, add decision nodes
-            foreach (Decision dec in Decisions)
+            foreach (var dec in Decisions)
             {
                 dirgraphText += style.FormatOneDecisionNode(dec.NodeName, dec.Method.Description)
                     .Replace("\n", System.Environment.NewLine);
@@ -75,7 +75,7 @@ namespace Stateless.Graph
 
             // now build behaviours
             List<string> transits = style.FormatAllTransitions(Transitions);
-            foreach (string transit in transits)
+            foreach (var transit in transits)
                 dirgraphText += System.Environment.NewLine + transit;
 
             dirgraphText += System.Environment.NewLine + "}";
