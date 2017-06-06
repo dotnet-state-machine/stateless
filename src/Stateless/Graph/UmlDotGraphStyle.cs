@@ -73,74 +73,15 @@ namespace Stateless.Graph
         }
 
         /// <summary>
-        /// Format all transitions for a graph
-        /// </summary>
-        /// <param name="transitions"></param>
-        /// <returns></returns>
-        override internal List<string> FormatAllTransitions(List<Stateless.Graph.Transition> transitions)
-        {
-            List<string> lines = new List<string>();
-
-            foreach (var transit in transitions)
-            {
-                string line = null;
-                if (transit is StayTransition stay)
-                {
-                    if (!stay.ExecuteEntryExitActions)
-                    {
-                        line = FormatOneTransition(stay.SourceState.NodeName, stay.Trigger.UnderlyingTrigger.ToString(),
-                            null, stay.SourceState.NodeName, stay.Guards.Select(x => x.Description));
-                    }
-                    else if (stay.SourceState.EntryActions.Count() == 0)
-                    {
-                        line = FormatOneTransition(stay.SourceState.NodeName, stay.Trigger.UnderlyingTrigger.ToString(),
-                            null, stay.SourceState.NodeName, stay.Guards.Select(x => x.Description));
-                    }
-                    else
-                    {
-                        // There are entry functions into the state, so call out that this transition
-                        // does invoke them (since normally a transition back into the same state doesn't)
-                        line = FormatOneTransition(stay.SourceState.NodeName, stay.Trigger.UnderlyingTrigger.ToString(),
-                            stay.SourceState.EntryActions, stay.SourceState.NodeName, stay.Guards.Select(x => x.Description));
-                    }
-                }
-                else
-                {
-                    if (transit is FixedTransition fix)
-                    {
-                        line = FormatOneTransition(fix.SourceState.NodeName, fix.Trigger.UnderlyingTrigger.ToString(),
-                            fix.DestinationEntryActions.Select(x => x.Method.Description),
-                            fix.DestinationState.NodeName, fix.Guards.Select(x => x.Description));
-                    }
-                    else
-                    {
-                        if (transit is DynamicTransition dyn)
-                        {
-                            line = FormatOneTransition(dyn.SourceState.NodeName, dyn.Trigger.UnderlyingTrigger.ToString(),
-                                dyn.DestinationEntryActions.Select(x => x.Method.Description),
-                                dyn.DestinationState.NodeName, new List<string> { dyn.Criterion });
-                        }
-                        else
-                            throw new System.Exception("Unexpected transition type");
-                    }
-                }
-                if (line != null)
-                    lines.Add(line);
-            }
-
-            return lines;
-        }
-
-        /// <summary>
         /// Generate text for a single transition
         /// </summary>
-        /// <param name="source"></param>
+        /// <param name="sourceNodeName"></param>
         /// <param name="trigger"></param>
         /// <param name="actions"></param>
-        /// <param name="destinationString"></param>
+        /// <param name="destinationNodeName"></param>
         /// <param name="guards"></param>
         /// <returns></returns>
-        override internal string FormatOneTransition(string source, string trigger, IEnumerable<string> actions, string destinationString, IEnumerable<string> guards)
+        override internal string FormatOneTransition(string sourceNodeName, string trigger, IEnumerable<string> actions, string destinationNodeName, IEnumerable<string> guards)
         {
             string label = trigger ?? "";
 
@@ -157,7 +98,7 @@ namespace Stateless.Graph
                 }
             }
 
-            return FormatOneLine(source, destinationString, label);
+            return FormatOneLine(sourceNodeName, destinationNodeName, label);
         }
 
         /// <summary>
@@ -171,7 +112,7 @@ namespace Stateless.Graph
             return nodeName + " [shape = \"diamond\", label = \"" + label + "\"];\n";
         }
 
-        override internal string FormatOneLine(string fromNodeName, string toNodeName, string label)
+        internal string FormatOneLine(string fromNodeName, string toNodeName, string label)
         {
             return fromNodeName + " -> " + toNodeName + " " + "[style=\"solid\", label=\"" + label + "\"];";
         }
