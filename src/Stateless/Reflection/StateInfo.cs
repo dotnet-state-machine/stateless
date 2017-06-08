@@ -30,12 +30,14 @@ namespace Stateless.Reflection
                 stateReperesentation.ActivateActions.Select(e => e.Description).ToList(),
                 stateReperesentation.DeactivateActions.Select(e => e.Description).ToList(),
                 stateReperesentation.ExitActions.Select(e => e.Description).ToList());
-       
+
             return stateInfo;
         }
 
         internal static void AddRelationships<TState, TTrigger>(StateInfo info, StateMachine<TState, TTrigger>.StateRepresentation stateReperesentation, Func<TState, StateInfo> lookupState)
         {
+            if (lookupState == null) throw new ArgumentNullException(nameof(lookupState));
+
             var substates = stateReperesentation.GetSubstates().Select(s => lookupState(s.UnderlyingState)).ToList();
 
             StateInfo superstate = null;
@@ -134,9 +136,9 @@ namespace Stateless.Reflection
         /// </summary>
         public IEnumerable<InvocationInfo> ExitActions { get; private set; }
 
-        /// <summary> 
-        /// Transitions defined for this state. 
-        /// </summary> 
+        /// <summary>
+        /// Transitions defined for this state.
+        /// </summary>
         public IEnumerable<TransitionInfo> Transitions { get { return FixedTransitions.Concat<TransitionInfo>(DynamicTransitions); } }
         /// <summary>
         /// Transitions defined for this state.

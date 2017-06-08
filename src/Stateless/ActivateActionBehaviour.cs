@@ -13,7 +13,7 @@ namespace Stateless
             protected ActivateActionBehaviour(TState state, Reflection.InvocationInfo actionDescription)
             {
                 _state = state;
-                _actionDescription = Enforce.ArgumentNotNull(actionDescription, nameof(actionDescription));
+                _actionDescription = actionDescription ?? throw new ArgumentNullException(nameof(actionDescription));
             }
 
             internal Reflection.InvocationInfo Description => _actionDescription;

@@ -28,7 +28,6 @@ namespace Stateless
 
                 public Sync(Action<Transition, object[]> action, Reflection.InvocationInfo description) : base(description)
                 {
-                    Enforce.Equals(description.IsAsync, false);
                     _action = action;
                 }
 
@@ -73,7 +72,6 @@ namespace Stateless
 
                 public Async(Func<Transition, object[], Task> action, Reflection.InvocationInfo description) : base(description)
                 {
-                    Enforce.Equals(description.IsAsync, true);
                     _action = action;
                 }
 

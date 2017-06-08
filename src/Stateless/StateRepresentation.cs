@@ -47,8 +47,7 @@ namespace Stateless
 
             public bool CanHandle(TTrigger trigger)
             {
-                TriggerBehaviourResult unused;
-                return TryFindHandler(trigger, out unused);
+                return TryFindHandler(trigger, out TriggerBehaviourResult unused);
             }
 
             public bool TryFindHandler(TTrigger trigger, out TriggerBehaviourResult handler)
@@ -59,8 +58,7 @@ namespace Stateless
 
             bool TryFindLocalHandler(TTrigger trigger, out TriggerBehaviourResult handlerResult)
             {
-                ICollection<TriggerBehaviour> possible;
-                if (!_triggerBehaviours.TryGetValue(trigger, out possible))
+                if (!_triggerBehaviours.TryGetValue(trigger, out ICollection<TriggerBehaviour> possible))
                 {
                     handlerResult = null;
                     return false;
@@ -69,7 +67,7 @@ namespace Stateless
                 // Guard functions executed
                 var actual = possible
                     .Select(h => new TriggerBehaviourResult(h, h.UnmetGuardConditions));
-        
+
                 handlerResult = TryFindLocalHandlerResult(trigger, actual, r => !r.UnmetGuardConditions.Any())
                     ?? TryFindLocalHandlerResult(trigger, actual, r => r.UnmetGuardConditions.Any());
 
@@ -91,51 +89,32 @@ namespace Stateless
             }
             public void AddActivateAction(Action action, Reflection.InvocationInfo activateActionDescription)
             {
-                _activateActions.Add(
-                    new ActivateActionBehaviour.Sync(
-                        _state,
-                        Enforce.ArgumentNotNull(action, nameof(action)),
-                        Enforce.ArgumentNotNull(activateActionDescription, nameof(activateActionDescription))));
+                _activateActions.Add(new ActivateActionBehaviour.Sync(_state, action, activateActionDescription));
             }
 
             public void AddDeactivateAction(Action action, Reflection.InvocationInfo deactivateActionDescription)
             {
-                _deactivateActions.Add(
-                    new DeactivateActionBehaviour.Sync(
-                        _state,
-                        Enforce.ArgumentNotNull(action, nameof(action)),
-                        Enforce.ArgumentNotNull(deactivateActionDescription, nameof(deactivateActionDescription))));
+                _deactivateActions.Add(new DeactivateActionBehaviour.Sync(_state, action, deactivateActionDescription));
             }
 
             public void AddEntryAction(TTrigger trigger, Action<Transition, object[]> action, Reflection.InvocationInfo entryActionDescription)
             {
-                Enforce.ArgumentNotNull(action, nameof(action));
-                _entryActions.Add(
-                    new EntryActionBehavior.SyncFrom<TTrigger>(trigger,
-                        Enforce.ArgumentNotNull(action, nameof(action)),
-                        Enforce.ArgumentNotNull(entryActionDescription, nameof(entryActionDescription))
-                    ));
+                _entryActions.Add(new EntryActionBehavior.SyncFrom<TTrigger>(trigger, action, entryActionDescription));
             }
 
             public void AddEntryAction(Action<Transition, object[]> action, Reflection.InvocationInfo entryActionDescription)
             {
-                _entryActions.Add(
-                    new EntryActionBehavior.Sync(
-                        Enforce.ArgumentNotNull(action, nameof(action)),
-                        Enforce.ArgumentNotNull(entryActionDescription, nameof(entryActionDescription))));
+                _entryActions.Add(new EntryActionBehavior.Sync(action, entryActionDescription));
             }
 
             public void AddExitAction(Action<Transition> action, Reflection.InvocationInfo exitActionDescription)
             {
-                _exitActions.Add(
-                    new ExitActionBehavior.Sync(
-                        Enforce.ArgumentNotNull(action, nameof(action)),
-                        Enforce.ArgumentNotNull(exitActionDescription, nameof(exitActionDescription))));
+                _exitActions.Add(new ExitActionBehavior.Sync(action, exitActionDescription));
             }
 
             internal void AddInternalAction(TTrigger trigger, Action<Transition, object[]> action)
             {
-                Enforce.ArgumentNotNull(action, nameof(action));
+                if (action == null) throw new ArgumentNullException(nameof(action));
 
                 _internalActions.Add(new InternalActionBehaviour.Sync((t, args) =>
                 {
@@ -182,8 +161,6 @@ namespace Stateless
 
             public void Enter(Transition transition, params object[] entryArgs)
             {
-                Enforce.ArgumentNotNull(transition, nameof(transition));
-
                 if (transition.IsReentry)
                 {
                     ExecuteEntryActions(transition, entryArgs);
@@ -201,8 +178,6 @@ namespace Stateless
 
             public void Exit(Transition transition)
             {
-                Enforce.ArgumentNotNull(transition, nameof(transition));
-
                 if (transition.IsReentry)
                 {
                     ExecuteDeactivationActions();
@@ -220,15 +195,12 @@ namespace Stateless
 
             void ExecuteEntryActions(Transition transition, object[] entryArgs)
             {
-                Enforce.ArgumentNotNull(transition, nameof(transition));
-                Enforce.ArgumentNotNull(entryArgs, nameof(entryArgs));
                 foreach (var action in _entryActions)
                     action.Execute(transition, entryArgs);
             }
 
             void ExecuteExitActions(Transition transition)
             {
-                Enforce.ArgumentNotNull(transition, nameof(transition));
                 foreach (var action in _exitActions)
                     action.Execute(transition);
             }
@@ -258,8 +230,7 @@ namespace Stateless
             }
             public void AddTriggerBehaviour(TriggerBehaviour triggerBehaviour)
             {
-                ICollection<TriggerBehaviour> allowed;
-                if (!_triggerBehaviours.TryGetValue(triggerBehaviour.Trigger, out allowed))
+                if (!_triggerBehaviours.TryGetValue(triggerBehaviour.Trigger, out ICollection<TriggerBehaviour> allowed))
                 {
                     allowed = new List<TriggerBehaviour>();
                     _triggerBehaviours.Add(triggerBehaviour.Trigger, allowed);
@@ -289,7 +260,6 @@ namespace Stateless
 
             public void AddSubstate(StateRepresentation substate)
             {
-                Enforce.ArgumentNotNull(substate, nameof(substate));
                 _substates.Add(substate);
             }
 
