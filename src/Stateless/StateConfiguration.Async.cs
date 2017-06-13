@@ -201,7 +201,6 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnActivateAsync(Func<Task> activateAction, string activateActionDescription = null)
             {
-                Enforce.ArgumentNotNull(activateAction, nameof(activateAction));
                 _representation.AddActivateAction(
                     activateAction,
                     Reflection.InvocationInfo.Create(activateAction, activateActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
@@ -217,7 +216,6 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnDeactivateAsync(Func<Task> deactivateAction, string deactivateActionDescription = null)
             {
-                Enforce.ArgumentNotNull(deactivateAction, nameof(deactivateAction));
                 _representation.AddDeactivateAction(
                     deactivateAction,
                     Reflection.InvocationInfo.Create(deactivateAction, deactivateActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
@@ -233,7 +231,8 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnEntryAsync(Func<Task> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
                 _representation.AddEntryAction(
                     (t, args) => entryAction(),
                     Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
@@ -250,7 +249,8 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnEntryAsync(Func<Transition, Task> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
                 _representation.AddEntryAction(
                     (t, args) => entryAction(t),
                     Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
@@ -267,7 +267,8 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnEntryFromAsync(TTrigger trigger, Func<Task> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
                 _representation.AddEntryAction(
                     trigger,
                     (t, args) => entryAction(),
@@ -285,7 +286,8 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnEntryFromAsync(TTrigger trigger, Func<Transition, Task> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
                 _representation.AddEntryAction(
                     trigger,
                     (t, args) => entryAction(t),
@@ -304,8 +306,9 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnEntryFromAsync<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, Task> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                Enforce.ArgumentNotNull(trigger, nameof(trigger));
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
                 _representation.AddEntryAction(
                     trigger.Trigger,
                     (t, args) => entryAction(
@@ -325,8 +328,9 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnEntryFromAsync<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, Transition, Task> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                Enforce.ArgumentNotNull(trigger, nameof(trigger));
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
                 _representation.AddEntryAction(
                     trigger.Trigger,
                     (t, args) => entryAction(
@@ -347,8 +351,9 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnEntryFromAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, Task> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                Enforce.ArgumentNotNull(trigger, nameof(trigger));
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
                 _representation.AddEntryAction(trigger.Trigger,
                     (t, args) => entryAction(
                         ParameterConversion.Unpack<TArg0>(args, 0),
@@ -369,8 +374,9 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnEntryFromAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, Transition, Task> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                Enforce.ArgumentNotNull(trigger, nameof(trigger));
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
                 _representation.AddEntryAction(trigger.Trigger,
                     (t, args) => entryAction(
                         ParameterConversion.Unpack<TArg0>(args, 0),
@@ -392,8 +398,9 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnEntryFromAsync<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, Task> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                Enforce.ArgumentNotNull(trigger, nameof(trigger));
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
                 _representation.AddEntryAction(trigger.Trigger,
                     (t, args) => entryAction(
                         ParameterConversion.Unpack<TArg0>(args, 0),
@@ -416,8 +423,9 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnEntryFromAsync<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, Transition, Task> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                Enforce.ArgumentNotNull(trigger, nameof(trigger));
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
                 _representation.AddEntryAction(trigger.Trigger,
                     (t, args) => entryAction(
                         ParameterConversion.Unpack<TArg0>(args, 0),
@@ -436,7 +444,8 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnExitAsync(Func<Task> exitAction, string exitActionDescription = null)
             {
-                Enforce.ArgumentNotNull(exitAction, nameof(exitAction));
+                if (exitAction == null) throw new ArgumentNullException(nameof(exitAction));
+
                 _representation.AddExitAction(
                     t => exitAction(),
                     Reflection.InvocationInfo.Create(exitAction, exitActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
@@ -452,7 +461,6 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnExitAsync(Func<Transition, Task> exitAction, string exitActionDescription = null)
             {
-                Enforce.ArgumentNotNull(exitAction, nameof(exitAction));
                 _representation.AddExitAction(
                     exitAction,
                     Reflection.InvocationInfo.Create(exitAction, exitActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));

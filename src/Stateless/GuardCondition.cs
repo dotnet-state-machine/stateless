@@ -10,8 +10,8 @@ namespace Stateless
 
             internal GuardCondition(Func<bool> guard, Reflection.InvocationInfo description)
             {
-                Guard = Enforce.ArgumentNotNull(guard, nameof(guard));
-                _methodDescription = Enforce.ArgumentNotNull(description, nameof(description));
+                Guard = guard ?? throw new ArgumentNullException(nameof(guard));
+                _methodDescription = description ?? throw new ArgumentNullException(nameof(description));
             }
             internal Func<bool> Guard { get; }
 

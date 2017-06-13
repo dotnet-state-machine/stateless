@@ -14,8 +14,6 @@ namespace Stateless
 
             internal TransitionGuard(Tuple<Func<bool>, string>[] guards)
             {
-                Enforce.ArgumentNotNull(guards, nameof(guards));
-
                 Conditions = guards
                     .Select(g => new GuardCondition(g.Item1, Reflection.InvocationInfo.Create(g.Item1, g.Item2)))
                     .ToList();
@@ -23,8 +21,6 @@ namespace Stateless
 
             internal TransitionGuard(Func<bool> guard, string description = null)
             {
-                Enforce.ArgumentNotNull(guard, nameof(guard));
-
                 Conditions = new List<GuardCondition> { new GuardCondition(guard, Reflection.InvocationInfo.Create(guard, description)) };
             }
 
