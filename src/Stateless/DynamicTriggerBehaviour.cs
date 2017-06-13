@@ -16,8 +16,8 @@ namespace Stateless
                 TransitionGuard transitionGuard, Reflection.DynamicTransitionInfo info)
                 : base(trigger, transitionGuard)
             {
-                _destination = Enforce.ArgumentNotNull(destination, nameof(destination));
-                TransitionInfo = Enforce.ArgumentNotNull(info, nameof(info));
+                _destination = destination ?? throw new ArgumentNullException(nameof(destination));
+                TransitionInfo = info ?? throw new ArgumentNullException(nameof(info));
             }
 
             public override bool ResultsInTransitionFrom(TState source, object[] args, out TState destination)

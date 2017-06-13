@@ -6,7 +6,7 @@ namespace Stateless
     {
         public static object Unpack(object[] args, Type argType, int index)
         {
-            Enforce.ArgumentNotNull(args, nameof(args));
+            if (args == null) throw new ArgumentNullException(nameof(args));
 
             if (args.Length <= index)
                 throw new ArgumentException(

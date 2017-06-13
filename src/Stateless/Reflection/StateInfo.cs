@@ -37,7 +37,7 @@ namespace Stateless.Reflection
  
         internal static void AddRelationships<TState, TTrigger>(StateInfo info, StateMachine<TState, TTrigger>.StateRepresentation stateRepresentation, Func<TState, StateInfo> lookupState)
         {
-            Enforce.ArgumentNotNull(lookupState, nameof(lookupState));
+            if (lookupState == null) throw new ArgumentNullException(nameof(lookupState));
 
             var substates = stateRepresentation.GetSubstates().Select(s => lookupState(s.UnderlyingState)).ToList();
 

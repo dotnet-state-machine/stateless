@@ -13,25 +13,18 @@ namespace Stateless
         {
             public void AddActivateAction(Func<Task> action, Reflection.InvocationInfo activateActionDescription)
             {
-                _activateActions.Add(
-                    new ActivateActionBehaviour.Async(
-                        _state,
-                        Enforce.ArgumentNotNull(action, nameof(action)),
-                        Enforce.ArgumentNotNull(activateActionDescription, nameof(activateActionDescription))));
+                _activateActions.Add(new ActivateActionBehaviour.Async(_state, action, activateActionDescription));
             }
 
             public void AddDeactivateAction(Func<Task> action, Reflection.InvocationInfo deactivateActionDescription)
             {
-                _deactivateActions.Add(
-                    new DeactivateActionBehaviour.Async(
-                        _state,
-                        Enforce.ArgumentNotNull(action, nameof(action)),
-                        Enforce.ArgumentNotNull(deactivateActionDescription, nameof(deactivateActionDescription))));
+                _deactivateActions.Add(new DeactivateActionBehaviour.Async(_state, action, deactivateActionDescription));
             }
 
             public void AddEntryAction(TTrigger trigger, Func<Transition, object[], Task> action, Reflection.InvocationInfo entryActionDescription)
             {
-                Enforce.ArgumentNotNull(action, nameof(action));
+                if (action == null) throw new ArgumentNullException(nameof(action));
+
                 _entryActions.Add(
                     new EntryActionBehavior.Async((t, args) =>
                     {
@@ -47,21 +40,18 @@ namespace Stateless
             {
                 _entryActions.Add(
                     new EntryActionBehavior.Async(
-                        Enforce.ArgumentNotNull(action, nameof(action)),
-                        Enforce.ArgumentNotNull(entryActionDescription, nameof(entryActionDescription))));
+                        action,
+                        entryActionDescription));
             }
 
             public void AddExitAction(Func<Transition, Task> action, Reflection.InvocationInfo exitActionDescription)
             {
-                _exitActions.Add(
-                    new ExitActionBehavior.Async(
-                        Enforce.ArgumentNotNull(action, nameof(action)),
-                        Enforce.ArgumentNotNull(exitActionDescription, nameof(exitActionDescription))));
+                _exitActions.Add(new ExitActionBehavior.Async(action, exitActionDescription));
             }
 
             internal void AddInternalAction(TTrigger trigger, Func<Transition, object[], Task> action)
             {
-                Enforce.ArgumentNotNull(action, nameof(action));
+                if (action == null) throw new ArgumentNullException(nameof(action));
 
                 _internalActions.Add(new InternalActionBehaviour.Async((t, args) =>
                 {
@@ -110,8 +100,6 @@ namespace Stateless
 
             public async Task EnterAsync(Transition transition, params object[] entryArgs)
             {
-                Enforce.ArgumentNotNull(transition, nameof(transition));
-
                 if (transition.IsReentry)
                 {
                     await ExecuteEntryActionsAsync(transition, entryArgs);
@@ -129,8 +117,6 @@ namespace Stateless
 
             public async Task ExitAsync(Transition transition)
             {
-                Enforce.ArgumentNotNull(transition, nameof(transition));
-
                 if (transition.IsReentry)
                 {
                     await ExecuteDeactivationActionsAsync();
@@ -148,15 +134,12 @@ namespace Stateless
 
             async Task ExecuteEntryActionsAsync(Transition transition, object[] entryArgs)
             {
-                Enforce.ArgumentNotNull(transition, nameof(transition));
-                Enforce.ArgumentNotNull(entryArgs, nameof(entryArgs));
                 foreach (var action in _entryActions)
                     await action.ExecuteAsync(transition, entryArgs);
             }
 
             async Task ExecuteExitActionsAsync(Transition transition)
             {
-                Enforce.ArgumentNotNull(transition, nameof(transition));
                 foreach (var action in _exitActions)
                     await action.ExecuteAsync(transition);
             }
@@ -182,7 +165,6 @@ namespace Stateless
 
             internal Task InternalActionAsync(Transition transition, object[] args)
             {
-                Enforce.ArgumentNotNull(transition, nameof(transition));
                 return ExecuteInternalActionsAsync(transition, args);
             }
         }
