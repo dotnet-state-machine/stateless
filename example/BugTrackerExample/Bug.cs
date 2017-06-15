@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Stateless;
-using Stateless.DotGraph;
+using Stateless.Graph;
 
 namespace BugTrackerExample
 {
@@ -87,7 +87,7 @@ namespace BugTrackerExample
 
         public string ToDotGraph()
         {
-            return DotGraphFormatter.Format(_machine.GetInfo());
+            return UmlDotGraph.Format(_machine.GetInfo());
         }
     }
 }

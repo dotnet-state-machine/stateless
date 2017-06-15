@@ -379,7 +379,6 @@ namespace Stateless.Tests
             {
                 Assert.True(trans.Trigger.UnderlyingTrigger is Trigger);
                 Assert.Equal(Trigger.X, (Trigger)trans.Trigger.UnderlyingTrigger);
-                Assert.NotEqual(null, trans.DestinationDescription);
                 Assert.Equal(0, trans.GuardConditionsMethodDescriptions.Count());
             }
         }
@@ -414,7 +413,6 @@ namespace Stateless.Tests
             {
                 Assert.True(trans.Trigger.UnderlyingTrigger is Trigger);
                 Assert.Equal(Trigger.X, (Trigger)trans.Trigger.UnderlyingTrigger);
-                Assert.NotEqual(null, trans.DestinationDescription);
                 Assert.Equal(0, trans.GuardConditionsMethodDescriptions.Count());
             }
         }
@@ -439,9 +437,9 @@ namespace Stateless.Tests
             Assert.Equal(0, binding.Substates.Count());
             Assert.Equal(null, binding.Superstate);
             Assert.Equal(1, binding.EntryActions.Count());
-            foreach (InvocationInfo entryAction in binding.EntryActions)
+            foreach (ActionInfo entryAction in binding.EntryActions)
             {
-                Assert.Equal("enteredA", entryAction.Description);
+                Assert.Equal("enteredA", entryAction.Method.Description);
             }
             Assert.Equal(0, binding.ExitActions.Count());
             //
@@ -471,8 +469,8 @@ namespace Stateless.Tests
             Assert.Equal(null, binding.Superstate);
             //
             Assert.Equal(1, binding.EntryActions.Count());
-            foreach (InvocationInfo entryAction in binding.EntryActions)
-                Assert.Equal("enteredA", entryAction.Description);
+            foreach (ActionInfo entryAction in binding.EntryActions)
+                Assert.Equal("enteredA", entryAction.Method.Description);
             Assert.Equal(0, binding.ExitActions.Count());
             //
             Assert.Equal(0, binding.FixedTransitions.Count()); // Binding count mismatch
@@ -571,10 +569,10 @@ namespace Stateless.Tests
             }
             //
             Assert.Equal(1, binding.IgnoredTriggers.Count()); //  Ignored triggers count mismatch
-            foreach (TriggerInfo ignore in binding.IgnoredTriggers)
+            foreach (IgnoredTransitionInfo ignore in binding.IgnoredTriggers)
             {
-                Assert.True(ignore.UnderlyingTrigger is Trigger);
-                Assert.Equal(Trigger.Y, (Trigger)ignore.UnderlyingTrigger); // Ignored trigger value mismatch
+                Assert.True(ignore.Trigger.UnderlyingTrigger is Trigger);
+                Assert.Equal(Trigger.Y, (Trigger)ignore.Trigger.UnderlyingTrigger); // Ignored trigger value mismatch
             }
             //
             Assert.Equal(0, binding.Substates.Count());
@@ -670,7 +668,7 @@ namespace Stateless.Tests
             foreach (StateInfo stateInfo in inf.States)
             {
                 VerifyMethodNames(stateInfo.ActivateActions, "On", "Activate", (State)stateInfo.UnderlyingState, InvocationInfo.Timing.Synchronous);
-                VerifyMethodNames(stateInfo.EntryActions, "On", "Entry", (State)stateInfo.UnderlyingState, InvocationInfo.Timing.Synchronous);
+                VerifyMethodNames(stateInfo.EntryActions.Select(x => x.Method), "On", "Entry", (State)stateInfo.UnderlyingState, InvocationInfo.Timing.Synchronous);
                 VerifyMethodNames(stateInfo.ExitActions, "On", "Exit", (State)stateInfo.UnderlyingState, InvocationInfo.Timing.Synchronous);
                 VerifyMethodNames(stateInfo.DeactivateActions, "On", "Deactivate", (State)stateInfo.UnderlyingState, InvocationInfo.Timing.Synchronous);
             }
@@ -697,7 +695,7 @@ namespace Stateless.Tests
 
             foreach (StateInfo stateInfo in inf.States)
             {
-                VerifyMethodNames(stateInfo.EntryActions, "On", "EntryTrans", (State)stateInfo.UnderlyingState, InvocationInfo.Timing.Synchronous);
+                VerifyMethodNames(stateInfo.EntryActions.Select(x => x.Method), "On", "EntryTrans", (State)stateInfo.UnderlyingState, InvocationInfo.Timing.Synchronous);
                 VerifyMethodNames(stateInfo.ExitActions, "On", "ExitTrans", (State)stateInfo.UnderlyingState, InvocationInfo.Timing.Synchronous);
             }
 
@@ -742,7 +740,7 @@ namespace Stateless.Tests
 
             foreach (StateInfo stateInfo in inf.States)
             {
-                VerifyMethodNameses(stateInfo.EntryActions, "On", "Entry", (State)stateInfo.UnderlyingState,
+                VerifyMethodNameses(stateInfo.EntryActions.Select(x => x.Method), "On", "Entry", (State)stateInfo.UnderlyingState,
                     InvocationInfo.Timing.Synchronous,
                     new HashSet<string> { "", "Trans", "Int", "IntTrans", "IntInt", "IntIntInt" });
             }
@@ -784,7 +782,7 @@ namespace Stateless.Tests
             foreach (StateInfo stateInfo in inf.States)
             {
                 VerifyMethodNames(stateInfo.ActivateActions, "On", "Activate", (State)stateInfo.UnderlyingState, InvocationInfo.Timing.Asynchronous);
-                VerifyMethodNames(stateInfo.EntryActions, "On", "Entry", (State)stateInfo.UnderlyingState, InvocationInfo.Timing.Asynchronous);
+                VerifyMethodNames(stateInfo.EntryActions.Select(x => x.Method), "On", "Entry", (State)stateInfo.UnderlyingState, InvocationInfo.Timing.Asynchronous);
                 VerifyMethodNames(stateInfo.ExitActions, "On", "Exit", (State)stateInfo.UnderlyingState, InvocationInfo.Timing.Asynchronous);
                 VerifyMethodNames(stateInfo.DeactivateActions, "On", "Deactivate", (State)stateInfo.UnderlyingState, InvocationInfo.Timing.Asynchronous);
             }
@@ -809,7 +807,7 @@ namespace Stateless.Tests
 
             foreach (StateInfo stateInfo in inf.States)
             {
-                VerifyMethodNames(stateInfo.EntryActions, "On", "EntryTrans", (State)stateInfo.UnderlyingState, InvocationInfo.Timing.Asynchronous);
+                VerifyMethodNames(stateInfo.EntryActions.Select(x => x.Method), "On", "EntryTrans", (State)stateInfo.UnderlyingState, InvocationInfo.Timing.Asynchronous);
                 VerifyMethodNames(stateInfo.ExitActions, "On", "ExitTrans", (State)stateInfo.UnderlyingState, InvocationInfo.Timing.Asynchronous);
             }
             /*
