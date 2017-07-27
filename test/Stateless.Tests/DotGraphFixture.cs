@@ -102,7 +102,7 @@ namespace Stateless.Tests
                 throw new Exception("WRITE MORE CODE");
 
             string s = "\n"
-                + "subgraph " + graphName + "\n"
+                + "subgraph cluster" + graphName + "\n"
                 + "\t{\n"
                 + "\tlabel = \"" + label + "\"\n";
 

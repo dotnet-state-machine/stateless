@@ -35,7 +35,7 @@ namespace Stateless.Graph
             }
 
             stateRepresentationString = "\n"
-                + $"subgraph {stateInfo.NodeName}" + "\n"
+                + $"subgraph cluster{stateInfo.NodeName}" + "\n"
                 + "\t{" + "\n"
                 + $"\tlabel = \"{label.ToString()}\"" + "\n";
 
