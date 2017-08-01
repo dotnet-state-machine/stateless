@@ -857,13 +857,13 @@ namespace Stateless.Tests
             sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .PermitDynamicIf(Trigger.X, NextState, Permit);
+                .PermitDynamicIf(Trigger.X, NextState, false, Permit);
             sm.Configure(State.B)
-                .PermitDynamicIf(Trigger.X, NextState, Permit, UserDescription + "B-Permit");
+                .PermitDynamicIf(Trigger.X, NextState, false, Permit, UserDescription + "B-Permit");
             sm.Configure(State.C)
-                .PermitDynamicIf(Trigger.X, NextState, () => Permit());
+                .PermitDynamicIf(Trigger.X, NextState, false, () => Permit());
             sm.Configure(State.D)
-                .PermitDynamicIf(Trigger.X, NextState, () => Permit(), UserDescription + "D-Permit");
+                .PermitDynamicIf(Trigger.X, NextState, false, () => Permit(), UserDescription + "D-Permit");
 
             inf = sm.GetInfo();
 

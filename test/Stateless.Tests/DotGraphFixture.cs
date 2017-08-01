@@ -446,7 +446,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .PermitDynamic(Trigger.X, DestinationSelector, null, new Reflection.DynamicStateInfos { { State.B, "ChoseB"}, { State.C, "ChoseC" } });
+                .PermitDynamic(Trigger.X, DestinationSelector, true, null, new Reflection.DynamicStateInfos { { State.B, "ChoseB"}, { State.C, "ChoseC" } });
 
             sm.Configure(State.B);
             sm.Configure(State.C);

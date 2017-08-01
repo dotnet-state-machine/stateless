@@ -284,7 +284,7 @@ namespace Stateless.Tests
             };
 
             var transitionGuard = new StateMachine<State, Trigger>.TransitionGuard(falseConditions);
-            var transition = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(Trigger.X, State.C, transitionGuard);
+            var transition = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(Trigger.X, State.C, transitionGuard, true);
             rep.AddTriggerBehaviour(transition);
 
             Assert.False(rep.CanHandle(Trigger.X));
@@ -301,7 +301,7 @@ namespace Stateless.Tests
             };
 
             var transitionGuard = new StateMachine<State, Trigger>.TransitionGuard(trueConditions);
-            var transition = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(Trigger.X, State.C, transitionGuard);
+            var transition = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(Trigger.X, State.C, transitionGuard, true);
             rep.AddTriggerBehaviour(transition);
 
             Assert.True(rep.CanHandle(Trigger.X));
@@ -317,7 +317,7 @@ namespace Stateless.Tests
                 new Tuple<Func<bool>, string>(() => false, "2")
             };
             var transitionGuard = new StateMachine<State, Trigger>.TransitionGuard(falseConditions);
-            var transition = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(Trigger.X, State.C, transitionGuard);
+            var transition = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(Trigger.X, State.C, transitionGuard, true);
             super.AddTriggerBehaviour(transition);
 
             sub.TryFindHandler(Trigger.X, out StateMachine<State, Trigger>.TriggerBehaviourResult result);
@@ -339,7 +339,7 @@ namespace Stateless.Tests
                 new Tuple<Func<bool>, string>(() => true, "2")
             };
             var transitionGuard = new StateMachine<State, Trigger>.TransitionGuard(trueConditions);
-            var transition = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(Trigger.X, State.C, transitionGuard);
+            var transition = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(Trigger.X, State.C, transitionGuard, true);
 
             super.AddTriggerBehaviour(transition);
             sub.TryFindHandler(Trigger.X, out StateMachine<State, Trigger>.TriggerBehaviourResult result);

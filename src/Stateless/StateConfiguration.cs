@@ -44,7 +44,10 @@ namespace Stateless
             public StateConfiguration Permit(TTrigger trigger, TState destinationState)
             {
                 EnforceNotIdentityTransition(destinationState);
-                return InternalPermit(trigger, destinationState);
+                return InternalPermit(
+                    trigger, 
+                    destinationState, 
+                    false);      // No reentry
             }
 
             /// <summary>
@@ -246,6 +249,7 @@ namespace Stateless
                 return InternalPermitIf(
                     trigger,
                     destinationState,
+                    false,      // No reentry
                     new TransitionGuard(guard, guardDescription));
             }
             /// <summary>
@@ -263,6 +267,7 @@ namespace Stateless
                 return InternalPermitIf(
                     trigger,
                     destinationState,
+                    false,      // No reentry
                     new TransitionGuard(guards));
             }
 
@@ -278,7 +283,10 @@ namespace Stateless
             /// </remarks>
             public StateConfiguration PermitReentry(TTrigger trigger)
             {
-                return InternalPermit(trigger, _representation.UnderlyingState);
+                return InternalPermit(
+                    trigger, 
+                    _representation.UnderlyingState, 
+                    true);      // Allow reentry
             }
 
             /// <summary>
@@ -299,6 +307,7 @@ namespace Stateless
                 return InternalPermitIf(
                     trigger,
                     _representation.UnderlyingState,
+                    true,      // Allow reentry
                     new TransitionGuard(guard, guardDescription));
             }
 
@@ -319,6 +328,7 @@ namespace Stateless
                 return InternalPermitIf(
                     trigger,
                     _representation.UnderlyingState,
+                    true,      // Allow reentry
                     new TransitionGuard(guards));
             }
 
@@ -701,10 +711,11 @@ namespace Stateless
             /// <param name="trigger">The accepted trigger.</param>
             /// <param name="destinationStateSelector">Function to calculate the state
             /// that the trigger will cause a transition to.</param>
+            /// <param name="allowReentry"></param>
             /// <param name="destinationStateSelectorDescription">Optional description for the function to calculate the state </param>
             /// <param name="possibleDestinationStates">Optional array of possible destination states (used by output formatters) </param>
             /// <returns>The reciever.</returns>
-            public StateConfiguration PermitDynamic(TTrigger trigger, Func<TState> destinationStateSelector,
+            public StateConfiguration PermitDynamic(TTrigger trigger, Func<TState> destinationStateSelector, bool allowReentry = true,
                 string destinationStateSelectorDescription = null, Reflection.DynamicStateInfos possibleDestinationStates = null)
             {
                 if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
@@ -717,7 +728,8 @@ namespace Stateless
                             null,       // No guards
                             Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),
                             possibleDestinationStates
-                        )
+                        ),
+                        allowReentry
                     ));
                 return this;
             }
@@ -729,11 +741,12 @@ namespace Stateless
             /// <param name="trigger">The accepted trigger.</param>
             /// <param name="destinationStateSelector">Function to calculate the state
             /// that the trigger will cause a transition to.</param>
+            /// <param name="allowReentry"></param>
             /// <param name="destinationStateSelectorDescription">Optional description of the function to calculate the state </param>
             /// <returns>The reciever.</returns>
             /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
             public StateConfiguration PermitDynamic<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, TState> destinationStateSelector,
-                string destinationStateSelectorDescription = null)
+                bool allowReentry = true, string destinationStateSelectorDescription = null)
             {
                 if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
 
@@ -747,7 +760,8 @@ namespace Stateless
                         Reflection.DynamicTransitionInfo.Create(trigger.Trigger,
                             null,    // No guards
                             Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),
-                            null)        // Possible states not specified
+                            null),        // Possible states not specified
+                        allowReentry
                     ));
                 return this;
 
@@ -760,12 +774,13 @@ namespace Stateless
             /// <param name="trigger">The accepted trigger.</param>
             /// <param name="destinationStateSelector">Function to calculate the state
             /// that the trigger will cause a transition to.</param>
+            /// <param name="allowReentry"></param>
             /// <param name="destinationStateSelectorDescription">Optional description of the function to calculate the state </param>
             /// <returns>The reciever.</returns>
             /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
             /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
             public StateConfiguration PermitDynamic<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger,
-                Func<TArg0, TArg1, TState> destinationStateSelector, string destinationStateSelectorDescription = null)
+                Func<TArg0, TArg1, TState> destinationStateSelector, bool allowReentry = true, string destinationStateSelectorDescription = null)
             {
                 if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
 
@@ -779,7 +794,8 @@ namespace Stateless
                     Reflection.DynamicTransitionInfo.Create(trigger.Trigger,
                         null,       // No guards
                         Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),                        
-                        null)       // Possible states not defined
+                        null),       // Possible states not defined
+                    allowReentry
                 ));
                 return this;
 
@@ -792,13 +808,14 @@ namespace Stateless
             /// <param name="trigger">The accepted trigger.</param>
             /// <param name="destinationStateSelector">Function to calculate the state
             /// that the trigger will cause a transition to.</param>
+            /// <param name="allowReentry"></param>
             /// <param name="destinationStateSelectorDescription">Optional description of the function to calculate the state </param>
             /// <returns>The reciever.</returns>
             /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
             /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
             /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
             public StateConfiguration PermitDynamic<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger,
-                Func<TArg0, TArg1, TArg2, TState> destinationStateSelector, string destinationStateSelectorDescription = null)
+                Func<TArg0, TArg1, TArg2, TState> destinationStateSelector, bool allowReentry = true, string destinationStateSelectorDescription = null)
             {
                 if (trigger == null) throw new ArgumentNullException(nameof(trigger));
                 if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
@@ -813,7 +830,8 @@ namespace Stateless
                     Reflection.DynamicTransitionInfo.Create(trigger.Trigger,
                         null,       // No guards
                         Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),
-                        null)       // Possible states not defined
+                        null),       // Possible states not defined
+                    allowReentry
                     ));
                 return this;
             }
@@ -825,14 +843,15 @@ namespace Stateless
             /// <param name="trigger">The accepted trigger.</param>
             /// <param name="destinationStateSelector">Function to calculate the state
             /// that the trigger will cause a transition to.</param>
+            /// <param name="allowReentry"></param>
             /// <param name="guard">Function that must return true in order for the
             /// trigger to be accepted.</param>
             /// <param name="guardDescription">Guard description</param>
             /// <returns>The reciever.</returns>
             public StateConfiguration PermitDynamicIf(TTrigger trigger, Func<TState> destinationStateSelector,
-                Func<bool> guard, string guardDescription = null)
+                bool allowReentry, Func<bool> guard, string guardDescription = null)
             {
-                return PermitDynamicIf(trigger, destinationStateSelector, null, guard, guardDescription);
+                return PermitDynamicIf(trigger, destinationStateSelector, null, allowReentry, guard, guardDescription);
             }
             /// <summary>
             /// Accept the specified trigger and transition to the destination state, calculated
@@ -844,10 +863,11 @@ namespace Stateless
             /// <param name="destinationStateSelectorDescription">Description of the function to calculate the state </param>
             /// <param name="guard">Function that must return true in order for the
             /// trigger to be accepted.</param>
+            /// <param name="allowReentry"></param>
             /// <param name="guardDescription">Guard description</param>
             /// <returns>The reciever.</returns>
             public StateConfiguration PermitDynamicIf(TTrigger trigger, Func<TState> destinationStateSelector,
-                string destinationStateSelectorDescription, Func<bool> guard, string guardDescription = null)
+                string destinationStateSelectorDescription, bool allowReentry, Func<bool> guard, string guardDescription = null)
             {
                 if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
 
@@ -856,7 +876,8 @@ namespace Stateless
                     args => destinationStateSelector(),
                     destinationStateSelectorDescription,
                     new TransitionGuard(guard, guardDescription),
-                    null);      // List of possible destination states not specified
+                    null,      // List of possible destination states not specified
+                    allowReentry);
             }
 
             /// <summary>
@@ -868,10 +889,12 @@ namespace Stateless
             /// that the trigger will cause a transition to.</param>
             /// <param name="guards">Functions and their descriptions that must return true in order for the
             /// trigger to be accepted.</param>
+            /// <param name="allowReentry"></param>
             /// <returns>The reciever.</returns>
-            public StateConfiguration PermitDynamicIf(TTrigger trigger, Func<TState> destinationStateSelector, params Tuple<Func<bool>, string>[] guards)
+            public StateConfiguration PermitDynamicIf(TTrigger trigger, Func<TState> destinationStateSelector, 
+                bool allowReentry = true, params Tuple<Func<bool>, string>[] guards)
             {
-                return PermitDynamicIf(trigger, destinationStateSelector, null, guards);
+                return PermitDynamicIf(trigger, destinationStateSelector, null, allowReentry, guards);
             }
             /// <summary>
             /// Accept the specified trigger and transition to the destination state, calculated
@@ -883,9 +906,10 @@ namespace Stateless
             /// <param name="destinationStateSelectorDescription">Description of the function to calculate the state </param>
             /// <param name="guards">Functions and their descriptions that must return true in order for the
             /// trigger to be accepted.</param>
+            /// <param name="allowReentry"></param>
             /// <returns>The reciever.</returns>
             public StateConfiguration PermitDynamicIf(TTrigger trigger, Func<TState> destinationStateSelector,
-                string destinationStateSelectorDescription, params Tuple<Func<bool>, string>[] guards)
+                string destinationStateSelectorDescription, bool allowReentry = true, params Tuple<Func<bool>, string>[] guards)
             {
                 if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
 
@@ -894,7 +918,8 @@ namespace Stateless
                     args => destinationStateSelector(),
                     destinationStateSelectorDescription,
                     new TransitionGuard(guards),
-                    null);      // List of possible destination states not specified
+                    null,      // List of possible destination states not specified
+                    allowReentry);
             }
 
             /// <summary>
@@ -904,12 +929,14 @@ namespace Stateless
             /// <param name="trigger">The accepted trigger.</param>
             /// <param name="destinationStateSelector">Function to calculate the state
             /// that the trigger will cause a transition to.</param>
+            /// <param name="allowReentry"></param>
             /// <param name="guard">Function that must return true in order for the
             /// trigger to be accepted.</param>
             /// <param name="guardDescription">Guard description</param>
             /// <returns>The reciever.</returns>
             /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
-            public StateConfiguration PermitDynamicIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, TState> destinationStateSelector, Func<bool> guard, string guardDescription = null)
+            public StateConfiguration PermitDynamicIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, TState> destinationStateSelector, 
+                bool allowReentry, Func<bool> guard, string guardDescription = null)
             {
                 if (trigger == null) throw new ArgumentNullException(nameof(trigger));
                 if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
@@ -920,7 +947,8 @@ namespace Stateless
                         ParameterConversion.Unpack<TArg0>(args, 0)),
                     null,    // destinationStateSelectorString
                     new TransitionGuard(guard, guardDescription),
-                    null);      // List of possible destination states not specified
+                    null,      // List of possible destination states not specified
+                    allowReentry);
             }
 
             /// <summary>
@@ -930,11 +958,13 @@ namespace Stateless
             /// <param name="trigger">The accepted trigger.</param>
             /// <param name="destinationStateSelector">Function to calculate the state
             /// that the trigger will cause a transition to.</param>
+            /// <param name="allowReentry"></param>
             /// <param name="guards">Functions and their descriptions that must return true in order for the
             /// trigger to be accepted.</param>
             /// <returns>The reciever.</returns>
             /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
-            public StateConfiguration PermitDynamicIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, TState> destinationStateSelector, params Tuple<Func<bool>, string>[] guards)
+            public StateConfiguration PermitDynamicIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, TState> destinationStateSelector,
+                bool allowReentry = true, params Tuple<Func<bool>, string>[] guards)
             {
                 if (trigger == null) throw new ArgumentNullException(nameof(trigger));
                 if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
@@ -945,7 +975,8 @@ namespace Stateless
                         ParameterConversion.Unpack<TArg0>(args, 0)),
                     null,    // destinationStateSelectorString
                     new TransitionGuard(guards),
-                    null);      // List of possible destination states not specified
+                    null,      // List of possible destination states not specified
+                    allowReentry);
             }
 
             /// <summary>
@@ -955,13 +986,15 @@ namespace Stateless
             /// <param name="trigger">The accepted trigger.</param>
             /// <param name="destinationStateSelector">Function to calculate the state
             /// that the trigger will cause a transition to.</param>
+            /// <param name="allowReentry"></param>
             /// <param name="guard">Function that must return true in order for the
             /// trigger to be accepted.</param>
             /// <param name="guardDescription">Guard description</param>
             /// <returns>The reciever.</returns>
             /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
             /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
-            public StateConfiguration PermitDynamicIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, TState> destinationStateSelector, Func<bool> guard, string guardDescription = null)
+            public StateConfiguration PermitDynamicIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, TState> destinationStateSelector, 
+                bool allowReentry, Func<bool> guard, string guardDescription = null)
             {
                 if (trigger == null) throw new ArgumentNullException(nameof(trigger));
                 if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
@@ -973,7 +1006,8 @@ namespace Stateless
                         ParameterConversion.Unpack<TArg1>(args, 1)),
                     null,    // destinationStateSelectorString
                     new TransitionGuard(guard, guardDescription),
-                    null);      // List of possible destination states not specified
+                    null,      // List of possible destination states not specified
+                    allowReentry);
             }
 
             /// <summary>
@@ -983,12 +1017,14 @@ namespace Stateless
             /// <param name="trigger">The accepted trigger.</param>
             /// <param name="destinationStateSelector">Function to calculate the state
             /// that the trigger will cause a transition to.</param>
+            /// <param name="allowReentry"></param>
             /// <param name="guards">Functions and their descriptions that must return true in order for the
             /// trigger to be accepted.</param>
             /// <returns>The reciever.</returns>
             /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
             /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
-            public StateConfiguration PermitDynamicIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, TState> destinationStateSelector, params Tuple<Func<bool>, string>[] guards)
+            public StateConfiguration PermitDynamicIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, TState> destinationStateSelector, 
+                bool allowReentry = true, params Tuple<Func<bool>, string>[] guards)
             {
                 if (trigger == null) throw new ArgumentNullException(nameof(trigger));
                 if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
@@ -1000,7 +1036,8 @@ namespace Stateless
                         ParameterConversion.Unpack<TArg1>(args, 1)),
                     null,    // destinationStateSelectorString
                     new TransitionGuard(guards),
-                    null);      // List of possible destination states not specified
+                    null,     // List of possible destination states not specified
+                    allowReentry);
             }
 
             /// <summary>
@@ -1010,6 +1047,7 @@ namespace Stateless
             /// <param name="trigger">The accepted trigger.</param>
             /// <param name="destinationStateSelector">Function to calculate the state
             /// that the trigger will cause a transition to.</param>
+            /// <param name="allowReentry"></param>
             /// <returns>The reciever.</returns>
             /// <param name="guard">Function that must return true in order for the
             /// trigger to be accepted.</param>
@@ -1017,7 +1055,8 @@ namespace Stateless
             /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
             /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
             /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
-            public StateConfiguration PermitDynamicIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, TState> destinationStateSelector, Func<bool> guard, string guardDescription = null)
+            public StateConfiguration PermitDynamicIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, TState> destinationStateSelector, 
+                bool allowReentry, Func<bool> guard, string guardDescription = null)
             {
                 if (trigger == null) throw new ArgumentNullException(nameof(trigger));
                 if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
@@ -1030,7 +1069,8 @@ namespace Stateless
                         ParameterConversion.Unpack<TArg2>(args, 2)),
                     null,    // destinationStateSelectorString
                     new TransitionGuard(guard, guardDescription),
-                    null);      // List of possible destination states not specified
+                    null,      // List of possible destination states not specified
+                    allowReentry);
             }
 
             /// <summary>
@@ -1040,13 +1080,15 @@ namespace Stateless
             /// <param name="trigger">The accepted trigger.</param>
             /// <param name="destinationStateSelector">Function to calculate the state
             /// that the trigger will cause a transition to.</param>
+            /// <param name="allowReentry"></param>
             /// <returns>The reciever.</returns>
             /// <param name="guards">Functions ant their descriptions that must return true in order for the
             /// trigger to be accepted.</param>
             /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
             /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
             /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
-            public StateConfiguration PermitDynamicIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, TState> destinationStateSelector, params Tuple<Func<bool>, string>[] guards)
+            public StateConfiguration PermitDynamicIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, TState> destinationStateSelector, 
+                bool allowReentry = true, params Tuple<Func<bool>, string>[] guards)
             {
                 if (trigger == null) throw new ArgumentNullException(nameof(trigger));
                 if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
@@ -1059,7 +1101,8 @@ namespace Stateless
                         ParameterConversion.Unpack<TArg2>(args, 2)),
                     null,    // destinationStateSelectorString
                     new TransitionGuard(guards),
-                    null);      // List of possible destination states not specified
+                    null,      // List of possible destination states not specified
+                    allowReentry);
             }
 
             void EnforceNotIdentityTransition(TState destination)
@@ -1070,20 +1113,21 @@ namespace Stateless
                 }
             }
 
-            StateConfiguration InternalPermit(TTrigger trigger, TState destinationState)
+            StateConfiguration InternalPermit(TTrigger trigger, TState destinationState, bool allowReentry)
             {
-                _representation.AddTriggerBehaviour(new TransitioningTriggerBehaviour(trigger, destinationState, null));
+                _representation.AddTriggerBehaviour(new TransitioningTriggerBehaviour(trigger, destinationState, null, allowReentry));
                 return this;
             }
 
-            StateConfiguration InternalPermitIf(TTrigger trigger, TState destinationState, TransitionGuard transitionGuard)
+            StateConfiguration InternalPermitIf(TTrigger trigger, TState destinationState, bool allowReentry, TransitionGuard transitionGuard)
             {
-                _representation.AddTriggerBehaviour(new TransitioningTriggerBehaviour(trigger, destinationState, transitionGuard));
+                _representation.AddTriggerBehaviour(new TransitioningTriggerBehaviour(trigger, destinationState, transitionGuard, allowReentry));
                 return this;
             }
 
             StateConfiguration InternalPermitDynamicIf(TTrigger trigger, Func<object[], TState> destinationStateSelector,
-                string destinationStateSelectorDescription, TransitionGuard transitionGuard, Reflection.DynamicStateInfos possibleDestinationStates)
+                string destinationStateSelectorDescription, TransitionGuard transitionGuard, Reflection.DynamicStateInfos possibleDestinationStates,
+                bool allowReentry)
             {
                 if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
                 if (transitionGuard == null) throw new ArgumentNullException(nameof(transitionGuard));
@@ -1094,7 +1138,8 @@ namespace Stateless
                     Reflection.DynamicTransitionInfo.Create(trigger,
                         transitionGuard.Conditions.Select(x => x.MethodDescription),
                         Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),
-                        possibleDestinationStates)
+                        possibleDestinationStates),
+                    allowReentry
                     ));
                 return this;
             }
