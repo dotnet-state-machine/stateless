@@ -13,4 +13,9 @@ build_script:
 test: off
 artifacts:
 - path: artifacts/Stateless.*.nupkg
-
+deploy:
+- provider: NuGet
+  api_key:
+    secure: U0b7CQk3G8x+xfzoeGz3o26PyoR4G/DuuJ/G63mMrj+mgrDgV0/JA7/4fqqzO2eH
+  on:
+    branch: /^(master|dev)$/
