@@ -17,6 +17,10 @@ namespace BugTrackerExample
             bug.Assign("Fred");
             bug.Close();
 
+            Console.WriteLine();
+            Console.WriteLine("State machine:");
+            Console.WriteLine(bug.ToDotGraph());
+
             Console.ReadKey(false);
         }
     }

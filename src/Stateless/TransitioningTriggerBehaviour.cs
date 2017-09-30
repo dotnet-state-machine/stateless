@@ -13,13 +13,9 @@ namespace Stateless
 
             internal TState Destination { get { return _destination; } }
 
-            public TransitioningTriggerBehaviour(TTrigger trigger, TState destination, Func<bool> guard)
-                : this(trigger, destination, guard, string.Empty)
-            {
-            }
-
-            public TransitioningTriggerBehaviour(TTrigger trigger, TState destination, Func<bool> guard, string description)
-                : base(trigger, guard, description)
+            // transitionGuard can be null if there is no guard function on the transition
+            public TransitioningTriggerBehaviour(TTrigger trigger, TState destination, TransitionGuard transitionGuard)
+                : base(trigger, transitionGuard)
             {
                 _destination = destination;
             }

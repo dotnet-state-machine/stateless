@@ -17,15 +17,120 @@ namespace Stateless
             /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
             /// </summary>
             /// <param name="trigger"></param>
+            /// <param name="guard">Function that must return true in order for the trigger to be accepted.</param>
+            /// <param name="entryAction"></param>
+            /// <returns></returns>
+            public StateConfiguration InternalTransitionAsyncIf(TTrigger trigger, Func<bool> guard, Func<Transition, Task> entryAction)
+            {
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard));
+                _representation.AddInternalAction(trigger, (t, args) => entryAction(t));
+                return this;
+            }
+
+            /// <summary>
+            /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
+            /// </summary>
+            /// <param name="trigger">The accepted trigger</param>
+            /// <param name="guard">Function that must return true in order for the\r\n            /// trigger to be accepted.</param>
+            /// <param name="internalAction">The asynchronous action performed by the internal transition</param>
+            /// <returns></returns>
+            public StateConfiguration InternalTransitionAsyncIf(TTrigger trigger, Func<bool> guard, Func<Task> internalAction)
+            {
+                if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
+
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard));
+                _representation.AddInternalAction(trigger, (t, args) => internalAction());
+                return this;
+            }
+
+            /// <summary>
+            /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <param name="trigger">The accepted trigger</param>
+            /// <param name="guard">Function that must return true in order for the trigger to be accepted.</param>
+            /// <param name="internalAction">The asynchronous action performed by the internal transition</param>
+            /// <returns></returns>
+            public StateConfiguration InternalTransitionAsyncIf<TArg0>(TTrigger trigger, Func<bool> guard, Func<Transition, Task> internalAction)
+            {
+                if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
+
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard));
+                _representation.AddInternalAction(trigger, (t, args) => internalAction(t));
+                return this;
+            }
+
+            /// <summary>
+            /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <param name="trigger">The accepted trigger</param>
+            /// <param name="guard">Function that must return true in order for the trigger to be accepted.</param>
+            /// <param name="internalAction">The asynchronous action performed by the internal transition</param>
+            /// <returns></returns>
+            public StateConfiguration InternalTransitionAsyncIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<bool> guard, Func<TArg0, Transition, Task> internalAction)
+            {
+                if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
+
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard));
+                _representation.AddInternalAction(trigger.Trigger, (t, args) => internalAction(ParameterConversion.Unpack<TArg0>(args, 0), t));
+                return this;
+            }
+
+            /// <summary>
+            /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <typeparam name="TArg1"></typeparam>
+            /// <param name="trigger">The accepted trigger</param>
+            /// <param name="guard">Function that must return true in order for the trigger to be accepted.</param>
+            /// <param name="internalAction">The asynchronous action performed by the internal transition</param>
+            /// <returns></returns>
+            public StateConfiguration InternalTransitionAsyncIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<bool> guard, Func<TArg0, TArg1, Transition, Task> internalAction)
+            {
+                if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
+
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard));
+                _representation.AddInternalAction(trigger.Trigger, (t, args) => internalAction(
+                    ParameterConversion.Unpack<TArg0>(args, 0),
+                    ParameterConversion.Unpack<TArg1>(args, 1), t));
+                return this;
+            }
+
+            /// <summary>
+            /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <typeparam name="TArg1"></typeparam>
+            /// <typeparam name="TArg2"></typeparam>
+            /// <param name="trigger">The accepted trigger</param>
+            /// <param name="guard">Function that must return true in order for the trigger to be accepted.</param>
+            /// <param name="internalAction">The asynchronous action performed by the internal transition</param>
+            /// <returns></returns>
+            public StateConfiguration InternalTransitionAsyncIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<bool> guard, Func<TArg0, TArg1, TArg2, Transition, Task> internalAction)
+            {
+                if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
+
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard));
+                _representation.AddInternalAction(trigger.Trigger, (t, args) => internalAction(
+                    ParameterConversion.Unpack<TArg0>(args, 0),
+                    ParameterConversion.Unpack<TArg1>(args, 1),
+                    ParameterConversion.Unpack<TArg2>(args, 2), t));
+                return this;
+            }
+
+
+            /// <summary>
+            /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
+            /// </summary>
+            /// <param name="trigger"></param>
             /// <param name="entryAction"></param>
             /// <returns></returns>
             public StateConfiguration InternalTransitionAsync(TTrigger trigger, Func<Transition, Task> entryAction)
             {
-                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
-
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger));
-                _representation.AddInternalAction(trigger, (t, args) => entryAction(t));
-                return this;
+                return InternalTransitionAsyncIf(trigger, () => true, entryAction);
             }
             /// <summary>
             /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
@@ -35,11 +140,7 @@ namespace Stateless
             /// <returns></returns>
             public StateConfiguration InternalTransitionAsync(TTrigger trigger, Func<Task> internalAction)
             {
-                if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
-
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger));
-                _representation.AddInternalAction(trigger, (t, args) => internalAction());
-                return this;
+                return InternalTransitionAsyncIf(trigger, () => true, internalAction);
             }
             /// <summary>
             /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
@@ -50,11 +151,7 @@ namespace Stateless
             /// <returns></returns>
             public StateConfiguration InternalTransitionAsync<TArg0>(TTrigger trigger, Func<Transition, Task> internalAction)
             {
-                if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
-
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger));
-                _representation.AddInternalAction(trigger, (t, args) => internalAction(t));
-                return this;
+                return InternalTransitionAsyncIf(trigger, () => true, internalAction);
             }
             /// <summary>
             /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
@@ -65,11 +162,34 @@ namespace Stateless
             /// <returns></returns>
             public StateConfiguration InternalTransitionAsync<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, Transition, Task> internalAction)
             {
-                if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
+                return InternalTransitionAsyncIf(trigger, () => true, internalAction);
+            }
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger));
-                _representation.AddInternalAction(trigger.Trigger, (t, args) => internalAction(ParameterConversion.Unpack<TArg0>(args, 0), t));
-                return this;
+            /// <summary>
+            /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <typeparam name="TArg1"></typeparam>
+            /// <param name="trigger">The accepted trigger</param>
+            /// <param name="internalAction">The asynchronous action performed by the internal transition</param>
+            /// <returns></returns>
+            public StateConfiguration InternalTransitionAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, Transition, Task> internalAction)
+            {
+                return InternalTransitionAsyncIf(trigger, () => true, internalAction);
+            }
+
+            /// <summary>
+            /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <typeparam name="TArg1"></typeparam>
+            /// <typeparam name="TArg2"></typeparam>
+            /// <param name="trigger">The accepted trigger</param>
+            /// <param name="internalAction">The asynchronous action performed by the internal transition</param>
+            /// <returns></returns>
+            public StateConfiguration InternalTransitionAsync<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, Transition, Task> internalAction)
+            {
+                return InternalTransitionAsyncIf(trigger, () => true, internalAction);
             }
 
             /// <summary>
@@ -81,10 +201,9 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnActivateAsync(Func<Task> activateAction, string activateActionDescription = null)
             {
-                Enforce.ArgumentNotNull(activateAction, nameof(activateAction));
                 _representation.AddActivateAction(
                     activateAction,
-                    activateActionDescription ?? activateAction.TryGetMethodName());
+                    Reflection.InvocationInfo.Create(activateAction, activateActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
                 return this;
             }
 
@@ -97,10 +216,9 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnDeactivateAsync(Func<Task> deactivateAction, string deactivateActionDescription = null)
             {
-                Enforce.ArgumentNotNull(deactivateAction, nameof(deactivateAction));
                 _representation.AddDeactivateAction(
                     deactivateAction,
-                    deactivateActionDescription ?? deactivateAction.TryGetMethodName());
+                    Reflection.InvocationInfo.Create(deactivateAction, deactivateActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
                 return this;
             }
 
@@ -113,10 +231,13 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnEntryAsync(Func<Task> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                return OnEntryAsync(
-                    t => entryAction(),
-                    entryActionDescription ?? entryAction.TryGetMethodName());
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
+                _representation.AddEntryAction(
+                    (t, args) => entryAction(),
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                return this;
+
             }
 
             /// <summary>
@@ -128,10 +249,11 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnEntryAsync(Func<Transition, Task> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
                 _representation.AddEntryAction(
                     (t, args) => entryAction(t),
-                    entryActionDescription ?? entryAction.TryGetMethodName());
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
                 return this;
             }
 
@@ -145,11 +267,13 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnEntryFromAsync(TTrigger trigger, Func<Task> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                return OnEntryFromAsync(
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
+                _representation.AddEntryAction(
                     trigger,
-                    t => entryAction(),
-                    entryActionDescription ?? entryAction.TryGetMethodName());
+                    (t, args) => entryAction(),
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                return this;
             }
 
             /// <summary>
@@ -162,11 +286,12 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnEntryFromAsync(TTrigger trigger, Func<Transition, Task> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
                 _representation.AddEntryAction(
                     trigger,
                     (t, args) => entryAction(t),
-                    entryActionDescription ?? entryAction.TryGetMethodName());
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
                 return this;
             }
 
@@ -181,11 +306,15 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnEntryFromAsync<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, Task> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                return OnEntryFromAsync<TArg0>(
-                    trigger,
-                    (a0, t) => entryAction(a0),
-                    entryActionDescription ?? entryAction.TryGetMethodName());
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
+                _representation.AddEntryAction(
+                    trigger.Trigger,
+                    (t, args) => entryAction(
+                        ParameterConversion.Unpack<TArg0>(args, 0)),
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                return this;
             }
 
             /// <summary>
@@ -199,13 +328,14 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnEntryFromAsync<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, Transition, Task> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                Enforce.ArgumentNotNull(trigger, nameof(trigger));
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
                 _representation.AddEntryAction(
                     trigger.Trigger,
                     (t, args) => entryAction(
                         ParameterConversion.Unpack<TArg0>(args, 0), t),
-                        entryActionDescription ?? entryAction.TryGetMethodName());
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
                 return this;
             }
 
@@ -221,10 +351,15 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnEntryFromAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, Task> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                return OnEntryFromAsync<TArg0, TArg1>(
-                    trigger, 
-                    (a0, a1, t) => entryAction(a0, a1), entryActionDescription ?? entryAction.TryGetMethodName());
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
+                _representation.AddEntryAction(trigger.Trigger,
+                    (t, args) => entryAction(
+                        ParameterConversion.Unpack<TArg0>(args, 0),
+                        ParameterConversion.Unpack<TArg1>(args, 1)),
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                return this;
             }
 
             /// <summary>
@@ -239,11 +374,14 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnEntryFromAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, Transition, Task> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                Enforce.ArgumentNotNull(trigger, nameof(trigger));
-                _representation.AddEntryAction(trigger.Trigger, (t, args) => entryAction(
-                    ParameterConversion.Unpack<TArg0>(args, 0),
-                    ParameterConversion.Unpack<TArg1>(args, 1), t), entryActionDescription ?? entryAction.TryGetMethodName());
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
+                _representation.AddEntryAction(trigger.Trigger,
+                    (t, args) => entryAction(
+                        ParameterConversion.Unpack<TArg0>(args, 0),
+                        ParameterConversion.Unpack<TArg1>(args, 1), t),
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
                 return this;
             }
 
@@ -260,10 +398,16 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnEntryFromAsync<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, Task> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                return OnEntryFromAsync<TArg0, TArg1, TArg2>(
-                    trigger, 
-                    (a0, a1, a2, t) => entryAction(a0, a1, a2), entryActionDescription ?? entryAction.TryGetMethodName());
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
+                _representation.AddEntryAction(trigger.Trigger,
+                    (t, args) => entryAction(
+                        ParameterConversion.Unpack<TArg0>(args, 0),
+                        ParameterConversion.Unpack<TArg1>(args, 1),
+                        ParameterConversion.Unpack<TArg2>(args, 2)),
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                return this;
             }
 
             /// <summary>
@@ -279,12 +423,15 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnEntryFromAsync<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, Transition, Task> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                Enforce.ArgumentNotNull(trigger, nameof(trigger));
-                _representation.AddEntryAction(trigger.Trigger, (t, args) => entryAction(
-                    ParameterConversion.Unpack<TArg0>(args, 0),
-                    ParameterConversion.Unpack<TArg1>(args, 1),
-                    ParameterConversion.Unpack<TArg2>(args, 2), t), entryActionDescription ?? entryAction.TryGetMethodName());
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
+                _representation.AddEntryAction(trigger.Trigger,
+                    (t, args) => entryAction(
+                        ParameterConversion.Unpack<TArg0>(args, 0),
+                        ParameterConversion.Unpack<TArg1>(args, 1),
+                        ParameterConversion.Unpack<TArg2>(args, 2), t),
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
                 return this;
             }
 
@@ -297,10 +444,12 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnExitAsync(Func<Task> exitAction, string exitActionDescription = null)
             {
-                Enforce.ArgumentNotNull(exitAction, nameof(exitAction));
-                return OnExitAsync(
+                if (exitAction == null) throw new ArgumentNullException(nameof(exitAction));
+
+                _representation.AddExitAction(
                     t => exitAction(),
-                    exitActionDescription ?? exitAction.TryGetMethodName());
+                    Reflection.InvocationInfo.Create(exitAction, exitActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                return this;
             }
 
             /// <summary>
@@ -312,10 +461,9 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnExitAsync(Func<Transition, Task> exitAction, string exitActionDescription = null)
             {
-                Enforce.ArgumentNotNull(exitAction, nameof(exitAction));
                 _representation.AddExitAction(
                     exitAction,
-                    exitActionDescription ?? exitAction.TryGetMethodName());
+                    Reflection.InvocationInfo.Create(exitAction, exitActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
                 return this;
             }
         }

@@ -16,13 +16,12 @@ namespace Stateless
             private readonly StateMachine<TState, TTrigger> _machine;
             readonly StateRepresentation _representation;
             readonly Func<TState, StateRepresentation> _lookup;
-            static readonly Func<bool> NoGuard = () => true;
 
             internal StateConfiguration(StateMachine<TState, TTrigger> machine, StateRepresentation representation, Func<TState, StateRepresentation> lookup)
             {
-                _machine = Enforce.ArgumentNotNull(machine, nameof(machine));
-                _representation = Enforce.ArgumentNotNull(representation, nameof(representation));
-                _lookup = Enforce.ArgumentNotNull(lookup, nameof(lookup));
+                _machine = machine;
+                _representation = representation;
+                _lookup = lookup;
             }
 
             /// <summary>
@@ -45,8 +44,9 @@ namespace Stateless
             public StateConfiguration Permit(TTrigger trigger, TState destinationState)
             {
                 EnforceNotIdentityTransition(destinationState);
-                return InternalPermit(trigger, destinationState, string.Empty);
+                return InternalPermit(trigger, destinationState);
             }
+
             /// <summary>
             /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
             /// </summary>
@@ -55,13 +55,25 @@ namespace Stateless
             /// <returns></returns>
             public StateConfiguration InternalTransition(TTrigger trigger, Action<Transition> entryAction)
             {
+                return InternalTransitionIf(trigger, () => true, entryAction);
+            }
+
+            /// <summary>
+            /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
+            /// </summary>
+            /// <param name="trigger"></param>
+            /// <param name="guard">Function that must return true in order for the trigger to be accepted.</param>
+            /// <param name="entryAction"></param>
+            /// <returns></returns>
+            public StateConfiguration InternalTransitionIf(TTrigger trigger, Func<bool> guard, Action<Transition> entryAction)
+            {
                 if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger));
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard));
                 _representation.AddInternalAction(trigger, (t, args) => entryAction(t));
                 return this;
             }
-            
+
             /// <summary>
             /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
             /// </summary>
@@ -70,12 +82,42 @@ namespace Stateless
             /// <returns></returns>
             public StateConfiguration InternalTransition(TTrigger trigger, Action internalAction)
             {
+                return InternalTransitionIf(trigger, () => true, internalAction);
+            }
+
+            /// <summary>
+            /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
+            /// </summary>
+            /// <param name="trigger">The accepted trigger</param>
+            /// <param name="guard">Function that must return true in order for the trigger to be accepted.</param>
+            /// <param name="internalAction">The action performed by the internal transition</param>
+            /// <returns></returns>
+            public StateConfiguration InternalTransitionIf(TTrigger trigger, Func<bool> guard, Action internalAction)
+            {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger));
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard));
                 _representation.AddInternalAction(trigger, (t, args) => internalAction());
                 return this;
             }
+
+            /// <summary>
+            /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <param name="trigger">The accepted trigger</param>
+            /// <param name="guard">Function that must return true in order for the trigger to be accepted.</param>
+            /// <param name="internalAction">The action performed by the internal transition</param>
+            /// <returns></returns>
+            public StateConfiguration InternalTransitionIf<TArg0>(TTrigger trigger, Func<bool> guard, Action<Transition> internalAction)
+            {
+                if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
+
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard));
+                _representation.AddInternalAction(trigger, (t, args) => internalAction(t));
+                return this;
+            }
+
             /// <summary>
             /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
             /// </summary>
@@ -85,12 +127,9 @@ namespace Stateless
             /// <returns></returns>
             public StateConfiguration InternalTransition<TArg0>(TTrigger trigger, Action<Transition> internalAction)
             {
-                if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
-
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger));
-                _representation.AddInternalAction(trigger, (t, args) => internalAction(t));
-                return this;
+                return InternalTransitionIf(trigger, () => true, internalAction);
             }
+
             /// <summary>
             /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
             /// </summary>
@@ -100,12 +139,96 @@ namespace Stateless
             /// <returns></returns>
             public StateConfiguration InternalTransition<TArg0>(TriggerWithParameters<TArg0> trigger, Action<TArg0, Transition> internalAction)
             {
+                return InternalTransitionIf(trigger, () => true, internalAction);
+            }
+
+            /// <summary>
+            /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <param name="trigger">The accepted trigger</param>
+            /// <param name="guard">Function that must return true in order for the trigger to be accepted.</param>
+            /// <param name="internalAction">The action performed by the internal transition</param>
+            /// <returns></returns>
+            public StateConfiguration InternalTransitionIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<bool> guard, Action<TArg0, Transition> internalAction)
+            {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger));
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard));
                 _representation.AddInternalAction(trigger.Trigger, (t, args) => internalAction(ParameterConversion.Unpack<TArg0>(args, 0), t));
                 return this;
             }
+
+            /// <summary>
+            /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <typeparam name="TArg1"></typeparam>
+            /// <param name="trigger">The accepted trigger</param>
+            /// <param name="internalAction">The action performed by the internal transition</param>
+            /// <returns></returns>
+            public StateConfiguration InternalTransition<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger,
+                Action<TArg0, TArg1, Transition> internalAction)
+            {
+                return InternalTransitionIf(trigger, () => true, internalAction);
+            }
+
+            /// <summary>
+            /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <typeparam name="TArg1"></typeparam>
+            /// <param name="trigger">The accepted trigger</param>
+            /// <param name="guard">Function that must return true in order for the trigger to be accepted.</param>
+            /// <param name="internalAction">The action performed by the internal transition</param>
+            /// <returns></returns>
+            public StateConfiguration InternalTransitionIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<bool> guard, Action<TArg0, TArg1, Transition> internalAction)
+            {
+                if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
+
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard));
+                _representation.AddInternalAction(trigger.Trigger, (t, args) => internalAction(
+                    ParameterConversion.Unpack<TArg0>(args, 0),
+                    ParameterConversion.Unpack<TArg1>(args, 1), t));
+                return this;
+            }
+
+            /// <summary>
+            /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <typeparam name="TArg1"></typeparam>
+            /// <typeparam name="TArg2"></typeparam>
+            /// <param name="trigger">The accepted trigger</param>
+            /// <param name="guard">Function that must return true in order for the trigger to be accepted.</param>
+            /// <param name="internalAction">The action performed by the internal transition</param>
+            /// <returns></returns>
+            public StateConfiguration InternalTransitionIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<bool> guard, Action<TArg0, TArg1, TArg2, Transition> internalAction)
+            {
+                if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
+
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard));
+                _representation.AddInternalAction(trigger.Trigger, (t, args) => internalAction(
+                    ParameterConversion.Unpack<TArg0>(args, 0),
+                    ParameterConversion.Unpack<TArg1>(args, 1),
+                    ParameterConversion.Unpack<TArg2>(args, 2), t));
+                return this;
+            }
+
+            /// <summary>
+            /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <typeparam name="TArg1"></typeparam>
+            /// <typeparam name="TArg2"></typeparam>
+            /// <param name="trigger">The accepted trigger</param>
+            /// <param name="internalAction">The action performed by the internal transition</param>
+            /// <returns></returns>
+            public StateConfiguration InternalTransition<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Action<TArg0, TArg1, TArg2, Transition> internalAction)
+            {
+                return InternalTransitionIf(trigger, () => true, internalAction);
+            }
+
             /// <summary>
             /// Accept the specified trigger and transition to the destination state.
             /// </summary>
@@ -119,12 +242,30 @@ namespace Stateless
             public StateConfiguration PermitIf(TTrigger trigger, TState destinationState, Func<bool> guard, string guardDescription = null)
             {
                 EnforceNotIdentityTransition(destinationState);
+
                 return InternalPermitIf(
                     trigger,
                     destinationState,
-                    guard,
-                    guardDescription ?? guard?.TryGetMethodInfo().Name);
+                    new TransitionGuard(guard, guardDescription));
             }
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="guards">Functions and their descriptions that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <param name="destinationState">State of the destination.</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration PermitIf(TTrigger trigger, TState destinationState, params Tuple<Func<bool>, string>[] guards)
+            {
+                EnforceNotIdentityTransition(destinationState);
+
+                return InternalPermitIf(
+                    trigger,
+                    destinationState,
+                    new TransitionGuard(guards));
+            }
+
             /// <summary>
             /// Accept the specified trigger, execute exit actions and re-execute entry actions.
             /// Reentry behaves as though the configured state transitions to an identical sibling state.
@@ -137,7 +278,7 @@ namespace Stateless
             /// </remarks>
             public StateConfiguration PermitReentry(TTrigger trigger)
             {
-                return InternalPermit(trigger, _representation.UnderlyingState, string.Empty);
+                return InternalPermit(trigger, _representation.UnderlyingState);
             }
 
             /// <summary>
@@ -158,10 +299,29 @@ namespace Stateless
                 return InternalPermitIf(
                     trigger,
                     _representation.UnderlyingState,
-                    guard,
-                    guardDescription ?? guard?.TryGetMethodName()
-                    );
+                    new TransitionGuard(guard, guardDescription));
             }
+
+            /// <summary>
+            /// Accept the specified trigger, execute exit actions and re-execute entry actions.
+            /// Reentry behaves as though the configured state transitions to an identical sibling state.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="guards">Functions and their descriptions that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <returns>The reciever.</returns>
+            /// <remarks>
+            /// Applies to the current state only. Will not re-execute superstate actions, or
+            /// cause actions to execute transitioning between super- and sub-states.
+            /// </remarks>
+            public StateConfiguration PermitReentryIf(TTrigger trigger, params Tuple<Func<bool>, string>[] guards)
+            {
+                return InternalPermitIf(
+                    trigger,
+                    _representation.UnderlyingState,
+                    new TransitionGuard(guards));
+            }
+
             /// <summary>
             /// Ignore the specified trigger when in the configured state.
             /// </summary>
@@ -169,7 +329,13 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration Ignore(TTrigger trigger)
             {
-                return IgnoreIf(trigger, NoGuard);
+                // return IgnoreIf(trigger, NoGuard);
+                // Enforce.ArgumentNotNull(guard, nameof(guard));
+                _representation.AddTriggerBehaviour(
+                    new IgnoredTriggerBehaviour(
+                        trigger,
+                        null));
+                return this;
             }
 
             /// <summary>
@@ -183,12 +349,28 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration IgnoreIf(TTrigger trigger, Func<bool> guard, string guardDescription = null)
             {
-                Enforce.ArgumentNotNull(guard, nameof(guard));
                 _representation.AddTriggerBehaviour(
                     new IgnoredTriggerBehaviour(
                         trigger,
-                        guard,
-                        guardDescription ?? guard?.TryGetMethodName()));
+                        new TransitionGuard(guard, guardDescription)
+                        ));
+                return this;
+            }
+
+            /// <summary>
+            /// Ignore the specified trigger when in the configured state, if the guard
+            /// returns true..
+            /// </summary>
+            /// <param name="trigger">The trigger to ignore.</param>
+            /// <param name="guards">Functions and their descriptions that must return true in order for the
+            /// trigger to be ignored.</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration IgnoreIf(TTrigger trigger, params Tuple<Func<bool>, string>[] guards)
+            {
+                _representation.AddTriggerBehaviour(
+                    new IgnoredTriggerBehaviour(
+                        trigger,
+                        new TransitionGuard(guards)));
                 return this;
             }
 
@@ -201,10 +383,9 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnActivate(Action activateAction, string activateActionDescription = null)
             {
-                Enforce.ArgumentNotNull(activateAction, nameof(activateAction));
                 _representation.AddActivateAction(
-                    activateAction, 
-                    activateActionDescription ?? activateAction.TryGetMethodName());
+                    activateAction,
+                    Reflection.InvocationInfo.Create(activateAction, activateActionDescription));
                 return this;
             }
 
@@ -217,10 +398,9 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnDeactivate(Action deactivateAction, string deactivateActionDescription = null)
             {
-                Enforce.ArgumentNotNull(deactivateAction, nameof(deactivateAction));
                 _representation.AddDeactivateAction(
                     deactivateAction,
-                    deactivateActionDescription ?? deactivateAction.TryGetMethodName());
+                    Reflection.InvocationInfo.Create(deactivateAction, deactivateActionDescription));
                 return this;
             }
 
@@ -233,10 +413,13 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnEntry(Action entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                return OnEntry(
-                    t => entryAction(),
-                    entryActionDescription ?? entryAction.TryGetMethodName());
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
+                _representation.AddEntryAction(
+                    (t, args) => entryAction(),
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription));
+                return this;
+
             }
 
             /// <summary>
@@ -248,10 +431,11 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnEntry(Action<Transition> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
                 _representation.AddEntryAction(
                     (t, args) => entryAction(t),
-                    entryActionDescription ?? entryAction.TryGetMethodName());
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription));
                 return this;
             }
 
@@ -265,11 +449,14 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnEntryFrom(TTrigger trigger, Action entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                return OnEntryFrom(
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
+                _representation.AddEntryAction(
                     trigger,
-                    t => entryAction(),
-                    entryActionDescription ?? entryAction.TryGetMethodName());
+                    (t, args) => entryAction(),
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription));
+                return this;
+
             }
 
             /// <summary>
@@ -282,11 +469,12 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnEntryFrom(TTrigger trigger, Action<Transition> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
                 _representation.AddEntryAction(
                     trigger,
                     (t, args) => entryAction(t),
-                    entryActionDescription ?? entryAction.TryGetMethodName());
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription));
                 return this;
             }
 
@@ -301,11 +489,16 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnEntryFrom<TArg0>(TriggerWithParameters<TArg0> trigger, Action<TArg0> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                return OnEntryFrom<TArg0>(
-                    trigger,
-                    (a0, t) => entryAction(a0),
-                    entryActionDescription ?? entryAction.TryGetMethodName());
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
+                _representation.AddEntryAction(
+                    trigger.Trigger,
+                    (t, args) => entryAction(
+                        ParameterConversion.Unpack<TArg0>(args, 0)),
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription));
+                return this;
+
             }
 
             /// <summary>
@@ -319,13 +512,14 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnEntryFrom<TArg0>(TriggerWithParameters<TArg0> trigger, Action<TArg0, Transition> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                Enforce.ArgumentNotNull(trigger, nameof(trigger));
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
                 _representation.AddEntryAction(
                     trigger.Trigger,
                     (t, args) => entryAction(
                         ParameterConversion.Unpack<TArg0>(args, 0), t),
-                        entryActionDescription ?? entryAction.TryGetMethodName());
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription));
                 return this;
             }
 
@@ -341,10 +535,16 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnEntryFrom<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Action<TArg0, TArg1> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                return OnEntryFrom<TArg0, TArg1>(
-                    trigger, 
-                    (a0, a1, t) => entryAction(a0, a1), entryActionDescription ?? entryAction.TryGetMethodName());
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
+                _representation.AddEntryAction(trigger.Trigger,
+                    (t, args) => entryAction(
+                        ParameterConversion.Unpack<TArg0>(args, 0),
+                        ParameterConversion.Unpack<TArg1>(args, 1)),
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription));
+                return this;
+
             }
 
             /// <summary>
@@ -359,11 +559,13 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnEntryFrom<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Action<TArg0, TArg1, Transition> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                Enforce.ArgumentNotNull(trigger, nameof(trigger));
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
                 _representation.AddEntryAction(trigger.Trigger, (t, args) => entryAction(
                     ParameterConversion.Unpack<TArg0>(args, 0),
-                    ParameterConversion.Unpack<TArg1>(args, 1), t), entryActionDescription ?? entryAction.TryGetMethodName());
+                    ParameterConversion.Unpack<TArg1>(args, 1), t),
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription));
                 return this;
             }
 
@@ -380,10 +582,16 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnEntryFrom<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Action<TArg0, TArg1, TArg2> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                return OnEntryFrom<TArg0, TArg1, TArg2>(
-                    trigger, 
-                    (a0, a1, a2, t) => entryAction(a0, a1, a2), entryActionDescription ?? entryAction.TryGetMethodName());
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
+                _representation.AddEntryAction(trigger.Trigger, (t, args) => entryAction(
+                    ParameterConversion.Unpack<TArg0>(args, 0),
+                    ParameterConversion.Unpack<TArg1>(args, 1),
+                    ParameterConversion.Unpack<TArg2>(args, 2)),
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription));
+                return this;
+
             }
 
             /// <summary>
@@ -399,12 +607,14 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnEntryFrom<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Action<TArg0, TArg1, TArg2, Transition> entryAction, string entryActionDescription = null)
             {
-                Enforce.ArgumentNotNull(entryAction, nameof(entryAction));
-                Enforce.ArgumentNotNull(trigger, nameof(trigger));
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
                 _representation.AddEntryAction(trigger.Trigger, (t, args) => entryAction(
                     ParameterConversion.Unpack<TArg0>(args, 0),
                     ParameterConversion.Unpack<TArg1>(args, 1),
-                    ParameterConversion.Unpack<TArg2>(args, 2), t), entryActionDescription ?? entryAction.TryGetMethodName());
+                    ParameterConversion.Unpack<TArg2>(args, 2), t),
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription));
                 return this;
             }
 
@@ -417,10 +627,12 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnExit(Action exitAction, string exitActionDescription = null)
             {
-                Enforce.ArgumentNotNull(exitAction, nameof(exitAction));
-                return OnExit(
+                if (exitAction == null) throw new ArgumentNullException(nameof(exitAction));
+
+                _representation.AddExitAction(
                     t => exitAction(),
-                    exitActionDescription ?? exitAction.TryGetMethodName());
+                    Reflection.InvocationInfo.Create(exitAction, exitActionDescription));
+                return this;
             }
 
             /// <summary>
@@ -432,10 +644,9 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration OnExit(Action<Transition> exitAction, string exitActionDescription = null)
             {
-                Enforce.ArgumentNotNull(exitAction, nameof(exitAction));
                 _representation.AddExitAction(
                     exitAction,
-                    exitActionDescription ?? exitAction.TryGetMethodName());
+                    Reflection.InvocationInfo.Create(exitAction, exitActionDescription));
                 return this;
             }
 
@@ -453,6 +664,30 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration SubstateOf(TState superstate)
             {
+                var State = _representation.UnderlyingState;
+
+                // Check for accidental identical cyclic configuration
+                if (State.Equals(superstate))
+                {
+                    throw new ArgumentException($"Configuring {State} as a substate of {superstate} creates an illegal cyclic configuration.");
+                }
+
+                // Check for accidental identical nested cyclic configuration
+                var superstates = new HashSet<TState> { State };
+
+                // Build list of super states and check for
+                var activeRepresentation = _lookup(superstate);
+                while (activeRepresentation.Superstate != null)
+                {
+                    // Check if superstate is already added to hashset
+                    if (superstates.Contains(activeRepresentation.Superstate.UnderlyingState))
+                        throw new ArgumentException($"Configuring {State} as a substate of {superstate} creates an illegal nested cyclic configuration.");
+
+                    superstates.Add(activeRepresentation.Superstate.UnderlyingState);
+                    activeRepresentation = _lookup(activeRepresentation.Superstate.UnderlyingState);
+                }
+
+                // The check was OK, we can add this
                 var superRepresentation = _lookup(superstate);
                 _representation.Superstate = superRepresentation;
                 superRepresentation.AddSubstate(_representation);
@@ -464,12 +699,27 @@ namespace Stateless
             /// dynamically by the supplied function.
             /// </summary>
             /// <param name="trigger">The accepted trigger.</param>
-            /// <param name="destinationStateSelector">Function to calculate the state 
+            /// <param name="destinationStateSelector">Function to calculate the state
             /// that the trigger will cause a transition to.</param>
+            /// <param name="destinationStateSelectorDescription">Optional description for the function to calculate the state </param>
+            /// <param name="possibleDestinationStates">Optional array of possible destination states (used by output formatters) </param>
             /// <returns>The reciever.</returns>
-            public StateConfiguration PermitDynamic(TTrigger trigger, Func<TState> destinationStateSelector)
+            public StateConfiguration PermitDynamic(TTrigger trigger, Func<TState> destinationStateSelector,
+                string destinationStateSelectorDescription = null, Reflection.DynamicStateInfos possibleDestinationStates = null)
             {
-                return PermitDynamicIf(trigger, destinationStateSelector, NoGuard);
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
+                _representation.AddTriggerBehaviour(
+                    new DynamicTriggerBehaviour(trigger,
+                        args => destinationStateSelector(),
+                        null,           // No transition guard
+                        Reflection.DynamicTransitionInfo.Create(trigger,
+                            null,       // No guards
+                            Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),
+                            possibleDestinationStates
+                        )
+                    ));
+                return this;
             }
 
             /// <summary>
@@ -477,13 +727,30 @@ namespace Stateless
             /// dynamically by the supplied function.
             /// </summary>
             /// <param name="trigger">The accepted trigger.</param>
-            /// <param name="destinationStateSelector">Function to calculate the state 
+            /// <param name="destinationStateSelector">Function to calculate the state
             /// that the trigger will cause a transition to.</param>
+            /// <param name="destinationStateSelectorDescription">Optional description of the function to calculate the state </param>
             /// <returns>The reciever.</returns>
             /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
-            public StateConfiguration PermitDynamic<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, TState> destinationStateSelector)
+            public StateConfiguration PermitDynamic<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, TState> destinationStateSelector,
+                string destinationStateSelectorDescription = null)
             {
-                return PermitDynamicIf(trigger, destinationStateSelector, NoGuard);
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+
+                _representation.AddTriggerBehaviour(
+                    new DynamicTriggerBehaviour(trigger.Trigger,
+                        args => destinationStateSelector(
+                            ParameterConversion.Unpack<TArg0>(args, 0)),
+                        null,       // No transition guards
+                        Reflection.DynamicTransitionInfo.Create(trigger.Trigger,
+                            null,    // No guards
+                            Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),
+                            null)        // Possible states not specified
+                    ));
+                return this;
+
             }
 
             /// <summary>
@@ -491,14 +758,31 @@ namespace Stateless
             /// dynamically by the supplied function.
             /// </summary>
             /// <param name="trigger">The accepted trigger.</param>
-            /// <param name="destinationStateSelector">Function to calculate the state 
+            /// <param name="destinationStateSelector">Function to calculate the state
             /// that the trigger will cause a transition to.</param>
+            /// <param name="destinationStateSelectorDescription">Optional description of the function to calculate the state </param>
             /// <returns>The reciever.</returns>
             /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
             /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
-            public StateConfiguration PermitDynamic<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, TState> destinationStateSelector)
+            public StateConfiguration PermitDynamic<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger,
+                Func<TArg0, TArg1, TState> destinationStateSelector, string destinationStateSelectorDescription = null)
             {
-                return PermitDynamicIf(trigger, destinationStateSelector, NoGuard);
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+
+                _representation.AddTriggerBehaviour(
+                    new DynamicTriggerBehaviour(trigger.Trigger, args => destinationStateSelector(
+                        ParameterConversion.Unpack<TArg0>(args, 0),
+                        ParameterConversion.Unpack<TArg1>(args, 1)),
+                    null,       // No transition guard
+                    Reflection.DynamicTransitionInfo.Create(trigger.Trigger,
+                        null,       // No guards
+                        Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),                        
+                        null)       // Possible states not defined
+                ));
+                return this;
+
             }
 
             /// <summary>
@@ -506,15 +790,32 @@ namespace Stateless
             /// dynamically by the supplied function.
             /// </summary>
             /// <param name="trigger">The accepted trigger.</param>
-            /// <param name="destinationStateSelector">Function to calculate the state 
+            /// <param name="destinationStateSelector">Function to calculate the state
             /// that the trigger will cause a transition to.</param>
+            /// <param name="destinationStateSelectorDescription">Optional description of the function to calculate the state </param>
             /// <returns>The reciever.</returns>
             /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
             /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
             /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
-            public StateConfiguration PermitDynamic<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, TState> destinationStateSelector)
+            public StateConfiguration PermitDynamic<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger,
+                Func<TArg0, TArg1, TArg2, TState> destinationStateSelector, string destinationStateSelectorDescription = null)
             {
-                return PermitDynamicIf(trigger, destinationStateSelector, NoGuard);
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
+                _representation.AddTriggerBehaviour(
+                    new DynamicTriggerBehaviour(trigger.Trigger,
+                    args => destinationStateSelector(
+                        ParameterConversion.Unpack<TArg0>(args, 0),
+                        ParameterConversion.Unpack<TArg1>(args, 1),
+                        ParameterConversion.Unpack<TArg2>(args, 2)),
+                    null,       // No transition guard
+                    Reflection.DynamicTransitionInfo.Create(trigger.Trigger,
+                        null,       // No guards
+                        Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),
+                        null)       // Possible states not defined
+                    ));
+                return this;
             }
 
             /// <summary>
@@ -522,20 +823,40 @@ namespace Stateless
             /// dynamically by the supplied function.
             /// </summary>
             /// <param name="trigger">The accepted trigger.</param>
-            /// <param name="destinationStateSelector">Function to calculate the state 
+            /// <param name="destinationStateSelector">Function to calculate the state
             /// that the trigger will cause a transition to.</param>
             /// <param name="guard">Function that must return true in order for the
             /// trigger to be accepted.</param>
             /// <param name="guardDescription">Guard description</param>
             /// <returns>The reciever.</returns>
-            public StateConfiguration PermitDynamicIf(TTrigger trigger, Func<TState> destinationStateSelector, Func<bool> guard, string guardDescription = null)
+            public StateConfiguration PermitDynamicIf(TTrigger trigger, Func<TState> destinationStateSelector,
+                Func<bool> guard, string guardDescription = null)
             {
-                Enforce.ArgumentNotNull(destinationStateSelector, nameof(destinationStateSelector));
+                return PermitDynamicIf(trigger, destinationStateSelector, null, guard, guardDescription);
+            }
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state, calculated
+            /// dynamically by the supplied function.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationStateSelector">Function to calculate the state 
+            /// that the trigger will cause a transition to.</param>
+            /// <param name="destinationStateSelectorDescription">Description of the function to calculate the state </param>
+            /// <param name="guard">Function that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <param name="guardDescription">Guard description</param>
+            /// <returns>The reciever.</returns>
+            public StateConfiguration PermitDynamicIf(TTrigger trigger, Func<TState> destinationStateSelector,
+                string destinationStateSelectorDescription, Func<bool> guard, string guardDescription = null)
+            {
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
                 return InternalPermitDynamicIf(
-                    trigger, 
-                    args => destinationStateSelector(), 
-                    guard,
-                    guardDescription ?? guard?.TryGetMethodName());
+                    trigger,
+                    args => destinationStateSelector(),
+                    destinationStateSelectorDescription,
+                    new TransitionGuard(guard, guardDescription),
+                    null);      // List of possible destination states not specified
             }
 
             /// <summary>
@@ -543,7 +864,45 @@ namespace Stateless
             /// dynamically by the supplied function.
             /// </summary>
             /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationStateSelector">Function to calculate the state
+            /// that the trigger will cause a transition to.</param>
+            /// <param name="guards">Functions and their descriptions that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <returns>The reciever.</returns>
+            public StateConfiguration PermitDynamicIf(TTrigger trigger, Func<TState> destinationStateSelector, params Tuple<Func<bool>, string>[] guards)
+            {
+                return PermitDynamicIf(trigger, destinationStateSelector, null, guards);
+            }
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state, calculated
+            /// dynamically by the supplied function.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
             /// <param name="destinationStateSelector">Function to calculate the state 
+            /// that the trigger will cause a transition to.</param>
+            /// <param name="destinationStateSelectorDescription">Description of the function to calculate the state </param>
+            /// <param name="guards">Functions and their descriptions that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <returns>The reciever.</returns>
+            public StateConfiguration PermitDynamicIf(TTrigger trigger, Func<TState> destinationStateSelector,
+                string destinationStateSelectorDescription, params Tuple<Func<bool>, string>[] guards)
+            {
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
+                return InternalPermitDynamicIf(
+                    trigger,
+                    args => destinationStateSelector(),
+                    destinationStateSelectorDescription,
+                    new TransitionGuard(guards),
+                    null);      // List of possible destination states not specified
+            }
+
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state, calculated
+            /// dynamically by the supplied function.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationStateSelector">Function to calculate the state
             /// that the trigger will cause a transition to.</param>
             /// <param name="guard">Function that must return true in order for the
             /// trigger to be accepted.</param>
@@ -552,14 +911,16 @@ namespace Stateless
             /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
             public StateConfiguration PermitDynamicIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, TState> destinationStateSelector, Func<bool> guard, string guardDescription = null)
             {
-                Enforce.ArgumentNotNull(trigger, nameof(trigger));
-                Enforce.ArgumentNotNull(destinationStateSelector, nameof(destinationStateSelector));
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
                 return InternalPermitDynamicIf(
                     trigger.Trigger,
                     args => destinationStateSelector(
                         ParameterConversion.Unpack<TArg0>(args, 0)),
-                    guard,
-                    guardDescription ?? guard?.TryGetMethodName());
+                    null,    // destinationStateSelectorString
+                    new TransitionGuard(guard, guardDescription),
+                    null);      // List of possible destination states not specified
             }
 
             /// <summary>
@@ -567,7 +928,32 @@ namespace Stateless
             /// dynamically by the supplied function.
             /// </summary>
             /// <param name="trigger">The accepted trigger.</param>
-            /// <param name="destinationStateSelector">Function to calculate the state 
+            /// <param name="destinationStateSelector">Function to calculate the state
+            /// that the trigger will cause a transition to.</param>
+            /// <param name="guards">Functions and their descriptions that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <returns>The reciever.</returns>
+            /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+            public StateConfiguration PermitDynamicIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, TState> destinationStateSelector, params Tuple<Func<bool>, string>[] guards)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
+                return InternalPermitDynamicIf(
+                    trigger.Trigger,
+                    args => destinationStateSelector(
+                        ParameterConversion.Unpack<TArg0>(args, 0)),
+                    null,    // destinationStateSelectorString
+                    new TransitionGuard(guards),
+                    null);      // List of possible destination states not specified
+            }
+
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state, calculated
+            /// dynamically by the supplied function.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationStateSelector">Function to calculate the state
             /// that the trigger will cause a transition to.</param>
             /// <param name="guard">Function that must return true in order for the
             /// trigger to be accepted.</param>
@@ -577,15 +963,17 @@ namespace Stateless
             /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
             public StateConfiguration PermitDynamicIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, TState> destinationStateSelector, Func<bool> guard, string guardDescription = null)
             {
-                Enforce.ArgumentNotNull(trigger, nameof(trigger));
-                Enforce.ArgumentNotNull(destinationStateSelector, nameof(destinationStateSelector));
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
                 return InternalPermitDynamicIf(
                     trigger.Trigger,
                     args => destinationStateSelector(
                         ParameterConversion.Unpack<TArg0>(args, 0),
                         ParameterConversion.Unpack<TArg1>(args, 1)),
-                    guard,
-                    guardDescription ?? guard?.TryGetMethodName());
+                    null,    // destinationStateSelectorString
+                    new TransitionGuard(guard, guardDescription),
+                    null);      // List of possible destination states not specified
             }
 
             /// <summary>
@@ -593,7 +981,34 @@ namespace Stateless
             /// dynamically by the supplied function.
             /// </summary>
             /// <param name="trigger">The accepted trigger.</param>
-            /// <param name="destinationStateSelector">Function to calculate the state 
+            /// <param name="destinationStateSelector">Function to calculate the state
+            /// that the trigger will cause a transition to.</param>
+            /// <param name="guards">Functions and their descriptions that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <returns>The reciever.</returns>
+            /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+            /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
+            public StateConfiguration PermitDynamicIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, TState> destinationStateSelector, params Tuple<Func<bool>, string>[] guards)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
+                return InternalPermitDynamicIf(
+                    trigger.Trigger,
+                    args => destinationStateSelector(
+                        ParameterConversion.Unpack<TArg0>(args, 0),
+                        ParameterConversion.Unpack<TArg1>(args, 1)),
+                    null,    // destinationStateSelectorString
+                    new TransitionGuard(guards),
+                    null);      // List of possible destination states not specified
+            }
+
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state, calculated
+            /// dynamically by the supplied function.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationStateSelector">Function to calculate the state
             /// that the trigger will cause a transition to.</param>
             /// <returns>The reciever.</returns>
             /// <param name="guard">Function that must return true in order for the
@@ -604,16 +1019,47 @@ namespace Stateless
             /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
             public StateConfiguration PermitDynamicIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, TState> destinationStateSelector, Func<bool> guard, string guardDescription = null)
             {
-                Enforce.ArgumentNotNull(trigger, nameof(trigger));
-                Enforce.ArgumentNotNull(destinationStateSelector, nameof(destinationStateSelector));
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
                 return InternalPermitDynamicIf(
                     trigger.Trigger,
                     args => destinationStateSelector(
                         ParameterConversion.Unpack<TArg0>(args, 0),
                         ParameterConversion.Unpack<TArg1>(args, 1),
                         ParameterConversion.Unpack<TArg2>(args, 2)),
-                    guard,
-                    guardDescription ?? guard?.TryGetMethodName());
+                    null,    // destinationStateSelectorString
+                    new TransitionGuard(guard, guardDescription),
+                    null);      // List of possible destination states not specified
+            }
+
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state, calculated
+            /// dynamically by the supplied function.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationStateSelector">Function to calculate the state
+            /// that the trigger will cause a transition to.</param>
+            /// <returns>The reciever.</returns>
+            /// <param name="guards">Functions ant their descriptions that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+            /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
+            /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
+            public StateConfiguration PermitDynamicIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, TState> destinationStateSelector, params Tuple<Func<bool>, string>[] guards)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
+                return InternalPermitDynamicIf(
+                    trigger.Trigger,
+                    args => destinationStateSelector(
+                        ParameterConversion.Unpack<TArg0>(args, 0),
+                        ParameterConversion.Unpack<TArg1>(args, 1),
+                        ParameterConversion.Unpack<TArg2>(args, 2)),
+                    null,    // destinationStateSelectorString
+                    new TransitionGuard(guards),
+                    null);      // List of possible destination states not specified
             }
 
             void EnforceNotIdentityTransition(TState destination)
@@ -624,28 +1070,32 @@ namespace Stateless
                 }
             }
 
-            StateConfiguration InternalPermit(TTrigger trigger, TState destinationState, string guardDescription)
+            StateConfiguration InternalPermit(TTrigger trigger, TState destinationState)
             {
-                return InternalPermitIf(trigger, destinationState, () => true, guardDescription);
-            }
-
-            StateConfiguration InternalPermitIf(TTrigger trigger, TState destinationState, Func<bool> guard, string guardDescription)
-            {
-                Enforce.ArgumentNotNull(guard, nameof(guard));
-                _representation.AddTriggerBehaviour(new TransitioningTriggerBehaviour(trigger, destinationState, guard, guardDescription));
+                _representation.AddTriggerBehaviour(new TransitioningTriggerBehaviour(trigger, destinationState, null));
                 return this;
             }
 
-            StateConfiguration InternalPermitDynamic(TTrigger trigger, Func<object[], TState> destinationStateSelector, string guardDescription)
+            StateConfiguration InternalPermitIf(TTrigger trigger, TState destinationState, TransitionGuard transitionGuard)
             {
-                return InternalPermitDynamicIf(trigger, destinationStateSelector, NoGuard, guardDescription);
+                _representation.AddTriggerBehaviour(new TransitioningTriggerBehaviour(trigger, destinationState, transitionGuard));
+                return this;
             }
 
-            StateConfiguration InternalPermitDynamicIf(TTrigger trigger, Func<object[], TState> destinationStateSelector, Func<bool> guard, string guardDescription)
+            StateConfiguration InternalPermitDynamicIf(TTrigger trigger, Func<object[], TState> destinationStateSelector,
+                string destinationStateSelectorDescription, TransitionGuard transitionGuard, Reflection.DynamicStateInfos possibleDestinationStates)
             {
-                Enforce.ArgumentNotNull(destinationStateSelector, nameof(destinationStateSelector));
-                Enforce.ArgumentNotNull(guard, nameof(guard));
-                _representation.AddTriggerBehaviour(new DynamicTriggerBehaviour(trigger, destinationStateSelector, guard, guardDescription));
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+                if (transitionGuard == null) throw new ArgumentNullException(nameof(transitionGuard));
+
+                _representation.AddTriggerBehaviour(new DynamicTriggerBehaviour(trigger,
+                    destinationStateSelector,
+                    transitionGuard,
+                    Reflection.DynamicTransitionInfo.Create(trigger,
+                        transitionGuard.Conditions.Select(x => x.MethodDescription),
+                        Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),
+                        possibleDestinationStates)
+                    ));
                 return this;
             }
         }

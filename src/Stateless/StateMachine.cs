@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stateless.Reflection;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -34,8 +35,8 @@ namespace Stateless
         /// <param name="stateMutator">An action that will be called to write new state values.</param>
         public StateMachine(Func<TState> stateAccessor, Action<TState> stateMutator) : this()
         {
-            _stateAccessor = Enforce.ArgumentNotNull(stateAccessor, "stateAccessor");
-            _stateMutator = Enforce.ArgumentNotNull(stateMutator, "stateMutator");
+            _stateAccessor = stateAccessor ?? throw new ArgumentNullException(nameof(stateAccessor));
+            _stateMutator = stateMutator ?? throw new ArgumentNullException(nameof(stateMutator));
         }
 
         /// <summary>
@@ -56,7 +57,7 @@ namespace Stateless
         {
             _unhandledTriggerAction = new UnhandledTriggerAction.Sync(DefaultUnhandledTriggerAction);
             _onTransitionedEvent = new OnTransitionedEvent();
-        }  
+        }
 
         /// <summary>
         /// The current state.
@@ -92,11 +93,34 @@ namespace Stateless
             }
         }
 
+        /// <summary>
+        /// Provides an info object which exposes the states, transitions, and actions of this machine.
+        /// </summary>
+        public StateMachineInfo GetInfo()
+        {
+            var representations = _stateConfiguration.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+
+            var reachable = _stateConfiguration
+                .SelectMany(kvp => kvp.Value.TriggerBehaviours.SelectMany(b => b.Value.OfType<TransitioningTriggerBehaviour>().Select(tb => tb.Destination)))
+                .Distinct()
+                .Except(representations.Keys)
+                .Select(underlying => new StateRepresentation(underlying))
+                .ToArray();
+
+            foreach (var representation in reachable)
+                representations.Add(representation.UnderlyingState, representation);
+
+            var info = representations.ToDictionary(kvp => kvp.Key, kvp => StateInfo.CreateStateInfo(kvp.Value));
+
+            foreach (var state in info)
+                StateInfo.AddRelationships(state.Value, representations[state.Key], k => info[k]);
+
+            return new StateMachineInfo(info.Values, typeof(TState), typeof(TTrigger));
+        }
+
         StateRepresentation GetRepresentation(TState state)
         {
-            StateRepresentation result;
-
-            if (!_stateConfiguration.TryGetValue(state, out result))
+            if (!_stateConfiguration.TryGetValue(state, out StateRepresentation result))
             {
                 result = new StateRepresentation(state);
                 _stateConfiguration.Add(state, result);
@@ -143,7 +167,7 @@ namespace Stateless
         /// not allow the trigger to be fired.</exception>
         public void Fire<TArg0>(TriggerWithParameters<TArg0> trigger, TArg0 arg0)
         {
-            Enforce.ArgumentNotNull(trigger, "trigger");
+            if (trigger == null) throw new ArgumentNullException(nameof(trigger));
             InternalFire(trigger.Trigger, arg0);
         }
 
@@ -162,7 +186,7 @@ namespace Stateless
         /// not allow the trigger to be fired.</exception>
         public void Fire<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, TArg0 arg0, TArg1 arg1)
         {
-            Enforce.ArgumentNotNull(trigger, "trigger");
+            if (trigger == null) throw new ArgumentNullException(nameof(trigger));
             InternalFire(trigger.Trigger, arg0, arg1);
         }
 
@@ -183,13 +207,13 @@ namespace Stateless
         /// not allow the trigger to be fired.</exception>
         public void Fire<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, TArg0 arg0, TArg1 arg1, TArg2 arg2)
         {
-            Enforce.ArgumentNotNull(trigger, "trigger");
+            if (trigger == null) throw new ArgumentNullException(nameof(trigger));
             InternalFire(trigger.Trigger, arg0, arg1, arg2);
         }
 
         /// <summary>
         /// Activates current state. Actions associated with activating the currrent state
-        /// will be invoked. The activation is idempotent and subsequent activation of the same current state 
+        /// will be invoked. The activation is idempotent and subsequent activation of the same current state
         /// will not lead to re-execution of activation callbacks.
         /// </summary>
         public void Activate()
@@ -200,7 +224,7 @@ namespace Stateless
 
         /// <summary>
         /// Deactivates current state. Actions associated with deactivating the currrent state
-        /// will be invoked. The deactivation is idempotent and subsequent deactivation of the same current state 
+        /// will be invoked. The deactivation is idempotent and subsequent deactivation of the same current state
         /// will not lead to re-execution of deactivation callbacks.
         /// </summary>
         public void Deactivate()
@@ -243,22 +267,19 @@ namespace Stateless
 
         void InternalFireOne(TTrigger trigger, params object[] args)
         {
-            TriggerWithParameters configuration;
-            if (_triggerConfiguration.TryGetValue(trigger, out configuration))
+            if (_triggerConfiguration.TryGetValue(trigger, out TriggerWithParameters configuration))
                 configuration.ValidateParameters(args);
 
             var source = State;
             var representativeState = GetRepresentation(source);
 
-            TriggerBehaviour triggerBehaviour;
-            if (!representativeState.TryFindHandler(trigger, out triggerBehaviour))
+            if (!representativeState.TryFindHandler(trigger, out TriggerBehaviourResult result))
             {
-                _unhandledTriggerAction.Execute(representativeState.UnderlyingState, trigger);
+                _unhandledTriggerAction.Execute(representativeState.UnderlyingState, trigger, result?.UnmetGuardConditions);
                 return;
             }
 
-            TState destination;
-            if (triggerBehaviour.ResultsInTransitionFrom(source, args, out destination))
+            if (result.Handler.ResultsInTransitionFrom(source, args, out TState destination))
             {
                 var transition = new Transition(source, destination, trigger);
 
@@ -285,7 +306,18 @@ namespace Stateless
         /// <param name="unhandledTriggerAction">An action to call when an unhandled trigger is fired.</param>
         public void OnUnhandledTrigger(Action<TState, TTrigger> unhandledTriggerAction)
         {
-            if (unhandledTriggerAction == null) throw new ArgumentNullException("unhandledTriggerAction");
+            if (unhandledTriggerAction == null) throw new ArgumentNullException(nameof(unhandledTriggerAction));
+            _unhandledTriggerAction = new UnhandledTriggerAction.Sync((s, t, c) => unhandledTriggerAction(s, t));
+        }
+
+        /// <summary>
+        /// Override the default behaviour of throwing an exception when an unhandled trigger
+        /// is fired.
+        /// </summary>
+        /// <param name="unhandledTriggerAction">An action to call when an unhandled trigger is fired.</param>
+        public void OnUnhandledTrigger(Action<TState, TTrigger, ICollection<string>> unhandledTriggerAction)
+        {
+            if (unhandledTriggerAction == null) throw new ArgumentNullException(nameof(unhandledTriggerAction));
             _unhandledTriggerAction = new UnhandledTriggerAction.Sync(unhandledTriggerAction);
         }
 
@@ -377,19 +409,16 @@ namespace Stateless
             _triggerConfiguration.Add(trigger.Trigger, trigger);
         }
 
-        void DefaultUnhandledTriggerAction(TState state, TTrigger trigger)
+        void DefaultUnhandledTriggerAction(TState state, TTrigger trigger, ICollection<string> unmetGuardConditions)
         {
             var source = state;
             var representativeState = GetRepresentation(source);
 
-            TriggerBehaviour triggerBehaviour;
-            if (representativeState.TryFindHandlerWithUnmetGuardCondition(trigger, out triggerBehaviour))
-            {
+            if (unmetGuardConditions?.Any() ?? false)
                 throw new InvalidOperationException(
                     string.Format(
-                        StateMachineResources.NoTransitionsUnmetGuardCondition,
-                        trigger, state, triggerBehaviour.GuardDescription));
-            }
+                        StateMachineResources.NoTransitionsUnmetGuardConditions,
+                        trigger, state, string.Join(", ", unmetGuardConditions)));
 
             throw new InvalidOperationException(
                 string.Format(
@@ -405,7 +434,7 @@ namespace Stateless
         /// of the transition.</param>
         public void OnTransitioned(Action<Transition> onTransitionAction)
         {
-            if (onTransitionAction == null) throw new ArgumentNullException("onTransitionAction");
+            if (onTransitionAction == null) throw new ArgumentNullException(nameof(onTransitionAction));
             _onTransitionedEvent.Register(onTransitionAction);
         }
     }

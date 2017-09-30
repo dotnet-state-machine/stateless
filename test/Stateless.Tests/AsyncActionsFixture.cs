@@ -5,14 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-using NUnit.Framework;
+using Xunit;
 
 namespace Stateless.Tests
 {
-    [TestFixture]
     public class AsyncActionsFixture
     {
-        [Test]
+        [Fact]
         public async Task CanFireAsyncEntryAction()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -26,11 +25,11 @@ namespace Stateless.Tests
 
             await sm.FireAsync(Trigger.X);
 
-            Assert.AreEqual("foo", test, "Should await action");
-            Assert.AreEqual(State.B, sm.State, "Should transition to destination state");
+            Assert.Equal("foo", test); // Should await action
+            Assert.Equal(State.B, sm.State); // Should transition to destination state
         }
 
-        [Test]
+        [Fact]
         public void WhenSyncFireAsyncEntryAction()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -41,10 +40,10 @@ namespace Stateless.Tests
             sm.Configure(State.B)
               .OnEntryAsync(() => TaskResult.Done);
 
-            Assert.Throws<InvalidOperationException>(()=> sm.Fire(Trigger.X));
+            Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
         }
 
-        [Test]
+        [Fact]
         public async Task CanFireAsyncExitAction()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -56,11 +55,11 @@ namespace Stateless.Tests
 
             await sm.FireAsync(Trigger.X);
 
-            Assert.AreEqual("foo", test, "Should await action");
-            Assert.AreEqual(State.B, sm.State, "Should transition to destination state");
+            Assert.Equal("foo", test); // Should await action
+            Assert.Equal(State.B, sm.State); // Should transition to destination state
         }
 
-        [Test]
+        [Fact]
         public void WhenSyncFireAsyncExitAction()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -72,32 +71,32 @@ namespace Stateless.Tests
             Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
         }
 
-        [Test]
+        [Fact]
         public async Task CanFireInternalAsyncAction()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
 
             var test = "";
             sm.Configure(State.A)
-              .InternalTransitionAsync(Trigger.X, ()=> Task.Run(() => test = "foo"));
+              .InternalTransitionAsync(Trigger.X, () => Task.Run(() => test = "foo"));
 
             await sm.FireAsync(Trigger.X);
 
-            Assert.AreEqual("foo", test, "Should await action");
+            Assert.Equal("foo", test); // Should await action
         }
 
-        [Test]
+        [Fact]
         public void WhenSyncFireInternalAsyncAction()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-              .InternalTransitionAsync(Trigger.X, ()=> TaskResult.Done);
+              .InternalTransitionAsync(Trigger.X, () => TaskResult.Done);
 
             Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
         }
 
-        [Test]
+        [Fact]
         public async Task CanInvokeOnTransitionedAsyncAction()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -110,10 +109,10 @@ namespace Stateless.Tests
 
             await sm.FireAsync(Trigger.X);
 
-            Assert.AreEqual("foo", test, "Should await action");
+            Assert.Equal("foo", test); // Should await action
         }
 
-        [Test]
+        [Fact]
         public async Task WillInvokeSyncOnTransitionedIfRegisteredAlongWithAsyncAction()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -128,11 +127,11 @@ namespace Stateless.Tests
 
             await sm.FireAsync(Trigger.X);
 
-            Assert.AreEqual("foo1", test1);
-            Assert.AreEqual("foo2", test2);
+            Assert.Equal("foo1", test1);
+            Assert.Equal("foo2", test2);
         }
 
-        [Test]
+        [Fact]
         public void WhenSyncFireAsyncOnTransitionedAction()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -145,7 +144,7 @@ namespace Stateless.Tests
             Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
         }
 
-        [Test]
+        [Fact]
         public async Task CanInvokeOnUnhandledTriggerAsyncAction()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -154,14 +153,14 @@ namespace Stateless.Tests
               .Permit(Trigger.X, State.B);
 
             var test = "";
-            sm.OnUnhandledTriggerAsync((s, t)=>Task.Run(() => test = "foo"));
+            sm.OnUnhandledTriggerAsync((s, t, u) => Task.Run(() => test = "foo"));
 
             await sm.FireAsync(Trigger.Z);
 
-            Assert.AreEqual("foo", test, "Should await action");
+            Assert.Equal("foo", test); // Should await action
         }
 
-        [Test]
+        [Fact]
         public void WhenSyncFireOnUnhandledTriggerAsyncAction()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -169,41 +168,41 @@ namespace Stateless.Tests
             sm.Configure(State.A)
               .Permit(Trigger.X, State.B);
 
-            sm.OnUnhandledTriggerAsync((s,t) => TaskResult.Done);
+            sm.OnUnhandledTriggerAsync((s, t, u) => TaskResult.Done);
 
             Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.Z));
         }
 
-        [Test]
+        [Fact]
         public async Task WhenActivateAsync()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
 
             var activated = false;
             sm.Configure(State.A)
-              .OnActivateAsync(() => Task.Run(()=> activated = true));
+              .OnActivateAsync(() => Task.Run(() => activated = true));
 
             await sm.ActivateAsync();
 
-            Assert.AreEqual(true, activated, "Should await action");
+            Assert.Equal(true, activated); // Should await action
         }
 
-        [Test]
+        [Fact]
         public async Task WhenDeactivateAsync()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
 
             var deactivated = false;
             sm.Configure(State.A)
-              .OnDeactivateAsync(() => Task.Run(()=> deactivated = true));
+              .OnDeactivateAsync(() => Task.Run(() => deactivated = true));
 
             await sm.ActivateAsync();
             await sm.DeactivateAsync();
 
-            Assert.AreEqual(true, deactivated, "Should await action");
+            Assert.Equal(true, deactivated); // Should await action
         }
 
-        [Test]
+        [Fact]
         public void WhenSyncActivateAsyncOnActivateAction()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -214,7 +213,7 @@ namespace Stateless.Tests
             Assert.Throws<InvalidOperationException>(() => sm.Activate());
         }
 
-        [Test]
+        [Fact]
         public void WhenSyncDeactivateAsyncOnDeactivateAction()
         {
             var sm = new StateMachine<State, Trigger>(State.A);

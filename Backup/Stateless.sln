@@ -1,0 +1,77 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "global", "global", "{8DE7A8AE-D87D-46A0-9757-88BA4AF7EDA5}"
+	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		appveyor.yml = appveyor.yml
+		Build.ps1 = Build.ps1
+		global.json = global.json
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{73DF639A-6E93-4F1C-9BF1-C9A0E7A37FFF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "asset", "asset", "{E443FF16-5964-44FE-9993-0E0BCE7D9DD3}"
+	ProjectSection(SolutionItems) = preProject
+		asset\Stateless.png = asset\Stateless.png
+		asset\Stateless.snk = asset\Stateless.snk
+		asset\Stateless.svg = asset\Stateless.svg
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{7806676C-8860-473E-950E-6C7E8D3490A0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "example", "example", "{45C09CCA-6C76-4E10-B386-5D95A7610FE0}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Stateless", "src\Stateless\Stateless.xproj", "{56053FAC-1555-457F-9F95-66A06B4F30C6}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Stateless.Tests", "test\Stateless.Tests\Stateless.Tests.xproj", "{6694F685-0229-4671-9B2D-667662C29F42}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "BugTrackerExample", "example\BugTrackerExample\BugTrackerExample.xproj", "{1E7BDA62-0BEF-49C4-BADF-F271755D3990}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "OnOffExample", "example\OnOffExample\OnOffExample.xproj", "{19ABDDFE-C040-404E-897B-37BE6C248ED7}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "TelephoneCallExample", "example\TelephoneCallExample\TelephoneCallExample.xproj", "{5182CA95-8E6F-4D16-9790-8F7D1C5A9C87}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{56053FAC-1555-457F-9F95-66A06B4F30C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56053FAC-1555-457F-9F95-66A06B4F30C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56053FAC-1555-457F-9F95-66A06B4F30C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56053FAC-1555-457F-9F95-66A06B4F30C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6694F685-0229-4671-9B2D-667662C29F42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6694F685-0229-4671-9B2D-667662C29F42}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6694F685-0229-4671-9B2D-667662C29F42}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6694F685-0229-4671-9B2D-667662C29F42}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E7BDA62-0BEF-49C4-BADF-F271755D3990}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E7BDA62-0BEF-49C4-BADF-F271755D3990}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E7BDA62-0BEF-49C4-BADF-F271755D3990}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E7BDA62-0BEF-49C4-BADF-F271755D3990}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19ABDDFE-C040-404E-897B-37BE6C248ED7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19ABDDFE-C040-404E-897B-37BE6C248ED7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19ABDDFE-C040-404E-897B-37BE6C248ED7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19ABDDFE-C040-404E-897B-37BE6C248ED7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5182CA95-8E6F-4D16-9790-8F7D1C5A9C87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5182CA95-8E6F-4D16-9790-8F7D1C5A9C87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5182CA95-8E6F-4D16-9790-8F7D1C5A9C87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5182CA95-8E6F-4D16-9790-8F7D1C5A9C87}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{56053FAC-1555-457F-9F95-66A06B4F30C6} = {73DF639A-6E93-4F1C-9BF1-C9A0E7A37FFF}
+		{6694F685-0229-4671-9B2D-667662C29F42} = {7806676C-8860-473E-950E-6C7E8D3490A0}
+		{1E7BDA62-0BEF-49C4-BADF-F271755D3990} = {45C09CCA-6C76-4E10-B386-5D95A7610FE0}
+		{19ABDDFE-C040-404E-897B-37BE6C248ED7} = {45C09CCA-6C76-4E10-B386-5D95A7610FE0}
+		{5182CA95-8E6F-4D16-9790-8F7D1C5A9C87} = {45C09CCA-6C76-4E10-B386-5D95A7610FE0}
+	EndGlobalSection
+EndGlobal

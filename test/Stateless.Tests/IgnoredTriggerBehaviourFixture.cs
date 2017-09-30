@@ -2,46 +2,55 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NUnit.Framework;
+using Xunit;
 
 namespace Stateless.Tests
 {
-    [TestFixture]
     public class IgnoredTriggerBehaviourFixture
     {
-        [Test]
+        [Fact]
         public void StateRemainsUnchanged()
         {
-            var ignored = new StateMachine<State, Trigger>.IgnoredTriggerBehaviour(Trigger.X, () => true);
+            var ignored = new StateMachine<State, Trigger>.IgnoredTriggerBehaviour(Trigger.X, null);
             State destination = State.A;
-            Assert.IsFalse(ignored.ResultsInTransitionFrom(State.B, new object[0], out destination));
+            Assert.False(ignored.ResultsInTransitionFrom(State.B, new object[0], out destination));
         }
 
-        [Test]
+        [Fact]
         public void ExposesCorrectUnderlyingTrigger()
         {
             var ignored = new StateMachine<State, Trigger>.IgnoredTriggerBehaviour(
-                Trigger.X, () => true);
+                Trigger.X, null);
 
-            Assert.AreEqual(Trigger.X, ignored.Trigger);
+            Assert.Equal(Trigger.X, ignored.Trigger);
         }
 
-        [Test]
+        protected bool False()
+        {
+            return false;
+        }
+
+        [Fact]
         public void WhenGuardConditionFalse_IsGuardConditionMetIsFalse()
         {
             var ignored = new StateMachine<State, Trigger>.IgnoredTriggerBehaviour(
-                Trigger.X, () => false);
+                Trigger.X, new StateMachine<State, Trigger>.TransitionGuard(False));
 
-            Assert.IsFalse(ignored.IsGuardConditionMet);
+            Assert.False(ignored.GuardConditionsMet);
         }
 
-        [Test]
+        protected bool True()
+        {
+            return true;
+        }
+
+        [Fact]
         public void WhenGuardConditionTrue_IsGuardConditionMetIsTrue()
         {
             var ignored = new StateMachine<State, Trigger>.IgnoredTriggerBehaviour(
-                Trigger.X, () => true);
+                Trigger.X, new StateMachine<State, Trigger>.TransitionGuard(True));
 
-            Assert.IsTrue(ignored.IsGuardConditionMet);
+            Assert.True(ignored.GuardConditionsMet);
         }
     }
 }

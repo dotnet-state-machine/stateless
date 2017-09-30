@@ -58,7 +58,8 @@ namespace Stateless
         /// not allow the trigger to be fired.</exception>
         public Task FireAsync<TArg0>(TriggerWithParameters<TArg0> trigger, TArg0 arg0)
         {
-            Enforce.ArgumentNotNull(trigger, "trigger");
+            if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+
             return InternalFireAsync(trigger.Trigger, arg0);
         }
 
@@ -77,7 +78,8 @@ namespace Stateless
         /// not allow the trigger to be fired.</exception>
         public Task FireAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, TArg0 arg0, TArg1 arg1)
         {
-            Enforce.ArgumentNotNull(trigger, "trigger");
+            if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+
             return InternalFireAsync(trigger.Trigger, arg0, arg1);
         }
 
@@ -98,11 +100,42 @@ namespace Stateless
         /// not allow the trigger to be fired.</exception>
         public Task FireAsync<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, TArg0 arg0, TArg1 arg1, TArg2 arg2)
         {
-            Enforce.ArgumentNotNull(trigger, "trigger");
+            if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+
             return InternalFireAsync(trigger.Trigger, arg0, arg1, arg2);
         }
-
+        /// <summary>
+        /// Queue events and then fire in order.
+        /// If only one event is queued, this behaves identically to the non-queued version.
+        /// </summary>
+        /// <param name="trigger">  The trigger. </param>
+        /// <param name="args">     A variable-length parameters list containing arguments. </param>
         async Task InternalFireAsync(TTrigger trigger, params object[] args)
+        {
+            if (_firing)
+            {
+                _eventQueue.Enqueue(new QueuedTrigger { Trigger = trigger, Args = args });
+                return;
+            }
+
+            try
+            {
+                _firing = true;
+
+                await InternalFireOneAsync(trigger, args);
+
+                while (_eventQueue.Count != 0)
+                {
+                    var queuedEvent = _eventQueue.Dequeue();
+                    await InternalFireOneAsync(queuedEvent.Trigger, queuedEvent.Args);
+                }
+            }
+            finally
+            {
+                _firing = false;
+            }
+        }
+        async Task InternalFireOneAsync(TTrigger trigger, params object[] args)
         {
             TriggerWithParameters configuration;
             if (_triggerConfiguration.TryGetValue(trigger, out configuration))
@@ -111,15 +144,15 @@ namespace Stateless
             var source = State;
             var representativeState = GetRepresentation(source);
 
-            TriggerBehaviour triggerBehaviour;
-            if (!representativeState.TryFindHandler(trigger, out triggerBehaviour))
+            TriggerBehaviourResult result;
+            if (!representativeState.TryFindHandler(trigger, out result))
             {
-                await _unhandledTriggerAction.ExecuteAsync(representativeState.UnderlyingState, trigger);
+                await _unhandledTriggerAction.ExecuteAsync(representativeState.UnderlyingState, trigger, result?.UnmetGuardConditions);
                 return;
             }
 
             TState destination;
-            if (triggerBehaviour.ResultsInTransitionFrom(source, args, out destination))
+            if (result.Handler.ResultsInTransitionFrom(source, args, out destination))
             {
                 var transition = new Transition(source, destination, trigger);
 
@@ -143,10 +176,21 @@ namespace Stateless
         /// Override the default behaviour of throwing an exception when an unhandled trigger
         /// is fired.
         /// </summary>
-        /// <param name="unhandledTriggerAction">An asynchronous action to call when an unhandled trigger is fired.</param>
+        /// <param name="unhandledTriggerAction"></param>
         public void OnUnhandledTriggerAsync(Func<TState, TTrigger, Task> unhandledTriggerAction)
         {
-            if (unhandledTriggerAction == null) throw new ArgumentNullException("unhandledTriggerAction");
+            if (unhandledTriggerAction == null) throw new ArgumentNullException(nameof(unhandledTriggerAction));
+            _unhandledTriggerAction = new UnhandledTriggerAction.Async((s, t, c) => unhandledTriggerAction(s, t));
+        }
+
+        /// <summary>
+        /// Override the default behaviour of throwing an exception when an unhandled trigger
+        /// is fired.
+        /// </summary>
+        /// <param name="unhandledTriggerAction">An asynchronous action to call when an unhandled trigger is fired.</param>
+        public void OnUnhandledTriggerAsync(Func<TState, TTrigger, ICollection<string>, Task> unhandledTriggerAction)
+        {
+            if (unhandledTriggerAction == null) throw new ArgumentNullException(nameof(unhandledTriggerAction));
             _unhandledTriggerAction = new UnhandledTriggerAction.Async(unhandledTriggerAction);
         }
 
@@ -158,7 +202,7 @@ namespace Stateless
         /// of the transition.</param>
         public void OnTransitionedAsync(Func<Transition, Task> onTransitionAction)
         {
-            if (onTransitionAction == null) throw new ArgumentNullException("onTransitionAction");
+            if (onTransitionAction == null) throw new ArgumentNullException(nameof(onTransitionAction));
             _onTransitionedEvent.Register(onTransitionAction);
         }
     }
