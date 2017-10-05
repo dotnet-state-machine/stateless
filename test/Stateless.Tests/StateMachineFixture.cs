@@ -442,6 +442,7 @@ namespace Stateless.Tests
 
             Assert.Equal(1, _numCalls);
         }
+
         [Fact]
         public void IfSelfTransitionPermited_ActionsFire_InSubstate()
         {
