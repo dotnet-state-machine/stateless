@@ -1,8 +1,6 @@
 ﻿#if TASKS
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 using Xunit;
@@ -224,6 +222,31 @@ namespace Stateless.Tests
             sm.Activate();
 
             Assert.Throws<InvalidOperationException>(() => sm.Deactivate());
+        }
+        [Fact]
+        public async void IfSelfTransitionPermited_ActionsFire_InSubstate_async()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            bool onEntryStateBfired = false;
+            bool onExitStateBfired = false;
+            bool onExitStateAfired = false;
+
+            sm.Configure(State.B)
+                .OnEntryAsync(t => Task.Run(() => onEntryStateBfired = true))
+                .PermitReentry(Trigger.X)
+                .OnExitAsync(t => Task.Run(() => onExitStateBfired = true));
+
+            sm.Configure(State.A)
+                .SubstateOf(State.B)
+                .OnExitAsync(t => Task.Run(() => onExitStateAfired = true));
+
+            await sm.FireAsync(Trigger.X);
+
+            Assert.Equal(State.B, sm.State);
+            Assert.True(onExitStateAfired);
+            Assert.True(onExitStateBfired);
+            Assert.True(onEntryStateBfired);
         }
     }
 }
