@@ -115,7 +115,7 @@ namespace Stateless
                 }
             }
 
-            public async Task ExitAsync(Transition transition)
+            public async Task<Transition> ExitAsync(Transition transition)
             {
                 if (transition.IsReentry)
                 {
@@ -128,8 +128,12 @@ namespace Stateless
                     await ExecuteExitActionsAsync(transition);
 
                     if (_superstate != null)
-                        await _superstate.ExitAsync(transition);
+                    {
+                        transition = new Transition(_superstate.UnderlyingState, transition.Destination, transition.Trigger);
+                        return await _superstate.ExitAsync(transition);
+                    }
                 }
+                return transition;
             }
 
             async Task ExecuteEntryActionsAsync(Transition transition, object[] entryArgs)
