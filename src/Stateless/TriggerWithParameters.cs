@@ -38,10 +38,15 @@ namespace Stateless
             /// <param name="args"></param>
             public void ValidateParameters(object[] args)
             {
+                this.Args = args;
                 if (args == null) throw new ArgumentNullException(nameof(args));
 
                 ParameterConversion.Validate(args, _argumentTypes);
             }
+            /// <summary>
+            /// The Arguments of the trigger
+            /// </summary>
+            public object[] Args { get; set; }
         }
 
         /// <summary>

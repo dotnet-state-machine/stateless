@@ -249,6 +249,26 @@ namespace Stateless
                     new TransitionGuard(guard, guardDescription));
             }
             /// <summary>
+            ///  Accept the specified trigger and transition to the destination state. 
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationState">The state that the trigger will cause a
+            /// transition to.</param>
+            /// <param name="guard">Function that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <param name="guardDescription">Guard description</param>
+            /// <returns>The reciever.</returns>
+            /// <returns></returns>
+            public StateConfiguration PermitIf(TriggerWithParameters trigger, TState destinationState, Func<object, bool> guard, string guardDescription = null)
+            {
+                EnforceNotIdentityTransition(destinationState);
+
+                return InternalPermitIf(
+                    trigger.Trigger,
+                    destinationState,
+                    new TransitionGuard(guard, trigger, guardDescription));
+            }
+            /// <summary>
             /// Accept the specified trigger and transition to the destination state.
             /// </summary>
             /// <param name="trigger">The accepted trigger.</param>

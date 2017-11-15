@@ -11,6 +11,7 @@ namespace Stateless
             internal IList<GuardCondition> Conditions { get; }
 
             public static readonly TransitionGuard Empty = new TransitionGuard(new Tuple<Func<bool>, string>[0]);
+            private TriggerWithParameters _trigger;
 
             internal TransitionGuard(Tuple<Func<bool>, string>[] guards)
             {
@@ -23,7 +24,21 @@ namespace Stateless
             {
                 Conditions = new List<GuardCondition> { new GuardCondition(guard, Reflection.InvocationInfo.Create(guard, description)) };
             }
+           
+            internal TransitionGuard(Tuple<Func<object,bool>, string>[] guards, TriggerWithParameters trigger)
+            {
+                    _trigger = trigger;
+                Conditions = guards
+                    .Select(g => new GuardCondition(g.Item1, Reflection.InvocationInfo.Create(g.Item1, g.Item2)))
+                    .ToList();
+            }
 
+            internal TransitionGuard(Func<object, bool> guard, TriggerWithParameters trigger, string description = null)
+            {
+                _trigger = trigger;
+
+                Conditions = new List<GuardCondition> { new GuardCondition(guard, Reflection.InvocationInfo.Create(guard, description)) };
+            }
             /// <summary>
             /// Guards is the list of the guard functions for all guard conditions for this transition
             /// </summary>
@@ -33,7 +48,8 @@ namespace Stateless
             /// GuardConditionsMet is true if all of the guard functions return true
             /// or if there are no guard functions
             /// </summary>
-            public bool GuardConditionsMet => Conditions.All(c => c.Guard());
+            public bool GuardConditionsMet => Conditions.All(c => (c.Guard == null || c.Guard()) &&
+                (c.ParamitrizedGuard == null || c.ParamitrizedGuard(_trigger.Args.FirstOrDefault())));
 
             /// <summary>
             /// UnmetGuardConditions is a list of the descriptions of all guard conditions
@@ -43,8 +59,12 @@ namespace Stateless
             {
                 get
                 {
-                    return Conditions
-                        .Where(c => !c.Guard())
+                    var guardConditions = Conditions.Where(c => c.Guard != null && !c.Guard());
+                    var paramitrizedGuard =
+                        Conditions.Where(
+                            c => c.ParamitrizedGuard != null && !c.ParamitrizedGuard(_trigger.Args.FirstOrDefault()));
+
+                    return guardConditions.Union(paramitrizedGuard)
                         .Select(c => c.Description)
                         .ToList();
                 }

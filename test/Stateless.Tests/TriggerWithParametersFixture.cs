@@ -21,7 +21,28 @@ namespace Stateless.Tests
             var twp = new StateMachine<State, Trigger>.TriggerWithParameters<string>(Trigger.X);
             twp.ValidateParameters(new[] { "arg" });
         }
+        [Fact]
+        public void ParametersWithInValidGuardConditionAreRejected()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var twp = sm.SetTriggerParameters<string>(Trigger.X);
+            sm.Configure(State.A).PermitIf(twp, State.B, o => o.ToString() == "3");
+            Assert.Equal(sm.State, State.A);
 
+            Assert.Throws<InvalidOperationException>(() => sm.Fire(twp, "2"));
+        }
+        [Fact]
+        public void ParametersWithValidGuardConditionAreAccepted()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var twp = sm.SetTriggerParameters<string>(Trigger.X);
+            sm.Configure(State.A).PermitIf(twp, State.B, o =>
+            {
+                return o.ToString() == "2";
+            });
+             sm.Fire(twp, "2");
+            Assert.Equal(sm.State,State.B);
+        }
         [Fact]
         public void ParametersArePolymorphic()
         {
