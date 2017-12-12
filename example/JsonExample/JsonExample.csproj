@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\Stateless\Stateless.csproj" />
+    <ProjectReference Include="..\..\src\Stateless\Stateless.csproj" />
   </ItemGroup>
 
 </Project>
