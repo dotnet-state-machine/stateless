@@ -10,3 +10,4 @@ project.lock.json
 artifacts/
 TestResult.xml
 *.orig
+_Resharper.Caches/
