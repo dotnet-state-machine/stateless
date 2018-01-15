@@ -1,4 +1,4 @@
-﻿#if TASKS
+#if TASKS
 
 using System;
 using System.Collections.Generic;
@@ -65,12 +65,12 @@ namespace Stateless
             public async Task ActivateAsync()
             {
                 if (_superstate != null)
-                    await _superstate.ActivateAsync();
+                    await _superstate.ActivateAsync().ConfigureAwait(false);
 
                 if (active)
                     return;
 
-                await ExecuteActivationActionsAsync();
+                await ExecuteActivationActionsAsync().ConfigureAwait(false);
                 active = true;
             }
 
@@ -79,39 +79,39 @@ namespace Stateless
                 if (!active)
                     return;
 
-                await ExecuteDeactivationActionsAsync();
+                await ExecuteDeactivationActionsAsync().ConfigureAwait(false);
                 active = false;
 
                 if (_superstate != null)
-                    await _superstate.DeactivateAsync();
+                    await _superstate.DeactivateAsync().ConfigureAwait(false);
             }
 
             async Task ExecuteActivationActionsAsync()
             {
                 foreach (var action in _activateActions)
-                    await action.ExecuteAsync();
+                    await action.ExecuteAsync().ConfigureAwait(false);
             }
 
             async Task ExecuteDeactivationActionsAsync()
             {
                 foreach (var action in _deactivateActions)
-                    await action.ExecuteAsync();
+                    await action.ExecuteAsync().ConfigureAwait(false);
             }
 
             public async Task EnterAsync(Transition transition, params object[] entryArgs)
             {
                 if (transition.IsReentry)
                 {
-                    await ExecuteEntryActionsAsync(transition, entryArgs);
-                    await ExecuteActivationActionsAsync();
+                    await ExecuteEntryActionsAsync(transition, entryArgs).ConfigureAwait(false);
+                    await ExecuteActivationActionsAsync().ConfigureAwait(false);
                 }
                 else if (!Includes(transition.Source))
                 {
                     if (_superstate != null)
-                        await _superstate.EnterAsync(transition, entryArgs);
+                        await _superstate.EnterAsync(transition, entryArgs).ConfigureAwait(false);
 
-                    await ExecuteEntryActionsAsync(transition, entryArgs);
-                    await ExecuteActivationActionsAsync();
+                    await ExecuteEntryActionsAsync(transition, entryArgs).ConfigureAwait(false);
+                    await ExecuteActivationActionsAsync().ConfigureAwait(false);
                 }
             }
 
@@ -119,18 +119,18 @@ namespace Stateless
             {
                 if (transition.IsReentry)
                 {
-                    await ExecuteDeactivationActionsAsync();
-                    await ExecuteExitActionsAsync(transition);
+                    await ExecuteDeactivationActionsAsync().ConfigureAwait(false);
+                    await ExecuteExitActionsAsync(transition).ConfigureAwait(false);
                 }
                 else if (!Includes(transition.Destination))
                 {
-                    await ExecuteDeactivationActionsAsync();
-                    await ExecuteExitActionsAsync(transition);
+                    await ExecuteDeactivationActionsAsync().ConfigureAwait(false);
+                    await ExecuteExitActionsAsync(transition).ConfigureAwait(false);
 
                     if (_superstate != null)
                     {
                         transition = new Transition(_superstate.UnderlyingState, transition.Destination, transition.Trigger);
-                        return await _superstate.ExitAsync(transition);
+                        return await _superstate.ExitAsync(transition).ConfigureAwait(false);
                     }
                 }
                 return transition;
@@ -139,13 +139,13 @@ namespace Stateless
             async Task ExecuteEntryActionsAsync(Transition transition, object[] entryArgs)
             {
                 foreach (var action in _entryActions)
-                    await action.ExecuteAsync(transition, entryArgs);
+                    await action.ExecuteAsync(transition, entryArgs).ConfigureAwait(false);
             }
 
             async Task ExecuteExitActionsAsync(Transition transition)
             {
                 foreach (var action in _exitActions)
-                    await action.ExecuteAsync(transition);
+                    await action.ExecuteAsync(transition).ConfigureAwait(false);
             }
 
             async Task ExecuteInternalActionsAsync(Transition transition, object[] args)
@@ -163,7 +163,7 @@ namespace Stateless
                 // Execute internal transition event handler
                 foreach (var action in possibleActions)
                 {
-                    await action.ExecuteAsync(transition, args);
+                    await action.ExecuteAsync(transition, args).ConfigureAwait(false);
                 }
             }
 
