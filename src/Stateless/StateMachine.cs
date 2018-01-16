@@ -283,7 +283,7 @@ namespace Stateless
             {
                 var transition = new Transition(source, destination, trigger);
 
-                representativeState.Exit(transition);
+                transition = representativeState.Exit(transition);
 
                 State = transition.Destination;
                 var newRepresentation = GetRepresentation(transition.Destination);

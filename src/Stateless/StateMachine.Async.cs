@@ -156,7 +156,7 @@ namespace Stateless
             {
                 var transition = new Transition(source, destination, trigger);
 
-                await representativeState.ExitAsync(transition);
+                transition = await representativeState.ExitAsync(transition);
 
                 State = transition.Destination;
                 var newRepresentation = GetRepresentation(transition.Destination);

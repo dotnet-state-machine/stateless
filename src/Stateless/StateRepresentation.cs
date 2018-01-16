@@ -176,7 +176,7 @@ namespace Stateless
                 }
             }
 
-            public void Exit(Transition transition)
+            public Transition Exit(Transition transition)
             {
                 if (transition.IsReentry)
                 {
@@ -189,8 +189,12 @@ namespace Stateless
                     ExecuteExitActions(transition);
 
                     if (_superstate != null)
-                        _superstate.Exit(transition);
+                    {
+                        transition = new Transition(_superstate.UnderlyingState, transition.Destination, transition.Trigger);
+                         return _superstate.Exit(transition);
+                    }
                 }
+                return transition;
             }
 
             void ExecuteEntryActions(Transition transition, object[] entryArgs)

@@ -4,7 +4,7 @@
     <Description>Create state machines and lightweight state machine-based workflows directly in .NET code</Description>
     <AssemblyTitle>Stateless</AssemblyTitle>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <VersionPrefix>4.0.0</VersionPrefix>
+    <VersionPrefix>4.0.1</VersionPrefix>
     <Authors>Stateless Contributors</Authors>
     <TargetFrameworks>netstandard1.0;net45;net40</TargetFrameworks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

@@ -442,5 +442,31 @@ namespace Stateless.Tests
 
             Assert.Equal(1, _numCalls);
         }
+
+        [Fact]
+        public void IfSelfTransitionPermited_ActionsFire_InSubstate()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            bool onEntryStateBfired = false;
+            bool onExitStateBfired = false;
+            bool onExitStateAfired = false;
+
+            sm.Configure(State.B)
+                .OnEntry(t => onEntryStateBfired = true)
+                .PermitReentry(Trigger.X)
+                .OnExit(t => onExitStateBfired = true);
+
+            sm.Configure(State.A)
+                .SubstateOf(State.B)
+                .OnExit(t => onExitStateAfired = true);
+
+            sm.Fire(Trigger.X);
+
+            Assert.Equal(State.B, sm.State);
+            Assert.True(onEntryStateBfired);
+            Assert.True(onExitStateBfired);
+            Assert.True(onExitStateAfired);
+        }
     }
 }
