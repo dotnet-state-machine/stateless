@@ -153,7 +153,22 @@ namespace Stateless
         {
             InternalFire(trigger, new object[0]);
         }
-
+        
+        /// <summary>
+        /// Transition from the current state via the specified trigger.
+        /// The target state is determined by the configuration of the current state.
+        /// Actions associated with leaving the current state and entering the new one
+        /// will be invoked.
+        /// No queuing of triggers is used.
+        /// </summary>
+        /// <param name="trigger">The trigger to fire.</param>
+        /// <exception cref="System.InvalidOperationException">The current state does
+        /// not allow the trigger to be fired.</exception>
+        public void FireNoQueue(TTrigger trigger)
+        {
+            InternalFireOne(trigger, new object[0]);
+        }
+        
         /// <summary>
         /// Transition from the current state via the specified trigger.
         /// The target state is determined by the configuration of the current state.
