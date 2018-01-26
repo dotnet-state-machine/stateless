@@ -9,11 +9,18 @@ namespace BugTrackerExample
     {
         static void Main(string[] args)
         {
-
             var ioWorkflow = new AgencyApprovalIOWorkflow();
-            ioWorkflow.MakeReadyForApproval();
-            ioWorkflow.Approve();
-            ioWorkflow.Reject();
+
+            try
+            {
+                ioWorkflow.MakeReadyForApproval(new AgencyApprovalIOWorkflow.MakeReadyForAgencyApprovalParameters());
+                ioWorkflow.Approve();
+                ioWorkflow.Reject();
+            }
+            catch (Exception e)
+            {
+            }
+
         }
     }
 }

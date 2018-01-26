@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Stateless;
 
@@ -13,31 +14,37 @@ namespace BugTrackerExample
             AgencyApproved,
         }
 
+        public class MakeReadyForAgencyApprovalParameters
+        {
+        }
+
         private State _currentState;
         private StateMachine<State, IOWorkflowTriggers> _stateMachine;
         StateMachine<State, IOWorkflowTriggers>.TriggerWithParameters<string> _assignAction;
+        private StateMachine<State, IOWorkflowTriggers>.TriggerWithParameters<MakeReadyForAgencyApprovalParameters> _makeReadyForApproval;
 
         public AgencyApprovalIOWorkflow()
         {
             _stateMachine = new StateMachine<State, IOWorkflowTriggers>(() => _currentState, newState => _currentState = newState);
             _currentState = State.Draft; //hydrate initial state from DB
 
+            _makeReadyForApproval = _stateMachine.SetTriggerParameters<MakeReadyForAgencyApprovalParameters>(IOWorkflowTriggers.MakeReadyForAgencyApproval);
+
             _stateMachine.Configure(State.Draft)
-                .OnEntry(OnEnter_Draft)
                 .Permit(IOWorkflowTriggers.MakeReadyForAgencyApproval, State.ReadyForAgencyApproval);
 
             _stateMachine.Configure(State.ReadyForAgencyApproval)
-                .OnEntry(OnEnter_AgencyApproved)
+                .OnEntryFrom(_makeReadyForApproval, parameters => OnEnter_ReadyForAgencyApproval(parameters))
                 .Permit(IOWorkflowTriggers.AgencyApprove, State.AgencyApproved)
                 .Permit(IOWorkflowTriggers.AgencyReject, State.Draft);
 
             _stateMachine.Configure(State.AgencyApproved)
                 .OnEntry(OnEnter_AgencyApproved);
         }
-
-        public void MakeReadyForApproval()
+        
+        public void MakeReadyForApproval(MakeReadyForAgencyApprovalParameters parameters)
         {
-            _stateMachine.Fire(IOWorkflowTriggers.MakeReadyForAgencyApproval);
+            _stateMachine.Fire(_makeReadyForApproval, parameters);
         }
 
         public IEnumerable<IOWorkflowTriggers> PermittedTriggers()
@@ -60,7 +67,7 @@ namespace BugTrackerExample
             Debug.WriteLine($"writing {_currentState} to DB");
         }
 
-        private void OnEnter_ReadyForAgencyApproval()
+        private void OnEnter_ReadyForAgencyApproval(MakeReadyForAgencyApprovalParameters parameters)
         {
             Debug.WriteLine($"writing {_currentState} to DB");
         }
@@ -68,6 +75,8 @@ namespace BugTrackerExample
         private void OnEnter_AgencyApproved()
         {
             Debug.WriteLine($"writing {_currentState} to DB");
+
+            //throw new Exception("testing");
         }
     }
 }
