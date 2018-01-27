@@ -10,6 +10,7 @@ namespace BugTrackerExample
         private enum State
         {
             Draft,
+            ApprovalRejected,
             ReadyForAgencyApproval,
             AgencyApproved,
         }
@@ -33,15 +34,18 @@ namespace BugTrackerExample
             _stateMachine.Configure(State.Draft)
                 .Permit(IOWorkflowTriggers.MakeReadyForAgencyApproval, State.ReadyForAgencyApproval);
 
+            _stateMachine.Configure(State.ApprovalRejected)
+                .SubstateOf(State.Draft);
+
             _stateMachine.Configure(State.ReadyForAgencyApproval)
                 .OnEntryFrom(_makeReadyForApproval, parameters => OnEnter_ReadyForAgencyApproval(parameters))
                 .Permit(IOWorkflowTriggers.AgencyApprove, State.AgencyApproved)
-                .Permit(IOWorkflowTriggers.AgencyReject, State.Draft);
+                .Permit(IOWorkflowTriggers.AgencyReject, State.ApprovalRejected);
 
             _stateMachine.Configure(State.AgencyApproved)
                 .OnEntry(OnEnter_AgencyApproved);
         }
-        
+
         public void MakeReadyForApproval(MakeReadyForAgencyApprovalParameters parameters)
         {
             _stateMachine.Fire(_makeReadyForApproval, parameters);

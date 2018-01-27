@@ -14,6 +14,8 @@ namespace BugTrackerExample
             try
             {
                 ioWorkflow.MakeReadyForApproval(new AgencyApprovalIOWorkflow.MakeReadyForAgencyApprovalParameters());
+                ioWorkflow.Reject();
+                ioWorkflow.MakeReadyForApproval(new AgencyApprovalIOWorkflow.MakeReadyForAgencyApprovalParameters());
                 ioWorkflow.Approve();
                 ioWorkflow.Reject();
             }
