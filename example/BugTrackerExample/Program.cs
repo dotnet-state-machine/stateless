@@ -11,6 +11,7 @@ namespace BugTrackerExample
         {
             var ioWorkflow = new AgencyApprovalIOWorkflow();
 
+            string graph = ioWorkflow.ToDotGraph();
             try
             {
                 ioWorkflow.MakeReadyForApproval(new AgencyApprovalIOWorkflow.MakeReadyForAgencyApprovalParameters());
@@ -22,7 +23,6 @@ namespace BugTrackerExample
             catch (Exception e)
             {
             }
-
         }
     }
 }

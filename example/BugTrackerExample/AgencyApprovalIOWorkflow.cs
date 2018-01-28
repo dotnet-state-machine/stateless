@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using Stateless;
+using Stateless.Graph;
 
 namespace BugTrackerExample
 {
@@ -44,6 +45,11 @@ namespace BugTrackerExample
 
             _stateMachine.Configure(State.AgencyApproved)
                 .OnEntry(OnEnter_AgencyApproved);
+        }
+
+        public string ToDotGraph()
+        {
+            return UmlDotGraph.Format(_stateMachine.GetInfo());
         }
 
         public void MakeReadyForApproval(MakeReadyForAgencyApprovalParameters parameters)
