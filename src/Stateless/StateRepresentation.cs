@@ -45,18 +45,18 @@ namespace Stateless
                 return _substates;
             }
 
-            public bool CanHandle(TTrigger trigger)
+            public bool CanHandle(TTrigger trigger, params object[] args)
             {
-                return TryFindHandler(trigger, out TriggerBehaviourResult unused);
+                return TryFindHandler(trigger, args, out TriggerBehaviourResult unused);
             }
 
-            public bool TryFindHandler(TTrigger trigger, out TriggerBehaviourResult handler)
+            public bool TryFindHandler(TTrigger trigger, object[] args, out TriggerBehaviourResult handler)
             {
-                return (TryFindLocalHandler(trigger, out handler) ||
-                    (Superstate != null && Superstate.TryFindHandler(trigger, out handler)));
+                return (TryFindLocalHandler(trigger, args, out handler) ||
+                    (Superstate != null && Superstate.TryFindHandler(trigger, args, out handler)));
             }
 
-            bool TryFindLocalHandler(TTrigger trigger, out TriggerBehaviourResult handlerResult)
+            bool TryFindLocalHandler(TTrigger trigger, object[] args, out TriggerBehaviourResult handlerResult)
             {
                 if (!_triggerBehaviours.TryGetValue(trigger, out ICollection<TriggerBehaviour> possible))
                 {
@@ -66,7 +66,7 @@ namespace Stateless
 
                 // Guard functions executed
                 var actual = possible
-                    .Select(h => new TriggerBehaviourResult(h, h.UnmetGuardConditions));
+                    .Select(h => new TriggerBehaviourResult(h, h.UnmetGuardConditions(args)));
 
                 handlerResult = TryFindLocalHandlerResult(trigger, actual, r => !r.UnmetGuardConditions.Any())
                     ?? TryFindLocalHandlerResult(trigger, actual, r => r.UnmetGuardConditions.Any());
@@ -216,7 +216,7 @@ namespace Stateless
                 StateRepresentation aStateRep = this;
                 while (aStateRep != null)
                 {
-                    if (aStateRep.TryFindLocalHandler(transition.Trigger, out TriggerBehaviourResult result))
+                    if (aStateRep.TryFindLocalHandler(transition.Trigger, args, out TriggerBehaviourResult result))
                     {
                         // Trigger handler(s) found in this state
                         possibleActions.AddRange(aStateRep._internalActions);
@@ -279,19 +279,16 @@ namespace Stateless
                     (_superstate != null && _superstate.IsIncludedIn(state));
             }
 
-            public IEnumerable<TTrigger> PermittedTriggers
+            public IEnumerable<TTrigger> GetPermittedTriggers(params object[] args)
             {
-                get
-                {
-                    var result = _triggerBehaviours
-                        .Where(t => t.Value.Any(a => !a.UnmetGuardConditions.Any()))
-                        .Select(t => t.Key);
+                var result = _triggerBehaviours
+                    .Where(t => t.Value.Any(a => !a.UnmetGuardConditions(args).Any()))
+                    .Select(t => t.Key);
 
-                    if (Superstate != null)
-                        result = result.Union(Superstate.PermittedTriggers);
+                if (Superstate != null)
+                    result = result.Union(Superstate.GetPermittedTriggers(args));
 
-                    return result.ToArray();
-                }
+                return result.ToArray();
             }
         }
     }
