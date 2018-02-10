@@ -112,7 +112,7 @@ namespace Stateless.Tests
             sm.Configure(State.C)
                 .Permit(Trigger.Y, State.A);
 
-            var permitted = sm.PermittedTriggers;
+            var permitted = sm.GetPermittedTriggers();
 
             Assert.True(permitted.Contains(Trigger.X));
             Assert.True(permitted.Contains(Trigger.Y));
@@ -131,7 +131,7 @@ namespace Stateless.Tests
             sm.Configure(State.C)
                 .Permit(Trigger.X, State.B);
 
-            var permitted = sm.PermittedTriggers;
+            var permitted = sm.GetPermittedTriggers();
             Assert.Equal(1, permitted.Count());
             Assert.Equal(Trigger.X, permitted.First());
         }
@@ -144,7 +144,7 @@ namespace Stateless.Tests
             sm.Configure(State.B)
                 .PermitIf(Trigger.X, State.A, () => false);
 
-            Assert.Equal(0, sm.PermittedTriggers.Count());
+            Assert.Equal(0, sm.GetPermittedTriggers().Count());
         }
 
         [Fact]
@@ -157,7 +157,7 @@ namespace Stateless.Tests
                     new Tuple<Func<bool>, string>(() => true, "1"),
                     new Tuple<Func<bool>, string>(() => false, "2"));
 
-            Assert.Equal(0, sm.PermittedTriggers.Count());
+            Assert.Equal(0, sm.GetPermittedTriggers().Count());
         }
 
         [Fact]
@@ -467,6 +467,77 @@ namespace Stateless.Tests
             Assert.True(onEntryStateBfired);
             Assert.True(onExitStateBfired);
             Assert.True(onExitStateAfired);
+        }
+
+        [Fact]
+        public void ParametersWithInValidGuardConditionAreRejected()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var twp = sm.SetTriggerParameters<string>(Trigger.X);
+            sm.Configure(State.A).PermitIf(twp, State.B, o => o == "3");
+            Assert.Equal(sm.State, State.A);
+
+            Assert.Throws<InvalidOperationException>(() => sm.Fire(twp, "2"));
+        }
+
+        [Fact]
+        public void ParametersWithValidGuardConditionAreAccepted()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var twp = sm.SetTriggerParameters<string>(Trigger.X);
+            sm.Configure(State.A).PermitIf(twp, State.B, o => o == "2");
+            sm.Fire(twp, "2");
+            Assert.Equal(sm.State, State.B);
+        }
+
+        [Fact]
+        public void ExceptionThrownWhenBothParameterizedGuardClausesReturnFalse()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var twp = sm.SetTriggerParameters<int>(Trigger.X);
+            // Create Two guards that both must be true
+            var positiveGuard = Tuple.Create(new Func<int, bool>(o => o == 2), "Positive Guard");
+            var negativeGuard = Tuple.Create(new Func<int, bool>(o => o != 3), "Negative Guard");
+            sm.Configure(State.A).PermitIf(twp, State.B, positiveGuard, negativeGuard);
+
+            Assert.Throws<InvalidOperationException>(() => sm.Fire(twp, 3));
+        }
+
+        [Fact]
+        public void TransitionWhenBothParameterizedGuardClausesReturnTrue()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var twp = sm.SetTriggerParameters<int>(Trigger.X);
+            // Create Two guards that both must be true
+            var positiveGuard = Tuple.Create(new Func<int, bool>(o => o == 2), "Positive Guard");
+            var negativeGuard = Tuple.Create(new Func<int, bool>(o => o != 3), "Negative Guard");
+            sm.Configure(State.A).PermitIf(twp, State.B, positiveGuard, negativeGuard);
+            sm.Fire(twp, 2);
+
+            Assert.Equal(sm.State, State.B);
+        }
+
+        [Fact]
+        public void ExceptionThrownWhenGuardReturnsFalseOnTriggerWithMultipleParameters()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var twp = sm.SetTriggerParameters<string, int>(Trigger.X);
+            sm.Configure(State.A).PermitIf(twp, State.B, (s, i) => s == "3" && i == 3);
+            Assert.Equal(sm.State, State.A);
+
+            Assert.Throws<InvalidOperationException>(() => sm.Fire(twp, "2", 2));
+            Assert.Throws<InvalidOperationException>(() => sm.Fire(twp, "3", 2));
+            Assert.Throws<InvalidOperationException>(() => sm.Fire(twp, "2", 3));
+        }
+
+        [Fact]
+        public void TransitionWhenGuardReturnsTrueOnTriggerWithMultipleParameters()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var twp = sm.SetTriggerParameters<string, int>(Trigger.X);
+            sm.Configure(State.A).PermitIf(twp, State.B, (s, i) => s == "3" && i == 3);
+            sm.Fire(twp, "3", 3);
+            Assert.Equal(sm.State, State.B);
         }
     }
 }
