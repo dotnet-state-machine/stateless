@@ -325,7 +325,7 @@ namespace Stateless.Tests
             Assert.False(sub.CanHandle(Trigger.X));
             Assert.False(super.CanHandle(Trigger.X));
             Assert.NotNull(result);
-            Assert.False(result?.Handler.GetGuardConditionsMet());
+            Assert.False(result?.Handler.GuardConditionsMet());
             Assert.Contains("2", result?.UnmetGuardConditions.ToArray());
             
         }
@@ -347,7 +347,7 @@ namespace Stateless.Tests
             Assert.True(sub.CanHandle(Trigger.X));
             Assert.True(super.CanHandle(Trigger.X));
             Assert.NotNull(result);     
-            Assert.True(result?.Handler.GetGuardConditionsMet());
+            Assert.True(result?.Handler.GuardConditionsMet());
             Assert.False(result?.UnmetGuardConditions.Any());
 
         }

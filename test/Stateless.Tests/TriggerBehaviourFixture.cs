@@ -28,7 +28,7 @@ namespace Stateless.Tests
             var transitioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
                 Trigger.X, State.C, new StateMachine<State, Trigger>.TransitionGuard(False));
 
-            Assert.False(transitioning.GetGuardConditionsMet());
+            Assert.False(transitioning.GuardConditionsMet());
         }
 
         protected bool True(params object[] args)
@@ -42,7 +42,7 @@ namespace Stateless.Tests
             var transitioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
                 Trigger.X, State.C, new StateMachine<State, Trigger>.TransitionGuard(True));
 
-            Assert.True(transitioning.GetGuardConditionsMet());
+            Assert.True(transitioning.GuardConditionsMet());
         }
 
         [Fact]
@@ -56,7 +56,7 @@ namespace Stateless.Tests
             var transitioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
                 Trigger.X, State.C, new StateMachine<State, Trigger>.TransitionGuard(falseGuard));
 
-            Assert.True(transitioning.GetGuardConditionsMet());
+            Assert.True(transitioning.GuardConditionsMet());
         }
 
         [Fact]
@@ -70,7 +70,7 @@ namespace Stateless.Tests
             var transitioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
                 Trigger.X, State.C, new StateMachine<State, Trigger>.TransitionGuard(falseGuard));
 
-            Assert.False(transitioning.GetGuardConditionsMet());
+            Assert.False(transitioning.GuardConditionsMet());
         }
 
         [Fact]
@@ -84,7 +84,7 @@ namespace Stateless.Tests
             var transitioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
                 Trigger.X, State.C, new StateMachine<State, Trigger>.TransitionGuard(trueGuard));
 
-            Assert.True(transitioning.GetGuardConditionsMet());
+            Assert.True(transitioning.GuardConditionsMet());
         }
     }
 }
