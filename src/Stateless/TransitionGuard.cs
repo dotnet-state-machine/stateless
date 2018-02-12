@@ -12,6 +12,21 @@ namespace Stateless
 
             public static readonly TransitionGuard Empty = new TransitionGuard(new Tuple<Func<object[],bool>, string>[0]);
 
+            internal TransitionGuard(Tuple<Func<bool>, string>[] guards)
+            {
+                Conditions = guards
+                    .Select(g => new GuardCondition(g.Item1, Reflection.InvocationInfo.Create(g.Item1, g.Item2)))
+                    .ToList();
+            }
+
+            internal TransitionGuard(Func<bool> guard, string description = null)
+            {
+                Conditions = new List<GuardCondition>
+                {
+                    new GuardCondition(guard, Reflection.InvocationInfo.Create(guard, description))
+                };
+            }
+
             internal TransitionGuard(Tuple<Func<object[],bool>, string>[] guards)
             {
                 Conditions = guards

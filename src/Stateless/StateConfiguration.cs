@@ -69,7 +69,7 @@ namespace Stateless
             {
                 if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, args => guard()));
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard));
                 _representation.AddInternalAction(trigger, (t, args) => entryAction(t));
                 return this;
             }
@@ -96,7 +96,7 @@ namespace Stateless
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, args => guard()));
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard));
                 _representation.AddInternalAction(trigger, (t, args) => internalAction());
                 return this;
             }
@@ -113,7 +113,7 @@ namespace Stateless
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, args => guard()));
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard));
                 _representation.AddInternalAction(trigger, (t, args) => internalAction(t));
                 return this;
             }
@@ -154,7 +154,7 @@ namespace Stateless
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, args => guard()));
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard));
                 _representation.AddInternalAction(trigger.Trigger, (t, args) => internalAction(ParameterConversion.Unpack<TArg0>(args, 0), t));
                 return this;
             }
@@ -186,7 +186,7 @@ namespace Stateless
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, args => guard()));
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard));
                 _representation.AddInternalAction(trigger.Trigger, (t, args) => internalAction(
                     ParameterConversion.Unpack<TArg0>(args, 0),
                     ParameterConversion.Unpack<TArg1>(args, 1), t));
@@ -207,7 +207,7 @@ namespace Stateless
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, args => guard()));
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard));
                 _representation.AddInternalAction(trigger.Trigger, (t, args) => internalAction(
                     ParameterConversion.Unpack<TArg0>(args, 0),
                     ParameterConversion.Unpack<TArg1>(args, 1),
@@ -246,7 +246,7 @@ namespace Stateless
                 return InternalPermitIf(
                     trigger,
                     destinationState,
-                    new TransitionGuard(args => guard(), guardDescription));
+                    new TransitionGuard(guard, guardDescription));
             }
 
             /// <summary>
@@ -309,9 +309,7 @@ namespace Stateless
                 return InternalPermitIf(
                     trigger,
                     destinationState,
-                    new TransitionGuard(
-                        guards.Select(guard => new Tuple<Func<object[], bool>, string>(args => guard.Item1(), guard.Item2)).ToArray())
-                );
+                    new TransitionGuard(guards));
             }
 
             /// <summary>
@@ -372,7 +370,7 @@ namespace Stateless
                 return InternalPermitIf(
                     trigger,
                     _representation.UnderlyingState,
-                    new TransitionGuard(args => guard(), guardDescription));
+                    new TransitionGuard(guard, guardDescription));
             }
 
             /// <summary>
@@ -392,9 +390,7 @@ namespace Stateless
                 return InternalPermitIf(
                     trigger,
                     _representation.UnderlyingState,
-                    new TransitionGuard(guards.Select(guard =>
-                            new Tuple<Func<object[], bool>, string>(args => guard.Item1(), guard.Item2))
-                        .ToArray()));
+                    new TransitionGuard(guards));
             }
 
             /// <summary>
@@ -427,7 +423,7 @@ namespace Stateless
                 _representation.AddTriggerBehaviour(
                     new IgnoredTriggerBehaviour(
                         trigger,
-                        new TransitionGuard(args => guard(), guardDescription)
+                        new TransitionGuard(guard, guardDescription)
                         ));
                 return this;
             }
@@ -445,9 +441,7 @@ namespace Stateless
                 _representation.AddTriggerBehaviour(
                     new IgnoredTriggerBehaviour(
                         trigger,
-                        new TransitionGuard(guards.Select(guard =>
-                            new Tuple<Func<object[], bool>, string>(args => guard.Item1(), guard.Item2)).ToArray()))
-                );
+                        new TransitionGuard(guards)));
                 return this;
             }
 
@@ -911,6 +905,7 @@ namespace Stateless
             {
                 return PermitDynamicIf(trigger, destinationStateSelector, null, guard, guardDescription);
             }
+            
             /// <summary>
             /// Accept the specified trigger and transition to the destination state, calculated
             /// dynamically by the supplied function.
@@ -932,7 +927,7 @@ namespace Stateless
                     trigger,
                     args => destinationStateSelector(),
                     destinationStateSelectorDescription,
-                    new TransitionGuard(args => guard(), guardDescription),
+                    new TransitionGuard(guard, guardDescription),
                     null);      // List of possible destination states not specified
             }
 
@@ -950,6 +945,7 @@ namespace Stateless
             {
                 return PermitDynamicIf(trigger, destinationStateSelector, null, guards);
             }
+            
             /// <summary>
             /// Accept the specified trigger and transition to the destination state, calculated
             /// dynamically by the supplied function.
@@ -970,9 +966,7 @@ namespace Stateless
                     trigger,
                     args => destinationStateSelector(),
                     destinationStateSelectorDescription,
-                    new TransitionGuard(guards.Select(guard =>
-                            new Tuple<Func<object[], bool>, string>(args => guard.Item1(), guard.Item2))
-                        .ToArray()),
+                    new TransitionGuard(guards),
                     null);      // List of possible destination states not specified
             }
 
@@ -998,7 +992,7 @@ namespace Stateless
                     args => destinationStateSelector(
                         ParameterConversion.Unpack<TArg0>(args, 0)),
                     null,    // destinationStateSelectorString
-                    new TransitionGuard(args => guard(), guardDescription),
+                    new TransitionGuard(guard, guardDescription),
                     null);      // List of possible destination states not specified
             }
 
@@ -1023,9 +1017,7 @@ namespace Stateless
                     args => destinationStateSelector(
                         ParameterConversion.Unpack<TArg0>(args, 0)),
                     null,    // destinationStateSelectorString
-                    new TransitionGuard(guards.Select(guard =>
-                            new Tuple<Func<object[], bool>, string>(args => guard.Item1(), guard.Item2))
-                        .ToArray()),
+                    new TransitionGuard(guards),
                     null);      // List of possible destination states not specified
             }
 
@@ -1053,7 +1045,7 @@ namespace Stateless
                         ParameterConversion.Unpack<TArg0>(args, 0),
                         ParameterConversion.Unpack<TArg1>(args, 1)),
                     null,    // destinationStateSelectorString
-                    new TransitionGuard(args => guard(), guardDescription),
+                    new TransitionGuard(guard, guardDescription),
                     null);      // List of possible destination states not specified
             }
 
@@ -1080,9 +1072,7 @@ namespace Stateless
                         ParameterConversion.Unpack<TArg0>(args, 0),
                         ParameterConversion.Unpack<TArg1>(args, 1)),
                     null,    // destinationStateSelectorString
-                    new TransitionGuard(guards.Select(guard =>
-                            new Tuple<Func<object[], bool>, string>(args => guard.Item1(), guard.Item2))
-                        .ToArray()),
+                    new TransitionGuard(guards),
                     null);      // List of possible destination states not specified
             }
 
@@ -1112,7 +1102,7 @@ namespace Stateless
                         ParameterConversion.Unpack<TArg1>(args, 1),
                         ParameterConversion.Unpack<TArg2>(args, 2)),
                     null,    // destinationStateSelectorString
-                    new TransitionGuard(args => guard(), guardDescription),
+                    new TransitionGuard(guard, guardDescription),
                     null);      // List of possible destination states not specified
             }
 
@@ -1141,9 +1131,7 @@ namespace Stateless
                         ParameterConversion.Unpack<TArg1>(args, 1),
                         ParameterConversion.Unpack<TArg2>(args, 2)),
                     null,    // destinationStateSelectorString
-                    new TransitionGuard(guards.Select(guard =>
-                            new Tuple<Func<object[], bool>, string>(args => guard.Item1(), guard.Item2))
-                        .ToArray()),
+                    new TransitionGuard(guards),
                     null);      // List of possible destination states not specified
             }
 
