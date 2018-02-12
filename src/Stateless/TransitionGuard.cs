@@ -89,7 +89,7 @@ namespace Stateless
             internal ICollection<Func<object[], bool>> Guards => Conditions.Select(g => g.Guard).ToList();
 
             /// <summary>
-            /// GetGuardConditionsMet is true if all of the guard functions return true
+            /// GuardConditionsMet is true if all of the guard functions return true
             /// or if there are no guard functions
             /// </summary>
             public bool GuardConditionsMet(object[] args)
