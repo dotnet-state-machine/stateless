@@ -632,5 +632,26 @@ namespace Stateless.Tests
 
             Assert.Throws<InvalidOperationException>(() => sm.Fire(x, 2));
         }
+
+        [Fact]
+        public void NoTransitionWhenIgnoreIfParameterizedGuardTrue()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var x = sm.SetTriggerParameters<int>(Trigger.X);
+            sm.Configure(State.A).IgnoreIf(x, (i) => i == 3);
+            sm.Fire(x, 3);
+
+            Assert.Equal(sm.State, State.A);
+        }
+
+        [Fact]
+        public void ExceptionWhenIgnoreIfParameterizedGuardFalse()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var x = sm.SetTriggerParameters<int>(Trigger.X);
+            sm.Configure(State.A).IgnoreIf(x, (i) => i == 3);
+
+            Assert.Throws<InvalidOperationException>(() => sm.Fire(x, 2));
+        }
     }
 }
