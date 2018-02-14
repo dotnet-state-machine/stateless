@@ -566,13 +566,15 @@ namespace Stateless.Tests
         public void ExceptionWhenPermitIfHasMultipleExclusiveParameterizedGuardsBothFalse()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
-            sm.OnUnhandledTrigger((s, t) => { });  // Override
+            bool onUnhandledTriggerWasCalled = false;
+            sm.OnUnhandledTrigger((s, t) => { onUnhandledTriggerWasCalled = true; });  // Override
             var x = sm.SetTriggerParameters<int>(Trigger.X);
             sm.Configure(State.A)
                 .PermitIf(x, State.B, (i) => i == 3)
                 .PermitIf(x, State.C, (i) => i == 2);
 
             sm.Fire(x, 5);  // This shouldn't throw an exception and we should just ignore it
+            Assert.True(onUnhandledTriggerWasCalled, "OnUnhandledTrigger was called");
             Assert.Equal(sm.State, State.A);
         }
 
@@ -580,25 +582,58 @@ namespace Stateless.Tests
         public void NoExceptionWhenPermitIfHasMultipleExclusiveGuardsBothFalse()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
+            bool onUnhandledTriggerWasCalled = false;
+            sm.OnUnhandledTrigger((s, t) => { onUnhandledTriggerWasCalled = true; });  // Override
             int i = 0;
             sm.Configure(State.A)
-                .PermitIf(Trigger.X, State.B, () => i == 3)  // Is Even
-                .PermitIf(Trigger.X, State.C, () => i == 2);
+                .PermitIf(Trigger.X, State.B, () => i == 2)
+                .PermitIf(Trigger.X, State.C, () => i == 1);
 
             sm.Fire(Trigger.X);  // This shouldn't throw an exception and we should just ignore it
+
+            Assert.True(onUnhandledTriggerWasCalled, "OnUnhandledTrigger was called");
             Assert.Equal(sm.State, State.A);
         }
 
         [Fact]
-        public void SuperStateIgnoreIfOverridesChildPermit()
+        public void NoExceptionWhenPermitIfHasMultipleExclusiveGuardsOneTrue()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            int i = 0;
+            sm.Configure(State.A)
+                .PermitIf(Trigger.X, State.B, () => i == 2)
+                .PermitIf(Trigger.X, State.C, () => i == 1)
+                .PermitIf(Trigger.X, State.D, () => i == 0);
+
+            sm.Fire(Trigger.X);  // This shouldn't throw an exception and we should just ignore it
+            
+            Assert.Equal(sm.State, State.D);
+        }
+
+        [Fact]
+        public void SuperStateIgnoreIfOverridesChildWithSimilarGuardPermit()
         {
             var sm = new StateMachine<State, Trigger>(State.B);
             int i = 0;
-            sm.Configure(State.A).IgnoreIf(Trigger.X, () => i == 0);
+            sm.Configure(State.A).IgnoreIf(Trigger.X, () => i <= 0);
             {
                 sm.Configure(State.B).SubstateOf(State.A)
-                    .PermitIf(Trigger.X, State.C, () => i == 3)
-                    .PermitIf(Trigger.X, State.D, () => i == 2);
+                    .PermitIf(Trigger.X, State.D, () => i == 1);
+            }
+
+            sm.Fire(Trigger.X);  // This shouldn't throw an exception and we should just ignore it
+            Assert.Equal(sm.State, State.B);
+        }
+
+        [Fact]
+        public void SuperStateIgnoreProtectsChildState()
+        {
+            var sm = new StateMachine<State, Trigger>(State.B);
+
+            sm.Configure(State.A).Ignore(Trigger.X);
+            {
+                sm.Configure(State.B).SubstateOf(State.A);
             }
 
             sm.Fire(Trigger.X);  // This shouldn't throw an exception and we should just ignore it
@@ -614,6 +649,22 @@ namespace Stateless.Tests
             {
                 sm.Configure(State.B).SubstateOf(State.A)
                     .Permit(Trigger.X, State.C);
+            }
+
+            sm.Fire(Trigger.X);  // This shouldn't throw an exception and we should just ignore it
+            Assert.Equal(sm.State, State.B);
+        }
+
+        [Fact]
+        public void SuperStateIgnoreOverridesChildPermitIfGuardFalse()
+        {
+            var sm = new StateMachine<State, Trigger>(State.B);
+
+            int i = 0;
+            sm.Configure(State.A).Ignore(Trigger.X);
+            {
+                sm.Configure(State.B).SubstateOf(State.A)
+                    .PermitIf(Trigger.X, State.C, () => i == 2);
             }
 
             sm.Fire(Trigger.X);  // This shouldn't throw an exception and we should just ignore it
