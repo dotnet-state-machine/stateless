@@ -279,6 +279,14 @@ namespace Stateless
                     (_superstate != null && _superstate.IsIncludedIn(state));
             }
 
+			public IEnumerable<TTrigger> PermittedTriggers
+			{
+				get
+				{
+					return GetPermittedTriggers();
+				}
+			}
+
             public IEnumerable<TTrigger> GetPermittedTriggers(params object[] args)
             {
                 var result = _triggerBehaviours

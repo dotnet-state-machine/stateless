@@ -74,6 +74,17 @@ namespace Stateless
             }
         }
 
+		/// <summary>
+        /// The currently-permissible trigger values.
+        /// </summary>
+        public IEnumerable<TTrigger> PermittedTriggers
+        {
+            get
+            {
+                return GetPermittedTriggers();
+            }
+        }
+		
         /// <summary>
         /// The currently-permissible trigger values.
         /// </summary>
