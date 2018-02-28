@@ -12,6 +12,8 @@ namespace Stateless
 
             public static readonly TransitionGuard Empty = new TransitionGuard(new Tuple<Func<object[],bool>, string>[0]);
 
+            #region Generic TArg0, ... to object[] converters
+
             public static Func<object[], bool> ToPackedGuard<TArg0>(Func<TArg0, bool> guard)
             {
                 return args => guard(ParameterConversion.Unpack<TArg0>(args, 0));
@@ -52,6 +54,8 @@ namespace Stateless
                         ToPackedGuard(guard.Item1), guard.Item2))
                     .ToArray();
             }
+
+            #endregion
 
             internal TransitionGuard(Tuple<Func<bool>, string>[] guards)
             {
