@@ -662,6 +662,78 @@ namespace Stateless
             }
 
             /// <summary>
+            /// Ignore the specified trigger when in the configured state, if the guard
+            /// returns true..
+            /// </summary>
+            /// <param name="trigger">The trigger to ignore.</param>
+            /// <param name="guardDescription">Guard description</param>
+            /// <param name="guard">Function that must return true in order for the
+            /// trigger to be ignored.</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration IgnoreIf<TArg0, TArgo1>(TriggerWithParameters<TArg0, TArgo1> trigger, Func<TArg0, TArgo1, bool> guard, string guardDescription = null)
+            {
+                _representation.AddTriggerBehaviour(
+                    new IgnoredTriggerBehaviour(
+                        trigger.Trigger,
+                        new TransitionGuard(TransitionGuard.ToPackedGuard(guard), guardDescription)
+                    ));
+                return this;
+            }
+
+            /// <summary>
+            /// Ignore the specified trigger when in the configured state, if the guard
+            /// returns true..
+            /// </summary>
+            /// <param name="trigger">The trigger to ignore.</param>
+            /// <param name="guards">Functions and their descriptions that must return true in order for the
+            /// trigger to be ignored.</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration IgnoreIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, params Tuple<Func<TArg0, TArg1, bool>, string>[] guards)
+            {
+                _representation.AddTriggerBehaviour(
+                    new IgnoredTriggerBehaviour(
+                        trigger.Trigger,
+                        new TransitionGuard(TransitionGuard.ToPackedGuards(guards))));
+                return this;
+            }
+
+            /// <summary>
+            /// Ignore the specified trigger when in the configured state, if the guard
+            /// returns true..
+            /// </summary>
+            /// <param name="trigger">The trigger to ignore.</param>
+            /// <param name="guardDescription">Guard description</param>
+            /// <param name="guard">Function that must return true in order for the
+            /// trigger to be ignored.</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration IgnoreIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, bool> guard, string guardDescription = null)
+            {
+                _representation.AddTriggerBehaviour(
+                    new IgnoredTriggerBehaviour(
+                        trigger.Trigger,
+                        new TransitionGuard(TransitionGuard.ToPackedGuard(guard), guardDescription)
+                    ));
+                return this;
+            }
+
+            /// <summary>
+            /// Ignore the specified trigger when in the configured state, if the guard
+            /// returns true..
+            /// </summary>
+            /// <param name="trigger">The trigger to ignore.</param>
+            /// <param name="guards">Functions and their descriptions that must return true in order for the
+            /// trigger to be ignored.</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration IgnoreIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, params Tuple<Func<TArg0, TArg1, TArg2, bool>, string>[] guards)
+            {
+                _representation.AddTriggerBehaviour(
+                    new IgnoredTriggerBehaviour(
+                        trigger.Trigger,
+                        new TransitionGuard(TransitionGuard.ToPackedGuards(guards))));
+                return this;
+            }
+
+            /// <summary>
             /// Specify an action that will execute when activating
             /// the configured state.
             /// </summary>
