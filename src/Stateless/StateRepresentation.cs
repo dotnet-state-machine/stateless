@@ -66,7 +66,7 @@ namespace Stateless
 
                 // Guard functions executed
                 var actual = possible
-                    .Select(h => new TriggerBehaviourResult(h, h.UnmetGuardConditions(args)));
+                    .Select(h => new TriggerBehaviourResult(h, h.UnmetGuardConditions)).ToArray();
 
                 handlerResult = TryFindLocalHandlerResult(trigger, actual, r => !r.UnmetGuardConditions.Any())
                     ?? TryFindLocalHandlerResult(trigger, actual, r => r.UnmetGuardConditions.Any());
@@ -279,25 +279,25 @@ namespace Stateless
                     (_superstate != null && _superstate.IsIncludedIn(state));
             }
 
-			public IEnumerable<TTrigger> PermittedTriggers
-			{
-				get
-				{
+            public IEnumerable<TTrigger> PermittedTriggers
+            {
+                get
+                {
 					return GetPermittedTriggers();
 				}
 			}
 
             public IEnumerable<TTrigger> GetPermittedTriggers(params object[] args)
             {
-                var result = _triggerBehaviours
+                    var result = _triggerBehaviours
                     .Where(t => t.Value.Any(a => !a.UnmetGuardConditions(args).Any()))
-                    .Select(t => t.Key);
+                        .Select(t => t.Key);
 
-                if (Superstate != null)
+                    if (Superstate != null)
                     result = result.Union(Superstate.GetPermittedTriggers(args));
 
-                return result.ToArray();
+                    return result.ToArray();
+                }
             }
         }
     }
-}
