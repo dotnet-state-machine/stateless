@@ -44,6 +44,7 @@ Some useful extensions are also provided:
 
 ### Hierarchical States
 
+
 In the example below, the `OnHold` state is a substate of the `Connected` state. This means that an `OnHold` call is still connected.
 
 ```csharp
@@ -92,6 +93,8 @@ phoneCall.Configure(State.OffHook)
 ```
 
 Guard clauses within a state must be mutually exclusive (multiple guard clauses cannot be valid at the same time.) Substates can override transitions by respecifying them, however substates cannot disallow transitions that are allowed by the superstate.
+
+The guard clauses will be evaluated whenever a trigger is fired. Guards should therefor be made side effect free.
 
 ### Parameterised Triggers
 

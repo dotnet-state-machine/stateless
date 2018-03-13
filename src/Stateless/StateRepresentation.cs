@@ -66,7 +66,7 @@ namespace Stateless
 
                 // Guard functions executed
                 var actual = possible
-                    .Select(h => new TriggerBehaviourResult(h, h.UnmetGuardConditions(args)));
+                    .Select(h => new TriggerBehaviourResult(h, h.UnmetGuardConditions)).ToArray();
 
                 handlerResult = TryFindLocalHandlerResult(trigger, actual, r => !r.UnmetGuardConditions.Any())
                     ?? TryFindLocalHandlerResult(trigger, actual, r => r.UnmetGuardConditions.Any());
