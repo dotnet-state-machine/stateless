@@ -655,5 +655,25 @@ namespace Stateless.Tests
 
             Assert.Throws<InvalidOperationException>(() => sm.Fire(x, 2));
         }
+
+        /// <summary>
+        /// Verifies guard clauses are only called one time during a transition evaluation.
+        /// </summary>
+        [Fact]
+        public void GuardClauseCalledOnlyOnce()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            int i = 0;
+
+            sm.Configure(State.A).PermitIf(Trigger.X, State.B, () =>
+            {
+                ++i;
+                return true;
+            });
+
+            sm.Fire(Trigger.X);
+
+            Assert.Equal(1, i);
+        }
     }
 }
