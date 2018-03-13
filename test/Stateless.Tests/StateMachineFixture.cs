@@ -654,6 +654,7 @@ namespace Stateless.Tests
             sm.Configure(State.A).IgnoreIf(x, (i) => i == 3);
 
             Assert.Throws<InvalidOperationException>(() => sm.Fire(x, 2));
+        }
 
         /// <summary>
         /// Verifies guard clauses are only called one time during a transition evaluation.
