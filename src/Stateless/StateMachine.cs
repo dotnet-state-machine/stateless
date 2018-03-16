@@ -74,15 +74,23 @@ namespace Stateless
             }
         }
 
-        /// <summary>
+		/// <summary>
         /// The currently-permissible trigger values.
         /// </summary>
         public IEnumerable<TTrigger> PermittedTriggers
         {
             get
             {
-                return CurrentRepresentation.PermittedTriggers;
+                return GetPermittedTriggers();
             }
+        }
+		
+        /// <summary>
+        /// The currently-permissible trigger values.
+        /// </summary>
+        public IEnumerable<TTrigger> GetPermittedTriggers(params object[] args)
+        {
+            return CurrentRepresentation.GetPermittedTriggers(args);
         }
 
         StateRepresentation CurrentRepresentation
@@ -273,7 +281,7 @@ namespace Stateless
             var source = State;
             var representativeState = GetRepresentation(source);
 
-            if (!representativeState.TryFindHandler(trigger, out TriggerBehaviourResult result))
+            if (!representativeState.TryFindHandler(trigger, args, out TriggerBehaviourResult result))
             {
                 _unhandledTriggerAction.Execute(representativeState.UnderlyingState, trigger, result?.UnmetGuardConditions);
                 return;
@@ -352,7 +360,7 @@ namespace Stateless
             return string.Format(
                 "StateMachine {{ State = {0}, PermittedTriggers = {{ {1} }}}}",
                 State,
-                string.Join(", ", PermittedTriggers.Select(t => t.ToString()).ToArray()));
+                string.Join(", ", GetPermittedTriggers().Select(t => t.ToString()).ToArray()));
         }
 
         /// <summary>

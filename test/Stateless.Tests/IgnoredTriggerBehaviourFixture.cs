@@ -25,7 +25,7 @@ namespace Stateless.Tests
             Assert.Equal(Trigger.X, ignored.Trigger);
         }
 
-        protected bool False()
+        protected bool False(params object[] args)
         {
             return false;
         }
@@ -36,10 +36,10 @@ namespace Stateless.Tests
             var ignored = new StateMachine<State, Trigger>.IgnoredTriggerBehaviour(
                 Trigger.X, new StateMachine<State, Trigger>.TransitionGuard(False));
 
-            Assert.False(ignored.GuardConditionsMet);
+            Assert.False(ignored.GuardConditionsMet());
         }
 
-        protected bool True()
+        protected bool True(params object[] args)
         {
             return true;
         }
@@ -50,7 +50,7 @@ namespace Stateless.Tests
             var ignored = new StateMachine<State, Trigger>.IgnoredTriggerBehaviour(
                 Trigger.X, new StateMachine<State, Trigger>.TransitionGuard(True));
 
-            Assert.True(ignored.GuardConditionsMet);
+            Assert.True(ignored.GuardConditionsMet());
         }
     }
 }

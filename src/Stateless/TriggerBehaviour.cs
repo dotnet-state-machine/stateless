@@ -36,19 +36,19 @@ namespace Stateless
             /// <summary>
             /// Guards is the list of guard functions for the transition guard for this trigger
             /// </summary>
-            internal ICollection<Func<bool>> Guards =>_guard.Guards;
+            internal ICollection<Func<object[], bool>> Guards =>_guard.Guards;
 
             /// <summary>
             /// GuardConditionsMet is true if all of the guard functions return true
             /// or if there are no guard functions
             /// </summary>
-            public bool GuardConditionsMet => _guard.GuardConditionsMet;
+            public bool GuardConditionsMet(params object[] args) => _guard.GuardConditionsMet(args);
 
             /// <summary>
             /// UnmetGuardConditions is a list of the descriptions of all guard conditions
             /// whose guard function returns false
             /// </summary>
-            public ICollection<string> UnmetGuardConditions => _guard.UnmetGuardConditions;
+            public ICollection<string> UnmetGuardConditions(object[] args) => _guard.UnmetGuardConditions(args);
 
             public abstract bool ResultsInTransitionFrom(TState source, object[] args, out TState destination);
         }
