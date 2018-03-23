@@ -1,7 +1,6 @@
 ﻿using System;
 using Newtonsoft.Json;
 using Stateless;
-using Stateless.Reflection;
 
 namespace JsonExample
 {
@@ -83,11 +82,6 @@ namespace JsonExample
         public bool Equals(Member anotherMember)
         {
             return ((State == anotherMember.State) && (Name == anotherMember.Name));
-        }
-
-        public StateMachineInfo GetInfo()
-        {
-            return _stateMachine.GetInfo();
         }
     }
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using Stateless.Graph;
 
 namespace JsonExample
 {
@@ -30,8 +29,6 @@ namespace JsonExample
 
             Console.WriteLine("Press any key...");
             Console.ReadKey();
-
-            var graph = UmlDotGraph.Format(aMember.GetInfo());
         }
     }
 }
