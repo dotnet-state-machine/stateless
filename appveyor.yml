@@ -3,6 +3,10 @@ skip_tags: true
 image: Visual Studio 2017
 configuration: Release
 install:
+before_build:
+- cmd: >-
+    nuget update -self
+    nuget restore
 build_script:
 - ps: ./Build.ps1
 test: off
