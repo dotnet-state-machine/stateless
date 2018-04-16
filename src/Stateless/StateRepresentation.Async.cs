@@ -143,7 +143,7 @@ namespace Stateless
                 StateRepresentation aStateRep = this;
                 while (aStateRep != null)
                 {
-                    if (aStateRep.TryFindLocalHandler(transition.Trigger, out TriggerBehaviourResult result))
+                    if (aStateRep.TryFindLocalHandler(transition.Trigger, args, out TriggerBehaviourResult result))
                     {
                         // Trigger handler(s) found in this state
                         internalTransition = result.Handler as InternalTriggerBehaviour.Async;

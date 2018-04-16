@@ -31,7 +31,7 @@ namespace Stateless
             {
                 public Action<Transition, object[]> InternalAction { get; }
 
-                public Sync(TTrigger trigger, Func<bool> guard, Action<Transition, object[]> internalAction) : base(trigger, new TransitionGuard(guard, "Internal Transition"))
+                public Sync(TTrigger trigger, Func<object[], bool> guard, Action<Transition, object[]> internalAction) : base(trigger, new TransitionGuard(guard, "Internal Transition"))
                 {
                     InternalAction = internalAction;
                 }

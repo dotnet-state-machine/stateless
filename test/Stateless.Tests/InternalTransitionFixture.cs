@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Xunit;
 
 namespace Stateless.Tests
@@ -208,7 +209,7 @@ namespace Stateless.Tests
             var isPermitted = true;
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A)
-                .InternalTransitionIf(Trigger.X, () => isPermitted, t => { });
+                .InternalTransitionIf(Trigger.X, (u) => isPermitted, t => { });
 
             Assert.Equal(1, sm.GetPermittedTriggers().ToArray().Length);
             isPermitted = false;

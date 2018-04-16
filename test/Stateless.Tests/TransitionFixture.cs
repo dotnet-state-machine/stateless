@@ -31,14 +31,14 @@ namespace Stateless.Tests
             machine.Configure(1)
                 .InternalTransitionIf(
                     1,
-                    () => { return true; },
+                    (t) => { return true; },
                     () =>
                     {
                         Assert.True(true);
                     })
                 .InternalTransitionIf(
                     1,
-                    () => { return false; },
+                    (u) => { return false; },
                     () =>
                     {
                         Assert.True(false);
