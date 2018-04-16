@@ -11,6 +11,12 @@ namespace Stateless
             {
             }
 
+            public InternalTriggerBehaviour(TTrigger trigger, Func<object[], bool> guard)
+                : base(trigger, new TransitionGuard(guard, "Internal Transition"))
+            {
+            }
+
+
             public abstract void Execute(Transition transition, object[] args);
             public abstract Task ExecuteAsync(Transition transition, object[] args);
 
