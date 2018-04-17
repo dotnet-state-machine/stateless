@@ -11,12 +11,6 @@ namespace Stateless
             {
             }
 
-            public InternalTriggerBehaviour(TTrigger trigger, Func<object[], bool> guard)
-                : base(trigger, new TransitionGuard(guard, "Internal Transition"))
-            {
-            }
-
-
             public abstract void Execute(Transition transition, object[] args);
             public abstract Task ExecuteAsync(Transition transition, object[] args);
 
@@ -31,7 +25,7 @@ namespace Stateless
             {
                 public Action<Transition, object[]> InternalAction { get; }
 
-                public Sync(TTrigger trigger, Func<object[], bool> guard, Action<Transition, object[]> internalAction) : base(trigger, new TransitionGuard(guard, "Internal Transition"))
+                public Sync(TTrigger trigger, Func<object[], bool> guard, Action<Transition, object[]> internalAction, string guardDescription = null) : base(trigger, new TransitionGuard(guard, guardDescription))
                 {
                     InternalAction = internalAction;
                 }
@@ -51,7 +45,7 @@ namespace Stateless
             {
                 readonly Func<Transition, object[], Task> InternalAction;
 
-                public Async(TTrigger trigger, Func<bool> guard,Func<Transition, object[], Task> internalAction) : base(trigger, new TransitionGuard(guard, "Internal Transition"))
+                public Async(TTrigger trigger, Func<bool> guard,Func<Transition, object[], Task> internalAction, string guardDescription = null) : base(trigger, new TransitionGuard(guard, guardDescription))
                 {
                     InternalAction = internalAction;
                 }
