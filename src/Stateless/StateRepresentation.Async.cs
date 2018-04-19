@@ -54,20 +54,12 @@ namespace Stateless
                 if (_superstate != null)
                     await _superstate.ActivateAsync();
 
-                if (active)
-                    return;
-
                 await ExecuteActivationActionsAsync();
-                active = true;
             }
 
             public async Task DeactivateAsync()
             {
-                if (!active)
-                    return;
-
                 await ExecuteDeactivationActionsAsync();
-                active = false;
 
                 if (_superstate != null)
                     await _superstate.DeactivateAsync();
@@ -90,7 +82,6 @@ namespace Stateless
                 if (transition.IsReentry)
                 {
                     await ExecuteEntryActionsAsync(transition, entryArgs);
-                    await ExecuteActivationActionsAsync();
                 }
                 else if (!Includes(transition.Source))
                 {
@@ -98,7 +89,6 @@ namespace Stateless
                         await _superstate.EnterAsync(transition, entryArgs);
 
                     await ExecuteEntryActionsAsync(transition, entryArgs);
-                    await ExecuteActivationActionsAsync();
                 }
             }
 
@@ -106,12 +96,10 @@ namespace Stateless
             {
                 if (transition.IsReentry)
                 {
-                    await ExecuteDeactivationActionsAsync();
                     await ExecuteExitActionsAsync(transition);
                 }
                 else if (!Includes(transition.Destination))
                 {
-                    await ExecuteDeactivationActionsAsync();
                     await ExecuteExitActionsAsync(transition);
 
                     if (_superstate != null)

@@ -29,7 +29,6 @@ namespace Stateless
             internal ICollection<DeactivateActionBehaviour> DeactivateActions { get { return _deactivateActions; } }
 
             StateRepresentation _superstate; // null
-            bool active;
 
             readonly ICollection<StateRepresentation> _substates = new List<StateRepresentation>();
 
@@ -122,20 +121,12 @@ namespace Stateless
                 if (_superstate != null)
                     _superstate.Activate();
 
-                if (active)
-                    return;
-
                 ExecuteActivationActions();
-                active = true;
             }
 
             public void Deactivate()
             {
-                if (!active)
-                    return;
-
                 ExecuteDeactivationActions();
-                active = false;
 
                 if (_superstate != null)
                     _superstate.Deactivate();
@@ -158,7 +149,6 @@ namespace Stateless
                 if (transition.IsReentry)
                 {
                     ExecuteEntryActions(transition, entryArgs);
-                    ExecuteActivationActions();
                 }
                 else if (!Includes(transition.Source))
                 {
@@ -166,7 +156,6 @@ namespace Stateless
                         _superstate.Enter(transition, entryArgs);
 
                     ExecuteEntryActions(transition, entryArgs);
-                    ExecuteActivationActions();
                 }
             }
 
@@ -174,12 +163,10 @@ namespace Stateless
             {
                 if (transition.IsReentry)
                 {
-                    ExecuteDeactivationActions();
                     ExecuteExitActions(transition);
                 }
                 else if (!Includes(transition.Destination))
                 {
-                    ExecuteDeactivationActions();
                     ExecuteExitActions(transition);
 
                     if (_superstate != null)
