@@ -6,6 +6,16 @@ using System.Linq;
 namespace Stateless
 {
     /// <summary>
+    /// Enum for the different modes used when Fire-ing a trigger
+    /// </summary>
+    public enum FiringMode
+    {
+        /// <summary> Use immediate mode when the queing of trigger events are not needed. Care must be taken when using this mode, as there is no run-to-completion guaranteed.</summary>
+        Immediate,
+        /// <summary> Use the queued Fire-ing mode when run-to-completion is required. This is the recommended mode.</summary>
+        Queued
+    }
+    /// <summary>
     /// Models behaviour as transitions between a finite set of states.
     /// </summary>
     /// <typeparam name="TState">The type used to represent the states.</typeparam>
@@ -18,6 +28,7 @@ namespace Stateless
         readonly Action<TState> _stateMutator;
         UnhandledTriggerAction _unhandledTriggerAction;
         OnTransitionedEvent _onTransitionedEvent;
+        private readonly FiringMode _firingMode;
 
         class QueuedTrigger
         {
@@ -33,21 +44,25 @@ namespace Stateless
         /// </summary>
         /// <param name="stateAccessor">A function that will be called to read the current state value.</param>
         /// <param name="stateMutator">An action that will be called to write new state values.</param>
-        public StateMachine(Func<TState> stateAccessor, Action<TState> stateMutator) : this()
+        /// <param name="firingMode">Optional specification of fireing mode.</param>
+        public StateMachine(Func<TState> stateAccessor, Action<TState> stateMutator, FiringMode firingMode = FiringMode.Queued) : this()
         {
             _stateAccessor = stateAccessor ?? throw new ArgumentNullException(nameof(stateAccessor));
             _stateMutator = stateMutator ?? throw new ArgumentNullException(nameof(stateMutator));
+            _firingMode = firingMode;
         }
 
         /// <summary>
         /// Construct a state machine.
         /// </summary>
         /// <param name="initialState">The initial state.</param>
-        public StateMachine(TState initialState) : this()
+        /// <param name="firingMode">Optional specification of fireing mode.</param>
+        public StateMachine(TState initialState, FiringMode firingMode = FiringMode.Queued) : this()
         {
             var reference = new StateReference { State = initialState };
             _stateAccessor = () => reference.State;
             _stateMutator = s => reference.State = s;
+            _firingMode = firingMode;
         }
 
         /// <summary>
@@ -249,6 +264,21 @@ namespace Stateless
         /// <param name="args">     A variable-length parameters list containing arguments. </param>
         void InternalFire(TTrigger trigger, params object[] args)
         {
+            switch (_firingMode)
+            {
+                case FiringMode.Immediate:
+                   InternalFireOne(trigger, args);
+                    return;
+                case FiringMode.Queued:
+                    InternalFireQueued(trigger, args);
+                    break;
+                default:
+                    throw new InvalidOperationException();
+            }
+        }
+        private void InternalFireQueued(TTrigger trigger, params object[] args)
+        {
+
             if (_firing)
             {
                 _eventQueue.Enqueue(new QueuedTrigger { Trigger = trigger, Args = args });
