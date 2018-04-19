@@ -56,18 +56,25 @@ namespace Stateless
 
             bool TryFindLocalHandler(TTrigger trigger, object[] args, out TriggerBehaviourResult handlerResult)
             {
+                // Get list of candidate trigger handlers
                 if (!_triggerBehaviours.TryGetValue(trigger, out ICollection<TriggerBehaviour> possible))
                 {
                     handlerResult = null;
                     return false;
                 }
 
-                // Guard functions executed
+                // Remove those that have unmet guard conditions
+                // Guard functions are executed here
                 var actual = possible
-                    .Select(h => new TriggerBehaviourResult(h, h.UnmetGuardConditions(args))).ToArray();
+                    .Select(h => new TriggerBehaviourResult(h, h.UnmetGuardConditions(args)))
+                    .Where(g => g.UnmetGuardConditions.Count == 0)
+                    .ToArray();
 
+                // Find a handler for the trigger
                 handlerResult = TryFindLocalHandlerResult(trigger, actual, r => !r.UnmetGuardConditions.Any())
                     ?? TryFindLocalHandlerResult(trigger, actual, r => r.UnmetGuardConditions.Any());
+
+                if (handlerResult == null) return false;
 
                 return !handlerResult.UnmetGuardConditions.Any();
             }
