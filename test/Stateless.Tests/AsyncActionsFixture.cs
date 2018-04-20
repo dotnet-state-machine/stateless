@@ -1,4 +1,4 @@
-﻿#if TASKS
+#if TASKS
 
 using System;
 using System.Threading.Tasks;
@@ -21,7 +21,7 @@ namespace Stateless.Tests
             sm.Configure(State.B)
               .OnEntryAsync(() => Task.Run(() => test = "foo"));
 
-            await sm.FireAsync(Trigger.X);
+            await sm.FireAsync(Trigger.X).ConfigureAwait(false);
 
             Assert.Equal("foo", test); // Should await action
             Assert.Equal(State.B, sm.State); // Should transition to destination state
@@ -51,7 +51,7 @@ namespace Stateless.Tests
               .OnExitAsync(() => Task.Run(() => test = "foo"))
               .Permit(Trigger.X, State.B);
 
-            await sm.FireAsync(Trigger.X);
+            await sm.FireAsync(Trigger.X).ConfigureAwait(false);
 
             Assert.Equal("foo", test); // Should await action
             Assert.Equal(State.B, sm.State); // Should transition to destination state
@@ -78,7 +78,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
               .InternalTransitionAsync(Trigger.X, () => Task.Run(() => test = "foo"));
 
-            await sm.FireAsync(Trigger.X);
+            await sm.FireAsync(Trigger.X).ConfigureAwait(false);
 
             Assert.Equal("foo", test); // Should await action
         }
@@ -105,7 +105,7 @@ namespace Stateless.Tests
             var test = "";
             sm.OnTransitionedAsync(_ => Task.Run(() => test = "foo"));
 
-            await sm.FireAsync(Trigger.X);
+            await sm.FireAsync(Trigger.X).ConfigureAwait(false);
 
             Assert.Equal("foo", test); // Should await action
         }
@@ -123,7 +123,7 @@ namespace Stateless.Tests
             sm.OnTransitioned(_ => test1 = "foo1");
             sm.OnTransitionedAsync(_ => Task.Run(() => test2 = "foo2"));
 
-            await sm.FireAsync(Trigger.X);
+            await sm.FireAsync(Trigger.X).ConfigureAwait(false);
 
             Assert.Equal("foo1", test1);
             Assert.Equal("foo2", test2);
@@ -153,7 +153,7 @@ namespace Stateless.Tests
             var test = "";
             sm.OnUnhandledTriggerAsync((s, t, u) => Task.Run(() => test = "foo"));
 
-            await sm.FireAsync(Trigger.Z);
+            await sm.FireAsync(Trigger.Z).ConfigureAwait(false);
 
             Assert.Equal("foo", test); // Should await action
         }
@@ -180,7 +180,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
               .OnActivateAsync(() => Task.Run(() => activated = true));
 
-            await sm.ActivateAsync();
+            await sm.ActivateAsync().ConfigureAwait(false);
 
             Assert.Equal(true, activated); // Should await action
         }
@@ -194,8 +194,8 @@ namespace Stateless.Tests
             sm.Configure(State.A)
               .OnDeactivateAsync(() => Task.Run(() => deactivated = true));
 
-            await sm.ActivateAsync();
-            await sm.DeactivateAsync();
+            await sm.ActivateAsync().ConfigureAwait(false);
+            await sm.DeactivateAsync().ConfigureAwait(false);
 
             Assert.Equal(true, deactivated); // Should await action
         }
@@ -241,7 +241,7 @@ namespace Stateless.Tests
                 .SubstateOf(State.B)
                 .OnExitAsync(t => Task.Run(() => onExitStateAfired = true));
 
-            await sm.FireAsync(Trigger.X);
+            await sm.FireAsync(Trigger.X).ConfigureAwait(false);
 
             Assert.Equal(State.B, sm.State);
             Assert.True(onExitStateAfired);
