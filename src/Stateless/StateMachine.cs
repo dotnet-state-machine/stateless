@@ -257,18 +257,17 @@ namespace Stateless
         }
 
         /// <summary>
-        /// Queue events and then fire in order.
-        /// If only one event is queued, this behaves identically to the non-queued version.
+        /// Determine how to Fire the trigger
         /// </summary>
-        /// <param name="trigger">  The trigger. </param>
-        /// <param name="args">     A variable-length parameters list containing arguments. </param>
+        /// <param name="trigger">The trigger. </param>
+        /// <param name="args">A variable-length parameters list containing arguments. </param>
         void InternalFire(TTrigger trigger, params object[] args)
         {
             switch (_firingMode)
             {
                 case FiringMode.Immediate:
                    InternalFireOne(trigger, args);
-                    return;
+                    break;
                 case FiringMode.Queued:
                     InternalFireQueued(trigger, args);
                     break;
@@ -276,9 +275,15 @@ namespace Stateless
                     throw new InvalidOperationException();
             }
         }
+        /// <summary>
+        /// Queue events and then fire in order.
+        /// If only one event is queued, this behaves identically to the non-queued version.
+        /// </summary>
+        /// <param name="trigger">  The trigger. </param>
+        /// <param name="args">     A variable-length parameters list containing arguments. </param>
         private void InternalFireQueued(TTrigger trigger, params object[] args)
         {
-
+            // If a trigger is already being handled then the trigger will be queued (FIFO) and processed later.
             if (_firing)
             {
                 _eventQueue.Enqueue(new QueuedTrigger { Trigger = trigger, Args = args });
@@ -290,7 +295,8 @@ namespace Stateless
                 _firing = true;
 
                 InternalFireOne(trigger, args);
-
+                
+                // Check if any other triggers have been queued, and fire those as well.
                 while (_eventQueue.Count != 0)
                 {
                     var queuedEvent = _eventQueue.Dequeue();
@@ -302,23 +308,31 @@ namespace Stateless
                 _firing = false;
             }
         }
-
+        /// <summary>
+        /// This method handles the execution of a trigger handler. It finds a
+        /// handle, then updates the current state information.
+        /// </summary>
+        /// <param name="trigger"></param>
+        /// <param name="args"></param>
         void InternalFireOne(TTrigger trigger, params object[] args)
         {
+            // If this is a trigger with parameters, we must validate the parameter(s)
             if (_triggerConfiguration.TryGetValue(trigger, out TriggerWithParameters configuration))
                 configuration.ValidateParameters(args);
 
             var source = State;
             var representativeState = GetRepresentation(source);
 
+            // Try to find a trigger handler, either in the current state or a super state.
             if (!representativeState.TryFindHandler(trigger, args, out TriggerBehaviourResult result))
             {
                 _unhandledTriggerAction.Execute(representativeState.UnderlyingState, trigger, result?.UnmetGuardConditions);
                 return;
             }
-
+            // Check if it is an internal transition, or a transition from one state to another.
             if (result.Handler.ResultsInTransitionFrom(source, args, out TState destination))
             {
+                // Handle transition, and set new state
                 var transition = new Transition(source, destination, trigger);
 
                 transition = representativeState.Exit(transition);
@@ -331,6 +345,7 @@ namespace Stateless
             }
             else
             {
+                // Internal transitions does not update the current state, but must execute the associated action.
                 var transition = new Transition(source, destination, trigger);
 
                 CurrentRepresentation.InternalAction(transition, args);
