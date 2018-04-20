@@ -295,7 +295,7 @@ namespace Stateless
 
                 State = transition.Destination;
                 var newRepresentation = GetRepresentation(transition.Destination);
-                _onTransitionedEvent.Invoke(transition);
+                _onTransitionedEvent.Invoke(new Transition(source, destination, trigger));
 
                 newRepresentation.Enter(transition, args);
             }
