@@ -49,19 +49,6 @@ namespace Stateless
                 _exitActions.Add(new ExitActionBehavior.Async(action, exitActionDescription));
             }
 
-            internal void AddInternalAction(TTrigger trigger, Func<Transition, object[], Task> action)
-            {
-                if (action == null) throw new ArgumentNullException(nameof(action));
-
-                _internalActions.Add(new InternalActionBehaviour.Async((t, args) =>
-                {
-                    if (t.Trigger.Equals(trigger))
-                        return action(t, args);
-
-                    return TaskResult.Done;
-                }));
-            }
-
             public async Task ActivateAsync()
             {
                 if (_superstate != null)
@@ -150,21 +137,24 @@ namespace Stateless
 
             async Task ExecuteInternalActionsAsync(Transition transition, object[] args)
             {
-                var possibleActions = new List<InternalActionBehaviour>();
+                InternalTriggerBehaviour.Async internalTransition = null;
 
-                // Look for actions in superstate(s) recursivly until we hit the topmost superstate
+                // Look for actions in superstate(s) recursivly until we hit the topmost superstate, or we actually find some trigger handlers.
                 StateRepresentation aStateRep = this;
-                do
+                while (aStateRep != null)
                 {
-                    possibleActions.AddRange(aStateRep._internalActions);
+                    if (aStateRep.TryFindLocalHandler(transition.Trigger, args, out TriggerBehaviourResult result))
+                    {
+                        // Trigger handler(s) found in this state
+                        internalTransition = result.Handler as InternalTriggerBehaviour.Async;
+                        break;
+                    }
+                    // Try to look for trigger handlers in superstate (if it exists)
                     aStateRep = aStateRep._superstate;
-                } while (aStateRep != null);
+                }
 
                 // Execute internal transition event handler
-                foreach (var action in possibleActions)
-                {
-                    await action.ExecuteAsync(transition, args).ConfigureAwait(false);
-                }
+                await (internalTransition?.ExecuteAsync(transition, args)).ConfigureAwait(false);
             }
 
             internal Task InternalActionAsync(Transition transition, object[] args)

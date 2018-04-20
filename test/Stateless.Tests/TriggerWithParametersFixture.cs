@@ -21,7 +21,7 @@ namespace Stateless.Tests
             var twp = new StateMachine<State, Trigger>.TriggerWithParameters<string>(Trigger.X);
             twp.ValidateParameters(new[] { "arg" });
         }
-
+        
         [Fact]
         public void ParametersArePolymorphic()
         {

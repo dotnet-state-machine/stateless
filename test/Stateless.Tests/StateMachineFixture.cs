@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using Xunit;
 
 namespace Stateless.Tests
@@ -112,7 +114,7 @@ namespace Stateless.Tests
             sm.Configure(State.C)
                 .Permit(Trigger.Y, State.A);
 
-            var permitted = sm.PermittedTriggers;
+            var permitted = sm.GetPermittedTriggers();
 
             Assert.True(permitted.Contains(Trigger.X));
             Assert.True(permitted.Contains(Trigger.Y));
@@ -131,7 +133,7 @@ namespace Stateless.Tests
             sm.Configure(State.C)
                 .Permit(Trigger.X, State.B);
 
-            var permitted = sm.PermittedTriggers;
+            var permitted = sm.GetPermittedTriggers();
             Assert.Equal(1, permitted.Count());
             Assert.Equal(Trigger.X, permitted.First());
         }
@@ -144,7 +146,7 @@ namespace Stateless.Tests
             sm.Configure(State.B)
                 .PermitIf(Trigger.X, State.A, () => false);
 
-            Assert.Equal(0, sm.PermittedTriggers.Count());
+            Assert.Equal(0, sm.GetPermittedTriggers().Count());
         }
 
         [Fact]
@@ -157,7 +159,7 @@ namespace Stateless.Tests
                     new Tuple<Func<bool>, string>(() => true, "1"),
                     new Tuple<Func<bool>, string>(() => false, "2"));
 
-            Assert.Equal(0, sm.PermittedTriggers.Count());
+            Assert.Equal(0, sm.GetPermittedTriggers().Count());
         }
 
         [Fact]
@@ -259,7 +261,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A).PermitIf(Trigger.X, State.B, () => false, guardDescription);
             var exception = Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
-            Assert.Equal(exception.Message, "Trigger 'X' is valid for transition from state 'A' but a guard conditions are not met. Guard descriptions: 'test'.");
+            Assert.Equal(typeof(InvalidOperationException), exception.GetType());
         }
 
         [Fact]
@@ -271,7 +273,7 @@ namespace Stateless.Tests
                 new Tuple<Func<bool>, string>(() => false, "test2"));
 
             var exception = Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
-            Assert.Equal(exception.Message, "Trigger 'X' is valid for transition from state 'A' but a guard conditions are not met. Guard descriptions: 'test1, test2'.");
+            Assert.Equal(typeof(InvalidOperationException), exception.GetType());
         }
 
         [Fact]
@@ -467,6 +469,227 @@ namespace Stateless.Tests
             Assert.True(onEntryStateBfired);
             Assert.True(onExitStateBfired);
             Assert.True(onExitStateAfired);
+        }
+
+        [Fact]
+        public void TransitionWhenParameterizedGuardTrue()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var x = sm.SetTriggerParameters<int>(Trigger.X);
+            sm.Configure(State.A).PermitIf(x, State.B, i => i == 2);
+            sm.Fire(x, 2);
+
+            Assert.Equal(sm.State, State.B);
+        }
+
+        [Fact]
+        public void ExceptionWhenParameterizedGuardFalse()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var x = sm.SetTriggerParameters<int>(Trigger.X);
+            sm.Configure(State.A).PermitIf(x, State.B, i => i == 3);
+
+            Assert.Throws<InvalidOperationException>(() => sm.Fire(x, 2));
+        }
+
+        [Fact]
+        public void TransitionWhenBothParameterizedGuardClausesTrue()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var x = sm.SetTriggerParameters<int>(Trigger.X);
+            var positiveGuard = Tuple.Create(new Func<int, bool>(o => o == 2), "Positive Guard");
+            var negativeGuard = Tuple.Create(new Func<int, bool>(o => o != 3), "Negative Guard");
+            sm.Configure(State.A).PermitIf(x, State.B, positiveGuard, negativeGuard);
+            sm.Fire(x, 2);
+
+            Assert.Equal(sm.State, State.B);
+        }
+
+        [Fact]
+        public void ExceptionWhenBothParameterizedGuardClausesFalse()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var x = sm.SetTriggerParameters<int>(Trigger.X);
+            // Create Two guards that both must be true
+            var positiveGuard = Tuple.Create(new Func<int, bool>(o => o == 2), "Positive Guard");
+            var negativeGuard = Tuple.Create(new Func<int, bool>(o => o != 3), "Negative Guard");
+            sm.Configure(State.A).PermitIf(x, State.B, positiveGuard, negativeGuard);
+
+            Assert.Throws<InvalidOperationException>(() => sm.Fire(x, 3));
+        }
+
+        [Fact]
+        public void TransitionWhenGuardReturnsTrueOnTriggerWithMultipleParameters()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var x = sm.SetTriggerParameters<string, int>(Trigger.X);
+            sm.Configure(State.A).PermitIf(x, State.B, (s, i) => s == "3" && i == 3);
+            sm.Fire(x, "3", 3);
+            Assert.Equal(sm.State, State.B);
+        }
+
+        [Fact]
+        public void ExceptionWhenGuardFalseOnTriggerWithMultipleParameters()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var x = sm.SetTriggerParameters<string, int>(Trigger.X);
+            sm.Configure(State.A).PermitIf(x, State.B, (s, i) => s == "3" && i == 3);
+            Assert.Equal(sm.State, State.A);
+
+            Assert.Throws<InvalidOperationException>(() => sm.Fire(x, "2", 2));
+            Assert.Throws<InvalidOperationException>(() => sm.Fire(x, "3", 2));
+            Assert.Throws<InvalidOperationException>(() => sm.Fire(x, "2", 3));
+        }
+
+        [Fact]
+        public void TransitionWhenPermitIfHasMultipleExclusiveGuards()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var x = sm.SetTriggerParameters<int>(Trigger.X);
+            sm.Configure(State.A)
+                .PermitIf(x, State.B, (i) => i == 3)
+                .PermitIf(x, State.C, (i) => i == 2);
+            sm.Fire(x, 3);
+            Assert.Equal(sm.State, State.B);
+        }
+
+        [Fact]
+        public void ExceptionWhenPermitIfHasMultipleNonExclusiveGuards()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var x = sm.SetTriggerParameters<int>(Trigger.X);
+            sm.Configure(State.A).PermitIf(x, State.B, (i) => i % 2 == 0)  // Is Even
+                .PermitIf(x, State.C, (i) => i == 2);
+
+            Assert.Throws<InvalidOperationException>(() => sm.Fire(x, 2));
+        }
+        
+        [Fact]
+        public void TransitionWhenPermitDyanmicIfHasMultipleExclusiveGuards()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var x = sm.SetTriggerParameters<int>(Trigger.X);
+            sm.Configure(State.A)
+                .PermitDynamicIf(x, (i) => i == 3 ? State.B : State.C, (i) => i == 3 || i == 5)
+                .PermitDynamicIf(x, (i) => i == 2 ? State.C : State.D, (i) => i == 2 || i == 4);
+            sm.Fire(x, 3);
+            Assert.Equal(sm.State, State.B);
+        }
+
+        [Fact]
+        public void ExceptionWhenPermitDyanmicIfHasMultipleNonExclusiveGuards()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var x = sm.SetTriggerParameters<int>(Trigger.X);
+            sm.Configure(State.A).PermitDynamicIf(x, (i) => i == 4 ? State.B : State.C, (i) => i % 2 == 0)
+                .PermitDynamicIf(x, (i) => i == 2 ? State.C : State.D, (i) => i == 2);
+
+            Assert.Throws<InvalidOperationException>(() => sm.Fire(x, 2));
+        }
+
+        [Fact]
+        public void TransitionWhenPermitIfHasMultipleExclusiveGuardsWithSuperStateTrue()
+        {
+            var sm = new StateMachine<State, Trigger>(State.B);
+            var x = sm.SetTriggerParameters<int>(Trigger.X);
+            sm.Configure(State.A).PermitIf(x, State.D, (i) => i == 3);
+            {
+                sm.Configure(State.B).SubstateOf(State.A).PermitIf(x, State.C, (i) => i == 2);
+            }
+            sm.Fire(x, 3);
+            Assert.Equal(sm.State, State.D);
+        }
+
+        [Fact]
+        public void TransitionWhenPermitIfHasMultipleExclusiveGuardsWithSuperStateFalse()
+        {
+            var sm = new StateMachine<State, Trigger>(State.B);
+            var x = sm.SetTriggerParameters<int>(Trigger.X);
+            sm.Configure(State.A).PermitIf(x, State.D, (i) => i == 3);
+            {
+                sm.Configure(State.B).SubstateOf(State.A).PermitIf(x, State.C, (i) => i == 2);
+            }
+            sm.Fire(x, 2);
+            Assert.Equal(sm.State, State.C);
+        }
+
+        [Fact]
+        public void TransitionWhenPermitReentryIfParameterizedGuardTrue()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var x = sm.SetTriggerParameters<int>(Trigger.X);
+            sm.Configure(State.A)
+                .PermitReentryIf(x, (i) => i == 3 );
+            sm.Fire(x, 3);
+            Assert.Equal(sm.State, State.A);
+        }
+
+        [Fact]
+        public void TransitionWhenPermitReentryIfParameterizedGuardFalse()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var x = sm.SetTriggerParameters<int>(Trigger.X);
+            sm.Configure(State.A)
+                .PermitReentryIf(x, (i) => i == 3);
+
+            Assert.Throws<InvalidOperationException>(() => sm.Fire(x, 2));
+        }
+
+        [Fact]
+        public void NoTransitionWhenIgnoreIfParameterizedGuardTrue()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var x = sm.SetTriggerParameters<int>(Trigger.X);
+            sm.Configure(State.A).IgnoreIf(x, (i) => i == 3);
+            sm.Fire(x, 3);
+
+            Assert.Equal(sm.State, State.A);
+        }
+
+        [Fact]
+        public void ExceptionWhenIgnoreIfParameterizedGuardFalse()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var x = sm.SetTriggerParameters<int>(Trigger.X);
+            sm.Configure(State.A).IgnoreIf(x, (i) => i == 3);
+
+            Assert.Throws<InvalidOperationException>(() => sm.Fire(x, 2));
+        }
+
+        /// <summary>
+        /// Verifies guard clauses are only called one time during a transition evaluation.
+        /// </summary>
+        [Fact]
+        public void GuardClauseCalledOnlyOnce()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            int i = 0;
+
+            sm.Configure(State.A).PermitIf(Trigger.X, State.B, () =>
+            {
+                ++i;
+                return true;
+            });
+
+            sm.Fire(Trigger.X);
+
+            Assert.Equal(1, i);
+        }
+        [Fact]
+        public void NoExceptionWhenPermitIfHasMultipleExclusiveGuardsBothFalse()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            bool onUnhandledTriggerWasCalled = false;
+            sm.OnUnhandledTrigger((s, t) => { onUnhandledTriggerWasCalled = true; });  // NEVER CALLED
+            int i = 0;
+            sm.Configure(State.A)
+                .PermitIf(Trigger.X, State.B, () => i == 2)
+                .PermitIf(Trigger.X, State.C, () => i == 1);
+
+            sm.Fire(Trigger.X);  // THROWS EXCEPTION
+
+            Assert.True(onUnhandledTriggerWasCalled, "OnUnhandledTrigger was called");
+            Assert.Equal(sm.State, State.A);
         }
     }
 }

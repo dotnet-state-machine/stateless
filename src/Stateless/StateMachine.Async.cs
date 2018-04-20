@@ -145,7 +145,7 @@ namespace Stateless
             var representativeState = GetRepresentation(source);
 
             TriggerBehaviourResult result;
-            if (!representativeState.TryFindHandler(trigger, out result))
+            if (!representativeState.TryFindHandler(trigger, args, out result))
             {
                 await _unhandledTriggerAction.ExecuteAsync(representativeState.UnderlyingState, trigger, result?.UnmetGuardConditions).ConfigureAwait(false);
                 return;
