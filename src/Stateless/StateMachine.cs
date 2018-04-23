@@ -15,6 +15,7 @@ namespace Stateless
         /// <summary> Use the queued Fire-ing mode when run-to-completion is required. This is the recommended mode.</summary>
         Queued
     }
+
     /// <summary>
     /// Models behaviour as transitions between a finite set of states.
     /// </summary>
@@ -22,22 +23,22 @@ namespace Stateless
     /// <typeparam name="TTrigger">The type used to represent the triggers that cause state transitions.</typeparam>
     public partial class StateMachine<TState, TTrigger>
     {
-        readonly IDictionary<TState, StateRepresentation> _stateConfiguration = new Dictionary<TState, StateRepresentation>();
-        readonly IDictionary<TTrigger, TriggerWithParameters> _triggerConfiguration = new Dictionary<TTrigger, TriggerWithParameters>();
-        readonly Func<TState> _stateAccessor;
-        readonly Action<TState> _stateMutator;
-        UnhandledTriggerAction _unhandledTriggerAction;
-        OnTransitionedEvent _onTransitionedEvent;
-        private readonly FiringMode _firingMode;
+        private readonly IDictionary<TState, StateRepresentation> _stateConfiguration = new Dictionary<TState, StateRepresentation>();
+        private readonly IDictionary<TTrigger, TriggerWithParameters> _triggerConfiguration = new Dictionary<TTrigger, TriggerWithParameters>();
+        private readonly Func<TState> _stateAccessor;
+        private readonly Action<TState> _stateMutator;
+        private UnhandledTriggerAction _unhandledTriggerAction;
+        private OnTransitionedEvent _onTransitionedEvent;
+        private readonly Action<TTrigger, object[]> _fireHandler = (t, u) => throw new InvalidOperationException("FireHandler has not been configured!");
 
-        class QueuedTrigger
+        private class QueuedTrigger
         {
             public TTrigger Trigger { get; set; }
             public object[] Args { get; set; }
         }
 
-        readonly Queue<QueuedTrigger> _eventQueue = new Queue<QueuedTrigger>();
-        bool _firing;
+        private readonly Queue<QueuedTrigger> _eventQueue = new Queue<QueuedTrigger>();
+        private bool _firing;
 
         /// <summary>
         /// Construct a state machine with external state storage.
@@ -49,7 +50,11 @@ namespace Stateless
         {
             _stateAccessor = stateAccessor ?? throw new ArgumentNullException(nameof(stateAccessor));
             _stateMutator = stateMutator ?? throw new ArgumentNullException(nameof(stateMutator));
-            _firingMode = firingMode;
+
+            if (firingMode == FiringMode.Queued)
+                _fireHandler = InternalFireQueued;
+            if (firingMode == FiringMode.Immediate)
+                _fireHandler = InternalFireOne;
         }
 
         /// <summary>
@@ -62,7 +67,11 @@ namespace Stateless
             var reference = new StateReference { State = initialState };
             _stateAccessor = () => reference.State;
             _stateMutator = s => reference.State = s;
-            _firingMode = firingMode;
+
+            if (firingMode == FiringMode.Queued)
+                _fireHandler = InternalFireQueued;
+            if (firingMode == FiringMode.Immediate)
+                _fireHandler = InternalFireOne;
         }
 
         /// <summary>
@@ -263,18 +272,9 @@ namespace Stateless
         /// <param name="args">A variable-length parameters list containing arguments. </param>
         void InternalFire(TTrigger trigger, params object[] args)
         {
-            switch (_firingMode)
-            {
-                case FiringMode.Immediate:
-                   InternalFireOne(trigger, args);
-                    break;
-                case FiringMode.Queued:
-                    InternalFireQueued(trigger, args);
-                    break;
-                default:
-                    throw new InvalidOperationException();
-            }
+            _fireHandler(trigger, args);
         }
+
         /// <summary>
         /// Queue events and then fire in order.
         /// If only one event is queued, this behaves identically to the non-queued version.
@@ -308,6 +308,7 @@ namespace Stateless
                 _firing = false;
             }
         }
+
         /// <summary>
         /// This method handles the execution of a trigger handler. It finds a
         /// handle, then updates the current state information.
