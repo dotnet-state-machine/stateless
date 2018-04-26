@@ -8,7 +8,7 @@ using System.Resources;
 [assembly: AssemblyCopyright("Copyright © Stateless Contributors 2009-2016")]
 
 // This value will remain fixed throughout the 4.x series.
-[assembly: AssemblyVersion("4.0.0.0")]
+[assembly: AssemblyVersion("4.1.0.0")]
 
 [assembly: InternalsVisibleTo("Stateless.Tests, PublicKey=" +
     "0024000004800000940000000602000000240000525341310004000001000100abebe581d3e209" +

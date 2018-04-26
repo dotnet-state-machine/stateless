@@ -45,8 +45,25 @@ namespace Stateless
         /// </summary>
         /// <param name="stateAccessor">A function that will be called to read the current state value.</param>
         /// <param name="stateMutator">An action that will be called to write new state values.</param>
+        public StateMachine(Func<TState> stateAccessor, Action<TState> stateMutator) :this(stateAccessor, stateMutator, FiringMode.Queued)
+        {
+        }
+
+        /// <summary>
+        /// Construct a state machine.
+        /// </summary>
+        /// <param name="initialState">The initial state.</param>
+        public StateMachine(TState initialState) : this(initialState, FiringMode.Queued)
+        {
+        }
+
+        /// <summary>
+        /// Construct a state machine with external state storage.
+        /// </summary>
+        /// <param name="stateAccessor">A function that will be called to read the current state value.</param>
+        /// <param name="stateMutator">An action that will be called to write new state values.</param>
         /// <param name="firingMode">Optional specification of fireing mode.</param>
-        public StateMachine(Func<TState> stateAccessor, Action<TState> stateMutator, FiringMode firingMode = FiringMode.Queued) : this()
+        public StateMachine(Func<TState> stateAccessor, Action<TState> stateMutator, FiringMode firingMode) : this()
         {
             _stateAccessor = stateAccessor ?? throw new ArgumentNullException(nameof(stateAccessor));
             _stateMutator = stateMutator ?? throw new ArgumentNullException(nameof(stateMutator));
@@ -62,7 +79,7 @@ namespace Stateless
         /// </summary>
         /// <param name="initialState">The initial state.</param>
         /// <param name="firingMode">Optional specification of fireing mode.</param>
-        public StateMachine(TState initialState, FiringMode firingMode = FiringMode.Queued) : this()
+        public StateMachine(TState initialState, FiringMode firingMode) : this()
         {
             var reference = new StateReference { State = initialState };
             _stateAccessor = () => reference.State;
@@ -73,6 +90,7 @@ namespace Stateless
             if (firingMode == FiringMode.Immediate)
                 _fireHandler = InternalFireOne;
         }
+
 
         /// <summary>
         /// Default constuctor
