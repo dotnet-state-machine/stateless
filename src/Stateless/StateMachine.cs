@@ -293,7 +293,7 @@ namespace Stateless
                     InternalFireQueued(trigger, args);
                     break;
                 default:
-                    // If something is completely messed up we løet the user know ;-)
+                    // If something is completely messed up we let the user know ;-)
                     throw new InvalidOperationException("The firing mode has not been configured!");
             }
         }
