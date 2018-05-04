@@ -76,7 +76,7 @@ namespace Stateless.Tests
 
             var test = "";
             sm.Configure(State.A)
-              .InternalTransitionAsync(Trigger.X, () => Task.Run(() => test = "foo"));
+              .InternalTransitionAsync(Trigger.X, async () => await Task.Run(() => test = "foo"));
 
             await sm.FireAsync(Trigger.X).ConfigureAwait(false);
 
@@ -89,7 +89,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-              .InternalTransitionAsync(Trigger.X, () => TaskResult.Done);
+              .InternalTransitionAsync(Trigger.X, async () => await TaskResult.Done);
 
             Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
         }
