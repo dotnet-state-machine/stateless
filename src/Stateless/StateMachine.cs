@@ -29,7 +29,7 @@ namespace Stateless
         private readonly Action<TState> _stateMutator;
         private UnhandledTriggerAction _unhandledTriggerAction;
         private OnTransitionedEvent _onTransitionedEvent;
-        private readonly Action<TTrigger, object[]> _fireHandler = (t, u) => throw new InvalidOperationException("FireHandler has not been configured!");
+        private readonly FiringMode _firingMode;
 
         private class QueuedTrigger
         {
@@ -68,10 +68,7 @@ namespace Stateless
             _stateAccessor = stateAccessor ?? throw new ArgumentNullException(nameof(stateAccessor));
             _stateMutator = stateMutator ?? throw new ArgumentNullException(nameof(stateMutator));
 
-            if (firingMode == FiringMode.Queued)
-                _fireHandler = InternalFireQueued;
-            if (firingMode == FiringMode.Immediate)
-                _fireHandler = InternalFireOne;
+            _firingMode = firingMode;
         }
 
         /// <summary>
@@ -85,10 +82,7 @@ namespace Stateless
             _stateAccessor = () => reference.State;
             _stateMutator = s => reference.State = s;
 
-            if (firingMode == FiringMode.Queued)
-                _fireHandler = InternalFireQueued;
-            if (firingMode == FiringMode.Immediate)
-                _fireHandler = InternalFireOne;
+            _firingMode = firingMode; ;
         }
 
 
@@ -290,7 +284,18 @@ namespace Stateless
         /// <param name="args">A variable-length parameters list containing arguments. </param>
         void InternalFire(TTrigger trigger, params object[] args)
         {
-            _fireHandler(trigger, args);
+            switch (_firingMode)
+            {
+                case FiringMode.Immediate:
+                    InternalFireOne(trigger, args);
+                    break;
+                case FiringMode.Queued:
+                    InternalFireQueued(trigger, args);
+                    break;
+                default:
+                    // If something is completely messed up we let the user know ;-)
+                    throw new InvalidOperationException("The firing mode has not been configured!");
+            }
         }
 
         /// <summary>

@@ -104,13 +104,35 @@ namespace Stateless
 
             return InternalFireAsync(trigger.Trigger, arg0, arg1, arg2);
         }
+
+        /// <summary>
+        /// Determine how to Fire the trigger
+        /// </summary>
+        /// <param name="trigger">The trigger. </param>
+        /// <param name="args">A variable-length parameters list containing arguments. </param>
+        async Task InternalFireAsync(TTrigger trigger, params object[] args)
+        {
+            switch (_firingMode)
+            {
+                case FiringMode.Immediate:
+                    await InternalFireOneAsync(trigger, args);
+                    break;
+                case FiringMode.Queued:
+                    await InternalFireQueuedAsync(trigger, args);
+                    break;
+                default:
+                    // If something is completely messed up we let the user know ;-)
+                    throw new InvalidOperationException("The firing mode has not been configured!");
+            }
+        }
+
         /// <summary>
         /// Queue events and then fire in order.
         /// If only one event is queued, this behaves identically to the non-queued version.
         /// </summary>
         /// <param name="trigger">  The trigger. </param>
         /// <param name="args">     A variable-length parameters list containing arguments. </param>
-        async Task InternalFireAsync(TTrigger trigger, params object[] args)
+        async Task InternalFireQueuedAsync(TTrigger trigger, params object[] args)
         {
             if (_firing)
             {
