@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Stateless.Tests
@@ -272,6 +273,20 @@ namespace Stateless.Tests
             sm.Fire(Trigger.Y);
 
             Assert.Equal(2, handled);
+        }
+        [Fact]
+        public async Task AsyncHandlesNonAsyndActionAsync()
+        {
+            var handled = false;
+
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .InternalTransition(Trigger.Y, () => handled=true);
+
+            await sm.FireAsync(Trigger.Y);
+
+            Assert.True(handled);
         }
     }
 }
