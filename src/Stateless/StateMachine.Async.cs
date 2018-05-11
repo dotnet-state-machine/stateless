@@ -190,7 +190,7 @@ namespace Stateless
                     {
                         var initialTransition = new Transition(source, newRepresentation.InitialTransitionTarget, trigger);
                         newRepresentation = GetRepresentation(newRepresentation.InitialTransitionTarget);
-                        await newRepresentation.EnterAsync(initialTransition);
+                        await newRepresentation.EnterAsync(initialTransition, args);
                         State = newRepresentation.UnderlyingState;
                     }
                     //Alert all listeners of state transition

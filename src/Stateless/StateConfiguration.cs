@@ -1675,7 +1675,7 @@ namespace Stateless
                 return this;
             }
             /// <summary>
-            ///  Adds internal transition to this state. When entering the current state the state machine will look for an initial transition, and Enter the target state.
+            ///  Adds internal transition to this state. When entering the current state the state machine will look for an initial transition, and enter the target state.
             /// </summary>
             /// <param name="targetState">The target initial state</param>
             /// <returns>A stateConfiguration object</returns>

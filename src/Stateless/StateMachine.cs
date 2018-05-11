@@ -372,7 +372,7 @@ namespace Stateless
                     {
                         var initialTransition = new Transition(source, newRepresentation.InitialTransitionTarget, trigger);
                         newRepresentation = GetRepresentation(newRepresentation.InitialTransitionTarget);
-                        newRepresentation.Enter(initialTransition);
+                        newRepresentation.Enter(initialTransition, args);
                         State = newRepresentation.UnderlyingState;
                     }
                     //Alert all listeners of state transition
