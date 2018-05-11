@@ -32,6 +32,7 @@ namespace Stateless
             bool active;
 
             readonly ICollection<StateRepresentation> _substates = new List<StateRepresentation>();
+            public TState InitialTransitionTarget { get; private set; } = default(TState);
 
             public StateRepresentation(TState state)
             {
@@ -291,6 +292,18 @@ namespace Stateless
                     result = result.Union(Superstate.GetPermittedTriggers(args));
 
                 return result.ToArray();
+            }
+
+            internal void SetInitialTransition(TState state)
+            {
+                InitialTransitionTarget = state;
+            }
+
+            public bool HasInitialTransition()
+            {
+                if (InitialTransitionTarget == null) return false;
+
+                return !InitialTransitionTarget.Equals(default(TState));
             }
         }
     }

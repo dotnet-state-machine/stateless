@@ -1674,6 +1674,16 @@ namespace Stateless
                     ));
                 return this;
             }
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="state"></param>
+            /// <returns></returns>
+            public StateConfiguration InitialTransition(TState state)
+            {
+                _representation.SetInitialTransition(state);
+                return this;
+            }
         }
     }
 }

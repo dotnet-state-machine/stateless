@@ -363,9 +363,28 @@ namespace Stateless
 
                 State = transition.Destination;
                 var newRepresentation = GetRepresentation(transition.Destination);
-                _onTransitionedEvent.Invoke(new Transition(source, destination, trigger));
 
-                newRepresentation.Enter(transition, args);
+                // Check if there is an intital transition configured
+                if (newRepresentation.HasInitialTransition())
+                {
+                    // Check if state has substate(s), and if an initial transition(s) has been set up.
+                    while (newRepresentation.GetSubstates().Any() && newRepresentation.HasInitialTransition())
+                    {
+                        var initialTransition = new Transition(source, newRepresentation.InitialTransitionTarget, trigger);
+                        newRepresentation = GetRepresentation(newRepresentation.InitialTransitionTarget);
+                        newRepresentation.Enter(initialTransition);
+                        State = newRepresentation.UnderlyingState;
+                    }
+                    //Alert all listeners of state transition
+                    _onTransitionedEvent.Invoke(new Transition(source, destination, trigger));
+                }
+                else
+                {
+                    //Alert all listeners of state transition
+                    _onTransitionedEvent.Invoke(new Transition(source, destination, trigger));
+
+                    newRepresentation.Enter(transition, args);
+                }
             }
             else
             {
