@@ -1675,13 +1675,13 @@ namespace Stateless
                 return this;
             }
             /// <summary>
-            /// 
+            ///  Adds internal transition to this state. When entering the current state the state machine will look for an initial transition, and Enter the target state.
             /// </summary>
-            /// <param name="state"></param>
-            /// <returns></returns>
-            public StateConfiguration InitialTransition(TState state)
+            /// <param name="targetState">The target initial state</param>
+            /// <returns>A stateConfiguration object</returns>
+            public StateConfiguration InitialTransition(TState targetState)
             {
-                _representation.SetInitialTransition(state);
+                _representation.SetInitialTransition(targetState);
                 return this;
             }
         }
