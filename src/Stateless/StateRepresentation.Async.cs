@@ -137,7 +137,7 @@ namespace Stateless
 
             async Task ExecuteInternalActionsAsync(Transition transition, object[] args)
             {
-                InternalTriggerBehaviour.Async internalTransition = null;
+                InternalTriggerBehaviour internalTransition = null;
 
                 // Look for actions in superstate(s) recursivly until we hit the topmost superstate, or we actually find some trigger handlers.
                 StateRepresentation aStateRep = this;
@@ -146,7 +146,7 @@ namespace Stateless
                     if (aStateRep.TryFindLocalHandler(transition.Trigger, args, out TriggerBehaviourResult result))
                     {
                         // Trigger handler(s) found in this state
-                        internalTransition = result.Handler as InternalTriggerBehaviour.Async;
+                        internalTransition = result.Handler as InternalTriggerBehaviour;
                         break;
                     }
                     // Try to look for trigger handlers in superstate (if it exists)
@@ -154,7 +154,7 @@ namespace Stateless
                 }
 
                 // Execute internal transition event handler
-                await (internalTransition?.ExecuteAsync(transition, args)).ConfigureAwait(false);
+                await (internalTransition.ExecuteAsync(transition, args)).ConfigureAwait(false);
             }
 
             internal Task InternalActionAsync(Transition transition, object[] args)
