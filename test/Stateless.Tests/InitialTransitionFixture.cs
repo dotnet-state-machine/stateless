@@ -119,5 +119,70 @@ namespace Stateless.Tests
             await sm.FireAsync(Trigger.X);
             Assert.Equal(State.B, sm.State);
         }
+        [Fact]
+        public void DoNotAllowTransitionToSelf()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            Assert.Throws(typeof(ArgumentException), () =>
+
+            // This configuration would create an infinite loop
+            sm.Configure(State.A)
+                .InitialTransition(State.A)
+            
+            );
+        }
+
+        [Fact]
+        public void DoNotAllowTransitionToAnotherSuperstate()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A).Permit(Trigger.X, State.B);
+
+            sm.Configure(State.B)
+                .InitialTransition(State.A); // Invalid configuration, State a is a superstate
+
+            Assert.Throws(typeof(InvalidOperationException), () =>
+            sm.Fire(Trigger.X)
+
+            );
+        }
+        [Fact]
+        public async void DoNotAllowTransitionToAnotherSuperstateAsync()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A).Permit(Trigger.X, State.B);
+
+            sm.Configure(State.B)
+                .InitialTransition(State.A);
+
+            await Assert.ThrowsAsync (typeof(InvalidOperationException), async () =>
+            await sm.FireAsync(Trigger.X)
+
+            );
+        }
+
+        [Fact]
+        public void DoNotAllowMoreThanOneInitialTransition()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A).Permit(Trigger.X, State.B);
+
+
+            sm.Configure(State.B)
+                .InitialTransition(State.C);
+
+
+            Assert.Throws(typeof(InvalidOperationException), () =>
+
+                sm.Configure(State.B)
+                .InitialTransition(State.A)
+
+            );
+
+        }
     }
 }

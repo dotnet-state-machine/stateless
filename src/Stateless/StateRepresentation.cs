@@ -297,14 +297,9 @@ namespace Stateless
             internal void SetInitialTransition(TState state)
             {
                 InitialTransitionTarget = state;
+                HasInitialTransition = true;
             }
-
-            public bool HasInitialTransition()
-            {
-                if (InitialTransitionTarget == null) return false;
-
-                return !InitialTransitionTarget.Equals(default(TState));
-            }
+            public bool HasInitialTransition { get; private set; }
         }
     }
 }

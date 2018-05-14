@@ -183,10 +183,15 @@ namespace Stateless
                 State = transition.Destination;
                 var newRepresentation = GetRepresentation(transition.Destination);
                 // Check if there is an intital transition configured
-                if (newRepresentation.HasInitialTransition())
+                if (newRepresentation.HasInitialTransition)
                 {
+                    // Verify that the target state is a substate
+                    if (!newRepresentation.GetSubstates().Where(s => s.UnderlyingState.Equals(newRepresentation.InitialTransitionTarget)).Any())
+                    {
+                        throw new InvalidOperationException($"The target ({newRepresentation.InitialTransitionTarget}) for the initial transition is not a substate.");
+                    }
                     // Check if state has substate(s), and if an initial transition(s) has been set up.
-                    while (newRepresentation.GetSubstates().Any() && newRepresentation.HasInitialTransition())
+                    while (newRepresentation.GetSubstates().Any() && newRepresentation.HasInitialTransition)
                     {
                         var initialTransition = new Transition(source, newRepresentation.InitialTransitionTarget, trigger);
                         newRepresentation = GetRepresentation(newRepresentation.InitialTransitionTarget);
