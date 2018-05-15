@@ -56,6 +56,11 @@ namespace Stateless.Reflection
                     var destinationInfo = lookupState(((StateMachine<TState, TTrigger>.TransitioningTriggerBehaviour)item).Destination);
                     fixedTransitions.Add(FixedTransitionInfo.Create(item, destinationInfo));
                 }
+                foreach (var item in triggerBehaviours.Value.Where(behaviour => (behaviour is StateMachine<TState, TTrigger>.ReentryTriggerBehaviour)))
+                {
+                    var destinationInfo = lookupState(((StateMachine<TState, TTrigger>.ReentryTriggerBehaviour)item).Destination);
+                    fixedTransitions.Add(FixedTransitionInfo.Create(item, destinationInfo));
+                }
                 //Then add all the internal transitions
                 foreach (var item in triggerBehaviours.Value.Where(behaviour => (behaviour is StateMachine<TState, TTrigger>.InternalTriggerBehaviour)))
                 {
