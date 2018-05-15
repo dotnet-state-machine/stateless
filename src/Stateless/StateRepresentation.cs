@@ -182,10 +182,23 @@ namespace Stateless
                     ExecuteDeactivationActions();
                     ExecuteExitActions(transition);
 
+                    // Must check if there is a superstate, and if we are leaving that superstate
                     if (_superstate != null)
                     {
-                        transition = new Transition(_superstate.UnderlyingState, transition.Destination, transition.Trigger);
-                         return _superstate.Exit(transition);
+                        // Check if destination is within the state list
+                        if (IsIncludedIn(transition.Destination))
+                        {
+                            // Destination state is within the list, exit first superstate only if it is NOT the the first
+                            if (!_superstate.UnderlyingState.Equals(transition.Destination))
+                            {
+                                return _superstate.Exit(transition);
+                            }
+                        }
+                        else
+                        {
+                            // Exit the superstate as well
+                            return _superstate.Exit(transition);
+                        }
                     }
                 }
                 return transition;
