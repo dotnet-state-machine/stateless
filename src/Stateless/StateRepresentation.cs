@@ -28,8 +28,6 @@ namespace Stateless
             readonly ICollection<DeactivateActionBehaviour> _deactivateActions = new List<DeactivateActionBehaviour>();
             internal ICollection<DeactivateActionBehaviour> DeactivateActions { get { return _deactivateActions; } }
 
-            readonly ICollection<InternalActionBehaviour> _internalActions = new List<InternalActionBehaviour>();
-
             StateRepresentation _superstate; // null
             bool active;
 
@@ -45,31 +43,38 @@ namespace Stateless
                 return _substates;
             }
 
-            public bool CanHandle(TTrigger trigger)
+            public bool CanHandle(TTrigger trigger, params object[] args)
             {
-                return TryFindHandler(trigger, out TriggerBehaviourResult unused);
+                return TryFindHandler(trigger, args, out TriggerBehaviourResult unused);
             }
 
-            public bool TryFindHandler(TTrigger trigger, out TriggerBehaviourResult handler)
+            public bool TryFindHandler(TTrigger trigger, object[] args, out TriggerBehaviourResult handler)
             {
-                return (TryFindLocalHandler(trigger, out handler) ||
-                    (Superstate != null && Superstate.TryFindHandler(trigger, out handler)));
+                return (TryFindLocalHandler(trigger, args, out handler) ||
+                    (Superstate != null && Superstate.TryFindHandler(trigger, args, out handler)));
             }
 
-            bool TryFindLocalHandler(TTrigger trigger, out TriggerBehaviourResult handlerResult)
+            bool TryFindLocalHandler(TTrigger trigger, object[] args, out TriggerBehaviourResult handlerResult)
             {
+                // Get list of candidate trigger handlers
                 if (!_triggerBehaviours.TryGetValue(trigger, out ICollection<TriggerBehaviour> possible))
                 {
                     handlerResult = null;
                     return false;
                 }
 
-                // Guard functions executed
+                // Remove those that have unmet guard conditions
+                // Guard functions are executed here
                 var actual = possible
-                    .Select(h => new TriggerBehaviourResult(h, h.UnmetGuardConditions));
+                    .Select(h => new TriggerBehaviourResult(h, h.UnmetGuardConditions(args)))
+                    .Where(g => g.UnmetGuardConditions.Count == 0)
+                    .ToArray();
 
+                // Find a handler for the trigger
                 handlerResult = TryFindLocalHandlerResult(trigger, actual, r => !r.UnmetGuardConditions.Any())
                     ?? TryFindLocalHandlerResult(trigger, actual, r => r.UnmetGuardConditions.Any());
+
+                if (handlerResult == null) return false;
 
                 return !handlerResult.UnmetGuardConditions.Any();
             }
@@ -110,17 +115,6 @@ namespace Stateless
             public void AddExitAction(Action<Transition> action, Reflection.InvocationInfo exitActionDescription)
             {
                 _exitActions.Add(new ExitActionBehavior.Sync(action, exitActionDescription));
-            }
-
-            internal void AddInternalAction(TTrigger trigger, Action<Transition, object[]> action)
-            {
-                if (action == null) throw new ArgumentNullException(nameof(action));
-
-                _internalActions.Add(new InternalActionBehaviour.Sync((t, args) =>
-                {
-                    if (t.Trigger.Equals(trigger))
-                        action(t, args);
-                }));
             }
 
             public void Activate()
@@ -176,7 +170,7 @@ namespace Stateless
                 }
             }
 
-            public void Exit(Transition transition)
+            public Transition Exit(Transition transition)
             {
                 if (transition.IsReentry)
                 {
@@ -188,9 +182,26 @@ namespace Stateless
                     ExecuteDeactivationActions();
                     ExecuteExitActions(transition);
 
+                    // Must check if there is a superstate, and if we are leaving that superstate
                     if (_superstate != null)
-                        _superstate.Exit(transition);
+                    {
+                        // Check if destination is within the state list
+                        if (IsIncludedIn(transition.Destination))
+                        {
+                            // Destination state is within the list, exit first superstate only if it is NOT the the first
+                            if (!_superstate.UnderlyingState.Equals(transition.Destination))
+                            {
+                                return _superstate.Exit(transition);
+                            }
+                        }
+                        else
+                        {
+                            // Exit the superstate as well
+                            return _superstate.Exit(transition);
+                        }
+                    }
                 }
+                return transition;
             }
 
             void ExecuteEntryActions(Transition transition, object[] entryArgs)
@@ -206,16 +217,19 @@ namespace Stateless
             }
             internal void InternalAction(Transition transition, object[] args)
             {
-                var possibleActions = new List<InternalActionBehaviour>();
+                InternalTriggerBehaviour.Sync internalTransition = null;
 
                 // Look for actions in superstate(s) recursivly until we hit the topmost superstate, or we actually find some trigger handlers.
                 StateRepresentation aStateRep = this;
                 while (aStateRep != null)
                 {
-                    if (aStateRep.TryFindLocalHandler(transition.Trigger, out TriggerBehaviourResult result))
+                    if (aStateRep.TryFindLocalHandler(transition.Trigger, args, out TriggerBehaviourResult result))
                     {
-                        // Trigger handler(s) found in this state
-                        possibleActions.AddRange(aStateRep._internalActions);
+                        // Trigger handler found in this state
+                        if (result.Handler is InternalTriggerBehaviour.Async)
+                            throw new InvalidOperationException("Running Async internal actions in synchronous mode is not allowed");
+
+                        internalTransition = result.Handler as InternalTriggerBehaviour.Sync;
                         break;
                     }
                     // Try to look for trigger handlers in superstate (if it exists)
@@ -223,10 +237,7 @@ namespace Stateless
                 }
 
                 // Execute internal transition event handler
-                foreach (var action in possibleActions)
-                {
-                    action.Execute(transition, args);
-                }
+                internalTransition?.InternalAction(transition, args);
             }
             public void AddTriggerBehaviour(TriggerBehaviour triggerBehaviour)
             {
@@ -275,19 +286,24 @@ namespace Stateless
                     (_superstate != null && _superstate.IsIncludedIn(state));
             }
 
-            public IEnumerable<TTrigger> PermittedTriggers
+			public IEnumerable<TTrigger> PermittedTriggers
+			{
+				get
+				{
+					return GetPermittedTriggers();
+				}
+			}
+
+            public IEnumerable<TTrigger> GetPermittedTriggers(params object[] args)
             {
-                get
-                {
-                    var result = _triggerBehaviours
-                        .Where(t => t.Value.Any(a => !a.UnmetGuardConditions.Any()))
-                        .Select(t => t.Key);
+                var result = _triggerBehaviours
+                    .Where(t => t.Value.Any(a => !a.UnmetGuardConditions(args).Any()))
+                    .Select(t => t.Key);
 
-                    if (Superstate != null)
-                        result = result.Union(Superstate.PermittedTriggers);
+                if (Superstate != null)
+                    result = result.Union(Superstate.GetPermittedTriggers(args));
 
-                    return result.ToArray();
-                }
+                return result.ToArray();
             }
         }
     }

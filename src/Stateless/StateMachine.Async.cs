@@ -1,4 +1,4 @@
-﻿#if TASKS
+#if TASKS
 
 using System;
 using System.Collections.Generic;
@@ -104,13 +104,35 @@ namespace Stateless
 
             return InternalFireAsync(trigger.Trigger, arg0, arg1, arg2);
         }
+
+        /// <summary>
+        /// Determine how to Fire the trigger
+        /// </summary>
+        /// <param name="trigger">The trigger. </param>
+        /// <param name="args">A variable-length parameters list containing arguments. </param>
+        async Task InternalFireAsync(TTrigger trigger, params object[] args)
+        {
+            switch (_firingMode)
+            {
+                case FiringMode.Immediate:
+                    await InternalFireOneAsync(trigger, args);
+                    break;
+                case FiringMode.Queued:
+                    await InternalFireQueuedAsync(trigger, args);
+                    break;
+                default:
+                    // If something is completely messed up we let the user know ;-)
+                    throw new InvalidOperationException("The firing mode has not been configured!");
+            }
+        }
+
         /// <summary>
         /// Queue events and then fire in order.
         /// If only one event is queued, this behaves identically to the non-queued version.
         /// </summary>
         /// <param name="trigger">  The trigger. </param>
         /// <param name="args">     A variable-length parameters list containing arguments. </param>
-        async Task InternalFireAsync(TTrigger trigger, params object[] args)
+        async Task InternalFireQueuedAsync(TTrigger trigger, params object[] args)
         {
             if (_firing)
             {
@@ -122,12 +144,12 @@ namespace Stateless
             {
                 _firing = true;
 
-                await InternalFireOneAsync(trigger, args);
+                await InternalFireOneAsync(trigger, args).ConfigureAwait(false);
 
                 while (_eventQueue.Count != 0)
                 {
                     var queuedEvent = _eventQueue.Dequeue();
-                    await InternalFireOneAsync(queuedEvent.Trigger, queuedEvent.Args);
+                    await InternalFireOneAsync(queuedEvent.Trigger, queuedEvent.Args).ConfigureAwait(false);
                 }
             }
             finally
@@ -145,9 +167,9 @@ namespace Stateless
             var representativeState = GetRepresentation(source);
 
             TriggerBehaviourResult result;
-            if (!representativeState.TryFindHandler(trigger, out result))
+            if (!representativeState.TryFindHandler(trigger, args, out result))
             {
-                await _unhandledTriggerAction.ExecuteAsync(representativeState.UnderlyingState, trigger, result?.UnmetGuardConditions);
+                await _unhandledTriggerAction.ExecuteAsync(representativeState.UnderlyingState, trigger, result?.UnmetGuardConditions).ConfigureAwait(false);
                 return;
             }
 
@@ -156,19 +178,19 @@ namespace Stateless
             {
                 var transition = new Transition(source, destination, trigger);
 
-                await representativeState.ExitAsync(transition);
+                transition = await representativeState.ExitAsync(transition).ConfigureAwait(false);
 
                 State = transition.Destination;
                 var newRepresentation = GetRepresentation(transition.Destination);
-                await _onTransitionedEvent.InvokeAsync(transition);
+                await _onTransitionedEvent.InvokeAsync(transition).ConfigureAwait(false);
 
-                await newRepresentation.EnterAsync(transition, args);
+                await newRepresentation.EnterAsync(transition, args).ConfigureAwait(false);
             }
             else
             {
                 var transition = new Transition(source, destination, trigger);
 
-                await CurrentRepresentation.InternalActionAsync(transition, args);
+                await CurrentRepresentation.InternalActionAsync(transition, args).ConfigureAwait(false);
             }
         }
 
