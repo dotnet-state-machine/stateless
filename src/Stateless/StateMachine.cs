@@ -144,8 +144,10 @@ namespace Stateless
         {
             var representations = _stateConfiguration.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
-            var reachable = _stateConfiguration
-                .SelectMany(kvp => kvp.Value.TriggerBehaviours.SelectMany(b => b.Value.OfType<TransitioningTriggerBehaviour>().Select(tb => tb.Destination)))
+            var behaviours = _stateConfiguration.SelectMany(kvp => kvp.Value.TriggerBehaviours.SelectMany(b => b.Value.OfType<TransitioningTriggerBehaviour>().Select(tb => tb.Destination))).ToList();
+            behaviours.AddRange(_stateConfiguration.SelectMany(kvp => kvp.Value.TriggerBehaviours.SelectMany(b => b.Value.OfType<ReentryTriggerBehaviour>().Select(tb => tb.Destination))).ToList());
+
+            var reachable = behaviours
                 .Distinct()
                 .Except(representations.Keys)
                 .Select(underlying => new StateRepresentation(underlying))
@@ -353,8 +355,24 @@ namespace Stateless
                 _unhandledTriggerAction.Execute(representativeState.UnderlyingState, trigger, result?.UnmetGuardConditions);
                 return;
             }
+            // Handle special case, re-entry in superstate
+            if (result.Handler is ReentryTriggerBehaviour handler)
+            {
+                // Handle transition, and set new state
+                var transition = new Transition(source, handler.Destination, trigger);
+                transition = representativeState.Exit(transition);
+                State = transition.Destination;
+                var newRepresentation = GetRepresentation(transition.Destination);
+
+                // Then Exit the final superstate
+                transition = new Transition(handler.Destination, handler.Destination, trigger);
+                newRepresentation.Exit(transition);
+                _onTransitionedEvent.Invoke(new Transition(source, handler.Destination, trigger));
+
+                newRepresentation.Enter(transition, args);
+            }
             // Check if it is an internal transition, or a transition from one state to another.
-            if (result.Handler.ResultsInTransitionFrom(source, args, out TState destination))
+            else if (result.Handler.ResultsInTransitionFrom(source, args, out TState destination))
             {
                 // Handle transition, and set new state
                 var transition = new Transition(source, destination, trigger);

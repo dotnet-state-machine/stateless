@@ -691,5 +691,32 @@ namespace Stateless.Tests
             Assert.True(onUnhandledTriggerWasCalled, "OnUnhandledTrigger was called");
             Assert.Equal(sm.State, State.A);
         }
+
+        [Fact]
+        public void TransitionToSuperstateDoesNotExitSuperstate()
+        {
+            StateMachine<State, Trigger> sm = new StateMachine<State, Trigger>(State.B);
+
+            bool superExit = false;
+            bool superEntry = false;
+            bool subExit = false;
+
+            sm.Configure(State.A)
+                .OnEntry(() => superEntry = true)
+                .OnExit(() => superExit= true);
+
+            sm.Configure(State.B)
+                .SubstateOf(State.A)
+                .Permit(Trigger.Y, State.A)
+                .OnExit(() => subExit = true);
+
+            sm.Fire(Trigger.Y);
+
+            Assert.True(subExit);
+            Assert.False(superEntry);
+            Assert.False(superExit);
+        }
+
+
     }
 }

@@ -80,7 +80,7 @@ Another example can be found in the JsonExample solutioni, located in the exampl
 
 ### Introspection
 
-The state machine can provide a list of the triggers than can be successfully fired within the current state via the `StateMachine.PermittedTriggers` property.
+The state machine can provide a list of the triggers than can be successfully fired within the current state via the `StateMachine.PermittedTriggers` property. Use `StateMachine.GetInfo()` to retreive information about the state configuration.
 
 ### Guard Clauses
 

@@ -463,7 +463,7 @@ namespace Stateless
             /// </remarks>
             public StateConfiguration PermitReentry(TTrigger trigger)
             {
-                return InternalPermit(trigger, _representation.UnderlyingState);
+                return InternalPermitReentryIf(trigger, _representation.UnderlyingState, null);
             }
 
             /// <summary>
@@ -481,7 +481,7 @@ namespace Stateless
             /// </remarks>
             public StateConfiguration PermitReentryIf(TTrigger trigger, Func<bool> guard, string guardDescription = null)
             {
-                return InternalPermitIf(
+                return InternalPermitReentryIf(
                     trigger,
                     _representation.UnderlyingState,
                     new TransitionGuard(guard, guardDescription));
@@ -501,7 +501,7 @@ namespace Stateless
             /// </remarks>
             public StateConfiguration PermitReentryIf(TTrigger trigger, params Tuple<Func<bool>, string>[] guards)
             {
-                return InternalPermitIf(
+                return InternalPermitReentryIf(
                     trigger,
                     _representation.UnderlyingState,
                     new TransitionGuard(guards));
@@ -518,7 +518,7 @@ namespace Stateless
             /// <returns>The reciever.</returns>
             public StateConfiguration PermitReentryIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, bool> guard, string guardDescription = null)
             {
-                return InternalPermitIf(
+                return InternalPermitReentryIf(
                     trigger.Trigger,
                     _representation.UnderlyingState,
                     new TransitionGuard(TransitionGuard.ToPackedGuard(guard), guardDescription)
@@ -536,7 +536,7 @@ namespace Stateless
             /// <returns></returns>
             public StateConfiguration PermitReentryIf<TArg0>(TriggerWithParameters<TArg0> trigger, params Tuple<Func<TArg0, bool>, string>[] guards)
             {
-                return InternalPermitIf(
+                return InternalPermitReentryIf(
                     trigger.Trigger,
                     _representation.UnderlyingState,
                     new TransitionGuard(TransitionGuard.ToPackedGuards(guards))
@@ -555,7 +555,7 @@ namespace Stateless
             /// <returns>The reciever.</returns>
             public StateConfiguration PermitReentryIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, bool> guard, string guardDescription = null)
             {
-                return InternalPermitIf(
+                return InternalPermitReentryIf(
                     trigger.Trigger,
                     _representation.UnderlyingState,
                     new TransitionGuard(TransitionGuard.ToPackedGuard(guard), guardDescription)
@@ -575,7 +575,7 @@ namespace Stateless
             /// <returns>The reciever.</returns>
             public StateConfiguration PermitReentryIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, params Tuple<Func<TArg0, TArg1, bool>, string>[] guards)
             {
-                return InternalPermitIf(
+                return InternalPermitReentryIf(
                     trigger.Trigger,
                     _representation.UnderlyingState,
                     new TransitionGuard(TransitionGuard.ToPackedGuards(guards))
@@ -595,7 +595,7 @@ namespace Stateless
             /// <returns>The reciever.</returns>
             public StateConfiguration PermitReentryIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, bool> guard, string guardDescription = null)
             {
-                return InternalPermitIf(
+                return InternalPermitReentryIf(
                     trigger.Trigger,
                     _representation.UnderlyingState,
                     new TransitionGuard(TransitionGuard.ToPackedGuard(guard), guardDescription)
@@ -616,7 +616,7 @@ namespace Stateless
             /// <returns>The reciever.</returns>
             public StateConfiguration PermitReentryIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, params Tuple<Func<TArg0, TArg1, TArg2, bool>, string>[] guards)
             {
-                return InternalPermitIf(
+                return InternalPermitReentryIf(
                     trigger.Trigger,
                     _representation.UnderlyingState,
                     new TransitionGuard(TransitionGuard.ToPackedGuards(guards))
@@ -1657,7 +1657,11 @@ namespace Stateless
                 _representation.AddTriggerBehaviour(new TransitioningTriggerBehaviour(trigger, destinationState, transitionGuard));
                 return this;
             }
-
+            StateConfiguration InternalPermitReentryIf(TTrigger trigger, TState destinationState, TransitionGuard transitionGuard)
+            {
+                _representation.AddTriggerBehaviour(new ReentryTriggerBehaviour(trigger, destinationState, transitionGuard));
+                return this;
+            }
             StateConfiguration InternalPermitDynamicIf(TTrigger trigger, Func<object[], TState> destinationStateSelector,
                 string destinationStateSelectorDescription, TransitionGuard transitionGuard, Reflection.DynamicStateInfos possibleDestinationStates)
             {
