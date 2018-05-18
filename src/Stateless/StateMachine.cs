@@ -368,7 +368,7 @@ namespace Stateless
                 if (newRepresentation.HasInitialTransition)
                 {
                     // Verify that the target state is a substate
-                    if (!newRepresentation.GetSubstates().Where(s => s.UnderlyingState.Equals(newRepresentation.InitialTransitionTarget)).Any())
+                    if (!newRepresentation.GetSubstates().Any(s => s.UnderlyingState.Equals(newRepresentation.InitialTransitionTarget)))
                     {
                         throw new InvalidOperationException($"The target ({newRepresentation.InitialTransitionTarget}) for the initial transition is not a substate.");
                     }

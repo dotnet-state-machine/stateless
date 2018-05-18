@@ -1,9 +1,5 @@
-﻿
-using System;
-using System.Collections.Generic;
+﻿using System;
 using Xunit;
-using Stateless.Reflection;
-using Stateless.Graph;
 
 namespace Stateless.Tests
 {
@@ -125,12 +121,9 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             Assert.Throws(typeof(ArgumentException), () =>
-
-            // This configuration would create an infinite loop
-            sm.Configure(State.A)
-                .InitialTransition(State.A)
-            
-            );
+                // This configuration would create an infinite loop
+                sm.Configure(State.A)
+                    .InitialTransition(State.A) );
         }
 
         [Fact]
@@ -144,9 +137,7 @@ namespace Stateless.Tests
                 .InitialTransition(State.A); // Invalid configuration, State a is a superstate
 
             Assert.Throws(typeof(InvalidOperationException), () =>
-            sm.Fire(Trigger.X)
-
-            );
+                sm.Fire(Trigger.X) );
         }
         [Fact]
         public async void DoNotAllowTransitionToAnotherSuperstateAsync()
@@ -159,9 +150,7 @@ namespace Stateless.Tests
                 .InitialTransition(State.A);
 
             await Assert.ThrowsAsync (typeof(InvalidOperationException), async () =>
-            await sm.FireAsync(Trigger.X)
-
-            );
+                await sm.FireAsync(Trigger.X) );
         }
 
         [Fact]
@@ -171,17 +160,12 @@ namespace Stateless.Tests
 
             sm.Configure(State.A).Permit(Trigger.X, State.B);
 
-
             sm.Configure(State.B)
                 .InitialTransition(State.C);
 
-
             Assert.Throws(typeof(InvalidOperationException), () =>
-
                 sm.Configure(State.B)
-                .InitialTransition(State.A)
-
-            );
+                .InitialTransition(State.A) );
 
         }
     }
