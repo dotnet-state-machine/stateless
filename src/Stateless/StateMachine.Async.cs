@@ -166,15 +166,15 @@ namespace Stateless
             var source = State;
             var representativeState = GetRepresentation(source);
 
-            TriggerBehaviourResult result;
-            if (!representativeState.TryFindHandler(trigger, args, out result))
+            var searchResult = await representativeState.TryFindHandlerAsync(trigger, args);
+            if (searchResult.Item1 == false)
             {
-                await _unhandledTriggerAction.ExecuteAsync(representativeState.UnderlyingState, trigger, result?.UnmetGuardConditions).ConfigureAwait(false);
+                await _unhandledTriggerAction.ExecuteAsync(representativeState.UnderlyingState, trigger, searchResult.Item2?.UnmetGuardConditions).ConfigureAwait(false);
                 return;
             }
 
             TState destination;
-            if (result.Handler.ResultsInTransitionFrom(source, args, out destination))
+            if (searchResult.Item2.Handler.ResultsInTransitionFrom(source, args, out destination))
             {
                 var transition = new Transition(source, destination, trigger);
 
