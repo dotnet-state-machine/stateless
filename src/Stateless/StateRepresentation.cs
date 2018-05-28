@@ -32,6 +32,7 @@ namespace Stateless
             bool active;
 
             readonly ICollection<StateRepresentation> _substates = new List<StateRepresentation>();
+            public TState InitialTransitionTarget { get; private set; } = default(TState);
 
             public StateRepresentation(TState state)
             {
@@ -305,6 +306,13 @@ namespace Stateless
 
                 return result.ToArray();
             }
+
+            internal void SetInitialTransition(TState state)
+            {
+                InitialTransitionTarget = state;
+                HasInitialTransition = true;
+            }
+            public bool HasInitialTransition { get; private set; }
         }
     }
 }

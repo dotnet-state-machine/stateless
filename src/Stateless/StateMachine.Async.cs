@@ -182,9 +182,31 @@ namespace Stateless
 
                 State = transition.Destination;
                 var newRepresentation = GetRepresentation(transition.Destination);
-                await _onTransitionedEvent.InvokeAsync(transition).ConfigureAwait(false);
-
-                await newRepresentation.EnterAsync(transition, args).ConfigureAwait(false);
+                // Check if there is an intital transition configured
+                if (newRepresentation.HasInitialTransition)
+                {
+                    // Verify that the target state is a substate
+                    if (!newRepresentation.GetSubstates().Where(s => s.UnderlyingState.Equals(newRepresentation.InitialTransitionTarget)).Any())
+                    {
+                        throw new InvalidOperationException($"The target ({newRepresentation.InitialTransitionTarget}) for the initial transition is not a substate.");
+                    }
+                    // Check if state has substate(s), and if an initial transition(s) has been set up.
+                    while (newRepresentation.GetSubstates().Any() && newRepresentation.HasInitialTransition)
+                    {
+                        var initialTransition = new Transition(source, newRepresentation.InitialTransitionTarget, trigger);
+                        newRepresentation = GetRepresentation(newRepresentation.InitialTransitionTarget);
+                        await newRepresentation.EnterAsync(initialTransition, args);
+                        State = newRepresentation.UnderlyingState;
+                    }
+                    //Alert all listeners of state transition
+                    await _onTransitionedEvent.InvokeAsync(new Transition(source, destination, trigger));
+                }
+                else
+                {
+                    //Alert all listeners of state transition
+                    await _onTransitionedEvent.InvokeAsync(new Transition(source, destination, trigger));
+                    await newRepresentation.EnterAsync(transition, args);
+                }
             }
             else
             {
