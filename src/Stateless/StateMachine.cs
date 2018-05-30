@@ -110,7 +110,7 @@ namespace Stateless
             }
         }
 
-		/// <summary>
+        /// <summary>
         /// The currently-permissible trigger values.
         /// </summary>
         public IEnumerable<TTrigger> PermittedTriggers
@@ -120,7 +120,7 @@ namespace Stateless
                 return GetPermittedTriggers();
             }
         }
-		
+
         /// <summary>
         /// The currently-permissible trigger values.
         /// </summary>
@@ -364,9 +364,13 @@ namespace Stateless
                 State = transition.Destination;
                 var newRepresentation = GetRepresentation(transition.Destination);
 
-                // Then Exit the final superstate
-                transition = new Transition(handler.Destination, handler.Destination, trigger);
-                newRepresentation.Exit(transition);
+                if (!source.Equals(transition.Destination))
+                {
+                    // Then Exit the final superstate
+                    transition = new Transition(handler.Destination, handler.Destination, trigger);
+                    newRepresentation.Exit(transition);
+                }
+
                 _onTransitionedEvent.Invoke(new Transition(source, handler.Destination, trigger));
 
                 newRepresentation.Enter(transition, args);
