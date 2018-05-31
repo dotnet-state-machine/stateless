@@ -52,5 +52,29 @@ namespace Stateless.Tests
 
             Assert.True(ignored.GuardConditionsMet());
         }
+        [Fact]
+        public void IgnoredTriggerMustBeIgnoredSync()
+        {
+            bool internalActionExecuted = false;
+            var stateMachine = new StateMachine<State, Trigger>(State.B);
+            stateMachine.Configure(State.A)
+                .Permit(Trigger.X, State.C);
+
+            stateMachine.Configure(State.B)
+                .SubstateOf(State.A)
+                .Ignore(Trigger.X);
+
+            try
+            {
+                // >>> The following statement should not execute the internal action
+                stateMachine.Fire(Trigger.X);
+            }
+            catch (NullReferenceException)
+            {
+                internalActionExecuted = true;
+            }
+
+            Assert.False(internalActionExecuted);
+        }
     }
 }

@@ -259,6 +259,32 @@ namespace Stateless.Tests
             Assert.True(onExitStateBfired);
             Assert.True(onEntryStateBfired);
         }
+
+        [Fact]
+        public async void IgnoredTriggerMustBeIgnoredAsync()
+        {
+            bool nullRefExcThrown = false;
+            var stateMachine = new StateMachine<State, Trigger>(State.B);
+            stateMachine.Configure(State.A)
+                .Permit(Trigger.X, State.C);
+
+            stateMachine.Configure(State.B)
+                .SubstateOf(State.A)
+                .Ignore(Trigger.X);
+
+            try
+            {
+                // >>> The following statement should not throw a NullReferenceException
+                await stateMachine.FireAsync(Trigger.X);
+            }
+            catch (NullReferenceException )
+            {
+                nullRefExcThrown = true;
+            }
+
+            Assert.False(nullRefExcThrown);
+        }
+
     }
 }
 
