@@ -355,6 +355,11 @@ namespace Stateless
                 _unhandledTriggerAction.Execute(representativeState.UnderlyingState, trigger, result?.UnmetGuardConditions);
                 return;
             }
+            // Check if this trigger should be ignored
+            if (result.Handler is IgnoredTriggerBehaviour)
+            {
+                return;
+            }
             // Handle special case, re-entry in superstate
             if (result.Handler is ReentryTriggerBehaviour handler)
             {
