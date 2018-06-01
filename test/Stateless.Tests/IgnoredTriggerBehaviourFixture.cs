@@ -76,5 +76,36 @@ namespace Stateless.Tests
 
             Assert.False(internalActionExecuted);
         }
+
+        [Fact]
+        public void IgnoreIfTrueTriggerMustBeIgnored()
+        {
+            var stateMachine = new StateMachine<State, Trigger>(State.B);
+            stateMachine.Configure(State.A)
+                .Permit(Trigger.X, State.C);
+
+            stateMachine.Configure(State.B)
+                .SubstateOf(State.A)
+                .IgnoreIf(Trigger.X, () => true);
+
+                stateMachine.Fire(Trigger.X);
+
+            Assert.Equal(State.B, stateMachine.State);
+        }
+        [Fact]
+        public void IgnoreIfFalseTriggerMustNotBeIgnored()
+        {
+            var stateMachine = new StateMachine<State, Trigger>(State.B);
+            stateMachine.Configure(State.A)
+                .Permit(Trigger.X, State.C);
+
+            stateMachine.Configure(State.B)
+                .SubstateOf(State.A)
+                .IgnoreIf(Trigger.X, () => false);
+
+            stateMachine.Fire(Trigger.X);
+
+            Assert.Equal(State.C, stateMachine.State);
+        }
     }
 }
