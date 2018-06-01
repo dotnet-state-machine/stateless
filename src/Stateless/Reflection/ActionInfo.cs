@@ -1,7 +1,4 @@
-﻿using System;
-using Stateless;
-
-namespace Stateless.Reflection
+﻿namespace Stateless.Reflection
 {
     /// <summary>
     /// Information on entry and exit actions

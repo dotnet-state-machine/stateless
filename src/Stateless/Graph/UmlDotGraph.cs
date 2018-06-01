@@ -1,6 +1,4 @@
-﻿using System;
-
-using Stateless.Reflection;
+﻿using Stateless.Reflection;
 
 namespace Stateless.Graph
 {
