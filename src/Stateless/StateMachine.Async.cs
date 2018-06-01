@@ -159,22 +159,47 @@ namespace Stateless
         }
         async Task InternalFireOneAsync(TTrigger trigger, params object[] args)
         {
-            TriggerWithParameters configuration;
-            if (_triggerConfiguration.TryGetValue(trigger, out configuration))
+            // If this is a trigger with parameters, we must validate the parameter(s)
+            if (_triggerConfiguration.TryGetValue(trigger, out var configuration))
                 configuration.ValidateParameters(args);
 
             var source = State;
             var representativeState = GetRepresentation(source);
 
-            TriggerBehaviourResult result;
-            if (!representativeState.TryFindHandler(trigger, args, out result))
+            // Try to find a trigger handler, either in the current state or a super state.
+            if (!representativeState.TryFindHandler(trigger, args, out var result))
             {
                 await _unhandledTriggerAction.ExecuteAsync(representativeState.UnderlyingState, trigger, result?.UnmetGuardConditions).ConfigureAwait(false);
                 return;
             }
+            // Check if this trigger should be ignored
+            if (result.Handler is IgnoredTriggerBehaviour)
+            {
+                return;
+            }
 
-            TState destination;
-            if (result.Handler.ResultsInTransitionFrom(source, args, out destination))
+            // Handle special case, re-entry in superstate
+            if (result.Handler is ReentryTriggerBehaviour handler)
+            {
+                // Handle transition, and set new state
+                var transition = new Transition(source, handler.Destination, trigger);
+                transition = await representativeState.ExitAsync(transition);
+                State = transition.Destination;
+                var newRepresentation = GetRepresentation(transition.Destination);
+
+                if (!source.Equals(transition.Destination))
+                {
+                    // Then Exit the final superstate
+                    transition = new Transition(handler.Destination, handler.Destination, trigger);
+                    await newRepresentation.ExitAsync(transition);
+                }
+
+                _onTransitionedEvent.Invoke(new Transition(source, handler.Destination, trigger));
+
+                await newRepresentation.EnterAsync(transition, args);
+            }
+            // Check if it is an internal transition, or a transition from one state to another.
+            else if (result.Handler.ResultsInTransitionFrom(source, args, out var destination))
             {
                 var transition = new Transition(source, destination, trigger);
 
@@ -182,14 +207,16 @@ namespace Stateless
 
                 State = transition.Destination;
                 var newRepresentation = GetRepresentation(transition.Destination);
+
                 // Check if there is an intital transition configured
                 if (newRepresentation.HasInitialTransition)
                 {
                     // Verify that the target state is a substate
-                    if (!newRepresentation.GetSubstates().Where(s => s.UnderlyingState.Equals(newRepresentation.InitialTransitionTarget)).Any())
+                    if (!newRepresentation.GetSubstates().Any(s => s.UnderlyingState.Equals(newRepresentation.InitialTransitionTarget)))
                     {
                         throw new InvalidOperationException($"The target ({newRepresentation.InitialTransitionTarget}) for the initial transition is not a substate.");
                     }
+
                     // Check if state has substate(s), and if an initial transition(s) has been set up.
                     while (newRepresentation.GetSubstates().Any() && newRepresentation.HasInitialTransition)
                     {
@@ -205,6 +232,7 @@ namespace Stateless
                 {
                     //Alert all listeners of state transition
                     await _onTransitionedEvent.InvokeAsync(new Transition(source, destination, trigger));
+
                     await newRepresentation.EnterAsync(transition, args);
                 }
             }

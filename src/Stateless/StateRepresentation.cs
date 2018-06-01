@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Stateless
@@ -238,7 +239,8 @@ namespace Stateless
                 }
 
                 // Execute internal transition event handler
-                internalTransition?.InternalAction(transition, args);
+                if (internalTransition == null) throw new NullReferenceException("The configuration is incorrect, no action assigned to this internal transition.");
+                internalTransition.InternalAction(transition, args);
             }
             public void AddTriggerBehaviour(TriggerBehaviour triggerBehaviour)
             {
