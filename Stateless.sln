@@ -8,6 +8,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "global", "global", "{8DE7A8
 		.gitignore = .gitignore
 		appveyor.yml = appveyor.yml
 		Build.ps1 = Build.ps1
+		CHANGELOG.md = CHANGELOG.md
 		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
@@ -35,7 +36,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OnOffExample", "example\OnO
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelephoneCallExample", "example\TelephoneCallExample\TelephoneCallExample.csproj", "{5182CA95-8E6F-4D16-9790-8F7D1C5A9C87}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonExample", "example\JsonExample\JsonExample.csproj", "{809A7873-DD78-4D5D-A432-9718C929BECA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JsonExample", "example\JsonExample\JsonExample.csproj", "{809A7873-DD78-4D5D-A432-9718C929BECA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
