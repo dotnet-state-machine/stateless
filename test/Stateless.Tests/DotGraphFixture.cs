@@ -286,7 +286,7 @@ namespace Stateless.Tests
         [Fact]
         public void OnEntryWithAnonymousActionAndDescription()
         {
-            var expected = prefix(Style.UML) + box(Style.UML, "A", new List<string>() { "enteredA" }) + suffix;
+            var expected = prefix(Style.UML) + box(Style.UML, "A", new List<string> { "enteredA" }) + suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -305,7 +305,7 @@ namespace Stateless.Tests
         [Fact]
         public void OnEntryWithNamedDelegateActionAndDescription()
         {
-            var expected = prefix(Style.UML) + box(Style.UML, "A", new List<string>() { "enteredA" }) + suffix;
+            var expected = prefix(Style.UML) + box(Style.UML, "A", new List<string> { "enteredA" }) + suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -318,7 +318,7 @@ namespace Stateless.Tests
         [Fact]
         public void OnExitWithAnonymousActionAndDescription()
         {
-            var expected = prefix(Style.UML) + box(Style.UML, "A", null, new List<string>() { "exitA" }) + suffix;
+            var expected = prefix(Style.UML) + box(Style.UML, "A", null, new List<string> { "exitA" }) + suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -337,9 +337,9 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .OnExit(OnExit, "exitA");
 
-            var expected = prefix(Style.UML) + box(Style.UML, "A", null, new List<string>() { "exitA" }) + suffix;
+            var expected = prefix(Style.UML) + box(Style.UML, "A", null, new List<string> { "exitA" }) + suffix;
             Assert.Equal(expected, UmlDotGraph.Format(sm.GetInfo()));
-            expected = prefix(Style.UML) + box(Style.UML, "A", null, new List<string>() { "exitA" }) + suffix;
+            expected = prefix(Style.UML) + box(Style.UML, "A", null, new List<string> { "exitA" }) + suffix;
             Assert.Equal(expected, UmlDotGraph.Format(sm.GetInfo()));
         }
 
@@ -365,7 +365,7 @@ namespace Stateless.Tests
         [Fact]
         public void OnEntryWithTriggerParameter()
         {
-            var expected = prefix(Style.UML) + box(Style.UML, "A", new List<string>() { "OnEntry" })
+            var expected = prefix(Style.UML) + box(Style.UML, "A", new List<string> { "OnEntry" })
                 + box(Style.UML, "B") + box(Style.UML, "C")
                 + line("A", "B", "X / BX")
                 + line("A", "C", "Y / TestEntryActionString [IsTriggerY]")
@@ -403,7 +403,7 @@ namespace Stateless.Tests
                 + subgraph(Style.UML, "D", "D\\n----------\\nentry / EnterD",
                     box(Style.UML, "B")
                     + box(Style.UML, "C"))
-                + box(Style.UML, "A", new List<string>() { "EnterA" }, new List<string>() { "ExitA" })
+                + box(Style.UML, "A", new List<string> { "EnterA" }, new List<string> { "ExitA" })
                 + line("A", "B", "X") + line("A", "C", "Y")
                 + suffix;
 
@@ -463,8 +463,8 @@ namespace Stateless.Tests
         public void TransitionWithIgnoreAndEntry()
         {
             var expected = prefix(Style.UML)
-                + box(Style.UML, "A", new List<string>() { "DoEntry" })
-                + box(Style.UML, "B", new List<string>() { "DoThisEntry" })
+                + box(Style.UML, "A", new List<string> { "DoEntry" })
+                + box(Style.UML, "B", new List<string> { "DoThisEntry" })
                 + line("A", "B", "X")
                 + line("A", "A", "Y") 
                 + line("B", "B", "Z / DoThisEntry")
