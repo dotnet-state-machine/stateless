@@ -355,76 +355,101 @@ namespace Stateless
                 _unhandledTriggerAction.Execute(representativeState.UnderlyingState, trigger, result?.UnmetGuardConditions);
                 return;
             }
-            // Check if this trigger should be ignored
-            if (result.Handler is IgnoredTriggerBehaviour)
+
+            switch (result.Handler)
             {
-                return;
-            }
-            // Handle special case, re-entry in superstate
-            if (result.Handler is ReentryTriggerBehaviour handler)
-            {
-                // Handle transition, and set new state
-                var transition = new Transition(source, handler.Destination, trigger);
-                transition = representativeState.Exit(transition);
-                State = transition.Destination;
-                var newRepresentation = GetRepresentation(transition.Destination);
-
-                if (!source.Equals(transition.Destination))
-                {
-                    // Then Exit the final superstate
-                    transition = new Transition(handler.Destination, handler.Destination, trigger);
-                    newRepresentation.Exit(transition);
-                }
-
-                _onTransitionedEvent.Invoke(new Transition(source, handler.Destination, trigger));
-
-                newRepresentation.Enter(transition, args);
-            }
-            // Check if it is an internal transition, or a transition from one state to another.
-            else if (result.Handler.ResultsInTransitionFrom(source, args, out TState destination))
-            {
-                // Handle transition, and set new state
-                var transition = new Transition(source, destination, trigger);
-
-                transition = representativeState.Exit(transition);
-
-                State = transition.Destination;
-                var newRepresentation = GetRepresentation(transition.Destination);
-
-                // Check if there is an intital transition configured
-                if (newRepresentation.HasInitialTransition)
-                {
-                    // Verify that the target state is a substate
-                    if (!newRepresentation.GetSubstates().Any(s => s.UnderlyingState.Equals(newRepresentation.InitialTransitionTarget)))
+                // Check if this trigger should be ignored
+                case IgnoredTriggerBehaviour _:
+                    return;
+                // Handle special case, re-entry in superstate
+                // Check if it is an internal transition, or a transition from one state to another.
+                case ReentryTriggerBehaviour handler:
                     {
-                        throw new InvalidOperationException($"The target ({newRepresentation.InitialTransitionTarget}) for the initial transition is not a substate.");
+                        // Handle transition, and set new state
+                        var transition = new Transition(source, handler.Destination, trigger);
+                        HandleReentryTrigger(args, representativeState, transition);
+                        break;
                     }
-
-                    // Check if state has substate(s), and if an initial transition(s) has been set up.
-                    while (newRepresentation.GetSubstates().Any() && newRepresentation.HasInitialTransition)
-                    {
-                        var initialTransition = new Transition(source, newRepresentation.InitialTransitionTarget, trigger);
-                        newRepresentation = GetRepresentation(newRepresentation.InitialTransitionTarget);
-                        newRepresentation.Enter(initialTransition, args);
-                        State = newRepresentation.UnderlyingState;
-                    }
-                    //Alert all listeners of state transition
-                    _onTransitionedEvent.Invoke(new Transition(source, destination, trigger));
-                }
-                else
+                case DynamicTriggerBehaviour _ when (result.Handler.ResultsInTransitionFrom(source, args, out TState destination)):
                 {
-                    //Alert all listeners of state transition
-                    _onTransitionedEvent.Invoke(new Transition(source, destination, trigger));
+                    // Handle transition, and set new state
+                    var transition = new Transition(source, destination, trigger);
 
-                    newRepresentation.Enter(transition, args);
+                    HandleTransitioningTrigger(args, representativeState, transition);
+
+                    break;
                 }
+                case TransitioningTriggerBehaviour _ when (result.Handler.ResultsInTransitionFrom(source, args, out TState destination)):
+                    {
+                        // Handle transition, and set new state
+                        var transition = new Transition(source, destination, trigger);
+
+                        HandleTransitioningTrigger(args, representativeState, transition);
+
+                        break;
+                    }
+                case InternalTriggerBehaviour _:
+                {
+                    // Internal transitions does not update the current state, but must execute the associated action.
+                    var transition = new Transition(source, source, trigger);
+                    CurrentRepresentation.InternalAction(transition, args);
+                    break;
+                }
+                default:
+                    throw new InvalidOperationException("State machine configuration incorrect, no handler for trigger.");
+            }
+        }
+
+        private void HandleReentryTrigger(object[] args, StateRepresentation representativeState, Transition transition)
+        {
+            transition = representativeState.Exit(transition);
+            State = transition.Destination;
+            var newRepresentation = GetRepresentation(transition.Destination);
+
+            if (!transition.Source.Equals(transition.Destination))
+            {
+                // Then Exit the final superstate
+                transition = new Transition(transition.Destination, transition.Destination, transition.Trigger);
+                newRepresentation.Exit(transition);
+            }
+
+            _onTransitionedEvent.Invoke(transition);
+
+            newRepresentation.Enter(transition, args);
+           }
+
+        private void HandleTransitioningTrigger( object[] args, StateRepresentation representativeState, Transition transition)
+        {
+            transition = representativeState.Exit(transition);
+
+            State = transition.Destination;
+            var newRepresentation = GetRepresentation(transition.Destination);
+
+            // Check if there is an intital transition configured
+            if (newRepresentation.HasInitialTransition)
+            {
+                // Verify that the target state is a substate
+                if (!newRepresentation.GetSubstates().Any(s => s.UnderlyingState.Equals(newRepresentation.InitialTransitionTarget)))
+                {
+                    throw new InvalidOperationException($"The target ({newRepresentation.InitialTransitionTarget}) for the initial transition is not a substate.");
+                }
+
+                // Check if state has substate(s), and if an initial transition(s) has been set up.
+                while (newRepresentation.GetSubstates().Any() && newRepresentation.HasInitialTransition)
+                {
+                    var initialTransition = new Transition(transition.Source, newRepresentation.InitialTransitionTarget, transition.Trigger);
+                    newRepresentation = GetRepresentation(newRepresentation.InitialTransitionTarget);
+                    newRepresentation.Enter(initialTransition, args);
+                    State = newRepresentation.UnderlyingState;
+                }
+                //Alert all listeners of state transition
+                _onTransitionedEvent.Invoke(transition);
             }
             else
             {
-                // Internal transitions does not update the current state, but must execute the associated action.
-                var transition = new Transition(source, destination, trigger);
-
-                CurrentRepresentation.InternalAction(transition, args);
+                //Alert all listeners of state transition
+                _onTransitionedEvent.Invoke(transition);
+                newRepresentation.Enter(transition, args);
             }
         }
 
