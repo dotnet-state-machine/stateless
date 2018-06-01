@@ -34,7 +34,7 @@ namespace Stateless.Tests
             UML
         }
 
-        static readonly string suffix = System.Environment.NewLine + "}";
+        static readonly string suffix = Environment.NewLine + "}";
 
         string prefix(Style style)
         {
@@ -45,7 +45,7 @@ namespace Stateless.Tests
                 + "node [shape=Mrecord]\n"
                 + "rankdir=\"LR\"\n";
 
-            return s.Replace("\n", System.Environment.NewLine);
+            return s.Replace("\n", Environment.NewLine);
         }
 
         string box(Style style, string label, List<String> entries = null, List<String> exits = null)
@@ -71,7 +71,7 @@ namespace Stateless.Tests
                 b = label + " [label=\"" + label + "|" + String.Join("\\n", es) + "\"];\n";
             }
 
-            return b.Replace("\n", System.Environment.NewLine);
+            return b.Replace("\n", Environment.NewLine);
         }
 
         string decision(Style style, string nodeName, string label)
@@ -80,7 +80,7 @@ namespace Stateless.Tests
 
             b = nodeName + " [shape = \"diamond\", label = \"" + label + "\"];\n";
 
-            return b.Replace("\n", System.Environment.NewLine);
+            return b.Replace("\n", Environment.NewLine);
         }
 
         string line(string from, string to, string label)
@@ -93,7 +93,7 @@ namespace Stateless.Tests
 
             s += "];";
 
-            return s.Replace("\n", System.Environment.NewLine);
+            return s.Replace("\n", Environment.NewLine);
         }
 
         string subgraph(Style style, string graphName, string label, string contents)
@@ -106,9 +106,9 @@ namespace Stateless.Tests
                 + "\t{\n"
                 + "\tlabel = \"" + label + "\"\n";
 
-            s = s.Replace("\n", System.Environment.NewLine)
+            s = s.Replace("\n", Environment.NewLine)
                 + contents          // \n already replaced with NewLine
-                + "}" + System.Environment.NewLine;
+                + "}" + Environment.NewLine;
 
             return s;
         }
@@ -359,7 +359,7 @@ namespace Stateless.Tests
                 .Ignore(Trigger.Y)
                 .Permit(Trigger.X, State.B);
 
-            Assert.Equal(expected, Graph.UmlDotGraph.Format(sm.GetInfo()));
+            Assert.Equal(expected, UmlDotGraph.Format(sm.GetInfo()));
         }
 
         [Fact]
@@ -446,7 +446,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .PermitDynamic(Trigger.X, DestinationSelector, null, new Reflection.DynamicStateInfos { { State.B, "ChoseB"}, { State.C, "ChoseC" } });
+                .PermitDynamic(Trigger.X, DestinationSelector, null, new DynamicStateInfos { { State.B, "ChoseB"}, { State.C, "ChoseC" } });
 
             sm.Configure(State.B);
             sm.Configure(State.C);
