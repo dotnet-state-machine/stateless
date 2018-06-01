@@ -278,8 +278,8 @@ namespace Stateless.Tests
             var rep = CreateRepresentation(State.B);
 
             var falseConditions = new[] {
-                new Tuple<Func<object[], bool>, string>((args) => true, "1"),
-                new Tuple<Func<object[], bool>, string>((args) => false, "2")
+                new Tuple<Func<object[], bool>, string>(args => true, "1"),
+                new Tuple<Func<object[], bool>, string>(args => false, "2")
             };
 
             var transitionGuard = new StateMachine<State, Trigger>.TransitionGuard(falseConditions);
