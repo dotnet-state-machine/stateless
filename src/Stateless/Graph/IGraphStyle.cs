@@ -121,7 +121,7 @@ namespace Stateless.Graph
         /// <returns></returns>
         virtual internal string FormatOneTransition(string sourceNodeName, string trigger, IEnumerable<string> actions, string destinationNodeName, IEnumerable<string> guards)
         {
-            throw new Exception("If you use IGraphStyle.FormatAllTransitions() you must implement an override of FormatOneTransition()");
+            throw new InvalidOperationException("If you use IGraphStyle.FormatAllTransitions() you must implement an override of FormatOneTransition()");
         }
     }
 }
