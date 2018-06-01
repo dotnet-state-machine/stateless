@@ -11,19 +11,19 @@ namespace Stateless
         {
             public void AddActivateAction(Func<Task> action, Reflection.InvocationInfo activateActionDescription)
             {
-                _activateActions.Add(new ActivateActionBehaviour.Async(_state, action, activateActionDescription));
+                ActivateActions.Add(new ActivateActionBehaviour.Async(_state, action, activateActionDescription));
             }
 
             public void AddDeactivateAction(Func<Task> action, Reflection.InvocationInfo deactivateActionDescription)
             {
-                _deactivateActions.Add(new DeactivateActionBehaviour.Async(_state, action, deactivateActionDescription));
+                DeactivateActions.Add(new DeactivateActionBehaviour.Async(_state, action, deactivateActionDescription));
             }
 
             public void AddEntryAction(TTrigger trigger, Func<Transition, object[], Task> action, Reflection.InvocationInfo entryActionDescription)
             {
                 if (action == null) throw new ArgumentNullException(nameof(action));
 
-                _entryActions.Add(
+                EntryActions.Add(
                     new EntryActionBehavior.Async((t, args) =>
                     {
                         if (t.Trigger.Equals(trigger))
@@ -36,7 +36,7 @@ namespace Stateless
 
             public void AddEntryAction(Func<Transition, object[], Task> action, Reflection.InvocationInfo entryActionDescription)
             {
-                _entryActions.Add(
+                EntryActions.Add(
                     new EntryActionBehavior.Async(
                         action,
                         entryActionDescription));
@@ -44,7 +44,7 @@ namespace Stateless
 
             public void AddExitAction(Func<Transition, Task> action, Reflection.InvocationInfo exitActionDescription)
             {
-                _exitActions.Add(new ExitActionBehavior.Async(action, exitActionDescription));
+                ExitActions.Add(new ExitActionBehavior.Async(action, exitActionDescription));
             }
 
             public async Task ActivateAsync()
@@ -73,13 +73,13 @@ namespace Stateless
 
             async Task ExecuteActivationActionsAsync()
             {
-                foreach (var action in _activateActions)
+                foreach (var action in ActivateActions)
                     await action.ExecuteAsync().ConfigureAwait(false);
             }
 
             async Task ExecuteDeactivationActionsAsync()
             {
-                foreach (var action in _deactivateActions)
+                foreach (var action in DeactivateActions)
                     await action.ExecuteAsync().ConfigureAwait(false);
             }
 
@@ -123,13 +123,13 @@ namespace Stateless
 
             async Task ExecuteEntryActionsAsync(Transition transition, object[] entryArgs)
             {
-                foreach (var action in _entryActions)
+                foreach (var action in EntryActions)
                     await action.ExecuteAsync(transition, entryArgs).ConfigureAwait(false);
             }
 
             async Task ExecuteExitActionsAsync(Transition transition)
             {
-                foreach (var action in _exitActions)
+                foreach (var action in ExitActions)
                     await action.ExecuteAsync(transition).ConfigureAwait(false);
             }
 

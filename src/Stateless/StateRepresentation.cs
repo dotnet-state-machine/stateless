@@ -10,22 +10,11 @@ namespace Stateless
         {
             readonly TState _state;
 
-            readonly IDictionary<TTrigger, ICollection<TriggerBehaviour>> _triggerBehaviours =
-                new Dictionary<TTrigger, ICollection<TriggerBehaviour>>();
-
-            internal IDictionary<TTrigger, ICollection<TriggerBehaviour>> TriggerBehaviours { get { return _triggerBehaviours; } }
-
-            readonly ICollection<EntryActionBehavior> _entryActions = new List<EntryActionBehavior>();
-            internal ICollection<EntryActionBehavior> EntryActions { get { return _entryActions; } }
-
-            readonly ICollection<ExitActionBehavior> _exitActions = new List<ExitActionBehavior>();
-            internal ICollection<ExitActionBehavior> ExitActions { get { return _exitActions; } }
-
-            readonly ICollection<ActivateActionBehaviour> _activateActions = new List<ActivateActionBehaviour>();
-            internal ICollection<ActivateActionBehaviour> ActivateActions { get { return _activateActions; } }
-
-            readonly ICollection<DeactivateActionBehaviour> _deactivateActions = new List<DeactivateActionBehaviour>();
-            internal ICollection<DeactivateActionBehaviour> DeactivateActions { get { return _deactivateActions; } }
+            internal IDictionary<TTrigger, ICollection<TriggerBehaviour>> TriggerBehaviours { get; } = new Dictionary<TTrigger, ICollection<TriggerBehaviour>>();
+            internal ICollection<EntryActionBehavior> EntryActions { get; } = new List<EntryActionBehavior>();
+            internal ICollection<ExitActionBehavior> ExitActions { get; } = new List<ExitActionBehavior>();
+            internal ICollection<ActivateActionBehaviour> ActivateActions { get; } = new List<ActivateActionBehaviour>();
+            internal ICollection<DeactivateActionBehaviour> DeactivateActions { get; } = new List<DeactivateActionBehaviour>();
 
             StateRepresentation _superstate; // null
             bool active;
@@ -57,7 +46,7 @@ namespace Stateless
             bool TryFindLocalHandler(TTrigger trigger, object[] args, out TriggerBehaviourResult handlerResult)
             {
                 // Get list of candidate trigger handlers
-                if (!_triggerBehaviours.TryGetValue(trigger, out ICollection<TriggerBehaviour> possible))
+                if (!TriggerBehaviours.TryGetValue(trigger, out ICollection<TriggerBehaviour> possible))
                 {
                     handlerResult = null;
                     return false;
@@ -94,27 +83,27 @@ namespace Stateless
             }
             public void AddActivateAction(Action action, Reflection.InvocationInfo activateActionDescription)
             {
-                _activateActions.Add(new ActivateActionBehaviour.Sync(_state, action, activateActionDescription));
+                ActivateActions.Add(new ActivateActionBehaviour.Sync(_state, action, activateActionDescription));
             }
 
             public void AddDeactivateAction(Action action, Reflection.InvocationInfo deactivateActionDescription)
             {
-                _deactivateActions.Add(new DeactivateActionBehaviour.Sync(_state, action, deactivateActionDescription));
+                DeactivateActions.Add(new DeactivateActionBehaviour.Sync(_state, action, deactivateActionDescription));
             }
 
             public void AddEntryAction(TTrigger trigger, Action<Transition, object[]> action, Reflection.InvocationInfo entryActionDescription)
             {
-                _entryActions.Add(new EntryActionBehavior.SyncFrom<TTrigger>(trigger, action, entryActionDescription));
+                EntryActions.Add(new EntryActionBehavior.SyncFrom<TTrigger>(trigger, action, entryActionDescription));
             }
 
             public void AddEntryAction(Action<Transition, object[]> action, Reflection.InvocationInfo entryActionDescription)
             {
-                _entryActions.Add(new EntryActionBehavior.Sync(action, entryActionDescription));
+                EntryActions.Add(new EntryActionBehavior.Sync(action, entryActionDescription));
             }
 
             public void AddExitAction(Action<Transition> action, Reflection.InvocationInfo exitActionDescription)
             {
-                _exitActions.Add(new ExitActionBehavior.Sync(action, exitActionDescription));
+                ExitActions.Add(new ExitActionBehavior.Sync(action, exitActionDescription));
             }
 
             public void Activate()
@@ -143,13 +132,13 @@ namespace Stateless
 
             void ExecuteActivationActions()
             {
-                foreach (var action in _activateActions)
+                foreach (var action in ActivateActions)
                     action.Execute();
             }
 
             void ExecuteDeactivationActions()
             {
-                foreach (var action in _deactivateActions)
+                foreach (var action in DeactivateActions)
                     action.Execute();
             }
 
@@ -206,13 +195,13 @@ namespace Stateless
 
             void ExecuteEntryActions(Transition transition, object[] entryArgs)
             {
-                foreach (var action in _entryActions)
+                foreach (var action in EntryActions)
                     action.Execute(transition, entryArgs);
             }
 
             void ExecuteExitActions(Transition transition)
             {
-                foreach (var action in _exitActions)
+                foreach (var action in ExitActions)
                     action.Execute(transition);
             }
             internal void InternalAction(Transition transition, object[] args)
@@ -242,10 +231,10 @@ namespace Stateless
             }
             public void AddTriggerBehaviour(TriggerBehaviour triggerBehaviour)
             {
-                if (!_triggerBehaviours.TryGetValue(triggerBehaviour.Trigger, out ICollection<TriggerBehaviour> allowed))
+                if (!TriggerBehaviours.TryGetValue(triggerBehaviour.Trigger, out ICollection<TriggerBehaviour> allowed))
                 {
                     allowed = new List<TriggerBehaviour>();
-                    _triggerBehaviours.Add(triggerBehaviour.Trigger, allowed);
+                    TriggerBehaviours.Add(triggerBehaviour.Trigger, allowed);
                 }
                 allowed.Add(triggerBehaviour);
             }
@@ -297,7 +286,7 @@ namespace Stateless
 
             public IEnumerable<TTrigger> GetPermittedTriggers(params object[] args)
             {
-                var result = _triggerBehaviours
+                var result = TriggerBehaviours
                     .Where(t => t.Value.Any(a => !a.UnmetGuardConditions(args).Any()))
                     .Select(t => t.Key);
 
