@@ -717,6 +717,32 @@ namespace Stateless.Tests
             Assert.False(superExit);
         }
 
+        [Fact]
+        public void OnExitFiresOnlyOnceReentrySubstate()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
 
+            int exitB = 0;
+            int exitA = 0;
+            int entryB = 0;
+            int entryA = 0;
+
+            sm.Configure(State.A)
+                .SubstateOf(State.B)
+                .OnEntry(() => entryA++)
+                .PermitReentry(Trigger.X)
+                .OnExit(() => exitA++);
+
+            sm.Configure(State.B)
+                .OnEntry(() => entryB++)
+                .OnExit(() => exitB++);
+
+            sm.Fire(Trigger.X);
+
+            Assert.Equal(0, exitB);
+            Assert.Equal(0, entryB);
+            Assert.Equal(1, exitA);
+            Assert.Equal(1, entryA);
+        }
     }
 }

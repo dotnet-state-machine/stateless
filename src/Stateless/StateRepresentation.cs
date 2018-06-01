@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Stateless
@@ -32,6 +33,7 @@ namespace Stateless
             bool active;
 
             readonly ICollection<StateRepresentation> _substates = new List<StateRepresentation>();
+            public TState InitialTransitionTarget { get; private set; } = default(TState);
 
             public StateRepresentation(TState state)
             {
@@ -237,7 +239,8 @@ namespace Stateless
                 }
 
                 // Execute internal transition event handler
-                internalTransition?.InternalAction(transition, args);
+                if (internalTransition == null) throw new NullReferenceException("The configuration is incorrect, no action assigned to this internal transition.");
+                internalTransition.InternalAction(transition, args);
             }
             public void AddTriggerBehaviour(TriggerBehaviour triggerBehaviour)
             {
@@ -305,6 +308,13 @@ namespace Stateless
 
                 return result.ToArray();
             }
+
+            internal void SetInitialTransition(TState state)
+            {
+                InitialTransitionTarget = state;
+                HasInitialTransition = true;
+            }
+            public bool HasInitialTransition { get; private set; }
         }
     }
 }

@@ -110,7 +110,7 @@ namespace Stateless
             }
         }
 
-		/// <summary>
+        /// <summary>
         /// The currently-permissible trigger values.
         /// </summary>
         public IEnumerable<TTrigger> PermittedTriggers
@@ -120,7 +120,7 @@ namespace Stateless
                 return GetPermittedTriggers();
             }
         }
-		
+
         /// <summary>
         /// The currently-permissible trigger values.
         /// </summary>
@@ -355,6 +355,11 @@ namespace Stateless
                 _unhandledTriggerAction.Execute(representativeState.UnderlyingState, trigger, result?.UnmetGuardConditions);
                 return;
             }
+            // Check if this trigger should be ignored
+            if (result.Handler is IgnoredTriggerBehaviour)
+            {
+                return;
+            }
             // Handle special case, re-entry in superstate
             if (result.Handler is ReentryTriggerBehaviour handler)
             {
@@ -364,9 +369,13 @@ namespace Stateless
                 State = transition.Destination;
                 var newRepresentation = GetRepresentation(transition.Destination);
 
-                // Then Exit the final superstate
-                transition = new Transition(handler.Destination, handler.Destination, trigger);
-                newRepresentation.Exit(transition);
+                if (!source.Equals(transition.Destination))
+                {
+                    // Then Exit the final superstate
+                    transition = new Transition(handler.Destination, handler.Destination, trigger);
+                    newRepresentation.Exit(transition);
+                }
+
                 _onTransitionedEvent.Invoke(new Transition(source, handler.Destination, trigger));
 
                 newRepresentation.Enter(transition, args);
@@ -381,9 +390,34 @@ namespace Stateless
 
                 State = transition.Destination;
                 var newRepresentation = GetRepresentation(transition.Destination);
-                _onTransitionedEvent.Invoke(new Transition(source, destination, trigger));
 
-                newRepresentation.Enter(transition, args);
+                // Check if there is an intital transition configured
+                if (newRepresentation.HasInitialTransition)
+                {
+                    // Verify that the target state is a substate
+                    if (!newRepresentation.GetSubstates().Any(s => s.UnderlyingState.Equals(newRepresentation.InitialTransitionTarget)))
+                    {
+                        throw new InvalidOperationException($"The target ({newRepresentation.InitialTransitionTarget}) for the initial transition is not a substate.");
+                    }
+
+                    // Check if state has substate(s), and if an initial transition(s) has been set up.
+                    while (newRepresentation.GetSubstates().Any() && newRepresentation.HasInitialTransition)
+                    {
+                        var initialTransition = new Transition(source, newRepresentation.InitialTransitionTarget, trigger);
+                        newRepresentation = GetRepresentation(newRepresentation.InitialTransitionTarget);
+                        newRepresentation.Enter(initialTransition, args);
+                        State = newRepresentation.UnderlyingState;
+                    }
+                    //Alert all listeners of state transition
+                    _onTransitionedEvent.Invoke(new Transition(source, destination, trigger));
+                }
+                else
+                {
+                    //Alert all listeners of state transition
+                    _onTransitionedEvent.Invoke(new Transition(source, destination, trigger));
+
+                    newRepresentation.Enter(transition, args);
+                }
             }
             else
             {

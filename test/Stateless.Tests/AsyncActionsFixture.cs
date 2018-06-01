@@ -157,7 +157,18 @@ namespace Stateless.Tests
 
             Assert.Equal("foo", test); // Should await action
         }
+        [Fact]
+        public void WhenSyncFireOnUnhandledTriggerAsyncTask()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
 
+            sm.Configure(State.A)
+                .Permit(Trigger.X, State.B);
+
+            sm.OnUnhandledTriggerAsync((s, t) => TaskResult.Done);
+
+            Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.Z));
+        }
         [Fact]
         public void WhenSyncFireOnUnhandledTriggerAsyncAction()
         {
@@ -248,6 +259,32 @@ namespace Stateless.Tests
             Assert.True(onExitStateBfired);
             Assert.True(onEntryStateBfired);
         }
+
+        [Fact]
+        public async void IgnoredTriggerMustBeIgnoredAsync()
+        {
+            bool nullRefExcThrown = false;
+            var stateMachine = new StateMachine<State, Trigger>(State.B);
+            stateMachine.Configure(State.A)
+                .Permit(Trigger.X, State.C);
+
+            stateMachine.Configure(State.B)
+                .SubstateOf(State.A)
+                .Ignore(Trigger.X);
+
+            try
+            {
+                // >>> The following statement should not throw a NullReferenceException
+                await stateMachine.FireAsync(Trigger.X);
+            }
+            catch (NullReferenceException )
+            {
+                nullRefExcThrown = true;
+            }
+
+            Assert.False(nullRefExcThrown);
+        }
+
     }
 }
 

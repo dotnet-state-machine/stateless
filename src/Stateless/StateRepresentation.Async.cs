@@ -154,6 +154,7 @@ namespace Stateless
                 }
 
                 // Execute internal transition event handler
+                if (internalTransition == null) throw new NullReferenceException("The configuration is incorrect, no action assigned to this internal transition.");
                 await (internalTransition.ExecuteAsync(transition, args)).ConfigureAwait(false);
             }
 
