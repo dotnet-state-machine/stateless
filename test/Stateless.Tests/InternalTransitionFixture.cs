@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -17,7 +16,7 @@ namespace Stateless.Tests
         {
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A)
-                .InternalTransition(Trigger.X, (t) => { });
+                .InternalTransition(Trigger.X, t => { });
 
             Assert.Equal(State.A, sm.State);
             sm.Fire(Trigger.X);
@@ -30,11 +29,11 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .InternalTransition(Trigger.X, (t) => { })
+                .InternalTransition(Trigger.X, t => { })
                 .Permit(Trigger.Y, State.B);
 
             sm.Configure(State.B)
-                    .InternalTransition(Trigger.X, (t) => { })
+                    .InternalTransition(Trigger.X, t => { })
                     .Permit(Trigger.Y, State.A);
 
             // This should not cause any state changes
@@ -56,7 +55,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.B);
 
             sm.Configure(State.A)
-                    .InternalTransition(Trigger.X, (t) => { });
+                    .InternalTransition(Trigger.X, t => { });
 
             sm.Configure(State.B)
                     .SubstateOf(State.A);
@@ -75,7 +74,7 @@ namespace Stateless.Tests
 
             sm.Configure(State.B)
                     .SubstateOf(State.A)
-                    .InternalTransition(Trigger.X, (t) => { });
+                    .InternalTransition(Trigger.X, t => { });
 
             // This should not cause any state changes
             Assert.Equal(State.B, sm.State);
@@ -210,7 +209,7 @@ namespace Stateless.Tests
             var isPermitted = true;
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A)
-                .InternalTransitionIf(Trigger.X, (u) => isPermitted, t => { });
+                .InternalTransitionIf(Trigger.X, u => isPermitted, t => { });
 
             Assert.Equal(1, sm.GetPermittedTriggers().ToArray().Length);
             isPermitted = false;

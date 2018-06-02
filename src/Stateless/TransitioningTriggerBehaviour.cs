@@ -1,28 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Stateless
+﻿namespace Stateless
 {
     public partial class StateMachine<TState, TTrigger>
     {
         internal class TransitioningTriggerBehaviour : TriggerBehaviour
         {
-            readonly TState _destination;
-
-            internal TState Destination { get { return _destination; } }
+            internal TState Destination { get; }
 
             // transitionGuard can be null if there is no guard function on the transition
             public TransitioningTriggerBehaviour(TTrigger trigger, TState destination, TransitionGuard transitionGuard)
                 : base(trigger, transitionGuard)
             {
-                _destination = destination;
+                Destination = destination;
             }
 
             public override bool ResultsInTransitionFrom(TState source, object[] args, out TState destination)
             {
-                destination = _destination;
+                destination = Destination;
                 return true;
             }
         }

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Stateless
@@ -10,14 +7,12 @@ namespace Stateless
     {
         internal abstract class EntryActionBehavior
         {
-            Reflection.InvocationInfo _description;
-
             protected EntryActionBehavior(Reflection.InvocationInfo description)
             {
-                _description = description;
+                Description = description;
             }
 
-            public Reflection.InvocationInfo Description => _description;
+            public Reflection.InvocationInfo Description { get; }
 
             public abstract void Execute(Transition transition, object[] args);
             public abstract Task ExecuteAsync(Transition transition, object[] args);

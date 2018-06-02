@@ -8,15 +8,14 @@ namespace Stateless
         internal abstract class ActivateActionBehaviour
         {
             readonly TState _state;
-            readonly Reflection.InvocationInfo _actionDescription;
 
             protected ActivateActionBehaviour(TState state, Reflection.InvocationInfo actionDescription)
             {
                 _state = state;
-                _actionDescription = actionDescription ?? throw new ArgumentNullException(nameof(actionDescription));
+                Description = actionDescription ?? throw new ArgumentNullException(nameof(actionDescription));
             }
 
-            internal Reflection.InvocationInfo Description => _actionDescription;
+            internal Reflection.InvocationInfo Description { get; }
 
             public abstract void Execute();
             public abstract Task ExecuteAsync();

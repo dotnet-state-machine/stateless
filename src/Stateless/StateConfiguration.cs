@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 
 namespace Stateless
 {
@@ -55,7 +53,7 @@ namespace Stateless
             /// <returns></returns>
             public StateConfiguration InternalTransition(TTrigger trigger, Action<Transition> entryAction)
             {
-                return InternalTransitionIf(trigger, (t) => true, entryAction);
+                return InternalTransitionIf(trigger, t => true, entryAction);
             }
 
             /// <summary>
@@ -82,7 +80,7 @@ namespace Stateless
             /// <returns></returns>
             public StateConfiguration InternalTransition(TTrigger trigger, Action internalAction)
             {
-                return InternalTransitionIf(trigger, (t) => true, internalAction);
+                return InternalTransitionIf(trigger, t => true, internalAction);
             }
 
             /// <summary>
@@ -127,7 +125,7 @@ namespace Stateless
             /// <returns></returns>
             public StateConfiguration InternalTransition<TArg0>(TTrigger trigger, Action<Transition> internalAction)
             {
-                return InternalTransitionIf(trigger, (t) => true, internalAction);
+                return InternalTransitionIf(trigger, t => true, internalAction);
             }
 
             /// <summary>
@@ -139,7 +137,7 @@ namespace Stateless
             /// <returns></returns>
             public StateConfiguration InternalTransition<TArg0>(TriggerWithParameters<TArg0> trigger, Action<TArg0, Transition> internalAction)
             {
-                return InternalTransitionIf(trigger, (t) => true, internalAction);
+                return InternalTransitionIf(trigger, t => true, internalAction);
             }
 
             /// <summary>
@@ -170,7 +168,7 @@ namespace Stateless
             public StateConfiguration InternalTransition<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger,
                 Action<TArg0, TArg1, Transition> internalAction)
             {
-                return InternalTransitionIf(trigger, (t) => true, internalAction);
+                return InternalTransitionIf(trigger, t => true, internalAction);
             }
 
             /// <summary>
@@ -276,7 +274,7 @@ namespace Stateless
             /// <returns></returns>
             public StateConfiguration InternalTransition<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Action<TArg0, TArg1, TArg2, Transition> internalAction)
             {
-                return InternalTransitionIf(trigger, (t) => true, internalAction);
+                return InternalTransitionIf(trigger, t => true, internalAction);
             }
 
             /// <summary>

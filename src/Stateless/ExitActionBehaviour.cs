@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Stateless
@@ -10,17 +7,15 @@ namespace Stateless
     {
         internal abstract class ExitActionBehavior
         {
-            readonly Reflection.InvocationInfo _actionDescription;
-
             public abstract void Execute(Transition transition);
             public abstract Task ExecuteAsync(Transition transition);
 
             protected ExitActionBehavior(Reflection.InvocationInfo actionDescription)
             {
-                _actionDescription = actionDescription ?? throw new ArgumentNullException(nameof(actionDescription));
+                Description = actionDescription ?? throw new ArgumentNullException(nameof(actionDescription));
             }
 
-            internal Reflection.InvocationInfo Description => _actionDescription;
+            internal Reflection.InvocationInfo Description { get; }
 
             public class Sync : ExitActionBehavior
             {
