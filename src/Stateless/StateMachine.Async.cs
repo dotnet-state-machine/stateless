@@ -194,7 +194,7 @@ namespace Stateless
                     await newRepresentation.ExitAsync(transition);
                 }
 
-                _onTransitionedEvent.Invoke(new Transition(source, handler.Destination, trigger));
+                await _onTransitionedEvent.InvokeAsync(new Transition(source, handler.Destination, trigger));
 
                 await newRepresentation.EnterAsync(transition, args);
             }
