@@ -76,7 +76,7 @@ var stateMachine = new StateMachine<State, Trigger>(
 
 In this example the state machine will use the `myState` object for state storage.
 
-Another example can be found in the JsonExample solutioni, located in the example folder. 
+Another example can be found in the JsonExample solution, located in the example folder. 
 
 ### Introspection
 
