@@ -211,7 +211,7 @@ namespace Stateless.Graph
                 {
                     // This shouldn't happen
                 }
-                else if (subState.Substates.Count() > 0)
+                else if (subState.Substates.Any())
                 {
                     SuperState sub = new SuperState(subState);
                     States[subState.UnderlyingState.ToString()] = sub;

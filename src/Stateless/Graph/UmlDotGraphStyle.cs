@@ -88,7 +88,7 @@ namespace Stateless.Graph
             if (actions?.Count() > 0)
                 label += " / " + string.Join(", ", actions);
 
-            if (guards.Count() > 0)
+            if (guards.Any())
             {
                 foreach (var info in guards)
                 {

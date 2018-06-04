@@ -69,7 +69,7 @@ namespace Stateless.Graph
                         line = FormatOneTransition(stay.SourceState.NodeName, stay.Trigger.UnderlyingTrigger.ToString(),
                             null, stay.SourceState.NodeName, stay.Guards.Select(x => x.Description));
                     }
-                    else if (stay.SourceState.EntryActions.Count() == 0)
+                    else if (stay.SourceState.EntryActions.Count == 0)
                     {
                         line = FormatOneTransition(stay.SourceState.NodeName, stay.Trigger.UnderlyingTrigger.ToString(),
                             null, stay.SourceState.NodeName, stay.Guards.Select(x => x.Description));

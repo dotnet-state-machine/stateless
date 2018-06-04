@@ -82,7 +82,7 @@ namespace Stateless
             _stateAccessor = () => reference.State;
             _stateMutator = s => reference.State = s;
 
-            _firingMode = firingMode; ;
+            _firingMode = firingMode;
         }
 
 
@@ -364,30 +364,21 @@ namespace Stateless
                 // Handle special case, re-entry in superstate
                 // Check if it is an internal transition, or a transition from one state to another.
                 case ReentryTriggerBehaviour handler:
-                    {
-                        // Handle transition, and set new state
-                        var transition = new Transition(source, handler.Destination, trigger);
-                        HandleReentryTrigger(args, representativeState, transition);
-                        break;
-                    }
-                case DynamicTriggerBehaviour _ when (result.Handler.ResultsInTransitionFrom(source, args, out TState destination)):
+                {
+                    // Handle transition, and set new state
+                    var transition = new Transition(source, handler.Destination, trigger);
+                    HandleReentryTrigger(args, representativeState, transition);
+                    break;
+                }
+                case DynamicTriggerBehaviour _ when (result.Handler.ResultsInTransitionFrom(source, args, out var destination)):
+                case TransitioningTriggerBehaviour _ when (result.Handler.ResultsInTransitionFrom(source, args, out destination)):
                 {
                     // Handle transition, and set new state
                     var transition = new Transition(source, destination, trigger);
-
                     HandleTransitioningTrigger(args, representativeState, transition);
 
                     break;
                 }
-                case TransitioningTriggerBehaviour _ when (result.Handler.ResultsInTransitionFrom(source, args, out TState destination)):
-                    {
-                        // Handle transition, and set new state
-                        var transition = new Transition(source, destination, trigger);
-
-                        HandleTransitioningTrigger(args, representativeState, transition);
-
-                        break;
-                    }
                 case InternalTriggerBehaviour _:
                 {
                     // Internal transitions does not update the current state, but must execute the associated action.
@@ -565,9 +556,6 @@ namespace Stateless
 
         void DefaultUnhandledTriggerAction(TState state, TTrigger trigger, ICollection<string> unmetGuardConditions)
         {
-            var source = state;
-            var representativeState = GetRepresentation(source);
-
             if (unmetGuardConditions?.Any() ?? false)
                 throw new InvalidOperationException(
                     string.Format(
