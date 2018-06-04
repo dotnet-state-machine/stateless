@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Xunit;
+﻿using Xunit;
 
 namespace Stateless.Tests
 {
@@ -20,6 +16,31 @@ namespace Stateless.Tests
         {
             StateMachine<int, int>.Transition t = new StateMachine<int, int>.Transition(1, 2, 0);
             Assert.False(t.IsReentry);
+        }
+
+        [Fact]
+        public void TestInternalIf()
+        {
+            // Verifies that only one internal action is executed
+            var machine = new StateMachine<int, int>(1);
+
+            machine.Configure(1)
+                .InternalTransitionIf(
+                    1,
+                    t => { return true; },
+                    () =>
+                    {
+                        Assert.True(true);
+                    })
+                .InternalTransitionIf(
+                    1,
+                    u => { return false; },
+                    () =>
+                    {
+                        Assert.True(false);
+                    });
+
+            machine.Fire(1);
         }
     }
 }

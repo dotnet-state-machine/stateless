@@ -26,7 +26,7 @@ namespace Stateless.Graph
         /// </summary>
         /// <param name="state">The state to generate text for</param>
         /// <returns>Description of the state in the desired format</returns>
-        abstract internal string FormatOneState(Stateless.Graph.State state);
+        abstract internal string FormatOneState(State state);
 
         /// <summary>
         /// Returns the formatted text for a single superstate and its substates.
@@ -34,7 +34,7 @@ namespace Stateless.Graph
         /// </summary>
         /// <param name="stateInfo">The superstate to generate text for</param>
         /// <returns>Description of the superstate, and all its substates, in the desired format</returns>
-        abstract internal string FormatOneCluster(Stateless.Graph.SuperState stateInfo);
+        abstract internal string FormatOneCluster(SuperState stateInfo);
 
         /// <summary>
         /// Returns the formatted text for a single decision node.
@@ -55,7 +55,7 @@ namespace Stateless.Graph
         /// </summary>
         /// <param name="transitions">List of all transitions in the state graph</param>
         /// <returns>Description of all transitions, in the desired format</returns>
-        virtual internal List<string> FormatAllTransitions(List<Stateless.Graph.Transition> transitions)
+        virtual internal List<string> FormatAllTransitions(List<Transition> transitions)
         {
             List<string> lines = new List<string>();
 
@@ -69,7 +69,7 @@ namespace Stateless.Graph
                         line = FormatOneTransition(stay.SourceState.NodeName, stay.Trigger.UnderlyingTrigger.ToString(),
                             null, stay.SourceState.NodeName, stay.Guards.Select(x => x.Description));
                     }
-                    else if (stay.SourceState.EntryActions.Count() == 0)
+                    else if (stay.SourceState.EntryActions.Count == 0)
                     {
                         line = FormatOneTransition(stay.SourceState.NodeName, stay.Trigger.UnderlyingTrigger.ToString(),
                             null, stay.SourceState.NodeName, stay.Guards.Select(x => x.Description));
@@ -99,7 +99,7 @@ namespace Stateless.Graph
                                 dyn.DestinationState.NodeName, new List<string> { dyn.Criterion });
                         }
                         else
-                            throw new System.ArgumentException("Unexpected transition type");
+                            throw new ArgumentException("Unexpected transition type");
                     }
                 }
                 if (line != null)
@@ -121,7 +121,7 @@ namespace Stateless.Graph
         /// <returns></returns>
         virtual internal string FormatOneTransition(string sourceNodeName, string trigger, IEnumerable<string> actions, string destinationNodeName, IEnumerable<string> guards)
         {
-            throw new Exception("If you use IGraphStyle.FormatAllTransitions() you must implement an override of FormatOneTransition()");
+            throw new InvalidOperationException("If you use IGraphStyle.FormatAllTransitions() you must implement an override of FormatOneTransition()");
         }
     }
 }

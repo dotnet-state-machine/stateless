@@ -21,9 +21,9 @@ namespace Stateless.Reflection
             {
                 foreach (var item in triggerBehaviours.Value)
                 {
-                    if (item is StateMachine<TState, TTrigger>.IgnoredTriggerBehaviour)
+                    if (item is StateMachine<TState, TTrigger>.IgnoredTriggerBehaviour behaviour)
                     {
-                        ignoredTriggers.Add(IgnoredTransitionInfo.Create((StateMachine<TState, TTrigger>.IgnoredTriggerBehaviour)item));
+                        ignoredTriggers.Add(IgnoredTransitionInfo.Create(behaviour));
                     }
                 }
             }
@@ -54,6 +54,11 @@ namespace Stateless.Reflection
                 foreach (var item in triggerBehaviours.Value.Where(behaviour => (behaviour is StateMachine<TState, TTrigger>.TransitioningTriggerBehaviour)))
                 {
                     var destinationInfo = lookupState(((StateMachine<TState, TTrigger>.TransitioningTriggerBehaviour)item).Destination);
+                    fixedTransitions.Add(FixedTransitionInfo.Create(item, destinationInfo));
+                }
+                foreach (var item in triggerBehaviours.Value.Where(behaviour => (behaviour is StateMachine<TState, TTrigger>.ReentryTriggerBehaviour)))
+                {
+                    var destinationInfo = lookupState(((StateMachine<TState, TTrigger>.ReentryTriggerBehaviour)item).Destination);
                     fixedTransitions.Add(FixedTransitionInfo.Create(item, destinationInfo));
                 }
                 //Then add all the internal transitions

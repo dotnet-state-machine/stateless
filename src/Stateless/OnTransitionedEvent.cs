@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -27,7 +27,7 @@ namespace Stateless
                 _onTransitioned?.Invoke(transition);
 
                 foreach (var callback in _onTransitionedAsync)
-                    await callback(transition);
+                    await callback(transition).ConfigureAwait(false);
             }
 #endif
 

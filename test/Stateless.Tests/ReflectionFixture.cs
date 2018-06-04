@@ -685,11 +685,11 @@ namespace Stateless.Tests
                 .OnEntry(OnEntryTrans, UserDescription + "B-EntryTrans")
                 .OnExit(OnExitTrans, UserDescription + "B-ExitTrans");
             sm.Configure(State.C)
-                .OnEntry((t) => OnEntryTrans(t))
-                .OnExit((t) => OnExitTrans(t));
+                .OnEntry(t => OnEntryTrans(t))
+                .OnExit(t => OnExitTrans(t));
             sm.Configure(State.D)
-                .OnEntry((t) => OnEntryTrans(t), UserDescription + "D-EntryTrans")
-                .OnExit((t) => OnExitTrans(t), UserDescription + "D-ExitTrans");
+                .OnEntry(t => OnEntryTrans(t), UserDescription + "D-EntryTrans")
+                .OnExit(t => OnExitTrans(t), UserDescription + "D-ExitTrans");
 
             inf = sm.GetInfo();
 
@@ -723,15 +723,15 @@ namespace Stateless.Tests
                 .OnEntryFrom(triggerZ, OnEntryIntIntInt, UserDescription + "B-EntryIntIntInt");
             sm.Configure(State.C)
                 .OnEntryFrom(Trigger.X, () => OnEntry())
-                .OnEntryFrom(Trigger.Y, (trans) => OnEntryTrans(trans))
-                .OnEntryFrom(triggerX, (i) => OnEntryInt(i))
+                .OnEntryFrom(Trigger.Y, trans => OnEntryTrans(trans))
+                .OnEntryFrom(triggerX, i => OnEntryInt(i))
                 .OnEntryFrom(triggerX, (i, trans) => OnEntryIntTrans(i, trans))
                 .OnEntryFrom(triggerY, (i, j) => OnEntryIntInt(i, j))
                 .OnEntryFrom(triggerZ, (i, j, k) => OnEntryIntIntInt(i, j, k));
             sm.Configure(State.D)
                 .OnEntryFrom(Trigger.X, () => OnEntry(), UserDescription + "D-Entry")
-                .OnEntryFrom(Trigger.Y, (trans) => OnEntryTrans(trans), UserDescription + "D-EntryTrans")
-                .OnEntryFrom(triggerX, (i) => OnEntryInt(i), UserDescription + "D-EntryInt")
+                .OnEntryFrom(Trigger.Y, trans => OnEntryTrans(trans), UserDescription + "D-EntryTrans")
+                .OnEntryFrom(triggerX, i => OnEntryInt(i), UserDescription + "D-EntryInt")
                 .OnEntryFrom(triggerX, (i, trans) => OnEntryIntTrans(i, trans), UserDescription + "D-EntryIntTrans")
                 .OnEntryFrom(triggerY, (i, j) => OnEntryIntInt(i, j), UserDescription + "D-EntryIntInt")
                 .OnEntryFrom(triggerZ, (i, j, k) => OnEntryIntIntInt(i, j, k), UserDescription + "D-EntryIntIntInt");
@@ -797,11 +797,11 @@ namespace Stateless.Tests
                 .OnEntryAsync(OnEntryTransAsync, UserDescription + "B-EntryTrans")
                 .OnExitAsync(OnExitTransAsync, UserDescription + "B-ExitTrans");
             sm.Configure(State.C)
-                .OnEntryAsync((t) => OnEntryTransAsync(t))
-                .OnExitAsync((t) => OnExitTransAsync(t));
+                .OnEntryAsync(t => OnEntryTransAsync(t))
+                .OnExitAsync(t => OnExitTransAsync(t));
             sm.Configure(State.D)
-                .OnEntryAsync((t) => OnEntryTransAsync(t), UserDescription + "D-EntryTrans")
-                .OnExitAsync((t) => OnExitTransAsync(t), UserDescription + "D-ExitTrans");
+                .OnEntryAsync(t => OnEntryTransAsync(t), UserDescription + "D-EntryTrans")
+                .OnExitAsync(t => OnExitTransAsync(t), UserDescription + "D-ExitTrans");
 
             inf = sm.GetInfo();
 

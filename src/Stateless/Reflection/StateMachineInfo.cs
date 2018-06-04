@@ -9,7 +9,7 @@ namespace Stateless.Reflection
     /// </summary>
     public class StateMachineInfo
     {
-        internal StateMachineInfo(IEnumerable<StateInfo> states, System.Type stateType, System.Type triggerType)
+        internal StateMachineInfo(IEnumerable<StateInfo> states, Type stateType, Type triggerType)
         {
             States = states?.ToList() ?? throw new ArgumentNullException(nameof(states));
             StateType = stateType;

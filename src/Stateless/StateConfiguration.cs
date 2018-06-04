@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 
 namespace Stateless
 {
@@ -55,7 +53,7 @@ namespace Stateless
             /// <returns></returns>
             public StateConfiguration InternalTransition(TTrigger trigger, Action<Transition> entryAction)
             {
-                return InternalTransitionIf(trigger, () => true, entryAction);
+                return InternalTransitionIf(trigger, t => true, entryAction);
             }
 
             /// <summary>
@@ -64,13 +62,13 @@ namespace Stateless
             /// <param name="trigger"></param>
             /// <param name="guard">Function that must return true in order for the trigger to be accepted.</param>
             /// <param name="entryAction"></param>
+            /// <param name="guardDescription">A description of the guard condition</param>
             /// <returns></returns>
-            public StateConfiguration InternalTransitionIf(TTrigger trigger, Func<bool> guard, Action<Transition> entryAction)
+            public StateConfiguration InternalTransitionIf(TTrigger trigger, Func<object[], bool> guard, Action<Transition> entryAction, string guardDescription = null)
             {
                 if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard));
-                _representation.AddInternalAction(trigger, (t, args) => entryAction(t));
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger, guard, (t, args) => entryAction(t), guardDescription));
                 return this;
             }
 
@@ -82,7 +80,7 @@ namespace Stateless
             /// <returns></returns>
             public StateConfiguration InternalTransition(TTrigger trigger, Action internalAction)
             {
-                return InternalTransitionIf(trigger, () => true, internalAction);
+                return InternalTransitionIf(trigger, t => true, internalAction);
             }
 
             /// <summary>
@@ -91,13 +89,13 @@ namespace Stateless
             /// <param name="trigger">The accepted trigger</param>
             /// <param name="guard">Function that must return true in order for the trigger to be accepted.</param>
             /// <param name="internalAction">The action performed by the internal transition</param>
+            /// <param name="guardDescription">A description of the guard condition</param>
             /// <returns></returns>
-            public StateConfiguration InternalTransitionIf(TTrigger trigger, Func<bool> guard, Action internalAction)
+            public StateConfiguration InternalTransitionIf(TTrigger trigger, Func<object[], bool> guard, Action internalAction, string guardDescription = null)
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard));
-                _representation.AddInternalAction(trigger, (t, args) => internalAction());
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger, guard, (t, args) => internalAction(), guardDescription));
                 return this;
             }
 
@@ -108,13 +106,13 @@ namespace Stateless
             /// <param name="trigger">The accepted trigger</param>
             /// <param name="guard">Function that must return true in order for the trigger to be accepted.</param>
             /// <param name="internalAction">The action performed by the internal transition</param>
+            /// <param name="guardDescription">A description of the guard condition</param>
             /// <returns></returns>
-            public StateConfiguration InternalTransitionIf<TArg0>(TTrigger trigger, Func<bool> guard, Action<Transition> internalAction)
+            public StateConfiguration InternalTransitionIf<TArg0>(TTrigger trigger, Func<object[], bool> guard, Action<Transition> internalAction, string guardDescription = null)
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard));
-                _representation.AddInternalAction(trigger, (t, args) => internalAction(t));
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger, guard, (t, args) => internalAction(t), guardDescription));
                 return this;
             }
 
@@ -127,7 +125,7 @@ namespace Stateless
             /// <returns></returns>
             public StateConfiguration InternalTransition<TArg0>(TTrigger trigger, Action<Transition> internalAction)
             {
-                return InternalTransitionIf(trigger, () => true, internalAction);
+                return InternalTransitionIf(trigger, t => true, internalAction);
             }
 
             /// <summary>
@@ -139,7 +137,7 @@ namespace Stateless
             /// <returns></returns>
             public StateConfiguration InternalTransition<TArg0>(TriggerWithParameters<TArg0> trigger, Action<TArg0, Transition> internalAction)
             {
-                return InternalTransitionIf(trigger, () => true, internalAction);
+                return InternalTransitionIf(trigger, t => true, internalAction);
             }
 
             /// <summary>
@@ -149,13 +147,13 @@ namespace Stateless
             /// <param name="trigger">The accepted trigger</param>
             /// <param name="guard">Function that must return true in order for the trigger to be accepted.</param>
             /// <param name="internalAction">The action performed by the internal transition</param>
+            /// <param name="guardDescription">A description of the guard condition</param>
             /// <returns></returns>
-            public StateConfiguration InternalTransitionIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<bool> guard, Action<TArg0, Transition> internalAction)
+            public StateConfiguration InternalTransitionIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, bool> guard, Action<TArg0, Transition> internalAction, string guardDescription = null)
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard));
-                _representation.AddInternalAction(trigger.Trigger, (t, args) => internalAction(ParameterConversion.Unpack<TArg0>(args, 0), t));
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger.Trigger, TransitionGuard.ToPackedGuard(guard), (t, args) => internalAction(ParameterConversion.Unpack<TArg0>(args, 0), t), guardDescription));
                 return this;
             }
 
@@ -187,7 +185,7 @@ namespace Stateless
             public StateConfiguration InternalTransition<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger,
                 Action<TArg0, TArg1, Transition> internalAction)
             {
-                return InternalTransitionIf(trigger, () => true, internalAction);
+                return InternalTransitionIf(trigger, t => true, internalAction);
             }
 
             /// <summary>
@@ -198,15 +196,41 @@ namespace Stateless
             /// <param name="trigger">The accepted trigger</param>
             /// <param name="guard">Function that must return true in order for the trigger to be accepted.</param>
             /// <param name="internalAction">The action performed by the internal transition</param>
+            /// <param name="guardDescription">A description of the guard condition</param>
             /// <returns></returns>
-            public StateConfiguration InternalTransitionIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<bool> guard, Action<TArg0, TArg1, Transition> internalAction)
+            public StateConfiguration InternalTransitionIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<object[], bool> guard, Action<TArg0, TArg1, Transition> internalAction, string guardDescription = null)
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard));
-                _representation.AddInternalAction(trigger.Trigger, (t, args) => internalAction(
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger.Trigger, guard, (t, args) => internalAction(
+                     ParameterConversion.Unpack<TArg0>(args, 0),
+                     ParameterConversion.Unpack<TArg1>(args, 1), t),
+                     guardDescription));
+                return this;
+            }
+
+            /// <summary>
+            /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <typeparam name="TArg1"></typeparam>
+            /// <param name="trigger">The accepted trigger</param>
+            /// <param name="guard">Function that must return true in order for the trigger to be accepted.</param>
+            /// <param name="internalAction">The action performed by the internal transition</param>
+            /// <param name="guardDescription">A description of the guard condition</param>
+            /// <returns></returns>
+            public StateConfiguration InternalTransitionIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, bool> guard, Action<TArg0, TArg1, Transition> internalAction, string guardDescription = null)
+            {
+                if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
+
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(
+                    trigger.Trigger,
+                    TransitionGuard.ToPackedGuard(guard),
+                    (t, args) => internalAction(
                     ParameterConversion.Unpack<TArg0>(args, 0),
-                    ParameterConversion.Unpack<TArg1>(args, 1), t));
+                    ParameterConversion.Unpack<TArg1>(args, 1), t),
+                    guardDescription
+                    ));
                 return this;
             }
 
@@ -239,16 +263,40 @@ namespace Stateless
             /// <param name="trigger">The accepted trigger</param>
             /// <param name="guard">Function that must return true in order for the trigger to be accepted.</param>
             /// <param name="internalAction">The action performed by the internal transition</param>
+            /// <param name="guardDescription">A description of the guard condition</param>
             /// <returns></returns>
-            public StateConfiguration InternalTransitionIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<bool> guard, Action<TArg0, TArg1, TArg2, Transition> internalAction)
+            public StateConfiguration InternalTransitionIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<object[], bool> guard, Action<TArg0, TArg1, TArg2, Transition> internalAction, string guardDescription = null)
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard));
-                _representation.AddInternalAction(trigger.Trigger, (t, args) => internalAction(
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger.Trigger, guard, (t, args) => internalAction(
                     ParameterConversion.Unpack<TArg0>(args, 0),
                     ParameterConversion.Unpack<TArg1>(args, 1),
-                    ParameterConversion.Unpack<TArg2>(args, 2), t));
+                    ParameterConversion.Unpack<TArg2>(args, 2), t),
+                    guardDescription));
+                return this;
+            }
+
+            /// <summary>
+            /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <typeparam name="TArg1"></typeparam>
+            /// <typeparam name="TArg2"></typeparam>
+            /// <param name="trigger">The accepted trigger</param>
+            /// <param name="guard">Function that must return true in order for the trigger to be accepted.</param>
+            /// <param name="internalAction">The action performed by the internal transition</param>
+            /// <param name="guardDescription">A description of the guard condition</param>
+            /// <returns></returns>
+            public StateConfiguration InternalTransitionIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, bool> guard, Action<TArg0, TArg1, TArg2, Transition> internalAction, string guardDescription = null)
+            {
+                if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
+
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger.Trigger, TransitionGuard.ToPackedGuard(guard), (t, args) => internalAction(
+                    ParameterConversion.Unpack<TArg0>(args, 0),
+                    ParameterConversion.Unpack<TArg1>(args, 1),
+                    ParameterConversion.Unpack<TArg2>(args, 2), t),
+                    guardDescription));
                 return this;
             }
 
@@ -285,7 +333,7 @@ namespace Stateless
             /// <returns></returns>
             public StateConfiguration InternalTransition<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Action<TArg0, TArg1, TArg2, Transition> internalAction)
             {
-                return InternalTransitionIf(trigger, () => true, internalAction);
+                return InternalTransitionIf(trigger, t => true, internalAction);
             }
 
             /// <summary>
@@ -472,7 +520,7 @@ namespace Stateless
             /// </remarks>
             public StateConfiguration PermitReentry(TTrigger trigger)
             {
-                return InternalPermit(trigger, _representation.UnderlyingState);
+                return InternalPermitReentryIf(trigger, _representation.UnderlyingState, null);
             }
 
             /// <summary>
@@ -490,7 +538,7 @@ namespace Stateless
             /// </remarks>
             public StateConfiguration PermitReentryIf(TTrigger trigger, Func<bool> guard, string guardDescription = null)
             {
-                return InternalPermitIf(
+                return InternalPermitReentryIf(
                     trigger,
                     _representation.UnderlyingState,
                     new TransitionGuard(guard, guardDescription));
@@ -510,7 +558,7 @@ namespace Stateless
             /// </remarks>
             public StateConfiguration PermitReentryIf(TTrigger trigger, params Tuple<Func<bool>, string>[] guards)
             {
-                return InternalPermitIf(
+                return InternalPermitReentryIf(
                     trigger,
                     _representation.UnderlyingState,
                     new TransitionGuard(guards));
@@ -527,7 +575,7 @@ namespace Stateless
             /// <returns>The reciever.</returns>
             public StateConfiguration PermitReentryIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, bool> guard, string guardDescription = null)
             {
-                return InternalPermitIf(
+                return InternalPermitReentryIf(
                     trigger.Trigger,
                     _representation.UnderlyingState,
                     new TransitionGuard(TransitionGuard.ToPackedGuard(guard), guardDescription)
@@ -545,7 +593,7 @@ namespace Stateless
             /// <returns></returns>
             public StateConfiguration PermitReentryIf<TArg0>(TriggerWithParameters<TArg0> trigger, params Tuple<Func<TArg0, bool>, string>[] guards)
             {
-                return InternalPermitIf(
+                return InternalPermitReentryIf(
                     trigger.Trigger,
                     _representation.UnderlyingState,
                     new TransitionGuard(TransitionGuard.ToPackedGuards(guards))
@@ -564,7 +612,7 @@ namespace Stateless
             /// <returns>The reciever.</returns>
             public StateConfiguration PermitReentryIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, bool> guard, string guardDescription = null)
             {
-                return InternalPermitIf(
+                return InternalPermitReentryIf(
                     trigger.Trigger,
                     _representation.UnderlyingState,
                     new TransitionGuard(TransitionGuard.ToPackedGuard(guard), guardDescription)
@@ -584,7 +632,7 @@ namespace Stateless
             /// <returns>The reciever.</returns>
             public StateConfiguration PermitReentryIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, params Tuple<Func<TArg0, TArg1, bool>, string>[] guards)
             {
-                return InternalPermitIf(
+                return InternalPermitReentryIf(
                     trigger.Trigger,
                     _representation.UnderlyingState,
                     new TransitionGuard(TransitionGuard.ToPackedGuards(guards))
@@ -604,7 +652,7 @@ namespace Stateless
             /// <returns>The reciever.</returns>
             public StateConfiguration PermitReentryIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, bool> guard, string guardDescription = null)
             {
-                return InternalPermitIf(
+                return InternalPermitReentryIf(
                     trigger.Trigger,
                     _representation.UnderlyingState,
                     new TransitionGuard(TransitionGuard.ToPackedGuard(guard), guardDescription)
@@ -625,7 +673,7 @@ namespace Stateless
             /// <returns>The reciever.</returns>
             public StateConfiguration PermitReentryIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, params Tuple<Func<TArg0, TArg1, TArg2, bool>, string>[] guards)
             {
-                return InternalPermitIf(
+                return InternalPermitReentryIf(
                     trigger.Trigger,
                     _representation.UnderlyingState,
                     new TransitionGuard(TransitionGuard.ToPackedGuards(guards))
@@ -1666,7 +1714,11 @@ namespace Stateless
                 _representation.AddTriggerBehaviour(new TransitioningTriggerBehaviour(trigger, destinationState, transitionGuard));
                 return this;
             }
-
+            StateConfiguration InternalPermitReentryIf(TTrigger trigger, TState destinationState, TransitionGuard transitionGuard)
+            {
+                _representation.AddTriggerBehaviour(new ReentryTriggerBehaviour(trigger, destinationState, transitionGuard));
+                return this;
+            }
             StateConfiguration InternalPermitDynamicIf(TTrigger trigger, Func<object[], TState> destinationStateSelector,
                 string destinationStateSelectorDescription, TransitionGuard transitionGuard, Reflection.DynamicStateInfos possibleDestinationStates)
             {
@@ -1681,6 +1733,19 @@ namespace Stateless
                         Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),
                         possibleDestinationStates)
                     ));
+                return this;
+            }
+            /// <summary>
+            ///  Adds internal transition to this state. When entering the current state the state machine will look for an initial transition, and enter the target state.
+            /// </summary>
+            /// <param name="targetState">The target initial state</param>
+            /// <returns>A stateConfiguration object</returns>
+            public StateConfiguration InitialTransition(TState targetState)
+            {
+                if (_representation.HasInitialTransition) throw new InvalidOperationException($"This state has already been configured with an inital transition ({_representation.InitialTransitionTarget}).");
+                if (targetState.Equals(State)) throw new ArgumentException("Setting the current state as the target destination state is not allowed.", nameof(targetState));
+                  
+                _representation.SetInitialTransition(targetState);
                 return this;
             }
         }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Xunit;
 
 namespace Stateless.Tests
@@ -279,8 +278,8 @@ namespace Stateless.Tests
             var rep = CreateRepresentation(State.B);
 
             var falseConditions = new[] {
-                new Tuple<Func<object[], bool>, string>((args) => true, "1"),
-                new Tuple<Func<object[], bool>, string>((args) => false, "2")
+                new Tuple<Func<object[], bool>, string>(args => true, "1"),
+                new Tuple<Func<object[], bool>, string>(args => false, "2")
             };
 
             var transitionGuard = new StateMachine<State, Trigger>.TransitionGuard(falseConditions);
@@ -320,13 +319,11 @@ namespace Stateless.Tests
             var transition = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(Trigger.X, State.C, transitionGuard);
             super.AddTriggerBehaviour(transition);
 
-            sub.TryFindHandler(Trigger.X, new object[0], out StateMachine<State, Trigger>.TriggerBehaviourResult result);
+            var reslt= sub.TryFindHandler(Trigger.X, new object[0], out StateMachine<State, Trigger>.TriggerBehaviourResult result);
 
+            Assert.False(reslt);
             Assert.False(sub.CanHandle(Trigger.X));
             Assert.False(super.CanHandle(Trigger.X));
-            Assert.NotNull(result);
-            Assert.False(result?.Handler.GuardConditionsMet());
-            Assert.Contains("2", result?.UnmetGuardConditions.ToArray());
             
         }
         [Fact]

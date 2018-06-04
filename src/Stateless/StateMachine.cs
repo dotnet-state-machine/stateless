@@ -6,49 +6,85 @@ using System.Linq;
 namespace Stateless
 {
     /// <summary>
+    /// Enum for the different modes used when Fire-ing a trigger
+    /// </summary>
+    public enum FiringMode
+    {
+        /// <summary> Use immediate mode when the queing of trigger events are not needed. Care must be taken when using this mode, as there is no run-to-completion guaranteed.</summary>
+        Immediate,
+        /// <summary> Use the queued Fire-ing mode when run-to-completion is required. This is the recommended mode.</summary>
+        Queued
+    }
+
+    /// <summary>
     /// Models behaviour as transitions between a finite set of states.
     /// </summary>
     /// <typeparam name="TState">The type used to represent the states.</typeparam>
     /// <typeparam name="TTrigger">The type used to represent the triggers that cause state transitions.</typeparam>
     public partial class StateMachine<TState, TTrigger>
     {
-        readonly IDictionary<TState, StateRepresentation> _stateConfiguration = new Dictionary<TState, StateRepresentation>();
-        readonly IDictionary<TTrigger, TriggerWithParameters> _triggerConfiguration = new Dictionary<TTrigger, TriggerWithParameters>();
-        readonly Func<TState> _stateAccessor;
-        readonly Action<TState> _stateMutator;
-        UnhandledTriggerAction _unhandledTriggerAction;
-        OnTransitionedEvent _onTransitionedEvent;
+        private readonly IDictionary<TState, StateRepresentation> _stateConfiguration = new Dictionary<TState, StateRepresentation>();
+        private readonly IDictionary<TTrigger, TriggerWithParameters> _triggerConfiguration = new Dictionary<TTrigger, TriggerWithParameters>();
+        private readonly Func<TState> _stateAccessor;
+        private readonly Action<TState> _stateMutator;
+        private UnhandledTriggerAction _unhandledTriggerAction;
+        private OnTransitionedEvent _onTransitionedEvent;
+        private readonly FiringMode _firingMode;
 
-        class QueuedTrigger
+        private class QueuedTrigger
         {
             public TTrigger Trigger { get; set; }
             public object[] Args { get; set; }
         }
 
-        readonly Queue<QueuedTrigger> _eventQueue = new Queue<QueuedTrigger>();
-        bool _firing;
+        private readonly Queue<QueuedTrigger> _eventQueue = new Queue<QueuedTrigger>();
+        private bool _firing;
 
         /// <summary>
         /// Construct a state machine with external state storage.
         /// </summary>
         /// <param name="stateAccessor">A function that will be called to read the current state value.</param>
         /// <param name="stateMutator">An action that will be called to write new state values.</param>
-        public StateMachine(Func<TState> stateAccessor, Action<TState> stateMutator) : this()
+        public StateMachine(Func<TState> stateAccessor, Action<TState> stateMutator) :this(stateAccessor, stateMutator, FiringMode.Queued)
         {
-            _stateAccessor = stateAccessor ?? throw new ArgumentNullException(nameof(stateAccessor));
-            _stateMutator = stateMutator ?? throw new ArgumentNullException(nameof(stateMutator));
         }
 
         /// <summary>
         /// Construct a state machine.
         /// </summary>
         /// <param name="initialState">The initial state.</param>
-        public StateMachine(TState initialState) : this()
+        public StateMachine(TState initialState) : this(initialState, FiringMode.Queued)
+        {
+        }
+
+        /// <summary>
+        /// Construct a state machine with external state storage.
+        /// </summary>
+        /// <param name="stateAccessor">A function that will be called to read the current state value.</param>
+        /// <param name="stateMutator">An action that will be called to write new state values.</param>
+        /// <param name="firingMode">Optional specification of fireing mode.</param>
+        public StateMachine(Func<TState> stateAccessor, Action<TState> stateMutator, FiringMode firingMode) : this()
+        {
+            _stateAccessor = stateAccessor ?? throw new ArgumentNullException(nameof(stateAccessor));
+            _stateMutator = stateMutator ?? throw new ArgumentNullException(nameof(stateMutator));
+
+            _firingMode = firingMode;
+        }
+
+        /// <summary>
+        /// Construct a state machine.
+        /// </summary>
+        /// <param name="initialState">The initial state.</param>
+        /// <param name="firingMode">Optional specification of fireing mode.</param>
+        public StateMachine(TState initialState, FiringMode firingMode) : this()
         {
             var reference = new StateReference { State = initialState };
             _stateAccessor = () => reference.State;
             _stateMutator = s => reference.State = s;
+
+            _firingMode = firingMode;
         }
+
 
         /// <summary>
         /// Default constuctor
@@ -93,6 +129,14 @@ namespace Stateless
             return CurrentRepresentation.GetPermittedTriggers(args);
         }
 
+        /// <summary>
+        /// The currently-permissible trigger values.
+        /// </summary>
+        public IEnumerable<TTrigger> GetPermittedTriggers(params object[] args)
+        {
+            return CurrentRepresentation.GetPermittedTriggers(args);
+        }
+
         StateRepresentation CurrentRepresentation
         {
             get
@@ -108,8 +152,10 @@ namespace Stateless
         {
             var representations = _stateConfiguration.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
-            var reachable = _stateConfiguration
-                .SelectMany(kvp => kvp.Value.TriggerBehaviours.SelectMany(b => b.Value.OfType<TransitioningTriggerBehaviour>().Select(tb => tb.Destination)))
+            var behaviours = _stateConfiguration.SelectMany(kvp => kvp.Value.TriggerBehaviours.SelectMany(b => b.Value.OfType<TransitioningTriggerBehaviour>().Select(tb => tb.Destination))).ToList();
+            behaviours.AddRange(_stateConfiguration.SelectMany(kvp => kvp.Value.TriggerBehaviours.SelectMany(b => b.Value.OfType<ReentryTriggerBehaviour>().Select(tb => tb.Destination))).ToList());
+
+            var reachable = behaviours
                 .Distinct()
                 .Except(representations.Keys)
                 .Select(underlying => new StateRepresentation(underlying))
@@ -242,13 +288,35 @@ namespace Stateless
         }
 
         /// <summary>
+        /// Determine how to Fire the trigger
+        /// </summary>
+        /// <param name="trigger">The trigger. </param>
+        /// <param name="args">A variable-length parameters list containing arguments. </param>
+        void InternalFire(TTrigger trigger, params object[] args)
+        {
+            switch (_firingMode)
+            {
+                case FiringMode.Immediate:
+                    InternalFireOne(trigger, args);
+                    break;
+                case FiringMode.Queued:
+                    InternalFireQueued(trigger, args);
+                    break;
+                default:
+                    // If something is completely messed up we let the user know ;-)
+                    throw new InvalidOperationException("The firing mode has not been configured!");
+            }
+        }
+
+        /// <summary>
         /// Queue events and then fire in order.
         /// If only one event is queued, this behaves identically to the non-queued version.
         /// </summary>
         /// <param name="trigger">  The trigger. </param>
         /// <param name="args">     A variable-length parameters list containing arguments. </param>
-        void InternalFire(TTrigger trigger, params object[] args)
+        private void InternalFireQueued(TTrigger trigger, params object[] args)
         {
+            // If a trigger is already being handled then the trigger will be queued (FIFO) and processed later.
             if (_firing)
             {
                 _eventQueue.Enqueue(new QueuedTrigger { Trigger = trigger, Args = args });
@@ -260,7 +328,8 @@ namespace Stateless
                 _firing = true;
 
                 InternalFireOne(trigger, args);
-
+                
+                // Check if any other triggers have been queued, and fire those as well.
                 while (_eventQueue.Count != 0)
                 {
                     var queuedEvent = _eventQueue.Dequeue();
@@ -273,37 +342,113 @@ namespace Stateless
             }
         }
 
+        /// <summary>
+        /// This method handles the execution of a trigger handler. It finds a
+        /// handle, then updates the current state information.
+        /// </summary>
+        /// <param name="trigger"></param>
+        /// <param name="args"></param>
         void InternalFireOne(TTrigger trigger, params object[] args)
         {
+            // If this is a trigger with parameters, we must validate the parameter(s)
             if (_triggerConfiguration.TryGetValue(trigger, out TriggerWithParameters configuration))
                 configuration.ValidateParameters(args);
 
             var source = State;
             var representativeState = GetRepresentation(source);
 
+            // Try to find a trigger handler, either in the current state or a super state.
             if (!representativeState.TryFindHandler(trigger, args, out TriggerBehaviourResult result))
             {
                 _unhandledTriggerAction.Execute(representativeState.UnderlyingState, trigger, result?.UnmetGuardConditions);
                 return;
             }
 
-            if (result.Handler.ResultsInTransitionFrom(source, args, out TState destination))
+            switch (result.Handler)
             {
-                var transition = new Transition(source, destination, trigger);
+                // Check if this trigger should be ignored
+                case IgnoredTriggerBehaviour _:
+                    return;
+                // Handle special case, re-entry in superstate
+                // Check if it is an internal transition, or a transition from one state to another.
+                case ReentryTriggerBehaviour handler:
+                {
+                    // Handle transition, and set new state
+                    var transition = new Transition(source, handler.Destination, trigger);
+                    HandleReentryTrigger(args, representativeState, transition);
+                    break;
+                }
+                case DynamicTriggerBehaviour _ when (result.Handler.ResultsInTransitionFrom(source, args, out var destination)):
+                case TransitioningTriggerBehaviour _ when (result.Handler.ResultsInTransitionFrom(source, args, out destination)):
+                {
+                    // Handle transition, and set new state
+                    var transition = new Transition(source, destination, trigger);
+                    HandleTransitioningTrigger(args, representativeState, transition);
 
-                transition = representativeState.Exit(transition);
+                    break;
+                }
+                case InternalTriggerBehaviour _:
+                {
+                    // Internal transitions does not update the current state, but must execute the associated action.
+                    var transition = new Transition(source, source, trigger);
+                    CurrentRepresentation.InternalAction(transition, args);
+                    break;
+                }
+                default:
+                    throw new InvalidOperationException("State machine configuration incorrect, no handler for trigger.");
+            }
+        }
 
-                State = transition.Destination;
-                var newRepresentation = GetRepresentation(transition.Destination);
+        private void HandleReentryTrigger(object[] args, StateRepresentation representativeState, Transition transition)
+        {
+            transition = representativeState.Exit(transition);
+            State = transition.Destination;
+            var newRepresentation = GetRepresentation(transition.Destination);
+
+            if (!transition.Source.Equals(transition.Destination))
+            {
+                // Then Exit the final superstate
+                transition = new Transition(transition.Destination, transition.Destination, transition.Trigger);
+                newRepresentation.Exit(transition);
+            }
+
+            _onTransitionedEvent.Invoke(transition);
+
+            newRepresentation.Enter(transition, args);
+           }
+
+        private void HandleTransitioningTrigger( object[] args, StateRepresentation representativeState, Transition transition)
+        {
+            transition = representativeState.Exit(transition);
+
+            State = transition.Destination;
+            var newRepresentation = GetRepresentation(transition.Destination);
+
+            // Check if there is an intital transition configured
+            if (newRepresentation.HasInitialTransition)
+            {
+                // Verify that the target state is a substate
+                if (!newRepresentation.GetSubstates().Any(s => s.UnderlyingState.Equals(newRepresentation.InitialTransitionTarget)))
+                {
+                    throw new InvalidOperationException($"The target ({newRepresentation.InitialTransitionTarget}) for the initial transition is not a substate.");
+                }
+
+                // Check if state has substate(s), and if an initial transition(s) has been set up.
+                while (newRepresentation.GetSubstates().Any() && newRepresentation.HasInitialTransition)
+                {
+                    var initialTransition = new Transition(transition.Source, newRepresentation.InitialTransitionTarget, transition.Trigger);
+                    newRepresentation = GetRepresentation(newRepresentation.InitialTransitionTarget);
+                    newRepresentation.Enter(initialTransition, args);
+                    State = newRepresentation.UnderlyingState;
+                }
+                //Alert all listeners of state transition
                 _onTransitionedEvent.Invoke(transition);
-
-                newRepresentation.Enter(transition, args);
             }
             else
             {
-                var transition = new Transition(source, destination, trigger);
-
-                CurrentRepresentation.InternalAction(transition, args);
+                //Alert all listeners of state transition
+                _onTransitionedEvent.Invoke(transition);
+                newRepresentation.Enter(transition, args);
             }
         }
 
@@ -419,9 +564,6 @@ namespace Stateless
 
         void DefaultUnhandledTriggerAction(TState state, TTrigger trigger, ICollection<string> unmetGuardConditions)
         {
-            var source = state;
-            var representativeState = GetRepresentation(source);
-
             if (unmetGuardConditions?.Any() ?? false)
                 throw new InvalidOperationException(
                     string.Format(

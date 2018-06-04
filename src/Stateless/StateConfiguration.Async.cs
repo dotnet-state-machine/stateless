@@ -1,10 +1,8 @@
 ﻿#if TASKS
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Stateless
@@ -23,9 +21,11 @@ namespace Stateless
             public StateConfiguration InternalTransitionAsyncIf(TTrigger trigger, Func<bool> guard, Func<Transition, Task> entryAction)
             {
                 if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
-
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard));
-                _representation.AddInternalAction(trigger, (t, args) => entryAction(t));
+                if (!entryAction.GetMethodInfo().IsDefined(typeof(AsyncStateMachineAttribute),false))
+                {
+                    throw new ArgumentException("The supplied method is not tagged 'async'", nameof(entryAction));
+                }
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Async(trigger, guard, (t, args) => entryAction(t)));
                 return this;
             }
 
@@ -39,9 +39,11 @@ namespace Stateless
             public StateConfiguration InternalTransitionAsyncIf(TTrigger trigger, Func<bool> guard, Func<Task> internalAction)
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
-
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard));
-                _representation.AddInternalAction(trigger, (t, args) => internalAction());
+                if (!internalAction.GetMethodInfo().IsDefined(typeof(AsyncStateMachineAttribute), false))
+                {
+                    throw new ArgumentException("The supplied method is not tagged 'async'", nameof(internalAction));
+                }
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Async(trigger, guard, (t, args) => internalAction()));
                 return this;
             }
 
@@ -56,9 +58,11 @@ namespace Stateless
             public StateConfiguration InternalTransitionAsyncIf<TArg0>(TTrigger trigger, Func<bool> guard, Func<Transition, Task> internalAction)
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
-
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard));
-                _representation.AddInternalAction(trigger, (t, args) => internalAction(t));
+                if (!internalAction.GetMethodInfo().IsDefined(typeof(AsyncStateMachineAttribute), false))
+                {
+                    throw new ArgumentException("The supplied method is not tagged 'async'", nameof(internalAction));
+                }
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Async(trigger, guard, (t, args) => internalAction(t)));
                 return this;
             }
 
@@ -73,9 +77,11 @@ namespace Stateless
             public StateConfiguration InternalTransitionAsyncIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<bool> guard, Func<TArg0, Transition, Task> internalAction)
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
-
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard));
-                _representation.AddInternalAction(trigger.Trigger, (t, args) => internalAction(ParameterConversion.Unpack<TArg0>(args, 0), t));
+                if (!internalAction.GetMethodInfo().IsDefined(typeof(AsyncStateMachineAttribute), false))
+                {
+                    throw new ArgumentException("The supplied method is not tagged 'async'", nameof(internalAction));
+                }
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Async(trigger.Trigger, guard, (t, args) => internalAction(ParameterConversion.Unpack<TArg0>(args, 0), t)));
                 return this;
             }
 
@@ -91,11 +97,13 @@ namespace Stateless
             public StateConfiguration InternalTransitionAsyncIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<bool> guard, Func<TArg0, TArg1, Transition, Task> internalAction)
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
-
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard));
-                _representation.AddInternalAction(trigger.Trigger, (t, args) => internalAction(
+                if (!internalAction.GetMethodInfo().IsDefined(typeof(AsyncStateMachineAttribute), false))
+                {
+                    throw new ArgumentException("The supplied method is not tagged 'async'", nameof(internalAction));
+                }
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Async(trigger.Trigger, guard, (t, args) => internalAction(
                     ParameterConversion.Unpack<TArg0>(args, 0),
-                    ParameterConversion.Unpack<TArg1>(args, 1), t));
+                    ParameterConversion.Unpack<TArg1>(args, 1), t)));
                 return this;
             }
 
@@ -112,12 +120,14 @@ namespace Stateless
             public StateConfiguration InternalTransitionAsyncIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<bool> guard, Func<TArg0, TArg1, TArg2, Transition, Task> internalAction)
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
-
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard));
-                _representation.AddInternalAction(trigger.Trigger, (t, args) => internalAction(
+                if (!internalAction.GetMethodInfo().IsDefined(typeof(AsyncStateMachineAttribute), false))
+                {
+                    throw new ArgumentException("The supplied method is not tagged 'async'", nameof(internalAction));
+                }
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Async(trigger.Trigger, guard, (t, args) => internalAction(
                     ParameterConversion.Unpack<TArg0>(args, 0),
                     ParameterConversion.Unpack<TArg1>(args, 1),
-                    ParameterConversion.Unpack<TArg2>(args, 2), t));
+                    ParameterConversion.Unpack<TArg2>(args, 2), t)));
                 return this;
             }
 

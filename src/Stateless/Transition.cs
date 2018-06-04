@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Stateless
+﻿namespace Stateless
 {
     public partial class StateMachine<TState, TTrigger>
     {
@@ -12,10 +7,6 @@ namespace Stateless
         /// </summary>
         public class Transition
         {
-            readonly TState _source;
-            readonly TState _destination;
-            readonly TTrigger _trigger;
-
             /// <summary>
             /// Construct a transition.
             /// </summary>
@@ -24,30 +15,30 @@ namespace Stateless
             /// <param name="trigger">The trigger that caused the transition.</param>
             public Transition(TState source, TState destination, TTrigger trigger)
             {
-                _source = source;
-                _destination = destination;
-                _trigger = trigger;
+                Source = source;
+                Destination = destination;
+                Trigger = trigger;
             }
 
             /// <summary>
             /// The state transitioned from.
             /// </summary>
-            public TState Source { get { return _source; } }
-            
+            public TState Source { get; }
+
             /// <summary>
             /// The state transitioned to.
             /// </summary>
-            public TState Destination { get { return _destination; } }
-            
+            public TState Destination { get; }
+
             /// <summary>
             /// The trigger that caused the transition.
             /// </summary>
-            public TTrigger Trigger { get { return _trigger; } }
+            public TTrigger Trigger { get; }
 
             /// <summary>
             /// True if the transition is a re-entry, i.e. the identity transition.
             /// </summary>
-            public bool IsReentry { get { return Source.Equals(Destination); } }
+            public bool IsReentry => Source.Equals(Destination);
         }
     }
 }

@@ -261,7 +261,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A).PermitIf(Trigger.X, State.B, () => false, guardDescription);
             var exception = Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
-            Assert.Equal(exception.Message, "Trigger 'X' is valid for transition from state 'A' but a guard conditions are not met. Guard descriptions: 'test'.");
+            Assert.Equal(typeof(InvalidOperationException), exception.GetType());
         }
 
         [Fact]
@@ -273,7 +273,7 @@ namespace Stateless.Tests
                 new Tuple<Func<bool>, string>(() => false, "test2"));
 
             var exception = Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
-            Assert.Equal(exception.Message, "Trigger 'X' is valid for transition from state 'A' but a guard conditions are not met. Guard descriptions: 'test1, test2'.");
+            Assert.Equal(typeof(InvalidOperationException), exception.GetType());
         }
 
         [Fact]
@@ -547,8 +547,8 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
             var x = sm.SetTriggerParameters<int>(Trigger.X);
             sm.Configure(State.A)
-                .PermitIf(x, State.B, (i) => i == 3)
-                .PermitIf(x, State.C, (i) => i == 2);
+                .PermitIf(x, State.B, i => i == 3)
+                .PermitIf(x, State.C, i => i == 2);
             sm.Fire(x, 3);
             Assert.Equal(sm.State, State.B);
         }
@@ -558,8 +558,8 @@ namespace Stateless.Tests
         {
             var sm = new StateMachine<State, Trigger>(State.A);
             var x = sm.SetTriggerParameters<int>(Trigger.X);
-            sm.Configure(State.A).PermitIf(x, State.B, (i) => i % 2 == 0)  // Is Even
-                .PermitIf(x, State.C, (i) => i == 2);
+            sm.Configure(State.A).PermitIf(x, State.B, i => i % 2 == 0)  // Is Even
+                .PermitIf(x, State.C, i => i == 2);
 
             Assert.Throws<InvalidOperationException>(() => sm.Fire(x, 2));
         }
@@ -570,8 +570,8 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
             var x = sm.SetTriggerParameters<int>(Trigger.X);
             sm.Configure(State.A)
-                .PermitDynamicIf(x, (i) => i == 3 ? State.B : State.C, (i) => i == 3 || i == 5)
-                .PermitDynamicIf(x, (i) => i == 2 ? State.C : State.D, (i) => i == 2 || i == 4);
+                .PermitDynamicIf(x, i => i == 3 ? State.B : State.C, i => i == 3 || i == 5)
+                .PermitDynamicIf(x, i => i == 2 ? State.C : State.D, i => i == 2 || i == 4);
             sm.Fire(x, 3);
             Assert.Equal(sm.State, State.B);
         }
@@ -581,8 +581,8 @@ namespace Stateless.Tests
         {
             var sm = new StateMachine<State, Trigger>(State.A);
             var x = sm.SetTriggerParameters<int>(Trigger.X);
-            sm.Configure(State.A).PermitDynamicIf(x, (i) => i == 4 ? State.B : State.C, (i) => i % 2 == 0)
-                .PermitDynamicIf(x, (i) => i == 2 ? State.C : State.D, (i) => i == 2);
+            sm.Configure(State.A).PermitDynamicIf(x, i => i == 4 ? State.B : State.C, i => i % 2 == 0)
+                .PermitDynamicIf(x, i => i == 2 ? State.C : State.D, i => i == 2);
 
             Assert.Throws<InvalidOperationException>(() => sm.Fire(x, 2));
         }
@@ -592,9 +592,9 @@ namespace Stateless.Tests
         {
             var sm = new StateMachine<State, Trigger>(State.B);
             var x = sm.SetTriggerParameters<int>(Trigger.X);
-            sm.Configure(State.A).PermitIf(x, State.D, (i) => i == 3);
+            sm.Configure(State.A).PermitIf(x, State.D, i => i == 3);
             {
-                sm.Configure(State.B).SubstateOf(State.A).PermitIf(x, State.C, (i) => i == 2);
+                sm.Configure(State.B).SubstateOf(State.A).PermitIf(x, State.C, i => i == 2);
             }
             sm.Fire(x, 3);
             Assert.Equal(sm.State, State.D);
@@ -605,9 +605,9 @@ namespace Stateless.Tests
         {
             var sm = new StateMachine<State, Trigger>(State.B);
             var x = sm.SetTriggerParameters<int>(Trigger.X);
-            sm.Configure(State.A).PermitIf(x, State.D, (i) => i == 3);
+            sm.Configure(State.A).PermitIf(x, State.D, i => i == 3);
             {
-                sm.Configure(State.B).SubstateOf(State.A).PermitIf(x, State.C, (i) => i == 2);
+                sm.Configure(State.B).SubstateOf(State.A).PermitIf(x, State.C, i => i == 2);
             }
             sm.Fire(x, 2);
             Assert.Equal(sm.State, State.C);
@@ -619,7 +619,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
             var x = sm.SetTriggerParameters<int>(Trigger.X);
             sm.Configure(State.A)
-                .PermitReentryIf(x, (i) => i == 3 );
+                .PermitReentryIf(x, i => i == 3 );
             sm.Fire(x, 3);
             Assert.Equal(sm.State, State.A);
         }
@@ -630,7 +630,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
             var x = sm.SetTriggerParameters<int>(Trigger.X);
             sm.Configure(State.A)
-                .PermitReentryIf(x, (i) => i == 3);
+                .PermitReentryIf(x, i => i == 3);
 
             Assert.Throws<InvalidOperationException>(() => sm.Fire(x, 2));
         }
@@ -640,7 +640,7 @@ namespace Stateless.Tests
         {
             var sm = new StateMachine<State, Trigger>(State.A);
             var x = sm.SetTriggerParameters<int>(Trigger.X);
-            sm.Configure(State.A).IgnoreIf(x, (i) => i == 3);
+            sm.Configure(State.A).IgnoreIf(x, i => i == 3);
             sm.Fire(x, 3);
 
             Assert.Equal(sm.State, State.A);
@@ -651,7 +651,7 @@ namespace Stateless.Tests
         {
             var sm = new StateMachine<State, Trigger>(State.A);
             var x = sm.SetTriggerParameters<int>(Trigger.X);
-            sm.Configure(State.A).IgnoreIf(x, (i) => i == 3);
+            sm.Configure(State.A).IgnoreIf(x, i => i == 3);
 
             Assert.Throws<InvalidOperationException>(() => sm.Fire(x, 2));
         }
@@ -674,6 +674,75 @@ namespace Stateless.Tests
             sm.Fire(Trigger.X);
 
             Assert.Equal(1, i);
+        }
+        [Fact]
+        public void NoExceptionWhenPermitIfHasMultipleExclusiveGuardsBothFalse()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            bool onUnhandledTriggerWasCalled = false;
+            sm.OnUnhandledTrigger((s, t) => { onUnhandledTriggerWasCalled = true; });  // NEVER CALLED
+            int i = 0;
+            sm.Configure(State.A)
+                .PermitIf(Trigger.X, State.B, () => i == 2)
+                .PermitIf(Trigger.X, State.C, () => i == 1);
+
+            sm.Fire(Trigger.X);  // THROWS EXCEPTION
+
+            Assert.True(onUnhandledTriggerWasCalled, "OnUnhandledTrigger was called");
+            Assert.Equal(sm.State, State.A);
+        }
+
+        [Fact]
+        public void TransitionToSuperstateDoesNotExitSuperstate()
+        {
+            StateMachine<State, Trigger> sm = new StateMachine<State, Trigger>(State.B);
+
+            bool superExit = false;
+            bool superEntry = false;
+            bool subExit = false;
+
+            sm.Configure(State.A)
+                .OnEntry(() => superEntry = true)
+                .OnExit(() => superExit= true);
+
+            sm.Configure(State.B)
+                .SubstateOf(State.A)
+                .Permit(Trigger.Y, State.A)
+                .OnExit(() => subExit = true);
+
+            sm.Fire(Trigger.Y);
+
+            Assert.True(subExit);
+            Assert.False(superEntry);
+            Assert.False(superExit);
+        }
+
+        [Fact]
+        public void OnExitFiresOnlyOnceReentrySubstate()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            int exitB = 0;
+            int exitA = 0;
+            int entryB = 0;
+            int entryA = 0;
+
+            sm.Configure(State.A)
+                .SubstateOf(State.B)
+                .OnEntry(() => entryA++)
+                .PermitReentry(Trigger.X)
+                .OnExit(() => exitA++);
+
+            sm.Configure(State.B)
+                .OnEntry(() => entryB++)
+                .OnExit(() => exitB++);
+
+            sm.Fire(Trigger.X);
+
+            Assert.Equal(0, exitB);
+            Assert.Equal(0, entryB);
+            Assert.Equal(1, exitA);
+            Assert.Equal(1, entryA);
         }
     }
 }
