@@ -116,8 +116,11 @@ namespace Stateless
         public IEnumerable<TTrigger> PermittedTriggers
         {
             get
-            {
-                return CurrentRepresentation.TriggerBehaviours.Keys;
+            { 
+                var set = new HashSet<TTrigger>();
+                for (var state = CurrentRepresentation; state != null; state = state.Superstate)
+                    set.UnionWith(state.TriggerBehaviours.Keys);
+                return set; 
             }
         }
 
