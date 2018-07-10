@@ -832,7 +832,56 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A).PermitIf(sm.SetTriggerParameters<string>(trigger), State.B, _ => true);
             Assert.Single(sm.PermittedTriggers, trigger);
-        } 
+        }
+
+        [Fact]
+        public void PermittedTriggersIncludeAllDefinedTriggers()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            sm.Configure(State.A)
+                .Permit(Trigger.X, State.B)
+                .InternalTransition(Trigger.Y, _ => { })
+                .Ignore(Trigger.Z);
+            Assert.All(new[] { Trigger.X, Trigger.Y, Trigger.Z }, trigger => Assert.Contains(trigger, sm.PermittedTriggers));
+        }
+
+        [Fact]
+        public void PermittedTriggersExcludeAllUndefinedTriggers()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            sm.Configure(State.A)
+                .Permit(Trigger.X, State.B);
+            Assert.All(new[] { Trigger.Y, Trigger.Z }, trigger => Assert.DoesNotContain(trigger, sm.PermittedTriggers));
+        }
+
+        [Fact]
+        public void PermittedTriggersIncludeAllInheritedTriggers()
+        {
+            State   superState          = State.A, 
+                    subState            = State.B, 
+                    otherState          = State.C;
+            Trigger superStateTrigger   = Trigger.X, 
+                    subStateTrigger     = Trigger.Y;
+
+            StateMachine<State, Trigger> hsm(State initialState) 
+                => new StateMachine<State, Trigger>(initialState)
+                        .Configure(superState)
+                        .Permit(superStateTrigger, otherState)
+                    .Machine
+                        .Configure(subState)
+                        .SubstateOf(superState)
+                        .Permit(subStateTrigger, otherState)
+                    .Machine;
+
+            var hsmInSuperstate = hsm(superState);
+            var hsmInSubstate = hsm(subState);
+
+            Assert.All(hsmInSuperstate.PermittedTriggers, trigger => Assert.Contains(trigger, hsmInSubstate.PermittedTriggers));
+            Assert.Contains(superStateTrigger, hsmInSubstate.PermittedTriggers);
+            Assert.Contains(superStateTrigger, hsmInSuperstate.PermittedTriggers);
+            Assert.Contains(subStateTrigger, hsmInSubstate.PermittedTriggers);
+            Assert.DoesNotContain(subStateTrigger, hsmInSuperstate.PermittedTriggers);
+        }
 
     }
 }
