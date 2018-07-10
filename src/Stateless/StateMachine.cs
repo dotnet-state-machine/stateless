@@ -117,7 +117,7 @@ namespace Stateless
         {
             get
             {
-                return GetPermittedTriggers();
+                return CurrentRepresentation.TriggerBehaviours.Keys;
             }
         }
 
@@ -506,7 +506,7 @@ namespace Stateless
             return string.Format(
                 "StateMachine {{ State = {0}, PermittedTriggers = {{ {1} }}}}",
                 State,
-                string.Join(", ", GetPermittedTriggers().Select(t => t.ToString()).ToArray()));
+                string.Join(", ", PermittedTriggers.Select(t => t.ToString()).ToArray()));
         }
 
         /// <summary>
