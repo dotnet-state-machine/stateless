@@ -749,8 +749,15 @@ namespace Stateless.Tests
             var trigger = Trigger.X;
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A).Permit(trigger, State.B);
-            Assert.Single(sm.PermittedTriggers, trigger);
             Assert.True(sm.CanFire(trigger));
+        }
+        [Fact]
+        public void WhenConfigurePermittedTransitionOnTriggerWithoutParameters_ThenStateMachineCanEnumeratePermittedTriggers()
+        {
+            var trigger = Trigger.X;
+            var sm = new StateMachine<State, Trigger>(State.A);
+            sm.Configure(State.A).Permit(trigger, State.B);
+            Assert.Single(sm.PermittedTriggers, trigger);
         }
 
 
@@ -761,8 +768,16 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A).Permit(trigger, State.B);
             sm.SetTriggerParameters<string>(trigger);
-            Assert.Single(sm.PermittedTriggers, trigger);
             Assert.True(sm.CanFire(trigger));
+        }
+        [Fact]
+        public void WhenConfigurePermittedTransitionOnTriggerWithParameters_ThenStateMachineCanEnumeratePermittedTriggers()
+        {
+            var trigger = Trigger.X;
+            var sm = new StateMachine<State, Trigger>(State.A);
+            sm.Configure(State.A).Permit(trigger, State.B);
+            sm.SetTriggerParameters<string>(trigger);
+            Assert.Single(sm.PermittedTriggers, trigger);
         }
 
         [Fact]
@@ -771,8 +786,16 @@ namespace Stateless.Tests
             var trigger = Trigger.X;
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A).InternalTransition(trigger, (_) => { });
-            Assert.Single(sm.PermittedTriggers, trigger);
             Assert.True(sm.CanFire(trigger));
+        }
+
+        [Fact]
+        public void WhenConfigureInternalTransitionOnTriggerWithoutParameters_ThenStateMachineCanEnumeratePermittedTriggers()
+        {
+            var trigger = Trigger.X;
+            var sm = new StateMachine<State, Trigger>(State.A);
+            sm.Configure(State.A).InternalTransition(trigger, (_) => { });
+            Assert.Single(sm.PermittedTriggers, trigger);
         }
 
 
@@ -784,8 +807,34 @@ namespace Stateless.Tests
             var trigger = Trigger.X;
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A).InternalTransition(sm.SetTriggerParameters<string>(trigger), (arg, _) => { });
-            Assert.Single(sm.PermittedTriggers, trigger);
             Assert.True(sm.CanFire(trigger), userMessage: $"This failing test case illustrates the problem.  {StateMachineCanFireBugSummary}");
+        }
+
+        [Fact, Trait("Bug", StateMachineCanFireBugSummary)]
+        public void WhenConfigureInternalTransitionOnTriggerWithParameters_ThenStateMachineCanEnumeratePermittedTriggers()
+        {
+            var trigger = Trigger.X;
+            var sm = new StateMachine<State, Trigger>(State.A);
+            sm.Configure(State.A).InternalTransition(sm.SetTriggerParameters<string>(trigger), (arg, _) => { });
+            Assert.Single(sm.PermittedTriggers, trigger);
+        }
+
+        [Fact, Trait("Bug", StateMachineCanFireBugSummary)]
+        public void WhenConfigureConditionallyPermittedTransitionOnTriggerWithParameters_ThenStateMachineCanFireTrigger()
+        {
+            var trigger = Trigger.X;
+            var sm = new StateMachine<State, Trigger>(State.A);
+            sm.Configure(State.A).PermitIf(sm.SetTriggerParameters<string>(trigger), State.B, _ => true);
+            Assert.True(sm.CanFire(trigger), userMessage: $"This failing test case illustrates the problem.  {StateMachineCanFireBugSummary}");
+        }
+
+        [Fact, Trait("Bug", StateMachineCanFireBugSummary)]
+        public void WhenConfigureConditionallyPermittedTransitionOnTriggerWithParameters_ThenStateMachineCanEnumeratePermittedTriggers()
+        {
+            var trigger = Trigger.X;
+            var sm = new StateMachine<State, Trigger>(State.A);
+            sm.Configure(State.A).PermitIf(sm.SetTriggerParameters<string>(trigger), State.B, _ => true);
+            Assert.Single(sm.PermittedTriggers, trigger);
         }
 
         [Fact, Trait("Bug", StateMachineCanFireBugSummary)]
@@ -799,7 +848,21 @@ namespace Stateless.Tests
             Assert.StartsWith("   at Stateless.ParameterConversion.Unpack(Object[] args, Type argType, Int32 index)", problem1.StackTrace);
             ArgumentException problem2 = Assert.Throws<ArgumentException>(() => sm.CanFire(trigger));
             Assert.Equal(problem2.Message, "An argument of type System.String is required in position 0.");
-            Assert.StartsWith("   at Stateless.ParameterConversion.Unpack(Object[] args, Type argType, Int32 index)", problem2.StackTrace); 
+            Assert.StartsWith("   at Stateless.ParameterConversion.Unpack(Object[] args, Type argType, Int32 index)", problem2.StackTrace);
+        }
+
+        [Fact, Trait("Bug", StateMachineCanFireBugSummary)]
+        public void WhenConfigureConditionallyPermittedTransitionOnTriggerWithParameters_ThenCanFireCausesArgumentException()
+        {
+            var trigger = Trigger.X;
+            var sm = new StateMachine<State, Trigger>(State.A);
+            sm.Configure(State.A).PermitIf(sm.SetTriggerParameters<string>(trigger), State.B, _ => true);
+            ArgumentException problem1 = Assert.Throws<ArgumentException>(() => sm.PermittedTriggers.Single());
+            Assert.Equal(problem1.Message, "An argument of type System.String is required in position 0.");
+            Assert.StartsWith("   at Stateless.ParameterConversion.Unpack(Object[] args, Type argType, Int32 index)", problem1.StackTrace);
+            ArgumentException problem2 = Assert.Throws<ArgumentException>(() => sm.CanFire(trigger));
+            Assert.Equal(problem2.Message, "An argument of type System.String is required in position 0.");
+            Assert.StartsWith("   at Stateless.ParameterConversion.Unpack(Object[] args, Type argType, Int32 index)", problem2.StackTrace);
         }
 
     }
