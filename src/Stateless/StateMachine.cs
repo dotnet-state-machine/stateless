@@ -494,7 +494,7 @@ namespace Stateless
         /// <returns>True if the trigger can be fired, false otherwise.</returns>
         public bool CanFire(TTrigger trigger)
         {
-            return CurrentRepresentation.CanHandle(trigger);
+            return CurrentRepresentation.CanHandle(trigger, new object[_triggerConfiguration.TryGetValue(trigger, out var triggerConfiguration) ? triggerConfiguration.Arity : 0]);
         }
 
         /// <summary>

@@ -29,6 +29,17 @@ namespace Stateless
             public TTrigger Trigger { get { return _underlyingTrigger; } }
 
             /// <summary>
+            /// Gets the number of parameters associated with the trigger
+            /// </summary>
+            internal virtual int Arity => this.GetType()
+#if NET40
+                .GetGenericArguments()
+#else
+                .GenericTypeArguments
+#endif
+                .Length;
+
+            /// <summary>
             /// Ensure that the supplied arguments are compatible with those configured for this
             /// trigger.
             /// </summary>
@@ -55,6 +66,8 @@ namespace Stateless
                 : base(underlyingTrigger, typeof(TArg0))
             {
             }
+
+            internal sealed override int Arity => 1;
         }
 
         /// <summary>
@@ -72,6 +85,7 @@ namespace Stateless
                 : base(underlyingTrigger, typeof(TArg0), typeof(TArg1))
             {
             }
+            internal sealed override int Arity => 2;
         }
 
         /// <summary>
@@ -90,6 +104,7 @@ namespace Stateless
                 : base(underlyingTrigger, typeof(TArg0), typeof(TArg1), typeof(TArg2))
             {
             }
+            internal sealed override int Arity => 3;
         }
     }
 }
