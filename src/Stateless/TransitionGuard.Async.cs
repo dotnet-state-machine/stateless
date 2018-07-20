@@ -38,7 +38,18 @@ namespace Stateless
             public async Task<ICollection<string>> UnmetGuardConditionsAsync(object[] args)
             {
                 var guardTasks = Conditions
-                    .Select(async c => new { GuardResult = await c.GuardAsync(args), c.Description });
+                    .Select(async c =>
+                    {
+                        var guard = c.Guard;
+                        var guardAsync = c.GuardAsync;
+
+                        if (guard != null)
+                        {
+                            // If there is a synchronous guard condition, use that one.
+                            return new { GuardResult = guard(args), c.Description };
+                        }
+                        return new { GuardResult = await guardAsync(args), c.Description };
+                    });
                 var conditions = await Task.WhenAll(guardTasks);
 
                 return conditions
