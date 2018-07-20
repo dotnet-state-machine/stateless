@@ -22,7 +22,7 @@ namespace Stateless
             /// trigger to be accepted. Takes a single argument of type TArg0</param>
             /// <param name="guardDescription">Guard description</param>
             /// <returns>The reciever.</returns>
-            public StateConfiguration PermitIfAsync<TArg0>(TriggerWithParameters<TArg0> trigger, TState destinationState, Func<TArg0, Task<bool>> guard, string guardDescription = null)
+            public StateConfiguration PermitAsyncIf<TArg0>(TriggerWithParameters<TArg0> trigger, TState destinationState, Func<TArg0, Task<bool>> guard, string guardDescription = null)
             {
                 EnforceNotIdentityTransition(destinationState);
 
@@ -44,7 +44,7 @@ namespace Stateless
             /// trigger to be accepted. Takes a single argument of type TArg0</param>
             /// <param name="guardDescription">Guard description</param>
             /// <returns>The reciever.</returns>
-            public StateConfiguration PermitIfAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, TState destinationState, Func<TArg0, TArg1, Task<bool>> guard, string guardDescription = null)
+            public StateConfiguration PermitAsyncIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, TState destinationState, Func<TArg0, TArg1, Task<bool>> guard, string guardDescription = null)
             {
                 EnforceNotIdentityTransition(destinationState);
 
@@ -64,7 +64,7 @@ namespace Stateless
             /// trigger to be accepted. Takes a single argument of type TArg0</param>
             /// <param name="guardDescription">Guard description</param>
             /// <returns>The reciever.</returns>
-            public StateConfiguration PermitReentryIfAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, Task<bool>> guard, string guardDescription = null)
+            public StateConfiguration PermitAsyncReentryIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, Task<bool>> guard, string guardDescription = null)
             {
                 return InternalPermitReentryIf(
                     trigger.Trigger,
