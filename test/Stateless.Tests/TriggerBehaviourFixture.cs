@@ -23,7 +23,7 @@ namespace Stateless.Tests
         public void WhenGuardConditionFalse_GuardConditionsMetIsFalse()
         {
             var transitioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
-                Trigger.X, State.C, new StateMachine<State, Trigger>.TransitionGuard(False));
+                Trigger.X, State.C, new StateMachine<State, Trigger>.TransitionGuard((Func<object[], bool>) False));
 
             Assert.False(transitioning.GuardConditionsMet());
         }
@@ -37,7 +37,7 @@ namespace Stateless.Tests
         public void WhenGuardConditionTrue_GuardConditionsMetIsTrue()
         {
             var transitioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
-                Trigger.X, State.C, new StateMachine<State, Trigger>.TransitionGuard(True));
+                Trigger.X, State.C, new StateMachine<State, Trigger>.TransitionGuard((Func<object[], bool>) True));
 
             Assert.True(transitioning.GuardConditionsMet());
         }

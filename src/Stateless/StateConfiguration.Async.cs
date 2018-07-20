@@ -12,6 +12,68 @@ namespace Stateless
         public partial class StateConfiguration
         {
             /// <summary>
+            ///  Accept the specified trigger, transition to the destination state, and guard condition. 
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationState">The state that the trigger will cause a
+            /// transition to.</param>
+            /// <param name="guard">Asynchronous function that must return true in order for the
+            /// trigger to be accepted. Takes a single argument of type TArg0</param>
+            /// <param name="guardDescription">Guard description</param>
+            /// <returns>The reciever.</returns>
+            public StateConfiguration PermitIfAsync<TArg0>(TriggerWithParameters<TArg0> trigger, TState destinationState, Func<TArg0, Task<bool>> guard, string guardDescription = null)
+            {
+                EnforceNotIdentityTransition(destinationState);
+
+                return InternalPermitIf(
+                    trigger.Trigger,
+                    destinationState,
+                    new TransitionGuard(TransitionGuard.ToPackedGuard(guard), guardDescription));
+            }
+
+            /// <summary>
+            ///  Accept the specified trigger, transition to the destination state, and guard condition. 
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <typeparam name="TArg1"></typeparam>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationState">The state that the trigger will cause a
+            /// transition to.</param>
+            /// <param name="guard">Function that must return true in order for the
+            /// trigger to be accepted. Takes a single argument of type TArg0</param>
+            /// <param name="guardDescription">Guard description</param>
+            /// <returns>The reciever.</returns>
+            public StateConfiguration PermitIfAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, TState destinationState, Func<TArg0, TArg1, Task<bool>> guard, string guardDescription = null)
+            {
+                EnforceNotIdentityTransition(destinationState);
+
+                return InternalPermitIf(
+                    trigger.Trigger,
+                    destinationState,
+                    new TransitionGuard(TransitionGuard.ToPackedGuard(guard), guardDescription));
+            }
+
+            /// <summary>
+            ///  Accept the specified trigger, transition to the destination state, and guard condition. 
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <typeparam name="TArg1"></typeparam>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="guard">Function that must return true in order for the
+            /// trigger to be accepted. Takes a single argument of type TArg0</param>
+            /// <param name="guardDescription">Guard description</param>
+            /// <returns>The reciever.</returns>
+            public StateConfiguration PermitReentryIfAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, Task<bool>> guard, string guardDescription = null)
+            {
+                return InternalPermitReentryIf(
+                    trigger.Trigger,
+                    _representation.UnderlyingState,
+                    new TransitionGuard(TransitionGuard.ToPackedGuard(guard), guardDescription)
+                );
+            }
+
+            /// <summary>
             /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
             /// </summary>
             /// <param name="trigger"></param>

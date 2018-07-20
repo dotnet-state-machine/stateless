@@ -167,19 +167,21 @@ namespace Stateless
             var representativeState = GetRepresentation(source);
 
             // Try to find a trigger handler, either in the current state or a super state.
-            if (!representativeState.TryFindHandler(trigger, args, out var result))
+            var searchResult = await representativeState.TryFindHandlerAsync(trigger, args).ConfigureAwait(false);
+            if (!searchResult.Item1)
             {
-                await _unhandledTriggerAction.ExecuteAsync(representativeState.UnderlyingState, trigger, result?.UnmetGuardConditions).ConfigureAwait(false);
+                await _unhandledTriggerAction.ExecuteAsync(representativeState.UnderlyingState, trigger, searchResult.Item2?.UnmetGuardConditions).ConfigureAwait(false);
                 return;
             }
+
             // Check if this trigger should be ignored
-            if (result.Handler is IgnoredTriggerBehaviour)
+            if (searchResult.Item2.Handler is IgnoredTriggerBehaviour)
             {
                 return;
             }
 
             // Handle special case, re-entry in superstate
-            if (result.Handler is ReentryTriggerBehaviour handler)
+            if (searchResult.Item2.Handler is ReentryTriggerBehaviour handler)
             {
                 // Handle transition, and set new state
                 var transition = new Transition(source, handler.Destination, trigger);
@@ -199,7 +201,7 @@ namespace Stateless
                 await newRepresentation.EnterAsync(transition, args);
             }
             // Check if it is an internal transition, or a transition from one state to another.
-            else if (result.Handler.ResultsInTransitionFrom(source, args, out var destination))
+            else if (searchResult.Item2.Handler.ResultsInTransitionFrom(source, args, out var destination))
             {
                 var transition = new Transition(source, destination, trigger);
 

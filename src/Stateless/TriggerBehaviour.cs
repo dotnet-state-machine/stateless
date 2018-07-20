@@ -5,7 +5,7 @@ namespace Stateless
 {
     public partial class StateMachine<TState, TTrigger>
     {
-        internal abstract class TriggerBehaviour
+        internal abstract partial class TriggerBehaviour
         {
             /// <summary>
             /// If there is no guard function, _guard is set to TransitionGuard.Empty

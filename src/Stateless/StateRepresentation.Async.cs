@@ -1,6 +1,8 @@
 #if TASKS
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Stateless
@@ -159,6 +161,57 @@ namespace Stateless
             internal Task InternalActionAsync(Transition transition, object[] args)
             {
                 return ExecuteInternalActionsAsync(transition, args);
+            }
+
+            public async Task<Tuple<bool, TriggerBehaviourResult>> TryFindHandlerAsync(TTrigger trigger, object[] args)
+            {
+                // Look for local handler.
+                var searchResult = await TryFindLocalHandlerAsync(trigger, args);
+                if (searchResult.Item1)
+                {
+                    return Tuple.Create(true, searchResult.Item2);
+                }
+
+                // Check super state.
+                if (Superstate == null)
+                {
+                    return Tuple.Create(false, (TriggerBehaviourResult) null);
+                }
+
+                searchResult = await Superstate.TryFindHandlerAsync(trigger, args);
+                if (searchResult.Item1)
+                {
+                    return Tuple.Create(true, searchResult.Item2);
+                }
+
+                return Tuple.Create(false, (TriggerBehaviourResult) null);
+            }
+
+            async Task<Tuple<bool, TriggerBehaviourResult>> TryFindLocalHandlerAsync(TTrigger trigger, object[] args)
+            {
+                // Get list of candidate trigger handlers
+                if (!TriggerBehaviours.TryGetValue(trigger, out ICollection<TriggerBehaviour> possible))
+                {
+                    return Tuple.Create(false, (TriggerBehaviourResult) null);
+                }
+
+                // Remove those that have unmet guard conditions
+                // Guard functions are executed here
+                var triggerBehaviourResultTasks = possible
+                    .Select(async h => new TriggerBehaviourResult(h, await h.UnmetGuardConditionsAsync(args)));
+                var triggerBehaviourResults = await Task.WhenAll(triggerBehaviourResultTasks);
+
+                var actual = triggerBehaviourResults
+                    .Where(g => g.UnmetGuardConditions.Count == 0)
+                    .ToArray();
+
+                // Find a handler for the trigger
+                var handlerResult = TryFindLocalHandlerResult(trigger, actual, r => !r.UnmetGuardConditions.Any())
+                                ?? TryFindLocalHandlerResult(trigger, actual, r => r.UnmetGuardConditions.Any());
+
+                if (handlerResult == null) return Tuple.Create(false, (TriggerBehaviourResult) null);
+
+                return Tuple.Create(!handlerResult.UnmetGuardConditions.Any(), handlerResult);
             }
         }
     }

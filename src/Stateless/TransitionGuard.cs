@@ -6,7 +6,7 @@ namespace Stateless
 {
     public partial class StateMachine<TState, TTrigger>
     {
-        internal class TransitionGuard
+        internal partial class TransitionGuard
         {
             internal IList<GuardCondition> Conditions { get; }
 

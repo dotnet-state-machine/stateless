@@ -4,7 +4,7 @@ namespace Stateless
 {
     public partial class StateMachine<TState, TTrigger>
     {
-        internal class GuardCondition
+        internal partial class GuardCondition
         {
             Reflection.InvocationInfo _methodDescription;
 
