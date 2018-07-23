@@ -79,12 +79,39 @@ namespace Stateless
             /// dynamically by the supplied function.
             /// </summary>
             /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationStateSelector">Function to calculate the state
+            /// that the trigger will cause a transition to.</param>
+            /// <param name="guards">Functions and their descriptions that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <returns>The reciever.</returns>
+            /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+            public StateConfiguration PermitAsyncDynamicIf<TArg0>(
+                TriggerWithParameters<TArg0> trigger, Func<TArg0, Task<TState>> destinationStateSelector, params Tuple<Func<bool>, string>[] guards)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
+                return InternalPermitAsyncDynamicIf(
+                    trigger.Trigger,
+                    args => destinationStateSelector(
+                        ParameterConversion.Unpack<TArg0>(args, 0)),
+                    null,    // destinationStateSelectorString
+                    new TransitionGuard(guards),
+                    null);      // List of possible destination states not specified
+            }
+
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state, calculated
+            /// dynamically by the supplied function.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
             /// <param name="destinationStateSelector">Asynchronous function to calculate the state that the trigger will cause a transition to.</param>
             /// <param name="guards">Functions and their descriptions that must return true in order for the trigger to be accepted.</param>
             /// <returns>The reciever.</returns>
             /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
             /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
-            public StateConfiguration PermitAsyncDynamicIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, Task<TState>> destinationStateSelector, params Tuple<Func<Task<bool>>, string>[] guards)
+            public StateConfiguration PermitAsyncDynamicIf<TArg0, TArg1>(
+                TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, Task<TState>> destinationStateSelector, params Tuple<Func<Task<bool>>, string>[] guards)
             {
                 if (trigger == null) throw new ArgumentNullException(nameof(trigger));
                 if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
