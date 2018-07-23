@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Stateless;
 
@@ -23,6 +24,13 @@ namespace AsyncExample
             ConfirmPhone
         }
 
+        public enum EmailConfirmationResult
+        {
+            Success,
+            EmailTokenNotFound,
+            EmailAlreadyConfirmed
+        }
+
         private readonly StateMachine<State, Trigger> _machine;
 
         private readonly StateMachine<State, Trigger>.TriggerWithParameters<RegistrationForm> _registerTrigger;
@@ -44,16 +52,9 @@ namespace AsyncExample
             _machine
                 .Configure(State.WaitingForEmailConfirmation)
                 .OnEntryFromAsync(_registerTrigger, async registration => { await SendConfirmationMailAsync(registration); })
-                .PermitIfAsync(_mailTokenTrigger,
-                    guard: async (mailToken, _) => !await MailTokenValidAsync(mailToken),
-                    destinationState: State.MailTokenNotFound)
-                // Note that synchronous and asynchronous guards can be combined.
-                .PermitIf(_mailTokenTrigger,
-                    guard: (mailToken, _) => MailtokenAlreadyConfirmed(mailToken),
-                    destinationState: State.MailTokenAlreadyConfirmed)
-                .PermitIfAsync(_mailTokenTrigger,
-                    guard: async (mailToken, _) => await MailTokenValidAsync(mailToken),
-                    destinationState: State.WaitingForPhoneConfirmation);
+                // Demonstration of an asynchronous state selector.
+                .PermitAsyncDynamicIf(_mailTokenTrigger,
+                    async (mailToken, _) => await MailTokenStateSelectorAsync(mailToken));
 
             _machine
                 .Configure(State.MailTokenNotFound)
@@ -72,10 +73,10 @@ namespace AsyncExample
             _machine
                 .Configure(State.WaitingForPhoneConfirmation)
                 .OnEntryFromAsync(_mailTokenTrigger, async (mailToken, phone) => { await SendConfirmationSmsAsync(mailToken, phone); })
-                .PermitIfAsync(_smsTokenTrigger,
+                .PermitAsyncIf(_smsTokenTrigger,
                     guard: async (mailToken, smsToken) => await SmsTokenValidAsync(mailToken, smsToken),
                     destinationState: State.Complete)
-                .PermitReentryIfAsync(_smsTokenTrigger,
+                .PermitAsyncReentryIf(_smsTokenTrigger,
                     guard: async (mailToken, smsToken) => !await SmsTokenValidAsync(mailToken, smsToken));
 
             _machine
@@ -86,14 +87,40 @@ namespace AsyncExample
                 });
         }
 
+        private async Task<State> MailTokenStateSelectorAsync(string mailToken)
+        {
+            if (MailtokenAlreadyConfirmed(mailToken))
+            {
+                return State.MailTokenAlreadyConfirmed;
+            }
+            if (await MailTokenValidAsync(mailToken))
+            {
+                return State.WaitingForPhoneConfirmation;
+            }
+            return State.MailTokenNotFound;
+        }
+
         public async Task Register(RegistrationForm registration)
         {
             await _machine.FireAsync(_registerTrigger, registration);
         }
 
-        public async Task ConfirmEmail(string mailToken, string phone)
+        public async Task<EmailConfirmationResult> ConfirmEmail(string mailToken, string phone)
         {
             await _machine.FireAsync(_mailTokenTrigger, mailToken, phone);
+
+            var machineState = _machine.State;
+            if (machineState == State.MailTokenNotFound)
+            {
+                return EmailConfirmationResult.EmailTokenNotFound;
+            }
+
+            if (machineState == State.MailTokenAlreadyConfirmed)
+            {
+                return EmailConfirmationResult.EmailAlreadyConfirmed;
+            }
+
+            return EmailConfirmationResult.Success;
         }
 
         public async Task ConfirmPhone(string mailToken, string smsToken)
