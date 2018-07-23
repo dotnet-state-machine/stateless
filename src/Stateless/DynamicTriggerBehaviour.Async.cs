@@ -21,6 +21,12 @@ namespace Stateless
 
             public override async Task<Tuple<bool, TState>> ResultsInTransitionFromAsync(TState source, object[] args)
             {
+                if (_destination != null)
+                {
+                    // Prefer synchronous state selector if available.
+                    var destination = _destination(args);
+                    return Tuple.Create(true, destination);
+                }
                 return Tuple.Create(true, await _destinationAsync(args));
             }
         }
