@@ -200,49 +200,55 @@ namespace Stateless
 
                 await newRepresentation.EnterAsync(transition, args);
             }
-            // Check if it is an internal transition, or a transition from one state to another.
-            else if (searchResult.Item2.Handler.ResultsInTransitionFrom(source, args, out var destination))
+            else
             {
-                var transition = new Transition(source, destination, trigger);
-
-                transition = await representativeState.ExitAsync(transition).ConfigureAwait(false);
-
-                State = transition.Destination;
-                var newRepresentation = GetRepresentation(transition.Destination);
-
-                // Check if there is an intital transition configured
-                if (newRepresentation.HasInitialTransition)
+                // Check if it is an internal transition, or a transition from one state to another.
+                var transitionResult = await searchResult.Item2.Handler.ResultsInTransitionFromAsync(source, args);
+                var result = transitionResult.Item1;
+                var destination = transitionResult.Item2;
+                if (result)
                 {
-                    // Verify that the target state is a substate
-                    if (!newRepresentation.GetSubstates().Any(s => s.UnderlyingState.Equals(newRepresentation.InitialTransitionTarget)))
-                    {
-                        throw new InvalidOperationException($"The target ({newRepresentation.InitialTransitionTarget}) for the initial transition is not a substate.");
-                    }
+                    var transition = new Transition(source, destination, trigger);
 
-                    // Check if state has substate(s), and if an initial transition(s) has been set up.
-                    while (newRepresentation.GetSubstates().Any() && newRepresentation.HasInitialTransition)
+                    transition = await representativeState.ExitAsync(transition).ConfigureAwait(false);
+
+                    State = transition.Destination;
+                    var newRepresentation = GetRepresentation(transition.Destination);
+
+                    // Check if there is an intital transition configured
+                    if (newRepresentation.HasInitialTransition)
                     {
-                        var initialTransition = new Transition(source, newRepresentation.InitialTransitionTarget, trigger);
-                        newRepresentation = GetRepresentation(newRepresentation.InitialTransitionTarget);
-                        await newRepresentation.EnterAsync(initialTransition, args);
-                        State = newRepresentation.UnderlyingState;
+                        // Verify that the target state is a substate
+                        if (!newRepresentation.GetSubstates().Any(s => s.UnderlyingState.Equals(newRepresentation.InitialTransitionTarget)))
+                        {
+                            throw new InvalidOperationException($"The target ({newRepresentation.InitialTransitionTarget}) for the initial transition is not a substate.");
+                        }
+
+                        // Check if state has substate(s), and if an initial transition(s) has been set up.
+                        while (newRepresentation.GetSubstates().Any() && newRepresentation.HasInitialTransition)
+                        {
+                            var initialTransition = new Transition(source, newRepresentation.InitialTransitionTarget, trigger);
+                            newRepresentation = GetRepresentation(newRepresentation.InitialTransitionTarget);
+                            await newRepresentation.EnterAsync(initialTransition, args);
+                            State = newRepresentation.UnderlyingState;
+                        }
+                        //Alert all listeners of state transition
+                        await _onTransitionedEvent.InvokeAsync(new Transition(source, destination, trigger));
                     }
-                    //Alert all listeners of state transition
-                    await _onTransitionedEvent.InvokeAsync(new Transition(source, destination, trigger));
+                    else
+                    {
+                        //Alert all listeners of state transition
+                        await _onTransitionedEvent.InvokeAsync(new Transition(source, destination, trigger));
+
+                        await newRepresentation.EnterAsync(transition, args);
+                    }
                 }
                 else
                 {
-                    //Alert all listeners of state transition
-                    await _onTransitionedEvent.InvokeAsync(new Transition(source, destination, trigger));
+                    var transition = new Transition(source, destination, trigger);
 
-                    await newRepresentation.EnterAsync(transition, args);
+                    await CurrentRepresentation.InternalActionAsync(transition, args).ConfigureAwait(false);
                 }
-            }
-            else
-            {
-                var transition = new Transition(source, destination, trigger);
-
-                await CurrentRepresentation.InternalActionAsync(transition, args).ConfigureAwait(false);
             }
         }
 

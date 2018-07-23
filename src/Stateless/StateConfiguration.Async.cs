@@ -1,6 +1,7 @@
 ﻿#if TASKS
 
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -71,6 +72,31 @@ namespace Stateless
                     _representation.UnderlyingState,
                     new TransitionGuard(TransitionGuard.ToPackedGuard(guard), guardDescription)
                 );
+            }
+
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state, calculated
+            /// dynamically by the supplied function.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationStateSelector">Asynchronous function to calculate the state that the trigger will cause a transition to.</param>
+            /// <param name="guards">Functions and their descriptions that must return true in order for the trigger to be accepted.</param>
+            /// <returns>The reciever.</returns>
+            /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+            /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
+            public StateConfiguration PermitAsyncDynamicIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, Task<TState>> destinationStateSelector, params Tuple<Func<Task<bool>>, string>[] guards)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
+                return InternalPermitAsyncDynamicIf(
+                    trigger.Trigger,
+                    args => destinationStateSelector(
+                        ParameterConversion.Unpack<TArg0>(args, 0),
+                        ParameterConversion.Unpack<TArg1>(args, 1)),
+                    null,    // destinationStateSelectorString
+                    new TransitionGuard(guards),
+                    null);      // List of possible destination states not specified
             }
 
             /// <summary>
@@ -536,6 +562,23 @@ namespace Stateless
                 _representation.AddExitAction(
                     exitAction,
                     Reflection.InvocationInfo.Create(exitAction, exitActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                return this;
+            }
+
+            StateConfiguration InternalPermitAsyncDynamicIf(TTrigger trigger, Func<object[], Task<TState>> destinationStateSelector,
+                string destinationStateSelectorDescription, TransitionGuard transitionGuard, Reflection.DynamicStateInfos possibleDestinationStates)
+            {
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+                if (transitionGuard == null) throw new ArgumentNullException(nameof(transitionGuard));
+
+                _representation.AddTriggerBehaviour(new DynamicTriggerBehaviour(trigger,
+                    destinationStateSelector,
+                    transitionGuard,
+                    Reflection.DynamicTransitionInfo.Create(trigger,
+                        transitionGuard.Conditions.Select(x => x.MethodDescription),
+                        Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),
+                        possibleDestinationStates)
+                ));
                 return this;
             }
         }

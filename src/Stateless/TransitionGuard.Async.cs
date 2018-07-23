@@ -31,6 +31,13 @@ namespace Stateless
                 };
             }
 
+            internal TransitionGuard(Tuple<Func<Task<bool>>, string>[] guards)
+            {
+                Conditions = guards
+                    .Select(g => new GuardCondition(g.Item1, Reflection.InvocationInfo.Create(g.Item1, g.Item2)))
+                    .ToList();
+            }
+
             /// <summary>
             /// UnmetGuardConditions is a list of the descriptions of all guard conditions
             /// whose guard function returns false

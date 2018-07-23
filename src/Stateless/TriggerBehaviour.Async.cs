@@ -1,5 +1,6 @@
 ﻿#if TASKS
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -14,6 +15,12 @@ namespace Stateless
             /// whose guard function returns false
             /// </summary>
             public Task<ICollection<string>> UnmetGuardConditionsAsync(object[] args) => _guard.UnmetGuardConditionsAsync(args);
+
+            public virtual Task<Tuple<bool, TState>> ResultsInTransitionFromAsync(TState source, object[] args)
+            {
+                var result = ResultsInTransitionFrom(source, args, out var destinationState);
+                return TaskResult.FromResult(Tuple.Create(result, destinationState));
+            }
         }
     }
 }

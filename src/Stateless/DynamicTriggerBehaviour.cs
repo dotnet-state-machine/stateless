@@ -4,9 +4,9 @@ namespace Stateless
 {
     public partial class StateMachine<TState, TTrigger>
     {
-        internal class DynamicTriggerBehaviour : TriggerBehaviour
+        internal partial class DynamicTriggerBehaviour : TriggerBehaviour
         {
-            readonly Func<object[], TState> _destination;
+            private readonly Func<object[], TState> _destination;
             internal Reflection.DynamicTransitionInfo TransitionInfo { get; private set; }
 
             public DynamicTriggerBehaviour(TTrigger trigger, Func<object[], TState> destination, 
