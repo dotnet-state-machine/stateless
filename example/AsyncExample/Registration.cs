@@ -51,7 +51,7 @@ namespace AsyncExample
 
             _machine
                 .Configure(State.WaitingForEmailConfirmation)
-                .OnEntryFromAsync(_registerTrigger, async registration => { await SendConfirmationMailAsync(registration); })
+                .OnAsyncEntryFrom(_registerTrigger, async registration => { await SendConfirmationMailAsync(registration); })
                 // Demonstration of an asynchronous state selector.
                 .PermitAsyncDynamicIf(_mailTokenTrigger,
                     async (mailToken, _) => await MailTokenStateSelectorAsync(mailToken));
@@ -72,7 +72,7 @@ namespace AsyncExample
 
             _machine
                 .Configure(State.WaitingForPhoneConfirmation)
-                .OnEntryFromAsync(_mailTokenTrigger, async (mailToken, phone) => { await SendConfirmationSmsAsync(mailToken, phone); })
+                .OnAsyncEntryFrom(_mailTokenTrigger, async (mailToken, phone) => { await SendConfirmationSmsAsync(mailToken, phone); })
                 .PermitAsyncIf(_smsTokenTrigger,
                     guard: async (mailToken, smsToken) => await SmsTokenValidAsync(mailToken, smsToken),
                     destinationState: State.Complete)
