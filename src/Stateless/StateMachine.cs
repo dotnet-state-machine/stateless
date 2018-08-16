@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Stateless
 {
@@ -35,6 +36,7 @@ namespace Stateless
         {
             public TTrigger Trigger { get; set; }
             public object[] Args { get; set; }
+            public CancellationToken CancellationToken { get; set; } = CancellationToken.None;
         }
 
         private readonly Queue<QueuedTrigger> _eventQueue = new Queue<QueuedTrigger>();

@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Stateless
@@ -42,7 +43,22 @@ namespace Stateless
         /// not allow the trigger to be fired.</exception>
         public Task FireAsync(TTrigger trigger)
         {
-            return InternalFireAsync(trigger, new object[0]);
+            return FireAsync(trigger, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Transition from the current state via the specified trigger in async fashion.
+        /// The target state is determined by the configuration of the current state.
+        /// Actions associated with leaving the current state and entering the new one
+        /// will be invoked.
+        /// </summary>
+        /// <param name="trigger">The trigger to fire.</param>
+        /// <param name="ct">cancellation token</param>
+        /// <exception cref="System.InvalidOperationException">The current state does
+        /// not allow the trigger to be fired.</exception>
+        public Task FireAsync(TTrigger trigger, CancellationToken ct)
+        {
+            return InternalFireAsync(trigger, ct, new object[0]);
         }
 
         /// <summary>
@@ -60,7 +76,26 @@ namespace Stateless
         {
             if (trigger == null) throw new ArgumentNullException(nameof(trigger));
 
-            return InternalFireAsync(trigger.Trigger, arg0);
+            return FireAsync(trigger, arg0, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Transition from the current state via the specified trigger in async fashion.
+        /// The target state is determined by the configuration of the current state.
+        /// Actions associated with leaving the current state and entering the new one
+        /// will be invoked.
+        /// </summary>
+        /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+        /// <param name="trigger">The trigger to fire.</param>
+        /// <param name="arg0">The first argument.</param>
+        /// <param name="ct">cancellation token</param>
+        /// <exception cref="System.InvalidOperationException">The current state does
+        /// not allow the trigger to be fired.</exception>
+        public Task FireAsync<TArg0>(TriggerWithParameters<TArg0> trigger, TArg0 arg0, CancellationToken ct)
+        {
+            if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+
+            return InternalFireAsync(trigger.Trigger, ct, arg0);
         }
 
         /// <summary>
@@ -80,7 +115,28 @@ namespace Stateless
         {
             if (trigger == null) throw new ArgumentNullException(nameof(trigger));
 
-            return InternalFireAsync(trigger.Trigger, arg0, arg1);
+            return FireAsync(trigger, arg0, arg1, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Transition from the current state via the specified trigger in async fashion.
+        /// The target state is determined by the configuration of the current state.
+        /// Actions associated with leaving the current state and entering the new one
+        /// will be invoked.
+        /// </summary>
+        /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+        /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
+        /// <param name="arg0">The first argument.</param>
+        /// <param name="arg1">The second argument.</param>
+        /// <param name="trigger">The trigger to fire.</param>
+        /// <param name="ct">cancellation token</param>
+        /// <exception cref="System.InvalidOperationException">The current state does
+        /// not allow the trigger to be fired.</exception>
+        public Task FireAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, TArg0 arg0, TArg1 arg1, CancellationToken ct)
+        {
+            if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+
+            return InternalFireAsync(trigger.Trigger, ct, arg0, arg1);
         }
 
         /// <summary>
@@ -102,23 +158,47 @@ namespace Stateless
         {
             if (trigger == null) throw new ArgumentNullException(nameof(trigger));
 
-            return InternalFireAsync(trigger.Trigger, arg0, arg1, arg2);
+            return FireAsync(trigger, arg0, arg1, arg2, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Transition from the current state via the specified trigger in async fashion.
+        /// The target state is determined by the configuration of the current state.
+        /// Actions associated with leaving the current state and entering the new one
+        /// will be invoked.
+        /// </summary>
+        /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+        /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
+        /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
+        /// <param name="arg0">The first argument.</param>
+        /// <param name="arg1">The second argument.</param>
+        /// <param name="arg2">The third argument.</param>
+        /// <param name="trigger">The trigger to fire.</param>
+        /// <param name="ct">cancellation token</param>
+        /// <exception cref="System.InvalidOperationException">The current state does
+        /// not allow the trigger to be fired.</exception>
+        public Task FireAsync<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, TArg0 arg0, TArg1 arg1, TArg2 arg2, CancellationToken ct)
+        {
+            if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+
+            return InternalFireAsync(trigger.Trigger, ct, arg0, arg1, arg2);
         }
 
         /// <summary>
         /// Determine how to Fire the trigger
         /// </summary>
         /// <param name="trigger">The trigger. </param>
+        /// <param name="ct">cancellation token</param>
         /// <param name="args">A variable-length parameters list containing arguments. </param>
-        async Task InternalFireAsync(TTrigger trigger, params object[] args)
+        async Task InternalFireAsync(TTrigger trigger, CancellationToken ct, params object[] args)
         {
             switch (_firingMode)
             {
                 case FiringMode.Immediate:
-                    await InternalFireOneAsync(trigger, args);
+                    await InternalFireOneAsync(trigger, ct, args).ConfigureAwait(false);
                     break;
                 case FiringMode.Queued:
-                    await InternalFireQueuedAsync(trigger, args);
+                    await InternalFireQueuedAsync(trigger, ct, args).ConfigureAwait(false);
                     break;
                 default:
                     // If something is completely messed up we let the user know ;-)
@@ -131,12 +211,13 @@ namespace Stateless
         /// If only one event is queued, this behaves identically to the non-queued version.
         /// </summary>
         /// <param name="trigger">  The trigger. </param>
+        /// <param name="ct">cancellation token</param>
         /// <param name="args">     A variable-length parameters list containing arguments. </param>
-        async Task InternalFireQueuedAsync(TTrigger trigger, params object[] args)
+        async Task InternalFireQueuedAsync(TTrigger trigger, CancellationToken ct, params object[] args)
         {
             if (_firing)
             {
-                _eventQueue.Enqueue(new QueuedTrigger { Trigger = trigger, Args = args });
+                _eventQueue.Enqueue(new QueuedTrigger { Trigger = trigger, Args = args, CancellationToken = ct });
                 return;
             }
 
@@ -144,12 +225,12 @@ namespace Stateless
             {
                 _firing = true;
 
-                await InternalFireOneAsync(trigger, args).ConfigureAwait(false);
+                await InternalFireOneAsync(trigger, ct, args).ConfigureAwait(false);
 
                 while (_eventQueue.Count != 0)
                 {
                     var queuedEvent = _eventQueue.Dequeue();
-                    await InternalFireOneAsync(queuedEvent.Trigger, queuedEvent.Args).ConfigureAwait(false);
+                    await InternalFireOneAsync(queuedEvent.Trigger, queuedEvent.CancellationToken, queuedEvent.Args).ConfigureAwait(false);
                 }
             }
             finally
@@ -157,7 +238,8 @@ namespace Stateless
                 _firing = false;
             }
         }
-        async Task InternalFireOneAsync(TTrigger trigger, params object[] args)
+
+        async Task InternalFireOneAsync(TTrigger trigger, CancellationToken ct, params object[] args)
         {
             // If this is a trigger with parameters, we must validate the parameter(s)
             if (_triggerConfiguration.TryGetValue(trigger, out var configuration))
@@ -198,12 +280,12 @@ namespace Stateless
 
                 await _onTransitionedEvent.InvokeAsync(new Transition(source, handler.Destination, trigger));
 
-                await newRepresentation.EnterAsync(transition, args);
+                await newRepresentation.EnterAsync(transition, ct, args);
             }
             else
             {
                 // Check if it is an internal transition, or a transition from one state to another.
-                var transitionResult = await searchResult.Item2.Handler.ResultsInTransitionFromAsync(source, args);
+                var transitionResult = await searchResult.Item2.Handler.ResultsInTransitionFromAsync(source, args, ct);
                 var result = transitionResult.Item1;
                 var destination = transitionResult.Item2;
                 if (result)
@@ -229,7 +311,7 @@ namespace Stateless
                         {
                             var initialTransition = new Transition(source, newRepresentation.InitialTransitionTarget, trigger);
                             newRepresentation = GetRepresentation(newRepresentation.InitialTransitionTarget);
-                            await newRepresentation.EnterAsync(initialTransition, args);
+                            await newRepresentation.EnterAsync(initialTransition, ct, args);
                             State = newRepresentation.UnderlyingState;
                         }
                         //Alert all listeners of state transition
@@ -240,7 +322,7 @@ namespace Stateless
                         //Alert all listeners of state transition
                         await _onTransitionedEvent.InvokeAsync(new Transition(source, destination, trigger));
 
-                        await newRepresentation.EnterAsync(transition, args);
+                        await newRepresentation.EnterAsync(transition, ct, args);
                     }
                 }
                 else
