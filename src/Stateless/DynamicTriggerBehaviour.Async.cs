@@ -1,6 +1,7 @@
 ﻿#if TASKS
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Stateless
@@ -9,9 +10,9 @@ namespace Stateless
     {
         internal partial class DynamicTriggerBehaviour : TriggerBehaviour
         {
-            readonly Func<object[], Task<TState>> _destinationAsync;
+            readonly Func<object[], CancellationToken, Task<TState>> _destinationAsync;
 
-            public DynamicTriggerBehaviour(TTrigger trigger, Func<object[], Task<TState>> destination, 
+            public DynamicTriggerBehaviour(TTrigger trigger, Func<object[], CancellationToken, Task<TState>> destination, 
                 TransitionGuard transitionGuard, Reflection.DynamicTransitionInfo info)
                 : base(trigger, transitionGuard)
             {
@@ -19,7 +20,7 @@ namespace Stateless
                 TransitionInfo = info ?? throw new ArgumentNullException(nameof(info));
             }
 
-            public override async Task<Tuple<bool, TState>> ResultsInTransitionFromAsync(TState source, object[] args)
+            public override async Task<Tuple<bool, TState>> ResultsInTransitionFromAsync(TState source, object[] args, CancellationToken ct)
             {
                 if (_destination != null)
                 {
@@ -27,7 +28,8 @@ namespace Stateless
                     var destination = _destination(args);
                     return Tuple.Create(true, destination);
                 }
-                return Tuple.Create(true, await _destinationAsync(args));
+                
+                return Tuple.Create(true, await _destinationAsync(args, ct));
             }
         }
     }

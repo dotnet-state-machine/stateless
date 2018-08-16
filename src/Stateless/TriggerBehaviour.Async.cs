@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Stateless
@@ -16,7 +17,7 @@ namespace Stateless
             /// </summary>
             public Task<ICollection<string>> UnmetGuardConditionsAsync(object[] args) => _guard.UnmetGuardConditionsAsync(args);
 
-            public virtual Task<Tuple<bool, TState>> ResultsInTransitionFromAsync(TState source, object[] args)
+            public virtual Task<Tuple<bool, TState>> ResultsInTransitionFromAsync(TState source, object[] args, CancellationToken ct)
             {
                 var result = ResultsInTransitionFrom(source, args, out var destinationState);
                 return TaskResult.FromResult(Tuple.Create(result, destinationState));
