@@ -460,6 +460,25 @@ namespace Stateless
             /// Specify an asynchronous action that will execute when transitioning into
             /// the configured state.
             /// </summary>
+            /// <param name="entryAction">Action to execute.</param>
+            /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
+            /// <param name="entryActionDescription">Action description.</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration OnAsyncEntryFrom(TTrigger trigger, Func<CancellationToken, Task> entryAction, string entryActionDescription = null)
+            {
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
+                _representation.AddEntryAction(
+                    trigger,
+                    (t, args, ct) => entryAction(ct),
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                return this;
+            }
+
+            /// <summary>
+            /// Specify an asynchronous action that will execute when transitioning into
+            /// the configured state.
+            /// </summary>
             /// <param name="entryAction">Action to execute, providing details of the transition.</param>
             /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
             /// <param name="entryActionDescription">Action description.</param>
@@ -471,6 +490,25 @@ namespace Stateless
                 _representation.AddEntryAction(
                     trigger,
                     (t, args) => entryAction(t),
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                return this;
+            }
+
+            /// <summary>
+            /// Specify an asynchronous action that will execute when transitioning into
+            /// the configured state.
+            /// </summary>
+            /// <param name="entryAction">Action to execute, providing details of the transition.</param>
+            /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
+            /// <param name="entryActionDescription">Action description.</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration OnAsyncEntryFrom(TTrigger trigger, Func<Transition, CancellationToken, Task> entryAction, string entryActionDescription = null)
+            {
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
+                _representation.AddEntryAction(
+                    trigger,
+                    (t, args, ct) => entryAction(t, ct),
                     Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
                 return this;
             }
@@ -506,6 +544,29 @@ namespace Stateless
             /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
             /// <param name="entryActionDescription">Action description.</param>
             /// <returns>The receiver.</returns>
+            public StateConfiguration OnAsyncEntryFrom<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, CancellationToken, Task> entryAction, string entryActionDescription = null)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
+                _representation.AddEntryAction(
+                    trigger.Trigger,
+                    (t, args, ct) => entryAction(
+                        ParameterConversion.Unpack<TArg0>(args, 0),
+                        ct),
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                return this;
+            }
+
+            /// <summary>
+            /// Specify an asynchronous action that will execute when transitioning into
+            /// the configured state.
+            /// </summary>
+            /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+            /// <param name="entryAction">Action to execute, providing details of the transition.</param>
+            /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
+            /// <param name="entryActionDescription">Action description.</param>
+            /// <returns>The receiver.</returns>
             public StateConfiguration OnAsyncEntryFrom<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, Transition, Task> entryAction, string entryActionDescription = null)
             {
                 if (trigger == null) throw new ArgumentNullException(nameof(trigger));
@@ -515,6 +576,28 @@ namespace Stateless
                     trigger.Trigger,
                     (t, args) => entryAction(
                         ParameterConversion.Unpack<TArg0>(args, 0), t),
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                return this;
+            }
+
+            /// <summary>
+            /// Specify an asynchronous action that will execute when transitioning into
+            /// the configured state.
+            /// </summary>
+            /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+            /// <param name="entryAction">Action to execute, providing details of the transition.</param>
+            /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
+            /// <param name="entryActionDescription">Action description.</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration OnAsyncEntryFrom<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, Transition, CancellationToken, Task> entryAction, string entryActionDescription = null)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
+                _representation.AddEntryAction(
+                    trigger.Trigger,
+                    (t, args, ct) => entryAction(
+                        ParameterConversion.Unpack<TArg0>(args, 0), t, ct),
                     Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
                 return this;
             }
@@ -552,6 +635,30 @@ namespace Stateless
             /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
             /// <param name="entryActionDescription">Action description.</param>
             /// <returns>The receiver.</returns>
+            public StateConfiguration OnAsyncEntryFrom<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, CancellationToken, Task> entryAction, string entryActionDescription = null)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
+                _representation.AddEntryAction(trigger.Trigger,
+                    (t, args, ct) => entryAction(
+                        ParameterConversion.Unpack<TArg0>(args, 0),
+                        ParameterConversion.Unpack<TArg1>(args, 1),
+                        ct),
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                return this;
+            }
+
+            /// <summary>
+            /// Specify an asynchronous action that will execute when transitioning into
+            /// the configured state.
+            /// </summary>
+            /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+            /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
+            /// <param name="entryAction">Action to execute, providing details of the transition.</param>
+            /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
+            /// <param name="entryActionDescription">Action description.</param>
+            /// <returns>The receiver.</returns>
             public StateConfiguration OnAsyncEntryFrom<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, Transition, Task> entryAction, string entryActionDescription = null)
             {
                 if (trigger == null) throw new ArgumentNullException(nameof(trigger));
@@ -561,6 +668,31 @@ namespace Stateless
                     (t, args) => entryAction(
                         ParameterConversion.Unpack<TArg0>(args, 0),
                         ParameterConversion.Unpack<TArg1>(args, 1), t),
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                return this;
+            }
+
+            /// <summary>
+            /// Specify an asynchronous action that will execute when transitioning into
+            /// the configured state.
+            /// </summary>
+            /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+            /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
+            /// <param name="entryAction">Action to execute, providing details of the transition.</param>
+            /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
+            /// <param name="entryActionDescription">Action description.</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration OnAsyncEntryFrom<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, Transition, CancellationToken, Task> entryAction, string entryActionDescription = null)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
+                _representation.AddEntryAction(trigger.Trigger,
+                    (t, args, ct) => entryAction(
+                        ParameterConversion.Unpack<TArg0>(args, 0),
+                        ParameterConversion.Unpack<TArg1>(args, 1),
+                        t,
+                        ct),
                     Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
                 return this;
             }
@@ -601,6 +733,32 @@ namespace Stateless
             /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
             /// <param name="entryActionDescription">Action description.</param>
             /// <returns>The receiver.</returns>
+            public StateConfiguration OnAsyncEntryFrom<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, CancellationToken, Task> entryAction, string entryActionDescription = null)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
+                _representation.AddEntryAction(trigger.Trigger,
+                    (t, args, ct) => entryAction(
+                        ParameterConversion.Unpack<TArg0>(args, 0),
+                        ParameterConversion.Unpack<TArg1>(args, 1),
+                        ParameterConversion.Unpack<TArg2>(args, 2),
+                        ct),
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                return this;
+            }
+
+            /// <summary>
+            /// Specify an asynchronous action that will execute when transitioning into
+            /// the configured state.
+            /// </summary>
+            /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+            /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
+            /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
+            /// <param name="entryAction">Action to execute, providing details of the transition.</param>
+            /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
+            /// <param name="entryActionDescription">Action description.</param>
+            /// <returns>The receiver.</returns>
             public StateConfiguration OnAsyncEntryFrom<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, Transition, Task> entryAction, string entryActionDescription = null)
             {
                 if (trigger == null) throw new ArgumentNullException(nameof(trigger));
@@ -611,6 +769,33 @@ namespace Stateless
                         ParameterConversion.Unpack<TArg0>(args, 0),
                         ParameterConversion.Unpack<TArg1>(args, 1),
                         ParameterConversion.Unpack<TArg2>(args, 2), t),
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                return this;
+            }
+
+            /// <summary>
+            /// Specify an asynchronous action that will execute when transitioning into
+            /// the configured state.
+            /// </summary>
+            /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+            /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
+            /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
+            /// <param name="entryAction">Action to execute, providing details of the transition.</param>
+            /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
+            /// <param name="entryActionDescription">Action description.</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration OnAsyncEntryFrom<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, Transition, CancellationToken, Task> entryAction, string entryActionDescription = null)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
+                _representation.AddEntryAction(trigger.Trigger,
+                    (t, args, ct) => entryAction(
+                        ParameterConversion.Unpack<TArg0>(args, 0),
+                        ParameterConversion.Unpack<TArg1>(args, 1),
+                        ParameterConversion.Unpack<TArg2>(args, 2),
+                        t,
+                        ct),
                     Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
                 return this;
             }

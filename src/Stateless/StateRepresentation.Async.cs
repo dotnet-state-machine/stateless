@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Stateless
@@ -26,7 +27,7 @@ namespace Stateless
                 if (action == null) throw new ArgumentNullException(nameof(action));
 
                 EntryActions.Add(
-                    new EntryActionBehavior.Async((t, args) =>
+                    new EntryActionBehavior.Async((t, args, _) =>
                     {
                         if (t.Trigger.Equals(trigger))
                             return action(t, args);
@@ -36,7 +37,22 @@ namespace Stateless
                     entryActionDescription));
             }
 
-            public void AddEntryAction(Func<Transition, object[], Task> action, Reflection.InvocationInfo entryActionDescription)
+            public void AddEntryAction(TTrigger trigger, Func<Transition, object[], CancellationToken, Task> action, Reflection.InvocationInfo entryActionDescription)
+            {
+                if (action == null) throw new ArgumentNullException(nameof(action));
+
+                EntryActions.Add(
+                    new EntryActionBehavior.Async((t, args, ct) =>
+                        {
+                            if (t.Trigger.Equals(trigger))
+                                return action(t, args, ct);
+
+                            return TaskResult.Done;
+                        },
+                        entryActionDescription));
+            }
+
+            public void AddEntryAction(Func<Transition, object[], CancellationToken, Task> action, Reflection.InvocationInfo entryActionDescription)
             {
                 EntryActions.Add(
                     new EntryActionBehavior.Async(
@@ -85,19 +101,19 @@ namespace Stateless
                     await action.ExecuteAsync().ConfigureAwait(false);
             }
 
-            public async Task EnterAsync(Transition transition, params object[] entryArgs)
+            public async Task EnterAsync(Transition transition, CancellationToken ct, params object[] entryArgs)
             {
                 if (transition.IsReentry)
                 {
-                    await ExecuteEntryActionsAsync(transition, entryArgs).ConfigureAwait(false);
+                    await ExecuteEntryActionsAsync(transition, entryArgs, ct).ConfigureAwait(false);
                     await ExecuteActivationActionsAsync().ConfigureAwait(false);
                 }
                 else if (!Includes(transition.Source))
                 {
                     if (_superstate != null)
-                        await _superstate.EnterAsync(transition, entryArgs).ConfigureAwait(false);
+                        await _superstate.EnterAsync(transition, ct, entryArgs).ConfigureAwait(false);
 
-                    await ExecuteEntryActionsAsync(transition, entryArgs).ConfigureAwait(false);
+                    await ExecuteEntryActionsAsync(transition, entryArgs, ct).ConfigureAwait(false);
                     await ExecuteActivationActionsAsync().ConfigureAwait(false);
                 }
             }
@@ -123,10 +139,10 @@ namespace Stateless
                 return transition;
             }
 
-            async Task ExecuteEntryActionsAsync(Transition transition, object[] entryArgs)
+            async Task ExecuteEntryActionsAsync(Transition transition, object[] entryArgs, CancellationToken ct)
             {
                 foreach (var action in EntryActions)
-                    await action.ExecuteAsync(transition, entryArgs).ConfigureAwait(false);
+                    await action.ExecuteAsync(transition, entryArgs, ct).ConfigureAwait(false);
             }
 
             async Task ExecuteExitActionsAsync(Transition transition)
