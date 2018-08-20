@@ -22,6 +22,15 @@ namespace Stateless
                 DeactivateActions.Add(new DeactivateActionBehaviour.Async(_state, action, deactivateActionDescription));
             }
 
+            public void AddEntryAction(Func<Transition, object[], Task> action, Reflection.InvocationInfo entryActionDescription)
+            {
+                if (action == null) throw new ArgumentNullException(nameof(action));
+
+                EntryActions.Add(
+                    new EntryActionBehavior.Async((t, args, _) => action(t, args),
+                    entryActionDescription));
+            }
+
             public void AddEntryAction(TTrigger trigger, Func<Transition, object[], Task> action, Reflection.InvocationInfo entryActionDescription)
             {
                 if (action == null) throw new ArgumentNullException(nameof(action));
