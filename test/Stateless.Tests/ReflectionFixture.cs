@@ -758,22 +758,22 @@ namespace Stateless.Tests
 
             sm.Configure(State.A)
                 .OnActivateAsync(OnActivateAsync)
-                .OnEntryAsync(OnEntryAsync)
+                .OnAsyncEntry(OnEntryAsync)
                 .OnExitAsync(OnExitAsync)
                 .OnDeactivateAsync(OnDeactivateAsync);
             sm.Configure(State.B)
                 .OnActivateAsync(OnActivateAsync, UserDescription + "B-Activate")
-                .OnEntryAsync(OnEntryAsync, UserDescription + "B-Entry")
+                .OnAsyncEntry(OnEntryAsync, UserDescription + "B-Entry")
                 .OnExitAsync(OnExitAsync, UserDescription + "B-Exit")
                 .OnDeactivateAsync(OnDeactivateAsync, UserDescription + "B-Deactivate");
             sm.Configure(State.C)
                 .OnActivateAsync(() => OnActivateAsync())
-                .OnEntryAsync(() => OnEntryAsync())
+                .OnAsyncEntry(() => OnEntryAsync())
                 .OnExitAsync(() => OnExitAsync())
                 .OnDeactivateAsync(() => OnDeactivateAsync());
             sm.Configure(State.D)
                 .OnActivateAsync(() => OnActivateAsync(), UserDescription + "D-Activate")
-                .OnEntryAsync(() => OnEntryAsync(), UserDescription + "D-Entry")
+                .OnAsyncEntry(() => OnEntryAsync(), UserDescription + "D-Entry")
                 .OnExitAsync(() => OnExitAsync(), UserDescription + "D-Exit")
                 .OnDeactivateAsync(() => OnDeactivateAsync(), UserDescription + "D-Deactivate");
 
@@ -791,16 +791,16 @@ namespace Stateless.Tests
             sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .OnEntryAsync(OnEntryTransAsync)
+                .OnAsyncEntry(OnEntryTransAsync)
                 .OnExitAsync(OnExitTransAsync);
             sm.Configure(State.B)
-                .OnEntryAsync(OnEntryTransAsync, UserDescription + "B-EntryTrans")
+                .OnAsyncEntry(OnEntryTransAsync, UserDescription + "B-EntryTrans")
                 .OnExitAsync(OnExitTransAsync, UserDescription + "B-ExitTrans");
             sm.Configure(State.C)
-                .OnEntryAsync(t => OnEntryTransAsync(t))
+                .OnAsyncEntry(t => OnEntryTransAsync(t))
                 .OnExitAsync(t => OnExitTransAsync(t));
             sm.Configure(State.D)
-                .OnEntryAsync(t => OnEntryTransAsync(t), UserDescription + "D-EntryTrans")
+                .OnAsyncEntry(t => OnEntryTransAsync(t), UserDescription + "D-EntryTrans")
                 .OnExitAsync(t => OnExitTransAsync(t), UserDescription + "D-ExitTrans");
 
             inf = sm.GetInfo();
