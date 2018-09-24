@@ -11,6 +11,8 @@ namespace Stateless.Graph
     /// </summary>
     class StateGraph
     {
+        private StateInfo initialState;
+
         /// <summary>
         /// List of all states in the graph, indexed by the string representation of the underlying State object.
         /// </summary>
@@ -29,6 +31,9 @@ namespace Stateless.Graph
 
         public StateGraph(StateMachineInfo machineInfo)
         {
+            // Add initial state
+            initialState = machineInfo.InitialState;
+
             // Start with top-level superstates
             AddSuperstates(machineInfo);
 
@@ -76,6 +81,10 @@ namespace Stateless.Graph
             List<string> transits = style.FormatAllTransitions(Transitions);
             foreach (var transit in transits)
                 dirgraphText += System.Environment.NewLine + transit;
+
+            // Add initial transition if present
+            var initialStateName = initialState.UnderlyingState.ToString();
+            dirgraphText += System.Environment.NewLine + $" init->{initialStateName}[style = \"solid\"]";
 
             dirgraphText += System.Environment.NewLine + "}";
 
@@ -153,8 +162,7 @@ namespace Stateless.Graph
                     {
                         foreach (var dynamicStateInfo in dyno.PossibleDestinationStates)
                         {
-                            State toState = null;
-                            States.TryGetValue(dynamicStateInfo.DestinationState, out toState);
+                            States.TryGetValue(dynamicStateInfo.DestinationState, out State toState);
                             if (toState != null)
                             {
                                 DynamicTransition dtrans = new DynamicTransition(decide, toState, dyno.Trigger, dynamicStateInfo.Criterion);
