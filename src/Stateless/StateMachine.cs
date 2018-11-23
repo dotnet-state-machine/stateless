@@ -430,7 +430,10 @@ namespace Stateless
                 {
                     var initialTransition = new Transition(transition.Source, newRepresentation.InitialTransitionTarget, transition.Trigger);
                     newRepresentation = GetRepresentation(newRepresentation.InitialTransitionTarget);
-                    newRepresentation.Enter(initialTransition, args);
+
+                    if (!newRepresentation.GetSubstates().Any())
+                        newRepresentation.Enter(initialTransition, args);
+
                     State = newRepresentation.UnderlyingState;
                 }
                 //Alert all listeners of state transition

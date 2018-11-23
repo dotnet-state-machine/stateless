@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using Stateless.Graph;
 using Xunit;
 
 namespace Stateless.Tests
@@ -22,11 +24,12 @@ namespace Stateless.Tests
             Assert.Equal(State.C, sm.State);
         }
         [Fact]
-        public void EntersSubStateofSubstate()
+        public void EntersSubStateOfSubstate()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
 
-            sm.Configure(State.A).Permit(Trigger.X, State.B);
+            sm.Configure(State.A)
+                .Permit(Trigger.X, State.B);
 
             sm.Configure(State.B)
                 .InitialTransition(State.C);
@@ -41,6 +44,36 @@ namespace Stateless.Tests
             sm.Fire(Trigger.X);
             Assert.Equal(State.D, sm.State);
         }
+
+
+        [Fact]
+        public void SubStateOfSubstateOnEntryCountAndOrder() 
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            var onEntryCount = "";
+
+            sm.Configure(State.A)
+                .OnEntry(() => onEntryCount += "A")
+                .Permit(Trigger.X, State.B);
+
+            sm.Configure(State.B)
+                .OnEntry(() => onEntryCount += "B")
+                .InitialTransition(State.C);
+
+            sm.Configure(State.C)
+                .OnEntry(() => onEntryCount += "C")
+                .InitialTransition(State.D)
+                .SubstateOf(State.B);
+
+            sm.Configure(State.D)
+                .OnEntry(() => onEntryCount += "D")
+                .SubstateOf(State.C);
+
+            sm.Fire(Trigger.X);
+            Assert.Equal("BCD", onEntryCount);
+        }
+
         [Fact]
         public void DoesNotEnterSubStateofSubstate()
         {
