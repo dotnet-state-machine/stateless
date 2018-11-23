@@ -44,8 +44,6 @@ namespace Stateless.Tests
             sm.Fire(Trigger.X);
             Assert.Equal(State.D, sm.State);
         }
-
-
         [Fact]
         public void SubStateOfSubstateOnEntryCountAndOrder() 
         {
@@ -73,7 +71,6 @@ namespace Stateless.Tests
             sm.Fire(Trigger.X);
             Assert.Equal("BCD", onEntryCount);
         }
-
         [Fact]
         public void DoesNotEnterSubStateofSubstate()
         {
