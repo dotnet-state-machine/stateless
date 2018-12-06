@@ -222,7 +222,12 @@ namespace Stateless
                     {
                         var initialTransition = new Transition(source, newRepresentation.InitialTransitionTarget, trigger);
                         newRepresentation = GetRepresentation(newRepresentation.InitialTransitionTarget);
-                        await newRepresentation.EnterAsync(initialTransition, args);
+
+                        if (!newRepresentation.GetSubstates().Any()) 
+                        {
+                            await newRepresentation.EnterAsync(initialTransition, args);
+                        }
+
                         State = newRepresentation.UnderlyingState;
                     }
                     //Alert all listeners of state transition

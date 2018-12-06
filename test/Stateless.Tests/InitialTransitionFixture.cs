@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Stateless.Graph;
 using Xunit;
 
@@ -125,6 +126,46 @@ namespace Stateless.Tests
 
             await sm.FireAsync(Trigger.X);
             Assert.Equal(State.D, sm.State);
+        }
+        [Fact]
+        public async void EntersSubStateofSubstateAsyncOnEntryCountAndOrder () 
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            var onEntryCount = "";
+
+            sm.Configure(State.A)
+                .OnEntryAsync(async () => {
+                    onEntryCount += "A";
+                    await Task.Delay(10);
+                })
+                .Permit(Trigger.X, State.B);
+
+
+            sm.Configure(State.B)
+                .OnEntryAsync(async () => {
+                    onEntryCount += "B";
+                    await Task.Delay(10);
+                })
+                .InitialTransition(State.C);
+
+            sm.Configure(State.C)
+                .OnEntryAsync(async () => {
+                    onEntryCount += "C";
+                    await Task.Delay(10);
+                })
+                .InitialTransition(State.D)
+                .SubstateOf(State.B);
+
+            sm.Configure(State.D)
+                .OnEntryAsync(async () => {
+                    onEntryCount += "D";
+                    await Task.Delay(10);
+                })
+                .SubstateOf(State.C);
+
+            await sm.FireAsync(Trigger.X);
+            Assert.Equal("BCD", onEntryCount);
         }
         [Fact]
         public async void DoesNotEnterSubStateofSubstateAsync()
