@@ -12,7 +12,7 @@ namespace Stateless.Reflection
         /// <summary>
         /// Is the method synchronous or asynchronous?
         /// </summary>
-        internal enum Timing
+        public enum Timing
         {
             /// <summary>Method is synchronous</summary>
             Synchronous,
@@ -27,7 +27,13 @@ namespace Stateless.Reflection
             return new InvocationInfo(method?.TryGetMethodName(), description, timing);
         }
 
-        InvocationInfo(string methodName, string description, Timing timing)      // description can be null if user didn't specify a description
+        /// <summary>
+        /// Creates a new instance of <see cref="InvocationInfo"/>.
+        /// </summary>
+        /// <param name="methodName">The name of the invoked method.</param>
+        /// <param name="description">A description of the invoked method.</param>
+        /// <param name="timing">Sets a value indicating whether the method is invoked asynchronously.</param>
+        public InvocationInfo(string methodName, string description, Timing timing)      // description can be null if user didn't specify a description
         {
             MethodName = methodName;
             _description = description;
@@ -43,7 +49,7 @@ namespace Stateless.Reflection
         /// <summary>
         /// Text returned for compiler-generated functions where the caller has not specified a description
         /// </summary>
-        static public string DefaultFunctionDescription { get; set; } = "Function";
+        public static string DefaultFunctionDescription { get; set; } = "Function";
 
         /// <summary>
         /// A description of the invoked method.  Returns:
