@@ -393,8 +393,8 @@ namespace Stateless
 
         private void HandleReentryTrigger(object[] args, StateRepresentation representativeState, Transition transition)
         {
+            StateRepresentation representation;
             transition = representativeState.Exit(transition);
-            State = transition.Destination;
             var newRepresentation = GetRepresentation(transition.Destination);
 
             if (!transition.Source.Equals(transition.Destination))
@@ -402,12 +402,17 @@ namespace Stateless
                 // Then Exit the final superstate
                 transition = new Transition(transition.Destination, transition.Destination, transition.Trigger);
                 newRepresentation.Exit(transition);
+
+                _onTransitionedEvent.Invoke(transition);
+                representation = EnterState(newRepresentation, transition, args);
             }
-
-            _onTransitionedEvent.Invoke(transition);
-
-            newRepresentation.Enter(transition, args);
-           }
+            else
+            {
+                _onTransitionedEvent.Invoke(transition);
+                representation = EnterState(newRepresentation, transition, args);
+            }
+            State = representation.UnderlyingState;
+        }
 
         private void HandleTransitioningTrigger( object[] args, StateRepresentation representativeState, Transition transition)
         {
@@ -416,32 +421,33 @@ namespace Stateless
             State = transition.Destination;
             var newRepresentation = GetRepresentation(transition.Destination);
 
-            // Check if there is an intital transition configured
-            if (newRepresentation.HasInitialTransition)
+            //Alert all listeners of state transition
+            _onTransitionedEvent.Invoke(transition);
+            var representation = EnterState(newRepresentation, transition, args);
+            State = representation.UnderlyingState;
+        }
+
+        private StateRepresentation EnterState(StateRepresentation representation, Transition transition, object [] args)
+        {
+            // Enter the new state
+            representation.Enter(transition, args);
+
+            // Recursively enter substates that have an initial transition
+            if (representation.HasInitialTransition)
             {
                 // Verify that the target state is a substate
-                if (!newRepresentation.GetSubstates().Any(s => s.UnderlyingState.Equals(newRepresentation.InitialTransitionTarget)))
+                // Check if state has substate(s), and if an initial transition(s) has been set up.
+                if (!representation.GetSubstates().Any(s => s.UnderlyingState.Equals(representation.InitialTransitionTarget)))
                 {
-                    throw new InvalidOperationException($"The target ({newRepresentation.InitialTransitionTarget}) for the initial transition is not a substate.");
+                    throw new InvalidOperationException($"The target ({representation.InitialTransitionTarget}) for the initial transition is not a substate.");
                 }
 
-                // Check if state has substate(s), and if an initial transition(s) has been set up.
-                while (newRepresentation.GetSubstates().Any() && newRepresentation.HasInitialTransition)
-                {
-                    var initialTransition = new Transition(transition.Source, newRepresentation.InitialTransitionTarget, transition.Trigger);
-                    newRepresentation = GetRepresentation(newRepresentation.InitialTransitionTarget);
-                    newRepresentation.Enter(initialTransition, args);
-                    State = newRepresentation.UnderlyingState;
-                }
-                //Alert all listeners of state transition
-                _onTransitionedEvent.Invoke(transition);
+                var initialTransition = new Transition(transition.Source, representation.InitialTransitionTarget, transition.Trigger);
+                representation = GetRepresentation(representation.InitialTransitionTarget);
+                representation = EnterState(representation, initialTransition, args);
             }
-            else
-            {
-                //Alert all listeners of state transition
-                _onTransitionedEvent.Invoke(transition);
-                newRepresentation.Enter(transition, args);
-            }
+
+            return representation;
         }
 
         /// <summary>
