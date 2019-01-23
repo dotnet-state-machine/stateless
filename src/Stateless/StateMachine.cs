@@ -36,9 +36,9 @@ namespace Stateless
             public TTrigger Trigger { get; set; }
             public object[] Args { get; set; }
         }
-
+        
         private readonly Queue<QueuedTrigger> _eventQueue = new Queue<QueuedTrigger>();
-        private bool _firing;
+        private volatile bool _firing;
 
         /// <summary>
         /// Construct a state machine with external state storage.
