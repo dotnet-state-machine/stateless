@@ -261,6 +261,31 @@ namespace Stateless.Tests
         }
 
         [Fact]
+        public async void TransitionToSuperstateDoesNotExitSuperstate()
+        {
+            StateMachine<State, Trigger> sm = new StateMachine<State, Trigger>(State.B);
+
+            bool superExit = false;
+            bool superEntry = false;
+            bool subExit = false;
+
+            sm.Configure(State.A)
+                .OnEntryAsync(t => Task.Run(() => superEntry = true))
+                .OnExitAsync(t => Task.Run(() => superExit = true));
+
+            sm.Configure(State.B)
+                .SubstateOf(State.A)
+                .Permit(Trigger.Y, State.A)
+                .OnExitAsync(t => Task.Run(() => subExit = true));
+
+            await sm.FireAsync(Trigger.Y);
+
+            Assert.True(subExit);
+            Assert.False(superEntry);
+            Assert.False(superExit);
+        }
+
+        [Fact]
         public async void IgnoredTriggerMustBeIgnoredAsync()
         {
             bool nullRefExcThrown = false;
