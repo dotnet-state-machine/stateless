@@ -8,7 +8,7 @@ namespace Stateless.Graph
     /// Style definition for StateGraph.
     /// Provides formatting of individual items in a state graph.
     /// </summary>
-    public abstract class IGraphStyle
+    public abstract class GraphStyleBase
     {
         /// <summary>
         /// Get the text that must be present at the top of a state graph file.
@@ -16,7 +16,7 @@ namespace Stateless.Graph
         /// digraph {
         /// </summary>
         /// <returns>Prefix text</returns>
-        abstract internal string GetPrefix();
+        public abstract string GetPrefix();
 
         /// <summary>
         /// Returns the formatted text for a single state.
@@ -26,7 +26,7 @@ namespace Stateless.Graph
         /// </summary>
         /// <param name="state">The state to generate text for</param>
         /// <returns>Description of the state in the desired format</returns>
-        abstract internal string FormatOneState(State state);
+        public abstract string FormatOneState(State state);
 
         /// <summary>
         /// Returns the formatted text for a single superstate and its substates.
@@ -34,7 +34,7 @@ namespace Stateless.Graph
         /// </summary>
         /// <param name="stateInfo">The superstate to generate text for</param>
         /// <returns>Description of the superstate, and all its substates, in the desired format</returns>
-        abstract internal string FormatOneCluster(SuperState stateInfo);
+        public abstract string FormatOneCluster(SuperState stateInfo);
 
         /// <summary>
         /// Returns the formatted text for a single decision node.
@@ -46,7 +46,7 @@ namespace Stateless.Graph
         /// <param name="nodeName">Name of the node</param>
         /// <param name="label">Label for the node</param>
         /// <returns></returns>
-        abstract internal string FormatOneDecisionNode(string nodeName, string label);
+        public abstract string FormatOneDecisionNode(string nodeName, string label);
 
         /// <summary>
         /// Returns the formatted text for all the transitions found in the state graph.
@@ -55,7 +55,7 @@ namespace Stateless.Graph
         /// </summary>
         /// <param name="transitions">List of all transitions in the state graph</param>
         /// <returns>Description of all transitions, in the desired format</returns>
-        virtual internal List<string> FormatAllTransitions(List<Transition> transitions)
+        public virtual List<string> FormatAllTransitions(List<Transition> transitions)
         {
             List<string> lines = new List<string>();
 
@@ -119,7 +119,7 @@ namespace Stateless.Graph
         /// <param name="destinationNodeName"></param>
         /// <param name="guards">List of guards (if any)</param>
         /// <returns></returns>
-        virtual internal string FormatOneTransition(string sourceNodeName, string trigger, IEnumerable<string> actions, string destinationNodeName, IEnumerable<string> guards)
+        public virtual string FormatOneTransition(string sourceNodeName, string trigger, IEnumerable<string> actions, string destinationNodeName, IEnumerable<string> guards)
         {
             throw new InvalidOperationException("If you use IGraphStyle.FormatAllTransitions() you must implement an override of FormatOneTransition()");
         }

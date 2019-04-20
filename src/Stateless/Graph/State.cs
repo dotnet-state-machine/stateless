@@ -44,7 +44,11 @@ namespace Stateless.Graph
         /// </summary>
         public List<string> ExitActions { get; private set; } = new List<string>();
 
-        internal State(StateInfo stateInfo)
+        /// <summary>
+        /// Constructs a new instance of State.
+        /// </summary>
+        /// <param name="stateInfo">The state to be represented.</param>
+        public State(StateInfo stateInfo)
         {
             NodeName = stateInfo.UnderlyingState.ToString();
             StateName = stateInfo.UnderlyingState.ToString();
@@ -60,7 +64,11 @@ namespace Stateless.Graph
                 ExitActions.Add(exitAction.Description);
         }
 
-        internal State(string nodeName)
+        /// <summary>
+        /// Constructs a new instance of State.
+        /// </summary>
+        /// <param name="nodeName">The node name.</param>
+        public State(string nodeName)
         {
             NodeName = nodeName;
             StateName = null;

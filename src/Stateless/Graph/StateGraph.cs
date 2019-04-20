@@ -9,7 +9,7 @@ namespace Stateless.Graph
     /// graph structure, in preparation for feeding it to a diagram
     /// generator 
     /// </summary>
-    class StateGraph
+    public class StateGraph
     {
         /// <summary>
         /// List of all states in the graph, indexed by the string representation of the underlying State object.
@@ -27,6 +27,10 @@ namespace Stateless.Graph
         /// </summary>
         public List<Decision> Decisions { get; private set; } = new List<Decision>();
 
+        /// <summary>
+        /// Creates a new instance of <see cref="StateGraph"/>.
+        /// </summary>
+        /// <param name="machineInfo">An object which exposes the states, transitions, and actions of this machine.</param>
         public StateGraph(StateMachineInfo machineInfo)
         {
             // Start with top-level superstates
@@ -47,7 +51,7 @@ namespace Stateless.Graph
         /// </summary>
         /// <param name="style"></param>
         /// <returns></returns>
-        public string ToGraph(IGraphStyle style)
+        public string ToGraph(GraphStyleBase style)
         {
             string dirgraphText = style.GetPrefix().Replace("\n", System.Environment.NewLine);
 

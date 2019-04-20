@@ -12,7 +12,11 @@ namespace Stateless.Graph
         /// </summary>
         public List<State> SubStates { get; } = new List<State>();
 
-        internal SuperState(Reflection.StateInfo stateInfo)
+        /// <summary>
+        /// Constructs a new instance of SuperState.
+        /// </summary>
+        /// <param name="stateInfo">The super state to be represented.</param>
+        public SuperState(Reflection.StateInfo stateInfo)
             : base(stateInfo)
         {
 
