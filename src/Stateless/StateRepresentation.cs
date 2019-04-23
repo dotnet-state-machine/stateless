@@ -293,7 +293,7 @@ namespace Stateless
                 if (Superstate != null)
                     result = result.Union(Superstate.GetPermittedTriggers(args));
 
-                return result.ToArray();
+                return result;
             }
 
             internal void SetInitialTransition(TState state)
