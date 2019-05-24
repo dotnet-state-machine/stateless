@@ -373,7 +373,7 @@ namespace Stateless
                 case DynamicTriggerBehaviour _ when (result.Handler.ResultsInTransitionFrom(source, args, out TState destination)):
                 {
                     // Handle transition, and set new state
-                    var transition = new Transition(source, destination, trigger);
+                    var transition = new Transition(source, destination, trigger, result.Handler.TransitionFunction);
 
                     HandleTransitioningTrigger(args, representativeState, transition);
 
@@ -382,7 +382,7 @@ namespace Stateless
                 case TransitioningTriggerBehaviour _ when (result.Handler.ResultsInTransitionFrom(source, args, out TState destination)):
                     {
                         // Handle transition, and set new state
-                        var transition = new Transition(source, destination, trigger);
+                        var transition = new Transition(source, destination, trigger, result.Handler.TransitionFunction);
 
                         HandleTransitioningTrigger(args, representativeState, transition);
 
@@ -422,6 +422,8 @@ namespace Stateless
         {
             transition = representativeState.Exit(transition);
 
+            transition.TransitionFunction?.Invoke();
+
             State = transition.Destination;
             var newRepresentation = GetRepresentation(transition.Destination);
 
@@ -437,7 +439,7 @@ namespace Stateless
                 // Check if state has substate(s), and if an initial transition(s) has been set up.
                 while (newRepresentation.GetSubstates().Any() && newRepresentation.HasInitialTransition)
                 {
-                    var initialTransition = new Transition(transition.Source, newRepresentation.InitialTransitionTarget, transition.Trigger);
+                    var initialTransition = new Transition(transition.Source, newRepresentation.InitialTransitionTarget, transition.Trigger, null);
                     newRepresentation = GetRepresentation(newRepresentation.InitialTransitionTarget);
                     newRepresentation.Enter(initialTransition, args);
                     State = newRepresentation.UnderlyingState;

@@ -190,7 +190,7 @@ namespace Stateless
                 if (!source.Equals(transition.Destination))
                 {
                     // Then Exit the final superstate
-                    transition = new Transition(handler.Destination, handler.Destination, trigger);
+                    transition = new Transition(handler.Destination, handler.Destination, trigger );
                     await newRepresentation.ExitAsync(transition);
                 }
 

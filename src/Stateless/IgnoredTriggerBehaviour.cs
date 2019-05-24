@@ -5,7 +5,7 @@
         internal class IgnoredTriggerBehaviour : TriggerBehaviour
         {
             public IgnoredTriggerBehaviour(TTrigger trigger, TransitionGuard transitionGuard)
-                : base(trigger, transitionGuard)
+                : base(trigger, transitionGuard,null)
             {
             }
 

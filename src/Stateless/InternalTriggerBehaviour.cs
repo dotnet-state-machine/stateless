@@ -7,7 +7,7 @@ namespace Stateless
     {
         internal abstract class InternalTriggerBehaviour : TriggerBehaviour
         {
-            protected InternalTriggerBehaviour(TTrigger trigger, TransitionGuard guard) : base(trigger, guard)
+            protected InternalTriggerBehaviour(TTrigger trigger, TransitionGuard guard) : base(trigger, guard,null)
             {
             }
 

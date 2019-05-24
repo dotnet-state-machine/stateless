@@ -10,8 +10,8 @@ namespace Stateless
             internal Reflection.DynamicTransitionInfo TransitionInfo { get; private set; }
 
             public DynamicTriggerBehaviour(TTrigger trigger, Func<object[], TState> destination, 
-                TransitionGuard transitionGuard, Reflection.DynamicTransitionInfo info)
-                : base(trigger, transitionGuard)
+                TransitionGuard transitionGuard, Reflection.DynamicTransitionInfo info, Action transitionFunction)
+                : base(trigger, transitionGuard,transitionFunction)
             {
                 _destination = destination ?? throw new ArgumentNullException(nameof(destination));
                 TransitionInfo = info ?? throw new ArgumentNullException(nameof(info));

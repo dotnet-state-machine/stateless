@@ -17,11 +17,15 @@ namespace Stateless
             /// </summary>
             /// <param name="trigger"></param>
             /// <param name="guard">TransitionGuard (null if no guard function)</param>
-            protected TriggerBehaviour(TTrigger trigger, TransitionGuard guard)
+            /// <param name="transitionFunction">transition function to be executed during a transition</param>
+            protected TriggerBehaviour(TTrigger trigger, TransitionGuard guard, Action transitionFunction)
             {
                 _guard = guard ?? TransitionGuard.Empty;
                 Trigger = trigger;
+                TransitionFunction = transitionFunction;
             }
+
+            public Action TransitionFunction { get; }
 
             public TTrigger Trigger { get; }
 

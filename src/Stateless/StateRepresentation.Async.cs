@@ -114,7 +114,7 @@ namespace Stateless
 
                     if (_superstate != null)
                     {
-                        transition = new Transition(_superstate.UnderlyingState, transition.Destination, transition.Trigger);
+                        transition = new Transition(_superstate.UnderlyingState, transition.Destination, transition.Trigger, transition.TransitionFunction);
                         return await _superstate.ExitAsync(transition).ConfigureAwait(false);
                     }
                 }

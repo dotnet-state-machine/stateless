@@ -1,4 +1,6 @@
-﻿namespace Stateless
+﻿using System;
+
+namespace Stateless
 {
     public partial class StateMachine<TState, TTrigger>
     {
@@ -13,12 +15,19 @@
             /// <param name="source">The state transitioned from.</param>
             /// <param name="destination">The state transitioned to.</param>
             /// <param name="trigger">The trigger that caused the transition.</param>
-            public Transition(TState source, TState destination, TTrigger trigger)
+            /// <param name="transitionFunction">transition function to be executed during a transition</param>
+            public Transition(TState source, TState destination, TTrigger trigger, Action transitionFunction = null)
             {
                 Source = source;
                 Destination = destination;
                 Trigger = trigger;
+                TransitionFunction = transitionFunction;
             }
+
+            /// <summary>
+            /// The transitionFunction that will be called during a transition
+            /// </summary>
+            public Action TransitionFunction { get; }
 
             /// <summary>
             /// The state transitioned from.
