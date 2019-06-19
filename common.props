@@ -1,0 +1,14 @@
+<Project>
+
+ <!-- Assembly version & attribute controls -->
+  <PropertyGroup>
+    <VersionPrefix>5.0</VersionPrefix>
+
+<!--
+    <GenerateAssemblyConfigurationAttribute>true</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>true</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>true</GenerateAssemblyProductAttribute>
+-->
+  </PropertyGroup>
+
+</Project>

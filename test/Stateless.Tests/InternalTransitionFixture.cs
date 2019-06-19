@@ -211,9 +211,9 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .InternalTransitionIf(Trigger.X, u => isPermitted, t => { });
 
-            Assert.Equal(1, sm.GetPermittedTriggers().ToArray().Length);
+            Assert.Single(sm.GetPermittedTriggers());
             isPermitted = false;
-            Assert.Equal(0, sm.GetPermittedTriggers().ToArray().Length);
+            Assert.Empty(sm.GetPermittedTriggers());
         }
 
         [Fact]

@@ -126,7 +126,7 @@ namespace Stateless.Tests
         {
             var sm = new StateMachine<State, Trigger>(State.A);
 
-            Assert.Throws(typeof(ArgumentException), () =>
+            Assert.Throws<ArgumentException>( () =>
                 // This configuration would create an infinite loop
                 sm.Configure(State.A)
                     .InitialTransition(State.A) );
@@ -142,7 +142,7 @@ namespace Stateless.Tests
             sm.Configure(State.B)
                 .InitialTransition(State.A); // Invalid configuration, State a is a superstate
 
-            Assert.Throws(typeof(InvalidOperationException), () =>
+            Assert.Throws<InvalidOperationException>( () =>
                 sm.Fire(Trigger.X) );
         }
 
@@ -156,7 +156,7 @@ namespace Stateless.Tests
             sm.Configure(State.B)
                 .InitialTransition(State.A);
 
-            await Assert.ThrowsAsync (typeof(InvalidOperationException), async () =>
+            await Assert.ThrowsAsync<InvalidOperationException>( async () =>
                 await sm.FireAsync(Trigger.X) );
         }
 
@@ -170,7 +170,7 @@ namespace Stateless.Tests
             sm.Configure(State.B)
                 .InitialTransition(State.C);
 
-            Assert.Throws(typeof(InvalidOperationException), () =>
+            Assert.Throws<InvalidOperationException>( () =>
                 sm.Configure(State.B)
                 .InitialTransition(State.A) );
         }

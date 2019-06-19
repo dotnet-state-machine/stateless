@@ -1,12 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <Import Project="../../common.props" />
+
   <PropertyGroup>
     <Description>Create state machines and lightweight state machine-based workflows directly in .NET code</Description>
     <AssemblyTitle>Stateless</AssemblyTitle>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <VersionPrefix>4.2.0</VersionPrefix>
     <Authors>Stateless Contributors</Authors>
-    <TargetFrameworks>netstandard1.0;net45;net40</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net47</TargetFrameworks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>Stateless</AssemblyName>
@@ -26,11 +28,11 @@
     <Version>4.2.1</Version>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
     <DefineConstants>$(DefineConstants);PORTABLE_REFLECTION;TASKS</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' ">
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net47' ">
     <DefineConstants>$(DefineConstants);TASKS</DefineConstants>
   </PropertyGroup>
 
