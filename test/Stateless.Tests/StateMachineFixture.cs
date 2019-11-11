@@ -561,7 +561,7 @@ namespace Stateless.Tests
 
             Assert.Throws<InvalidOperationException>(() => sm.Fire(x, 2));
         }
-        
+
         [Fact]
         public void TransitionWhenPermitDyanmicIfHasMultipleExclusiveGuards()
         {

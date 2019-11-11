@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 ### Fixed
 
+## [4.3.0] - 2019.11.11
+### Changed
+- Netstandard2.0 support
+
 ## [4.2.0] - 2018.06.01
 ### Added
  - PR #254 Add initial transitions
