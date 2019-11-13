@@ -6,7 +6,7 @@
     <Product>Stateless</Product>
     <TargetFrameworks>netstandard2.0;netstandard1.0;net45;net40</TargetFrameworks>
     <Description>Create state machines and lightweight state machine-based workflows directly in .NET code</Description>
-    <Copyright>Copyright © Stateless Contributors 2009-2020</Copyright>
+    <Copyright>Copyright © Stateless Contributors 2009-2019</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
     <VersionPrefix>4.3.0</VersionPrefix>
     <Version>4.3.0</Version>
