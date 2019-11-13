@@ -311,10 +311,10 @@ namespace Stateless.Tests
             State? state = null;
             Trigger? trigger = null;
             sm.OnUnhandledTrigger((s, t, u) =>
-            {
-                state = s;
-                trigger = t;
-            });
+                                      {
+                                          state = s;
+                                          trigger = t;
+                                      });
 
             sm.Fire(Trigger.Z);
 
@@ -371,7 +371,7 @@ namespace Stateless.Tests
         {
             var sm = new StateMachine<State, Trigger>(State.A);
 
-            Assert.Throws(typeof(ArgumentException), () => { sm.Configure(State.A).SubstateOf(State.A); });
+            Assert.Throws(typeof(ArgumentException),  () => { sm.Configure(State.A).SubstateOf(State.A); });
         }
 
         [Fact]
@@ -617,7 +617,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
             var x = sm.SetTriggerParameters<int>(Trigger.X);
             sm.Configure(State.A)
-                .PermitReentryIf(x, i => i == 3);
+                .PermitReentryIf(x, i => i == 3 );
             sm.Fire(x, 3);
             Assert.Equal(sm.State, State.A);
         }
@@ -702,7 +702,7 @@ namespace Stateless.Tests
 
             sm.Configure(State.A)
                 .OnEntry(() => superEntry = true)
-                .OnExit(() => superExit = true);
+                .OnExit(() => superExit= true);
 
             sm.Configure(State.B)
                 .SubstateOf(State.A)
