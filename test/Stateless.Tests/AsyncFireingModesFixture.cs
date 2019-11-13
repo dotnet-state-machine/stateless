@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿#if TASKS
+using System.Collections.Generic;
 using Xunit;
+
 
 namespace Stateless.Tests
 {
@@ -75,3 +77,4 @@ namespace Stateless.Tests
         }
     }
 }
+#endif

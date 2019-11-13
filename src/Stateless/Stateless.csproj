@@ -4,7 +4,7 @@
     <AssemblyTitle>Stateless</AssemblyTitle>
     <AssemblyName>Stateless</AssemblyName>
     <Product>Stateless</Product>
-    <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netstandard1.0;net45;net40</TargetFrameworks>
     <Description>Create state machines and lightweight state machine-based workflows directly in .NET code</Description>
     <Copyright>Copyright © Stateless Contributors 2009-2020</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
@@ -23,6 +23,14 @@
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <DefineConstants>$(DefineConstants);TASKS</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
+    <DefineConstants>$(DefineConstants);PORTABLE_REFLECTION;TASKS</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <DefineConstants>$(DefineConstants);TASKS</DefineConstants>
   </PropertyGroup>
 </Project>
