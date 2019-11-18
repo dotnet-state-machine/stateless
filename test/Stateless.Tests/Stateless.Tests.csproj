@@ -1,9 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <DefineConstants>$(DefineConstants);TASKS</DefineConstants>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <TargetFrameworks>netcoreapp2.2;net472</TargetFrameworks>
     <IsPackable>false</IsPackable>
-
     <AssemblyName>Stateless.Tests</AssemblyName>
     <AssemblyOriginatorKeyFile>../../asset/Stateless.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
