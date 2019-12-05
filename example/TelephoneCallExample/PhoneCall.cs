@@ -117,7 +117,7 @@ namespace TelephoneCallExample
 
         public void Print()
         {
-            Console.WriteLine("[{1}] placed call and [Status:] {0}", _machine, _caller);
+            Console.WriteLine("[{1}] placed call and [Status:] {0}", _machine.State, _caller);
         }
 
         public void Dialed(string callee)
