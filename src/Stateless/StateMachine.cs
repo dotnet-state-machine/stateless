@@ -366,7 +366,7 @@ namespace Stateless
                 case ReentryTriggerBehaviour handler:
                 {
                     // Handle transition, and set new state
-                    var transition = new Transition(source, handler.Destination, trigger);
+                    var transition = new Transition(source, handler.Destination, trigger, args);
                     HandleReentryTrigger(args, representativeState, transition);
                     break;
                 }
@@ -374,7 +374,7 @@ namespace Stateless
                 case TransitioningTriggerBehaviour _ when (result.Handler.ResultsInTransitionFrom(source, args, out destination)):
                 {
                     // Handle transition, and set new state
-                    var transition = new Transition(source, destination, trigger);
+                    var transition = new Transition(source, destination, trigger, args);
                     HandleTransitioningTrigger(args, representativeState, transition);
 
                     break;
@@ -382,7 +382,7 @@ namespace Stateless
                 case InternalTriggerBehaviour _:
                 {
                     // Internal transitions does not update the current state, but must execute the associated action.
-                    var transition = new Transition(source, source, trigger);
+                    var transition = new Transition(source, source, trigger, args);
                     CurrentRepresentation.InternalAction(transition, args);
                     break;
                 }
@@ -400,7 +400,7 @@ namespace Stateless
             if (!transition.Source.Equals(transition.Destination))
             {
                 // Then Exit the final superstate
-                transition = new Transition(transition.Destination, transition.Destination, transition.Trigger);
+                transition = new Transition(transition.Destination, transition.Destination, transition.Trigger, args);
                 newRepresentation.Exit(transition);
 
                 _onTransitionedEvent.Invoke(transition);
@@ -442,7 +442,7 @@ namespace Stateless
                     throw new InvalidOperationException($"The target ({representation.InitialTransitionTarget}) for the initial transition is not a substate.");
                 }
 
-                var initialTransition = new Transition(transition.Source, representation.InitialTransitionTarget, transition.Trigger);
+                var initialTransition = new Transition(transition.Source, representation.InitialTransitionTarget, transition.Trigger, args);
                 representation = GetRepresentation(representation.InitialTransitionTarget);
                 representation = EnterState(representation, initialTransition, args);
             }
