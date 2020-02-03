@@ -261,7 +261,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A).PermitIf(Trigger.X, State.B, () => false, guardDescription);
             var exception = Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
-            Assert.Equal(typeof(InvalidOperationException), exception.GetType());
+            Assert.Equal(exception.Message, "Trigger 'X' is valid for transition from state 'A' but a guard conditions are not met. Guard descriptions: 'test'.");
         }
 
         [Fact]
@@ -273,7 +273,7 @@ namespace Stateless.Tests
                 new Tuple<Func<bool>, string>(() => false, "test2"));
 
             var exception = Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
-            Assert.Equal(typeof(InvalidOperationException), exception.GetType());
+            Assert.Equal(exception.Message, "Trigger 'X' is valid for transition from state 'A' but a guard conditions are not met. Guard descriptions: 'test1, test2'.");
         }
 
         [Fact]
@@ -563,7 +563,7 @@ namespace Stateless.Tests
 
             Assert.Throws<InvalidOperationException>(() => sm.Fire(x, 2));
         }
-        
+
         [Fact]
         public void TransitionWhenPermitDyanmicIfHasMultipleExclusiveGuards()
         {
@@ -675,6 +675,7 @@ namespace Stateless.Tests
 
             Assert.Equal(1, i);
         }
+
         [Fact]
         public void NoExceptionWhenPermitIfHasMultipleExclusiveGuardsBothFalse()
         {

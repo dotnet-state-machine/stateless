@@ -76,7 +76,7 @@ namespace Stateless.Tests
 
             var test = "";
             sm.Configure(State.A)
-              .InternalTransitionAsync(Trigger.X, async () => await Task.Run(() => test = "foo"));
+              .InternalTransitionAsync(Trigger.X, () => Task.Run(() => test = "foo"));
 
             await sm.FireAsync(Trigger.X).ConfigureAwait(false);
 
@@ -89,7 +89,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-              .InternalTransitionAsync(Trigger.X, async () => await TaskResult.Done);
+              .InternalTransitionAsync(Trigger.X, () => TaskResult.Done);
 
             Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
         }
@@ -258,6 +258,31 @@ namespace Stateless.Tests
             Assert.True(onExitStateAfired);
             Assert.True(onExitStateBfired);
             Assert.True(onEntryStateBfired);
+        }
+
+        [Fact]
+        public async void TransitionToSuperstateDoesNotExitSuperstate()
+        {
+            StateMachine<State, Trigger> sm = new StateMachine<State, Trigger>(State.B);
+
+            bool superExit = false;
+            bool superEntry = false;
+            bool subExit = false;
+
+            sm.Configure(State.A)
+                .OnEntryAsync(t => Task.Run(() => superEntry = true))
+                .OnExitAsync(t => Task.Run(() => superExit = true));
+
+            sm.Configure(State.B)
+                .SubstateOf(State.A)
+                .Permit(Trigger.Y, State.A)
+                .OnExitAsync(t => Task.Run(() => subExit = true));
+
+            await sm.FireAsync(Trigger.Y);
+
+            Assert.True(subExit);
+            Assert.False(superEntry);
+            Assert.False(superExit);
         }
 
         [Fact]

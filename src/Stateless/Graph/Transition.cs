@@ -41,7 +41,10 @@ namespace Stateless.Graph
         }
     }
 
-    class FixedTransition : Transition
+    /// <summary>
+    /// Represents a fixed transition.
+    /// </summary>
+    public class FixedTransition : Transition
     {
         /// <summary>
         /// The state where this transition finishes
@@ -53,6 +56,13 @@ namespace Stateless.Graph
         /// </summary>
         public IEnumerable<InvocationInfo> Guards { get; private set; }
 
+        /// <summary>
+        /// Creates a new instance of <see cref="FixedTransition"/>.
+        /// </summary>
+        /// <param name="sourceState">The source state.</param>
+        /// <param name="destinationState">The destination state.</param>
+        /// <param name="trigger">The trigger associated with this transition.</param>
+        /// <param name="guards">The guard conditions associated with this transition.</param>
         public FixedTransition(State sourceState, State destinationState, TriggerInfo trigger, IEnumerable<InvocationInfo> guards)
             : base(sourceState, trigger)
         {
@@ -61,7 +71,10 @@ namespace Stateless.Graph
         }
     }
 
-    class DynamicTransition : Transition
+    /// <summary>
+    /// Represents a dynamic transition.
+    /// </summary>
+    public class DynamicTransition : Transition
     {
         /// <summary>
         /// The state where this transition finishes
@@ -73,6 +86,13 @@ namespace Stateless.Graph
         /// </summary>
         public string Criterion { get; private set; }
 
+        /// <summary>
+        /// Creates a new instance of <see cref="DynamicTransition"/>.
+        /// </summary>
+        /// <param name="sourceState">The source state.</param>
+        /// <param name="destinationState">The destination state.</param>
+        /// <param name="trigger">The trigger associated with this transition.</param>
+        /// <param name="criterion">The reason the destination state was chosen.</param>
         public DynamicTransition(State sourceState, State destinationState, TriggerInfo trigger, string criterion)
             : base(sourceState, trigger)
         {
@@ -81,10 +101,23 @@ namespace Stateless.Graph
         }
     }
 
-    class StayTransition : Transition
+    /// <summary>
+    /// Represents a transition from a state to itself.
+    /// </summary>
+    public class StayTransition : Transition
     {
+        /// <summary>
+        /// The guard conditions associated with this transition.
+        /// </summary>
         public IEnumerable<InvocationInfo> Guards { get; private set; }
 
+        /// <summary>
+        /// Creates a new instance of <see cref="StayTransition"/>.
+        /// </summary>
+        /// <param name="sourceState">The source state.</param>
+        /// <param name="trigger">The trigger associated with this transition.</param>
+        /// <param name="guards">The guard conditions associated with this transition.</param>
+        /// <param name="executeEntryExitActions">Sets whether the entry and exit actions are executed when the transition is enacted.</param>
         public StayTransition(State sourceState, TriggerInfo trigger, IEnumerable<InvocationInfo> guards, bool executeEntryExitActions)
             : base(sourceState, trigger)
         {
