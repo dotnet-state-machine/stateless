@@ -19,7 +19,7 @@
                 Source = source;
                 Destination = destination;
                 Trigger = trigger;
-                Parameters = parameters;
+                Parameters = parameters ?? new object[0];
             }
 
             /// <summary>
@@ -45,6 +45,9 @@
             /// <summary>
             /// The trigger parameters
             /// </summary>
+            /// <remarks>
+            /// Never null. For a parameterless trigger the value will be an empty array.
+            /// </remarks>
             public object[] Parameters { get; }
         }
     }

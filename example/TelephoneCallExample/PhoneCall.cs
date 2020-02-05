@@ -68,7 +68,7 @@ namespace TelephoneCallExample
                 .Permit(Trigger.TakenOffHold, State.Connected)
                 .Permit(Trigger.PhoneHurledAgainstWall, State.PhoneDestroyed);
 
-            _machine.OnTransitioned(t => Console.WriteLine($"OnTransitioned: {t.Source} -> {t.Destination} via {t.Trigger}({string.Join(", ",  t.Parameters ?? new object[0])})"));
+            _machine.OnTransitioned(t => Console.WriteLine($"OnTransitioned: {t.Source} -> {t.Destination} via {t.Trigger}({string.Join(", ",  t.Parameters)})"));
         }
 
         void OnSetVolume(int volume)
