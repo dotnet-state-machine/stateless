@@ -339,6 +339,7 @@ namespace Stateless.Tests
             Assert.Equal(Trigger.X, transition.Trigger);
             Assert.Equal(State.B, transition.Source);
             Assert.Equal(State.A, transition.Destination);
+            Assert.Equal(new object[0], transition.Parameters);
         }
 
         [Fact]
@@ -364,6 +365,56 @@ namespace Stateless.Tests
             {
                 Assert.Equal(expectedOrdering[i], actualOrdering[i]);
             }
+        }
+
+        [Fact]
+        public void WhenATransitionOccurs_WithAParameterizedTrigger_TheOnTransitionEventFires()
+        {
+            var sm = new StateMachine<State, Trigger>(State.B);
+            var triggerX = sm.SetTriggerParameters<string>(Trigger.X);
+
+            sm.Configure(State.B)
+                .Permit(Trigger.X, State.A);
+
+            StateMachine<State, Trigger>.Transition transition = null;
+            sm.OnTransitioned(t => transition = t);
+
+            string parameter = "the parameter";
+            sm.Fire(triggerX, parameter);
+
+            Assert.NotNull(transition);
+            Assert.Equal(Trigger.X, transition.Trigger);
+            Assert.Equal(State.B, transition.Source);
+            Assert.Equal(State.A, transition.Destination);
+            Assert.Equal(1, transition.Parameters.Count());
+            Assert.Equal(parameter, transition.Parameters[0]);
+        }
+
+        [Fact]
+        public void WhenATransitionOccurs_WithAParameterizedTrigger_WithMultipleParameters_TheOnTransitionEventFires()
+        {
+            var sm = new StateMachine<State, Trigger>(State.B);
+            var triggerX = sm.SetTriggerParameters<string, int, bool>(Trigger.X);
+
+            sm.Configure(State.B)
+                .Permit(Trigger.X, State.A);
+
+            StateMachine<State, Trigger>.Transition transition = null;
+            sm.OnTransitioned(t => transition = t);
+
+            string firstParameter = "the parameter";
+            int secondParameter = 99;
+            bool thirdParameter = true;
+            sm.Fire(triggerX, firstParameter, secondParameter, thirdParameter);
+
+            Assert.NotNull(transition);
+            Assert.Equal(Trigger.X, transition.Trigger);
+            Assert.Equal(State.B, transition.Source);
+            Assert.Equal(State.A, transition.Destination);
+            Assert.Equal(3, transition.Parameters.Count());
+            Assert.Equal(firstParameter, transition.Parameters[0]);
+            Assert.Equal(secondParameter, transition.Parameters[1]);
+            Assert.Equal(thirdParameter, transition.Parameters[2]);
         }
 
         [Fact]
