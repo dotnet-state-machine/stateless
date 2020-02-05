@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 ### Fixed
 
-## [4.3.0] - 2019.11.11
+## [4.4.0] - 2020.02.05
 ### Changed
 - PR #348 Added trigger parameters to OnTransitioned event
 
