@@ -207,6 +207,7 @@ namespace Stateless
 
                 State = transition.Destination;
                 var newRepresentation = GetRepresentation(transition.Destination);
+                await newRepresentation.EnterAsync(transition, args);
 
                 // Check if there is an intital transition configured
                 if (newRepresentation.HasInitialTransition)
@@ -220,21 +221,14 @@ namespace Stateless
                     // Check if state has substate(s), and if an initial transition(s) has been set up.
                     while (newRepresentation.GetSubstates().Any() && newRepresentation.HasInitialTransition)
                     {
-                        var initialTransition = new Transition(source, newRepresentation.InitialTransitionTarget, trigger, args);
+                        var initialTransition = new InitialTransition(source, newRepresentation.InitialTransitionTarget, trigger, args);
                         newRepresentation = GetRepresentation(newRepresentation.InitialTransitionTarget);
                         await newRepresentation.EnterAsync(initialTransition, args);
                         State = newRepresentation.UnderlyingState;
                     }
-                    //Alert all listeners of state transition
-                    await _onTransitionedEvent.InvokeAsync(new Transition(source, destination, trigger, args));
                 }
-                else
-                {
-                    //Alert all listeners of state transition
-                    await _onTransitionedEvent.InvokeAsync(new Transition(source, destination, trigger, args));
-
-                    await newRepresentation.EnterAsync(transition, args);
-                }
+                // Alert all listeners of state transition
+                await _onTransitionedEvent.InvokeAsync(new Transition(source, destination, trigger, args));
             }
             else
             {

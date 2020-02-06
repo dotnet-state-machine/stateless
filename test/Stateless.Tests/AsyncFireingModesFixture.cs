@@ -1,5 +1,6 @@
 ﻿#if TASKS
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Xunit;
 
 
@@ -27,9 +28,9 @@ namespace Stateless.Tests
             sm.Configure(State.B)
                 .OnEntry(() =>
                 {
+                    record.Add("EnterB");
                     // Fire this before finishing processing the entry action
                     sm.FireAsync(Trigger.Y);
-                    record.Add("EnterB");
                 })
                 .Permit(Trigger.Y, State.A)
                 .OnExit(() => record.Add("ExitB"));
@@ -38,9 +39,10 @@ namespace Stateless.Tests
 
             // Expected sequence of events: Exit A -> Exit B -> Enter A -> Enter B
             Assert.Equal("ExitA", record[0]);
-            Assert.Equal("ExitB", record[1]);
-            Assert.Equal("EnterA", record[2]);
-            Assert.Equal("EnterB", record[3]);
+            Assert.Equal("EnterB", record[1]);
+            Assert.Equal("ExitB", record[2]);
+            Assert.Equal("EnterA", record[3]);
+
         }
 
         /// <summary>
@@ -114,6 +116,51 @@ namespace Stateless.Tests
             Assert.Equal("EnterC", record[3]);
 
             Assert.Equal(State.C, sm.State);
+        }
+
+        [Fact]
+        public async void EntersSubStateofSubstateAsyncOnEntryCountAndOrder()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            var onEntryCount = "";
+
+            sm.Configure(State.A)
+                .OnEntryAsync(async () =>
+                {
+                    onEntryCount += "A";
+                    await Task.Delay(10);
+                })
+                .Permit(Trigger.X, State.B);
+
+            sm.Configure(State.B)
+                .OnEntryAsync(async () =>
+                {
+                    onEntryCount += "B";
+                    await Task.Delay(10);
+                })
+                .InitialTransition(State.C);
+
+            sm.Configure(State.C)
+                .OnEntryAsync(async () =>
+                {
+                    onEntryCount += "C";
+                    await Task.Delay(10);
+                })
+                .InitialTransition(State.D)
+                .SubstateOf(State.B);
+
+            sm.Configure(State.D)
+                .OnEntryAsync(async () =>
+                {
+                    onEntryCount += "D";
+                    await Task.Delay(10);
+                })
+                .SubstateOf(State.C);
+
+            await sm.FireAsync(Trigger.X);
+
+            Assert.Equal("BCD", onEntryCount);
         }
     }
 }
