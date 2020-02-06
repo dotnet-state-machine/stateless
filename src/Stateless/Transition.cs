@@ -3,6 +3,23 @@
     public partial class StateMachine<TState, TTrigger>
     {
         /// <summary>
+        /// Describes an initial state transition.
+        /// </summary>
+        public class InitialTransition : Transition
+        {
+            /// <summary>
+            /// Construct a transition.
+            /// </summary>
+            /// <param name="source">The state transitioned from.</param>
+            /// <param name="destination">The state transitioned to.</param>
+            /// <param name="trigger">The trigger that caused the transition.</param>
+            /// <param name="parameters">The optional trigger parameters</param>
+            public InitialTransition(TState source, TState destination, TTrigger trigger, object[] parameters = null) : base(source, destination, trigger, parameters)
+            {
+            }
+        }
+
+        /// <summary>
         /// Describes a state transition.
         /// </summary>
         public class Transition

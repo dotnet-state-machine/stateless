@@ -216,5 +216,27 @@ namespace Stateless.Tests
             Assert.Equal(2, onEntryStateAfired);             
             Assert.Equal(3, onEntryStateBfired);             
         }
+
+        [Fact]
+        public void VerifyNotEnterSuperstateWhenDoingInitialTransition()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .Permit(Trigger.X, State.B);
+
+            sm.Configure(State.B)
+                .InitialTransition(State.C)
+                .OnEntry(() => sm.Fire(Trigger.Y))
+                .Permit(Trigger.Y, State.D);
+
+            sm.Configure(State.C)
+                .SubstateOf(State.B)
+                .Permit(Trigger.Y, State.D);
+
+            sm.Fire(Trigger.X);
+
+            Assert.Equal(State.D, sm.State);
+        }
     }
 }

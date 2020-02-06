@@ -455,7 +455,7 @@ namespace Stateless
                     throw new InvalidOperationException($"The target ({representation.InitialTransitionTarget}) for the initial transition is not a substate.");
                 }
 
-                var initialTransition = new Transition(transition.Source, representation.InitialTransitionTarget, transition.Trigger, args);
+                var initialTransition = new InitialTransition(transition.Source, representation.InitialTransitionTarget, transition.Trigger, args);
                 representation = GetRepresentation(representation.InitialTransitionTarget);
                 representation = EnterState(representation, initialTransition, args);
             }
