@@ -18,7 +18,7 @@ namespace Stateless.Reflection
         }
 
         /// <summary>
-        /// Exposes the states, transitions, and actions of this machine.
+        /// Exposes the initial state of this state machine.
         /// </summary>
 
         public StateInfo InitialState { get; }
