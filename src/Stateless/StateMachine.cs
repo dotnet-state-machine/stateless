@@ -424,6 +424,11 @@ namespace Stateless
             //Alert all listeners of state transition
             _onTransitionedEvent.Invoke(transition);
             var representation = EnterState(newRepresentation, transition, args);
+
+            // Check if state has changed by entering new state (by fireing triggers in OnEntry or such)
+            if (representation.UnderlyingState.Equals(State)) return;
+
+            // The state has been changed after entering the state, must update current state to new one
             State = representation.UnderlyingState;
         }
 

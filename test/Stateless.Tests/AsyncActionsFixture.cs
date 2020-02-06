@@ -10,6 +10,17 @@ namespace Stateless.Tests
     public class AsyncActionsFixture
     {
         [Fact]
+        public void StateMutatorShouldBeCalledOnlyOnce()
+        {
+            var state = State.B;
+            var count = 0;
+            var sm = new StateMachine<State, Trigger>(() => state, (s) => { state = s; count++; });
+            sm.Configure(State.B).Permit(Trigger.X, State.C);
+            sm.FireAsync(Trigger.X);
+            Assert.Equal(1, count);
+        }
+
+        [Fact]
         public async Task CanFireAsyncEntryAction()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
