@@ -72,6 +72,17 @@ namespace Stateless.Tests
         }
 
         [Fact]
+        public void StateMutatorShouldBeCalledOnlyOnce()
+        {
+            var state = State.B;
+            var count = 0;
+            var sm = new StateMachine<State, Trigger>(() => state, (s) => { state = s; count++; });
+            sm.Configure(State.B).Permit(Trigger.X, State.C);
+            sm.Fire(Trigger.X);
+            Assert.Equal(1, count);
+        }
+
+        [Fact]
         public void SubstateIsIncludedInCurrentState()
         {
             var sm = new StateMachine<State, Trigger>(State.B);
@@ -259,7 +270,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A).PermitIf(Trigger.X, State.B, () => false, guardDescription);
             var exception = Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
-            Assert.Equal(typeof(InvalidOperationException), exception.GetType());
+            Assert.Equal(exception.Message, "Trigger 'X' is valid for transition from state 'A' but a guard conditions are not met. Guard descriptions: 'test'.");
         }
 
         [Fact]
@@ -271,7 +282,7 @@ namespace Stateless.Tests
                 new Tuple<Func<bool>, string>(() => false, "test2"));
 
             var exception = Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
-            Assert.Equal(typeof(InvalidOperationException), exception.GetType());
+            Assert.Equal(exception.Message, "Trigger 'X' is valid for transition from state 'A' but a guard conditions are not met. Guard descriptions: 'test1, test2'.");
         }
 
         [Fact]
@@ -339,6 +350,7 @@ namespace Stateless.Tests
             Assert.Equal(Trigger.X, transition.Trigger);
             Assert.Equal(State.B, transition.Source);
             Assert.Equal(State.A, transition.Destination);
+            Assert.Equal(new object[0], transition.Parameters);
         }
 
         [Fact]
@@ -364,6 +376,56 @@ namespace Stateless.Tests
             {
                 Assert.Equal(expectedOrdering[i], actualOrdering[i]);
             }
+        }
+
+        [Fact]
+        public void WhenATransitionOccurs_WithAParameterizedTrigger_TheOnTransitionEventFires()
+        {
+            var sm = new StateMachine<State, Trigger>(State.B);
+            var triggerX = sm.SetTriggerParameters<string>(Trigger.X);
+
+            sm.Configure(State.B)
+                .Permit(Trigger.X, State.A);
+
+            StateMachine<State, Trigger>.Transition transition = null;
+            sm.OnTransitioned(t => transition = t);
+
+            string parameter = "the parameter";
+            sm.Fire(triggerX, parameter);
+
+            Assert.NotNull(transition);
+            Assert.Equal(Trigger.X, transition.Trigger);
+            Assert.Equal(State.B, transition.Source);
+            Assert.Equal(State.A, transition.Destination);
+            Assert.Equal(1, transition.Parameters.Count());
+            Assert.Equal(parameter, transition.Parameters[0]);
+        }
+
+        [Fact]
+        public void WhenATransitionOccurs_WithAParameterizedTrigger_WithMultipleParameters_TheOnTransitionEventFires()
+        {
+            var sm = new StateMachine<State, Trigger>(State.B);
+            var triggerX = sm.SetTriggerParameters<string, int, bool>(Trigger.X);
+
+            sm.Configure(State.B)
+                .Permit(Trigger.X, State.A);
+
+            StateMachine<State, Trigger>.Transition transition = null;
+            sm.OnTransitioned(t => transition = t);
+
+            string firstParameter = "the parameter";
+            int secondParameter = 99;
+            bool thirdParameter = true;
+            sm.Fire(triggerX, firstParameter, secondParameter, thirdParameter);
+
+            Assert.NotNull(transition);
+            Assert.Equal(Trigger.X, transition.Trigger);
+            Assert.Equal(State.B, transition.Source);
+            Assert.Equal(State.A, transition.Destination);
+            Assert.Equal(3, transition.Parameters.Count());
+            Assert.Equal(firstParameter, transition.Parameters[0]);
+            Assert.Equal(secondParameter, transition.Parameters[1]);
+            Assert.Equal(thirdParameter, transition.Parameters[2]);
         }
 
         [Fact]
@@ -561,7 +623,7 @@ namespace Stateless.Tests
 
             Assert.Throws<InvalidOperationException>(() => sm.Fire(x, 2));
         }
-        
+
         [Fact]
         public void TransitionWhenPermitDyanmicIfHasMultipleExclusiveGuards()
         {
@@ -673,6 +735,7 @@ namespace Stateless.Tests
 
             Assert.Equal(1, i);
         }
+
         [Fact]
         public void NoExceptionWhenPermitIfHasMultipleExclusiveGuardsBothFalse()
         {

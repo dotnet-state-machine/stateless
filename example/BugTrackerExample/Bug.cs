@@ -81,7 +81,7 @@ namespace BugTrackerExample
             SendEmailToAssignee("You own it.");
         }
         /// <summary>
-        /// This method is called when the state machinie exits the Assigned state
+        /// This method is called when the state machine exits the Assigned state
         /// </summary>
         private void OnDeassigned()
         {

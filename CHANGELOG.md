@@ -11,6 +11,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 ### Fixed
 
+## [4.4.0] - 2020.02.07
+### Changed
+- PR #348 Added trigger parameters to OnTransitioned event
+### Fixed
+- #342 StateMutator is called multiple times with the same state 
+- #345 Wrong behavior with FiringMode.Immediate in version 4.3.0
+- #339 OnEntry behavour different: Unit test broken when updated to 4.3.0 from 4.2.1
+- #292 Nested InitialTransitions calls superstate onEntry twice
+
+## [4.3.0] - 2019.11.11
+### Changed
+- Netstandard2.0 support
+
 ## [4.2.0] - 2018.06.01
 ### Added
  - PR #254 Add initial transitions
