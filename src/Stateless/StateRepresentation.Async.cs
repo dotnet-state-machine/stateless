@@ -52,12 +52,12 @@ namespace Stateless
                 if (_superstate != null)
                     await _superstate.ActivateAsync().ConfigureAwait(false);
 
-                await ExecuteActivationActionsAsync();
+                await ExecuteActivationActionsAsync().ConfigureAwait(false);
             }
 
             public async Task DeactivateAsync()
             {
-                await ExecuteDeactivationActionsAsync();
+                await ExecuteDeactivationActionsAsync().ConfigureAwait(false);
 
                 if (_superstate != null)
                     await _superstate.DeactivateAsync().ConfigureAwait(false);
@@ -79,14 +79,14 @@ namespace Stateless
             {
                 if (transition.IsReentry)
                 {
-                    await ExecuteEntryActionsAsync(transition, entryArgs);
+                    await ExecuteEntryActionsAsync(transition, entryArgs).ConfigureAwait(false);
                 }
                 else if (!Includes(transition.Source))
                 {
                     if (_superstate != null && !(transition is InitialTransition))
                         await _superstate.EnterAsync(transition, entryArgs).ConfigureAwait(false);
 
-                    await ExecuteEntryActionsAsync(transition, entryArgs);
+                    await ExecuteEntryActionsAsync(transition, entryArgs).ConfigureAwait(false);
                 }
             }
 
@@ -94,11 +94,11 @@ namespace Stateless
             {
                 if (transition.IsReentry)
                 {
-                    await ExecuteExitActionsAsync(transition);
+                    await ExecuteExitActionsAsync(transition).ConfigureAwait(false);
                 }
                 else if (!Includes(transition.Destination))
                 {
-                    await ExecuteExitActionsAsync(transition);
+                    await ExecuteExitActionsAsync(transition).ConfigureAwait(false);
 
                     if (_superstate != null)
                     {
@@ -115,8 +115,6 @@ namespace Stateless
                         {
                             return await _superstate.ExitAsync(transition).ConfigureAwait(false);
                         }
-
-                        //transition = new Transition(_superstate.UnderlyingState, transition.Destination, transition.Trigger);
                     }
                 }
                 return transition;
