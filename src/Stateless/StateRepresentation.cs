@@ -17,7 +17,6 @@ namespace Stateless
             internal ICollection<DeactivateActionBehaviour> DeactivateActions { get; } = new List<DeactivateActionBehaviour>();
 
             StateRepresentation _superstate; // null
-            bool active;
 
             readonly ICollection<StateRepresentation> _substates = new List<StateRepresentation>();
             public TState InitialTransitionTarget { get; private set; } = default(TState);
@@ -115,20 +114,12 @@ namespace Stateless
                 if (_superstate != null)
                     _superstate.Activate();
 
-                if (active)
-                    return;
-
                 ExecuteActivationActions();
-                active = true;
             }
 
             public void Deactivate()
             {
-                if (!active)
-                    return;
-
                 ExecuteDeactivationActions();
-                active = false;
 
                 if (_superstate != null)
                     _superstate.Deactivate();
@@ -151,7 +142,6 @@ namespace Stateless
                 if (transition.IsReentry)
                 {
                     ExecuteEntryActions(transition, entryArgs);
-                    ExecuteActivationActions();
                 }
                 else if (!Includes(transition.Source))
                 {
@@ -159,7 +149,6 @@ namespace Stateless
                         _superstate.Enter(transition, entryArgs);
 
                     ExecuteEntryActions(transition, entryArgs);
-                    ExecuteActivationActions();
                 }
             }
 
@@ -167,12 +156,10 @@ namespace Stateless
             {
                 if (transition.IsReentry)
                 {
-                    ExecuteDeactivationActions();
                     ExecuteExitActions(transition);
                 }
                 else if (!Includes(transition.Destination))
                 {
-                    ExecuteDeactivationActions();
                     ExecuteExitActions(transition);
 
                     // Must check if there is a superstate, and if we are leaving that superstate

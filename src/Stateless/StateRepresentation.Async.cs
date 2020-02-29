@@ -52,20 +52,12 @@ namespace Stateless
                 if (_superstate != null)
                     await _superstate.ActivateAsync().ConfigureAwait(false);
 
-                if (active)
-                    return;
-
                 await ExecuteActivationActionsAsync().ConfigureAwait(false);
-                active = true;
             }
 
             public async Task DeactivateAsync()
             {
-                if (!active)
-                    return;
-
                 await ExecuteDeactivationActionsAsync().ConfigureAwait(false);
-                active = false;
 
                 if (_superstate != null)
                     await _superstate.DeactivateAsync().ConfigureAwait(false);
@@ -88,7 +80,6 @@ namespace Stateless
                 if (transition.IsReentry)
                 {
                     await ExecuteEntryActionsAsync(transition, entryArgs).ConfigureAwait(false);
-                    await ExecuteActivationActionsAsync().ConfigureAwait(false);
                 }
                 else if (!Includes(transition.Source))
                 {
@@ -96,7 +87,6 @@ namespace Stateless
                         await _superstate.EnterAsync(transition, entryArgs).ConfigureAwait(false);
 
                     await ExecuteEntryActionsAsync(transition, entryArgs).ConfigureAwait(false);
-                    await ExecuteActivationActionsAsync().ConfigureAwait(false);
                 }
             }
 
@@ -104,12 +94,10 @@ namespace Stateless
             {
                 if (transition.IsReentry)
                 {
-                    await ExecuteDeactivationActionsAsync().ConfigureAwait(false);
                     await ExecuteExitActionsAsync(transition).ConfigureAwait(false);
                 }
                 else if (!Includes(transition.Destination))
                 {
-                    await ExecuteDeactivationActionsAsync().ConfigureAwait(false);
                     await ExecuteExitActionsAsync(transition).ConfigureAwait(false);
 
                     if (_superstate != null)
@@ -127,8 +115,6 @@ namespace Stateless
                         {
                             return await _superstate.ExitAsync(transition).ConfigureAwait(false);
                         }
-
-                        //transition = new Transition(_superstate.UnderlyingState, transition.Destination, transition.Trigger);
                     }
                 }
                 return transition;

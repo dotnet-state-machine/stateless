@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 ### Fixed
 
+## [5.0.0] - 2020.02.28
+
+### Changed
+- Activate and deactivate actions only runs on manual call to Activate / Deactivate. This breaks the v4.4 implementation, where activate/deactivate actions are run on every state transition.
+
 ## [4.4.0] - 2020.02.07
 ### Changed
 - PR #348 Added trigger parameters to OnTransitioned event
