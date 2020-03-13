@@ -142,6 +142,8 @@ namespace Stateless
         /// </summary>
         public StateMachineInfo GetInfo()
         {
+            var initialState = StateInfo.CreateStateInfo(new StateRepresentation(State));
+
             var representations = _stateConfiguration.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
             var behaviours = _stateConfiguration.SelectMany(kvp => kvp.Value.TriggerBehaviours.SelectMany(b => b.Value.OfType<TransitioningTriggerBehaviour>().Select(tb => tb.Destination))).ToList();
@@ -161,7 +163,7 @@ namespace Stateless
             foreach (var state in info)
                 StateInfo.AddRelationships(state.Value, representations[state.Key], k => info[k]);
 
-            return new StateMachineInfo(info.Values, typeof(TState), typeof(TTrigger));
+            return new StateMachineInfo(info.Values, typeof(TState), typeof(TTrigger), initialState);
         }
 
         StateRepresentation GetRepresentation(TState state)

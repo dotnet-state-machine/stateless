@@ -11,8 +11,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 ### Fixed
 
-## [5.0.0] - 2020.02.28
 
+## [5.0.1] - 2020.03.13
+### Fixed
+- Added missing initial transition, see PR #286.
+
+## [5.0.0] - 2020.02.28
 ### Changed
 - Activate and deactivate actions only runs on manual call to Activate / Deactivate. This breaks the v4.4 implementation, where activate/deactivate actions are run on every state transition.
 
