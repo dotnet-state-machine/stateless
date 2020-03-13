@@ -84,7 +84,8 @@ namespace Stateless.Graph
 
             // Add initial transition if present
             var initialStateName = initialState.UnderlyingState.ToString();
-            dirgraphText += System.Environment.NewLine + $" init [label=\"\", shape=point]->{initialStateName}[style = \"solid\"]";
+            dirgraphText += System.Environment.NewLine + $" init [label=\"\", shape=point];";
+            dirgraphText += System.Environment.NewLine + $" init -> {initialStateName}[style = \"solid\"]";
 
             dirgraphText += System.Environment.NewLine + "}";
 
