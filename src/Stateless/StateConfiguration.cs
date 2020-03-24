@@ -296,7 +296,7 @@ namespace Stateless
                     destinationState,
                     new TransitionGuard(guard, guardDescription));
             }
-            
+
             /// <summary>
             /// Accept the specified trigger and transition to the destination state.
             /// </summary>
@@ -314,7 +314,7 @@ namespace Stateless
                     destinationState,
                     new TransitionGuard(guards));
             }
-            
+
             /// <summary>
             ///  Accept the specified trigger, transition to the destination state, and guard condition. 
             /// </summary>
@@ -335,7 +335,7 @@ namespace Stateless
                     destinationState,
                     new TransitionGuard(TransitionGuard.ToPackedGuard(guard), guardDescription));
             }
-            
+
             /// <summary>
             /// Accept the specified trigger, transition to the destination state, and guard conditions.
             /// </summary>
@@ -356,7 +356,7 @@ namespace Stateless
                     new TransitionGuard(TransitionGuard.ToPackedGuards(guards))
                 );
             }
-            
+
             /// <summary>
             ///  Accept the specified trigger, transition to the destination state, and guard condition. 
             /// </summary>
@@ -620,7 +620,7 @@ namespace Stateless
                     new TransitionGuard(TransitionGuard.ToPackedGuards(guards))
                 );
             }
-            
+
             /// <summary>
             /// Ignore the specified trigger when in the configured state.
             /// </summary>
@@ -1137,10 +1137,11 @@ namespace Stateless
             /// <param name="destinationStateSelector">Function to calculate the state
             /// that the trigger will cause a transition to.</param>
             /// <param name="destinationStateSelectorDescription">Optional description of the function to calculate the state </param>
+            /// <param name="possibleDestinationStates">Optional list of possible target states.</param>
             /// <returns>The reciever.</returns>
             /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
             public StateConfiguration PermitDynamic<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, TState> destinationStateSelector,
-                string destinationStateSelectorDescription = null)
+                string destinationStateSelectorDescription = null, Reflection.DynamicStateInfos possibleDestinationStates = null)
             {
                 if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
 
@@ -1154,7 +1155,7 @@ namespace Stateless
                         Reflection.DynamicTransitionInfo.Create(trigger.Trigger,
                             null,    // No guards
                             Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),
-                            null)        // Possible states not specified
+                            possibleDestinationStates)
                     ));
                 return this;
 
@@ -1168,11 +1169,12 @@ namespace Stateless
             /// <param name="destinationStateSelector">Function to calculate the state
             /// that the trigger will cause a transition to.</param>
             /// <param name="destinationStateSelectorDescription">Optional description of the function to calculate the state </param>
+            /// <param name="possibleDestinationStates">Optional list of possible target states.</param>
             /// <returns>The reciever.</returns>
             /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
             /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
             public StateConfiguration PermitDynamic<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger,
-                Func<TArg0, TArg1, TState> destinationStateSelector, string destinationStateSelectorDescription = null)
+                Func<TArg0, TArg1, TState> destinationStateSelector, string destinationStateSelectorDescription = null, Reflection.DynamicStateInfos possibleDestinationStates = null)
             {
                 if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
 
@@ -1185,11 +1187,10 @@ namespace Stateless
                     null,       // No transition guard
                     Reflection.DynamicTransitionInfo.Create(trigger.Trigger,
                         null,       // No guards
-                        Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),                        
-                        null)       // Possible states not defined
+                        Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),
+                        possibleDestinationStates)
                 ));
                 return this;
-
             }
 
             /// <summary>
@@ -1200,12 +1201,13 @@ namespace Stateless
             /// <param name="destinationStateSelector">Function to calculate the state
             /// that the trigger will cause a transition to.</param>
             /// <param name="destinationStateSelectorDescription">Optional description of the function to calculate the state </param>
+            /// <param name="possibleDestinationStates">Optional list of possible target states.</param>
             /// <returns>The reciever.</returns>
             /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
             /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
             /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
             public StateConfiguration PermitDynamic<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger,
-                Func<TArg0, TArg1, TArg2, TState> destinationStateSelector, string destinationStateSelectorDescription = null)
+                Func<TArg0, TArg1, TArg2, TState> destinationStateSelector, string destinationStateSelectorDescription = null, Reflection.DynamicStateInfos possibleDestinationStates = null)
             {
                 if (trigger == null) throw new ArgumentNullException(nameof(trigger));
                 if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
@@ -1220,7 +1222,7 @@ namespace Stateless
                     Reflection.DynamicTransitionInfo.Create(trigger.Trigger,
                         null,       // No guards
                         Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),
-                        null)       // Possible states not defined
+                        possibleDestinationStates)
                     ));
                 return this;
             }
@@ -1671,11 +1673,13 @@ namespace Stateless
                 _representation.AddTriggerBehaviour(new TransitioningTriggerBehaviour(trigger, destinationState, transitionGuard));
                 return this;
             }
+
             StateConfiguration InternalPermitReentryIf(TTrigger trigger, TState destinationState, TransitionGuard transitionGuard)
             {
                 _representation.AddTriggerBehaviour(new ReentryTriggerBehaviour(trigger, destinationState, transitionGuard));
                 return this;
             }
+
             StateConfiguration InternalPermitDynamicIf(TTrigger trigger, Func<object[], TState> destinationStateSelector,
                 string destinationStateSelectorDescription, TransitionGuard transitionGuard, Reflection.DynamicStateInfos possibleDestinationStates)
             {
@@ -1692,6 +1696,7 @@ namespace Stateless
                     ));
                 return this;
             }
+
             /// <summary>
             ///  Adds internal transition to this state. When entering the current state the state machine will look for an initial transition, and enter the target state.
             /// </summary>
@@ -1701,7 +1706,7 @@ namespace Stateless
             {
                 if (_representation.HasInitialTransition) throw new InvalidOperationException($"This state has already been configured with an inital transition ({_representation.InitialTransitionTarget}).");
                 if (targetState.Equals(State)) throw new ArgumentException("Setting the current state as the target destination state is not allowed.", nameof(targetState));
-                  
+
                 _representation.SetInitialTransition(targetState);
                 return this;
             }
