@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [5.1.0] - 2020.03.24
 ### Fixed
 - Added missing possible destination states to all PermitDynamic and PermitDynamicIf, see issue [#305].
+- Fixed trigger execution order issue if there are ungaught exceptions. Ref issue [#267]
 
 ## [5.0.1] - 2020.03.13
 ### Fixed
@@ -101,7 +102,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Deprecated
 ### Removed
 ### Fixed
-
+[#267]: https://github.com/dotnet-state-machine/stateless/issues/267
 [#305]: https://github.com/dotnet-state-machine/stateless/issues/305
 [4.2.0]: https://github.com/dotnet-state-machine/stateless/commit/8933fe58a3d2ab63bdf47f523df0b9639cd65c97
 [4.1.0]: https://github.com/dotnet-state-machine/stateless/compare/bb742e8d40ceaacb219695875dfe38670ac77e28...daef9cb2897e18f25e85dd27fb80e549369bdfac
