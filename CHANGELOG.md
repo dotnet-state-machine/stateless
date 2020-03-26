@@ -12,9 +12,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 
 ## [5.1.0] - 2020.03.24
-### Fixed
+### Added
 - Added missing possible destination states to all PermitDynamic and PermitDynamicIf, see issue [#305].
-- Fixed trigger execution order issue if there are ungaught exceptions. Ref issue [#267]
+
+### Fixed
+- Fixed trigger execution order issue if there are uncaught exceptions. Ref issue [#267]
+- Fixed issue #272 and #275. Triggers with no parameters threw exceptions when checking if they could be fired, or retrieved with GetPermittedTriggers.
 
 ## [5.0.1] - 2020.03.13
 ### Fixed
@@ -102,6 +105,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Deprecated
 ### Removed
 ### Fixed
+
+[#272]: https://github.com/dotnet-state-machine/stateless/issues/272
+[#275]: https://github.com/dotnet-state-machine/stateless/issues/275
 [#267]: https://github.com/dotnet-state-machine/stateless/issues/267
 [#305]: https://github.com/dotnet-state-machine/stateless/issues/305
 [4.2.0]: https://github.com/dotnet-state-machine/stateless/commit/8933fe58a3d2ab63bdf47f523df0b9639cd65c97
