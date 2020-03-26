@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 ### Fixed
 
+
 ## [5.1.0] - 2020.03.24
 ### Added
 - Added missing possible destination states to all PermitDynamic and PermitDynamicIf, see issue [#305].
