@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <AssemblyTitle>Stateless</AssemblyTitle>
@@ -7,7 +7,7 @@
     <Description>Create state machines and lightweight state machine-based workflows directly in .NET code</Description>
     <Copyright>Copyright © Stateless Contributors 2009-2019</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <VersionPrefix>5.0.0</VersionPrefix>
+    <VersionPrefix>5.1.0</VersionPrefix>
     <Authors>Stateless Contributors</Authors>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
