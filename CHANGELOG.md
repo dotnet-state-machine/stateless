@@ -4,13 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## Unreleased
-### Added
-### Changed
-### Deprecated
-### Removed
-### Fixed
 
+## [5.1.1] - 2020.04.03
+### Changed
+- Inverted if (_firingMode.Equals(FiringMode.Immediate) into if (FiringMode.Immediate.Equals(_firingMode) to avoid VerificationException  when including assembly AllowPartiallyTrustedCallers [#365].
 
 ## [5.1.0] - 2020.03.24
 ### Added
@@ -107,6 +104,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 ### Fixed
 
+## Release template - version and date goes here
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+
+[#365]: https://github.com/dotnet-state-machine/stateless/pull/365
 [#272]: https://github.com/dotnet-state-machine/stateless/issues/272
 [#275]: https://github.com/dotnet-state-machine/stateless/issues/275
 [#267]: https://github.com/dotnet-state-machine/stateless/issues/267
