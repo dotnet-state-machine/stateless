@@ -1,22 +1,19 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <AssemblyTitle>Stateless</AssemblyTitle>
-    <AssemblyName>Stateless</AssemblyName>
     <Product>Stateless</Product>
     <TargetFrameworks>netstandard2.0;netstandard1.0;net45;net40;net472</TargetFrameworks>
     <Description>Create state machines and lightweight state machine-based workflows directly in .NET code</Description>
     <Copyright>Copyright © Stateless Contributors 2009-2019</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <VersionPrefix>4.3.0</VersionPrefix>
-    <Version>4.3.0</Version>
+    <VersionPrefix>5.1.1</VersionPrefix>
     <Authors>Stateless Contributors</Authors>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyOriginatorKeyFile>../../asset/Stateless.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
-    <PackageId>Stateless</PackageId>
     <PackageIconUrl>https://raw.githubusercontent.com/dotnet-state-machine/stateless/dev/asset/Stateless.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/dotnet-state-machine/stateless</PackageProjectUrl>
     <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>

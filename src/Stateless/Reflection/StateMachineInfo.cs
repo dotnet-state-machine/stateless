@@ -9,13 +9,19 @@ namespace Stateless.Reflection
     /// </summary>
     public class StateMachineInfo
     {
-        internal StateMachineInfo(IEnumerable<StateInfo> states, Type stateType, Type triggerType)
+        internal StateMachineInfo(IEnumerable<StateInfo> states, Type stateType, Type triggerType, StateInfo initialState)
         {
+            InitialState = initialState;
             States = states?.ToList() ?? throw new ArgumentNullException(nameof(states));
             StateType = stateType;
             TriggerType = triggerType;
         }
 
+        /// <summary>
+        /// Exposes the initial state of this state machine.
+        /// </summary>
+
+        public StateInfo InitialState { get; }
         /// <summary>
         /// Exposes the states, transitions, and actions of this machine.
         /// </summary>

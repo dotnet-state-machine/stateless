@@ -129,7 +129,7 @@ namespace Stateless.Tests
             Assert.Throws(typeof(ArgumentException), () =>
                 // This configuration would create an infinite loop
                 sm.Configure(State.A)
-                    .InitialTransition(State.A) );
+                    .InitialTransition(State.A));
         }
 
         [Fact]
@@ -143,7 +143,7 @@ namespace Stateless.Tests
                 .InitialTransition(State.A); // Invalid configuration, State a is a superstate
 
             Assert.Throws(typeof(InvalidOperationException), () =>
-                sm.Fire(Trigger.X) );
+                sm.Fire(Trigger.X));
         }
 
         [Fact]
@@ -156,8 +156,8 @@ namespace Stateless.Tests
             sm.Configure(State.B)
                 .InitialTransition(State.A);
 
-            await Assert.ThrowsAsync (typeof(InvalidOperationException), async () =>
-                await sm.FireAsync(Trigger.X) );
+            await Assert.ThrowsAsync(typeof(InvalidOperationException), async () =>
+               await sm.FireAsync(Trigger.X));
         }
 
         [Fact]
@@ -172,7 +172,7 @@ namespace Stateless.Tests
 
             Assert.Throws(typeof(InvalidOperationException), () =>
                 sm.Configure(State.B)
-                .InitialTransition(State.A) );
+                .InitialTransition(State.A));
         }
 
         [Fact]
@@ -212,9 +212,59 @@ namespace Stateless.Tests
 
             Assert.Equal(State.B, sm.State);
             Assert.Equal(0, onExitStateBfired);
-            Assert.Equal(1, onExitStateAfired);              
-            Assert.Equal(2, onEntryStateAfired);             
-            Assert.Equal(3, onEntryStateBfired);             
+            Assert.Equal(1, onExitStateAfired);
+            Assert.Equal(2, onEntryStateAfired);
+            Assert.Equal(3, onEntryStateBfired);
+        }
+
+        [Fact]
+        public void VerifyNotEnterSuperstateWhenDoingInitialTransition()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .Permit(Trigger.X, State.B);
+
+            sm.Configure(State.B)
+                .InitialTransition(State.C)
+                .OnEntry(() => sm.Fire(Trigger.Y))
+                .Permit(Trigger.Y, State.D);
+
+            sm.Configure(State.C)
+                .SubstateOf(State.B)
+                .Permit(Trigger.Y, State.D);
+
+            sm.Fire(Trigger.X);
+
+            Assert.Equal(State.D, sm.State);
+        }
+
+        [Fact]
+        public void SubStateOfSubstateOnEntryCountAndOrder()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var onEntryCount = "";
+
+            sm.Configure(State.A)
+                .OnEntry(() => onEntryCount += "A")
+                .Permit(Trigger.X, State.B);
+
+            sm.Configure(State.B)
+                .OnEntry(() => onEntryCount += "B")
+                .InitialTransition(State.C);
+
+            sm.Configure(State.C)
+                .OnEntry(() => onEntryCount += "C")
+                .InitialTransition(State.D)
+                .SubstateOf(State.B);
+
+            sm.Configure(State.D)
+                .OnEntry(() => onEntryCount += "D")
+                .SubstateOf(State.C);
+
+            sm.Fire(Trigger.X);
+
+            Assert.Equal("BCD", onEntryCount);
         }
     }
 }

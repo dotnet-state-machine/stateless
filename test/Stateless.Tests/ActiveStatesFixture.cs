@@ -47,10 +47,7 @@ namespace Stateless.Tests
 
             sm.Activate();
 
-            actualOrdering.Clear();
-            sm.Activate();
-
-            Assert.Equal(0, actualOrdering.Count);
+            Assert.Equal(2, actualOrdering.Count);
         }
 
         [Fact]
@@ -110,18 +107,14 @@ namespace Stateless.Tests
             var expectedOrdering = new List<string>
             {
                 "ActivatedA",
-
-                "DeactivatedA",
                 "ExitedA",
                 "OnTransitioned",
                 "EnteredB",
-                "ActivatedB",
 
-                "DeactivatedB",
                 "ExitedB",
                 "OnTransitioned",
                 "EnteredA",
-                "ActivatedA"
+
             };
 
             var actualOrdering = new List<string>();
@@ -159,12 +152,6 @@ namespace Stateless.Tests
             var expectedOrdering = new List<string>
             {
                 "ActivatedC",
-                "ActivatedA",
-
-                "DeactivatedA",
-                "ActivatedB",
-
-                "DeactivatedB",
                 "ActivatedA",
             };
 

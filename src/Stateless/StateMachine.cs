@@ -150,6 +150,8 @@ namespace Stateless
         /// </summary>
         public StateMachineInfo GetInfo()
         {
+            var initialState = StateInfo.CreateStateInfo(new StateRepresentation(State));
+
             var representations = _stateConfiguration.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
             var behaviours = _stateConfiguration.SelectMany(kvp => kvp.Value.TriggerBehaviours.SelectMany(b => b.Value.OfType<TransitioningTriggerBehaviour>().Select(tb => tb.Destination))).ToList();
@@ -169,7 +171,7 @@ namespace Stateless
             foreach (var state in info)
                 StateInfo.AddRelationships(state.Value, representations[state.Key], k => info[k]);
 
-            return new StateMachineInfo(info.Values, typeof(TState), typeof(TTrigger));
+            return new StateMachineInfo(info.Values, typeof(TState), typeof(TTrigger), initialState);
         }
 
         StateRepresentation GetRepresentation(TState state)
@@ -316,10 +318,12 @@ namespace Stateless
         /// <param name="args">     A variable-length parameters list containing arguments. </param>
         private void InternalFireQueued(TTrigger trigger, params object[] args)
         {
+            // Add trigger to queue
+            _eventQueue.Enqueue(new QueuedTrigger { Trigger = trigger, Args = args });
+
             // If a trigger is already being handled then the trigger will be queued (FIFO) and processed later.
             if (_firing)
             {
-                _eventQueue.Enqueue(new QueuedTrigger { Trigger = trigger, Args = args });
                 return;
             }
 
@@ -327,10 +331,8 @@ namespace Stateless
             {
                 _firing = true;
 
-                InternalFireOne(trigger, args);
-                
-                // Check if any other triggers have been queued, and fire those as well.
-                while (_eventQueue.Count != 0)
+                // Empty queue for triggers
+                while (_eventQueue.Any())
                 {
                     var queuedEvent = _eventQueue.Dequeue();
                     InternalFireOne(queuedEvent.Trigger, queuedEvent.Args);
@@ -374,7 +376,7 @@ namespace Stateless
                 case ReentryTriggerBehaviour handler:
                 {
                     // Handle transition, and set new state
-                    var transition = new Transition(source, handler.Destination, trigger);
+                    var transition = new Transition(source, handler.Destination, trigger, args);
                     HandleReentryTrigger(args, representativeState, transition);
                     break;
                 }
@@ -382,7 +384,7 @@ namespace Stateless
                 case TransitioningTriggerBehaviour _ when (result.Handler.ResultsInTransitionFrom(source, args, out destination)):
                 {
                     // Handle transition, and set new state
-                    var transition = new Transition(source, destination, trigger);
+                    var transition = new Transition(source, destination, trigger, args);
                     HandleTransitioningTrigger(args, representativeState, transition);
 
                     break;
@@ -390,7 +392,7 @@ namespace Stateless
                 case InternalTriggerBehaviour _:
                 {
                     // Internal transitions does not update the current state, but must execute the associated action.
-                    var transition = new Transition(source, source, trigger);
+                    var transition = new Transition(source, source, trigger, args);
                     CurrentRepresentation.InternalAction(transition, args);
                     break;
                 }
@@ -408,7 +410,7 @@ namespace Stateless
             if (!transition.Source.Equals(transition.Destination))
             {
                 // Then Exit the final superstate
-                transition = new Transition(transition.Destination, transition.Destination, transition.Trigger);
+                transition = new Transition(transition.Destination, transition.Destination, transition.Trigger, args);
                 newRepresentation.Exit(transition);
 
                 _onTransitionedEvent.Invoke(transition);
@@ -432,6 +434,11 @@ namespace Stateless
             //Alert all listeners of state transition
             _onTransitionedEvent.Invoke(transition);
             var representation = EnterState(newRepresentation, transition, args);
+
+            // Check if state has changed by entering new state (by fireing triggers in OnEntry or such)
+            if (representation.UnderlyingState.Equals(State)) return;
+
+            // The state has been changed after entering the state, must update current state to new one
             State = representation.UnderlyingState;
         }
 
@@ -439,6 +446,14 @@ namespace Stateless
         {
             // Enter the new state
             representation.Enter(transition, args);
+
+            if (FiringMode.Immediate.Equals(_firingMode) && !State.Equals(transition.Destination))
+            {
+                // This can happen if triggers are fired in OnEntry
+                // Must update current representation with updated State
+                representation = GetRepresentation(State);
+                transition = new Transition(transition.Source, State, transition.Trigger, args);
+            }
 
             // Recursively enter substates that have an initial transition
             if (representation.HasInitialTransition)
@@ -450,7 +465,7 @@ namespace Stateless
                     throw new InvalidOperationException($"The target ({representation.InitialTransitionTarget}) for the initial transition is not a substate.");
                 }
 
-                var initialTransition = new Transition(transition.Source, representation.InitialTransitionTarget, transition.Trigger);
+                var initialTransition = new InitialTransition(transition.Source, representation.InitialTransitionTarget, transition.Trigger, args);
                 representation = GetRepresentation(representation.InitialTransitionTarget);
                 representation = EnterState(representation, initialTransition, args);
             }

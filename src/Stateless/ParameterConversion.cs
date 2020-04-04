@@ -7,7 +7,10 @@ namespace Stateless
         public static object Unpack(object[] args, Type argType, int index)
         {
             if (args == null) throw new ArgumentNullException(nameof(args));
-
+            
+            if (args.Length == 0)
+                return null;
+            
             if (args.Length <= index)
                 throw new ArgumentException(
                     string.Format(ParameterConversionResources.ArgOfTypeRequiredInPosition, argType, index));

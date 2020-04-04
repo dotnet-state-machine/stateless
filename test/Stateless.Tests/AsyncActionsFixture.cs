@@ -10,6 +10,17 @@ namespace Stateless.Tests
     public class AsyncActionsFixture
     {
         [Fact]
+        public void StateMutatorShouldBeCalledOnlyOnce()
+        {
+            var state = State.B;
+            var count = 0;
+            var sm = new StateMachine<State, Trigger>(() => state, (s) => { state = s; count++; });
+            sm.Configure(State.B).Permit(Trigger.X, State.C);
+            sm.FireAsync(Trigger.X);
+            Assert.Equal(1, count);
+        }
+
+        [Fact]
         public async Task CanFireAsyncEntryAction()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -310,6 +321,27 @@ namespace Stateless.Tests
             Assert.False(nullRefExcThrown);
         }
 
+        [Fact]
+        public void VerifyNotEnterSuperstateWhenDoingInitialTransition()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .Permit(Trigger.X, State.B);
+
+            sm.Configure(State.B)
+                .InitialTransition(State.C)
+                .OnEntry(() => sm.Fire(Trigger.Y))
+                .Permit(Trigger.Y, State.D);
+
+            sm.Configure(State.C)
+                .SubstateOf(State.B)
+                .Permit(Trigger.Y, State.D);
+
+            sm.FireAsync(Trigger.X);
+
+            Assert.Equal(State.D, sm.State);
+        }
     }
 }
 
