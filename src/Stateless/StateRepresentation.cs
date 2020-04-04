@@ -17,7 +17,6 @@ namespace Stateless
             internal ICollection<DeactivateActionBehaviour> DeactivateActions { get; } = new List<DeactivateActionBehaviour>();
 
             StateRepresentation _superstate; // null
-            bool active;
 
             readonly ICollection<StateRepresentation> _substates = new List<StateRepresentation>();
             public TState InitialTransitionTarget { get; private set; } = default(TState);
@@ -43,7 +42,7 @@ namespace Stateless
                     (Superstate != null && Superstate.TryFindHandler(trigger, args, out handler)));
             }
 
-            bool TryFindLocalHandler(TTrigger trigger, object[] args, out TriggerBehaviourResult handlerResult)
+            private bool TryFindLocalHandler(TTrigger trigger, object[] args, out TriggerBehaviourResult handlerResult)
             {
                 // Get list of candidate trigger handlers
                 if (!TriggerBehaviours.TryGetValue(trigger, out ICollection<TriggerBehaviour> possible))
@@ -51,36 +50,40 @@ namespace Stateless
                     handlerResult = null;
                     return false;
                 }
-
-                // Remove those that have unmet guard conditions
+               
                 // Guard functions are executed here
                 var actual = possible
                     .Select(h => new TriggerBehaviourResult(h, h.UnmetGuardConditions(args)))
-                    .Where(g => g.UnmetGuardConditions.Count == 0)
                     .ToArray();
 
                 // Find a handler for the trigger
-                handlerResult = TryFindLocalHandlerResult(trigger, actual, r => !r.UnmetGuardConditions.Any())
-                    ?? TryFindLocalHandlerResult(trigger, actual, r => r.UnmetGuardConditions.Any());
+                handlerResult = TryFindLocalHandlerResult(trigger, actual)
+                    ?? TryFindLocalHandlerResultWithUnmetGuardConditions(actual);
 
-                if (handlerResult == null) return false;
+                if (handlerResult == null)
+                    return false;
 
                 return !handlerResult.UnmetGuardConditions.Any();
             }
 
-            TriggerBehaviourResult TryFindLocalHandlerResult(TTrigger trigger, IEnumerable<TriggerBehaviourResult> results, Func<TriggerBehaviourResult, bool> filter)
+            private TriggerBehaviourResult TryFindLocalHandlerResult(TTrigger trigger, IEnumerable<TriggerBehaviourResult> results)
             {
                 var actual = results
-                    .Where(filter);
+                    .Where(r => !r.UnmetGuardConditions.Any())
+                    .ToList();
 
-                if (actual.Count() > 1)
-                    throw new InvalidOperationException(
-                        string.Format(StateRepresentationResources.MultipleTransitionsPermitted,
-                        trigger, _state));
+                if (actual.Count <= 1)
+                    return actual.FirstOrDefault();
 
-                return actual
-                    .FirstOrDefault();
+                var message = string.Format(StateRepresentationResources.MultipleTransitionsPermitted, trigger, _state);
+                throw new InvalidOperationException(message);
             }
+
+            private static TriggerBehaviourResult TryFindLocalHandlerResultWithUnmetGuardConditions(IEnumerable<TriggerBehaviourResult> results)
+            {
+               return results.FirstOrDefault(r => r.UnmetGuardConditions.Any());
+            }
+
             public void AddActivateAction(Action action, Reflection.InvocationInfo activateActionDescription)
             {
                 ActivateActions.Add(new ActivateActionBehaviour.Sync(_state, action, activateActionDescription));
@@ -111,20 +114,12 @@ namespace Stateless
                 if (_superstate != null)
                     _superstate.Activate();
 
-                if (active)
-                    return;
-
                 ExecuteActivationActions();
-                active = true;
             }
 
             public void Deactivate()
             {
-                if (!active)
-                    return;
-
                 ExecuteDeactivationActions();
-                active = false;
 
                 if (_superstate != null)
                     _superstate.Deactivate();
@@ -147,15 +142,13 @@ namespace Stateless
                 if (transition.IsReentry)
                 {
                     ExecuteEntryActions(transition, entryArgs);
-                    ExecuteActivationActions();
                 }
                 else if (!Includes(transition.Source))
                 {
-                    if (_superstate != null)
+                    if (_superstate != null && !(transition is InitialTransition))
                         _superstate.Enter(transition, entryArgs);
 
                     ExecuteEntryActions(transition, entryArgs);
-                    ExecuteActivationActions();
                 }
             }
 
@@ -163,12 +156,10 @@ namespace Stateless
             {
                 if (transition.IsReentry)
                 {
-                    ExecuteDeactivationActions();
                     ExecuteExitActions(transition);
                 }
                 else if (!Includes(transition.Destination))
                 {
-                    ExecuteDeactivationActions();
                     ExecuteExitActions(transition);
 
                     // Must check if there is a superstate, and if we are leaving that superstate
@@ -293,7 +284,7 @@ namespace Stateless
                 if (Superstate != null)
                     result = result.Union(Superstate.GetPermittedTriggers(args));
 
-                return result.ToArray();
+                return result;
             }
 
             internal void SetInitialTransition(TState state)

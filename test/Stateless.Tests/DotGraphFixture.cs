@@ -34,7 +34,10 @@ namespace Stateless.Tests
             UML
         }
 
-        static readonly string suffix = Environment.NewLine + "}";
+        static readonly string suffix = Environment.NewLine
+            + $" init [label=\"\", shape=point];" + Environment.NewLine
+            + $" init -> A[style = \"solid\"]" + Environment.NewLine
+            + "}";
 
         string prefix(Style style)
         {

@@ -21,9 +21,9 @@ namespace Stateless.Reflection
             {
                 foreach (var item in triggerBehaviours.Value)
                 {
-                    if (item is StateMachine<TState, TTrigger>.IgnoredTriggerBehaviour)
+                    if (item is StateMachine<TState, TTrigger>.IgnoredTriggerBehaviour behaviour)
                     {
-                        ignoredTriggers.Add(IgnoredTransitionInfo.Create((StateMachine<TState, TTrigger>.IgnoredTriggerBehaviour)item));
+                        ignoredTriggers.Add(IgnoredTransitionInfo.Create(behaviour));
                     }
                 }
             }

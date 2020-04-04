@@ -52,20 +52,12 @@ namespace Stateless
                 if (_superstate != null)
                     await _superstate.ActivateAsync().ConfigureAwait(false);
 
-                if (active)
-                    return;
-
                 await ExecuteActivationActionsAsync().ConfigureAwait(false);
-                active = true;
             }
 
             public async Task DeactivateAsync()
             {
-                if (!active)
-                    return;
-
                 await ExecuteDeactivationActionsAsync().ConfigureAwait(false);
-                active = false;
 
                 if (_superstate != null)
                     await _superstate.DeactivateAsync().ConfigureAwait(false);
@@ -88,15 +80,13 @@ namespace Stateless
                 if (transition.IsReentry)
                 {
                     await ExecuteEntryActionsAsync(transition, entryArgs).ConfigureAwait(false);
-                    await ExecuteActivationActionsAsync().ConfigureAwait(false);
                 }
                 else if (!Includes(transition.Source))
                 {
-                    if (_superstate != null)
+                    if (_superstate != null && !(transition is InitialTransition))
                         await _superstate.EnterAsync(transition, entryArgs).ConfigureAwait(false);
 
                     await ExecuteEntryActionsAsync(transition, entryArgs).ConfigureAwait(false);
-                    await ExecuteActivationActionsAsync().ConfigureAwait(false);
                 }
             }
 
@@ -104,18 +94,27 @@ namespace Stateless
             {
                 if (transition.IsReentry)
                 {
-                    await ExecuteDeactivationActionsAsync().ConfigureAwait(false);
                     await ExecuteExitActionsAsync(transition).ConfigureAwait(false);
                 }
                 else if (!Includes(transition.Destination))
                 {
-                    await ExecuteDeactivationActionsAsync().ConfigureAwait(false);
                     await ExecuteExitActionsAsync(transition).ConfigureAwait(false);
 
                     if (_superstate != null)
                     {
-                        transition = new Transition(_superstate.UnderlyingState, transition.Destination, transition.Trigger);
-                        return await _superstate.ExitAsync(transition).ConfigureAwait(false);
+                        // Check if destination is within the state list
+                        if (IsIncludedIn(transition.Destination))
+                        {
+                            // Destination state is within the list, exit first superstate only if it is NOT the the first
+                            if (!_superstate.UnderlyingState.Equals(transition.Destination))
+                            {
+                                return await _superstate.ExitAsync(transition).ConfigureAwait(false);
+                            }
+                        }
+                        else
+                        {
+                            return await _superstate.ExitAsync(transition).ConfigureAwait(false);
+                        }
                     }
                 }
                 return transition;
