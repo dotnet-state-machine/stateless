@@ -11,6 +11,8 @@ namespace Stateless
         /// </summary>
         public partial class StateConfiguration
         {
+            internal StateRepresentation Representation => _representation;
+
             private readonly StateMachine<TState, TTrigger> _machine;
             readonly StateRepresentation _representation;
             readonly Func<TState, StateRepresentation> _lookup;
@@ -1709,6 +1711,16 @@ namespace Stateless
 
                 _representation.SetInitialTransition(targetState);
                 return this;
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="trigger"></param>
+            /// <returns></returns>
+            public TransitionConfiguration Transition(TTrigger trigger)
+            {
+                return new TransitionConfiguration(this, trigger);
             }
         }
     }

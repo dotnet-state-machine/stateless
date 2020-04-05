@@ -31,7 +31,9 @@ namespace Stateless.Tests
         {
             var sm = new StateMachine<State, Trigger>(State.A);
 
-            sm.Configure(State.A).Transition(Trigger.X).To(State.B);
+            sm.Configure(State.A)
+                .Transition(Trigger.X)
+                .To(State.B);
 
             sm.Fire(Trigger.X);
 

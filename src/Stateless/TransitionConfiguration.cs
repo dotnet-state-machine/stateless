@@ -30,6 +30,7 @@ namespace Stateless
             /// <returns></returns>
             public DestinationConfiguration To(TState destination)
             {
+                _stateConfiguration.Representation.AddTriggerBehaviour(new TransitioningTriggerBehaviour(_trigger, destination, null));
                 return new DestinationConfiguration(this, destination);
             }
         }

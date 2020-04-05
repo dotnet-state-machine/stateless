@@ -9,6 +9,8 @@ namespace Stateless
     {
         public partial class StateConfiguration
         {
+            
+
             /// <summary>
             /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
             /// </summary>
@@ -455,16 +457,6 @@ namespace Stateless
                     exitAction,
                     Reflection.InvocationInfo.Create(exitAction, exitActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
                 return this;
-            }
-
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="trigger"></param>
-            /// <returns></returns>
-            public TransitionConfiguration Transition(TTrigger trigger)
-            {
-                return new TransitionConfiguration(this, trigger);
             }
         }
     }
