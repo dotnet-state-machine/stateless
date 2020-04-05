@@ -456,6 +456,16 @@ namespace Stateless
                     Reflection.InvocationInfo.Create(exitAction, exitActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
                 return this;
             }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="trigger"></param>
+            /// <returns></returns>
+            public TransitionConfiguration Transition(TTrigger trigger)
+            {
+                return new TransitionConfiguration(this, trigger);
+            }
         }
     }
 }
