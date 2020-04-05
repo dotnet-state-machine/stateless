@@ -40,5 +40,24 @@ namespace Stateless.Tests
             Assert.Equal(State.B, sm.State);
         }
 
+        [Fact]
+        public void Fire_If_Transition_To_EndsUpInExpectedState()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .Transition(Trigger.X)
+                .To(State.B)
+                .If((p) => NegativeGuard(p));
+
+            sm.Fire(Trigger.X);
+
+            Assert.Equal(State.B, sm.State);
+        }
+
+        private bool NegativeGuard(object p)
+        {
+            return false;
+        }
     }
 }

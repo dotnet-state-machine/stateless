@@ -1,4 +1,6 @@
-﻿namespace Stateless
+﻿using System;
+
+namespace Stateless
 {
     partial class StateMachine<TState, TTrigger>
     {
@@ -19,6 +21,11 @@
             {
                 _transitionConfiguration = transitionConfiguration;
                 _destination = destination;
+            }
+
+            internal void If(Func<object> p)
+            {
+                throw new NotImplementedException();
             }
         }
     }
