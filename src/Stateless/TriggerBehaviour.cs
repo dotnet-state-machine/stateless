@@ -10,7 +10,7 @@ namespace Stateless
             /// <summary>
             /// If there is no guard function, _guard is set to TransitionGuard.Empty
             /// </summary>
-            readonly TransitionGuard _guard;
+            private TransitionGuard _guard;
 
             /// <summary>
             /// TriggerBehaviour constructor
@@ -24,6 +24,11 @@ namespace Stateless
             }
 
             public TTrigger Trigger { get; }
+
+            internal void SetGuard(TransitionGuard guard)
+            {
+                _guard = guard;
+            }
 
             /// <summary>
             /// Guard is the transition guard for this trigger.  Equal to

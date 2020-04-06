@@ -11,16 +11,19 @@ namespace Stateless
         {
             private readonly TransitionConfiguration _transitionConfiguration;
             private readonly TState _destination;
+            private readonly TriggerBehaviour _triggerBehaviour;
 
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="transitionConfiguration"></param>
-            /// <param name="destination"></param>
-            public DestinationConfiguration(TransitionConfiguration transitionConfiguration, TState destination)
+            internal DestinationConfiguration(TransitionConfiguration transitionConfiguration, TState destination, TriggerBehaviour triggerBehaviour)
             {
                 _transitionConfiguration = transitionConfiguration;
                 _destination = destination;
+                _triggerBehaviour = triggerBehaviour;
+            }
+
+            internal DestinationConfiguration If(Func<object [], bool> guard, string description = null)
+            {
+                _triggerBehaviour.SetGuard(new TransitionGuard(guard, description));
+                return this;
             }
         }
     }

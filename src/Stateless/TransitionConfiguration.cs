@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace Stateless
 {
@@ -30,22 +31,30 @@ namespace Stateless
             /// <returns></returns>
             public DestinationConfiguration To(TState destination)
             {
-                _stateConfiguration.AddTriggerBehaviour(new TransitioningTriggerBehaviour(_trigger, destination, null));
-                return new DestinationConfiguration(this, destination);
+                TriggerBehaviour triggerBehaviour = new TransitioningTriggerBehaviour(_trigger, destination, null);
+                _stateConfiguration.AddTriggerBehaviour(triggerBehaviour);
+                return new DestinationConfiguration(this, destination, triggerBehaviour);
+            }
+
+            internal TriggerBehaviour GetTriggerBehaviour()
+            {
+                return _stateConfiguration.Representation.TriggerBehaviours[_trigger].First();
             }
 
             internal DestinationConfiguration Self()
             {
                 var destinationState = _stateConfiguration.State;
-                _stateConfiguration.AddTriggerBehaviour(new TransitioningTriggerBehaviour(_trigger, destinationState, null));
-                return new DestinationConfiguration(this, destinationState);
+                var ttb = new TransitioningTriggerBehaviour(_trigger, destinationState, null);
+                _stateConfiguration.AddTriggerBehaviour(ttb);
+                return new DestinationConfiguration(this, destinationState, ttb);
             }
 
             internal DestinationConfiguration Internal()
             {
                 var destinationState = _stateConfiguration.State;
-                _stateConfiguration.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(_trigger, (t) => true, (t, r) => { }));
-                return new DestinationConfiguration(this, destinationState);
+                var itb = new InternalTriggerBehaviour.Sync(_trigger, (t) => true, (t, r) => { });
+                _stateConfiguration.AddTriggerBehaviour(itb);
+                return new DestinationConfiguration(this, destinationState, itb);
             }
         }
     }
