@@ -1722,6 +1722,11 @@ namespace Stateless
             {
                 return new TransitionConfiguration(this, trigger);
             }
+
+            internal void AddTriggerBehaviour(TransitioningTriggerBehaviour transitioningTriggerBehaviour)
+            {
+                _representation.AddTriggerBehaviour(transitioningTriggerBehaviour);
+            }
         }
     }
 }

@@ -22,11 +22,6 @@ namespace Stateless
                 _transitionConfiguration = transitionConfiguration;
                 _destination = destination;
             }
-
-            internal void If(Func<object> p)
-            {
-                throw new NotImplementedException();
-            }
         }
     }
 }

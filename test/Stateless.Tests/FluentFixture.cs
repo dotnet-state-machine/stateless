@@ -11,7 +11,7 @@ namespace Stateless.Tests
         {
             var sm = new StateMachine<State, Trigger>(State.A);
 
-            var trans =  sm.Configure(State.A).Transition(Trigger.X);
+            var trans = sm.Configure(State.A).Transition(Trigger.X);
             Assert.NotNull(trans);
             Assert.IsType<StateMachine<State, Trigger>.TransitionConfiguration>(trans);
         }
@@ -27,7 +27,7 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        public void Fire_Transition_To_EndsUpInExpectedState()
+        public void Fire_Transition_To_EndsUpInAnotherState()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -41,23 +41,23 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        public void Fire_If_Transition_To_EndsUpInExpectedState()
+        public void Fire_Transition_To_Self()
         {
+            bool _entered = false;
+            bool _exited = false;
+
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .Transition(Trigger.X)
-                .To(State.B)
-                .If((p) => NegativeGuard(p));
+                .OnEntry(() => _entered = true)
+                .OnExit(() => _exited = true)
+                .Transition(Trigger.X).Self();
 
             sm.Fire(Trigger.X);
 
-            Assert.Equal(State.B, sm.State);
-        }
-
-        private bool NegativeGuard(object p)
-        {
-            return false;
+            Assert.Equal(State.A, sm.State);
+            Assert.True(_entered);
+            Assert.True(_exited);
         }
     }
 }
