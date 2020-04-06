@@ -29,15 +29,24 @@ namespace Stateless.Tests
         [Fact]
         public void Fire_Transition_To_EndsUpInAnotherState()
         {
+            bool _entered = false;
+            bool _exited = false;
+
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
+                .OnExit(() => _exited = true)
                 .Transition(Trigger.X)
                 .To(State.B);
+
+            sm.Configure(State.B)
+                .OnEntry(() => _entered = true);
 
             sm.Fire(Trigger.X);
 
             Assert.Equal(State.B, sm.State);
+            Assert.True(_entered);
+            Assert.True(_exited);
         }
 
         [Fact]
