@@ -59,5 +59,25 @@ namespace Stateless.Tests
             Assert.True(_entered);
             Assert.True(_exited);
         }
+
+        [Fact]
+        public void Fire_Transition_Internal()
+        {
+            bool _entered = false;
+            bool _exited = false;
+
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .OnEntry(() => _entered = true)
+                .OnExit(() => _exited = true)
+                .Transition(Trigger.X).Internal();
+
+            sm.Fire(Trigger.X);
+
+            Assert.Equal(State.A, sm.State);
+            Assert.False(_entered);
+            Assert.False(_exited);
+        }
     }
 }

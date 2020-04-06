@@ -1723,9 +1723,9 @@ namespace Stateless
                 return new TransitionConfiguration(this, trigger);
             }
 
-            internal void AddTriggerBehaviour(TransitioningTriggerBehaviour transitioningTriggerBehaviour)
+            internal void AddTriggerBehaviour(TriggerBehaviour triggerBehaviour)
             {
-                _representation.AddTriggerBehaviour(transitioningTriggerBehaviour);
+                _representation.AddTriggerBehaviour(triggerBehaviour);
             }
         }
     }

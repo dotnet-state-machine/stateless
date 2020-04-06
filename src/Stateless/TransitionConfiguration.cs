@@ -40,6 +40,13 @@ namespace Stateless
                 _stateConfiguration.AddTriggerBehaviour(new TransitioningTriggerBehaviour(_trigger, destinationState, null));
                 return new DestinationConfiguration(this, destinationState);
             }
+
+            internal DestinationConfiguration Internal()
+            {
+                var destinationState = _stateConfiguration.State;
+                _stateConfiguration.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(_trigger, (t) => true, (t, r) => { }));
+                return new DestinationConfiguration(this, destinationState);
+            }
         }
     }
 }
