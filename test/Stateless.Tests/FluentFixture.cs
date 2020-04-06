@@ -202,6 +202,32 @@ namespace Stateless.Tests
             Assert.False(_exited);
         }
 
+        [Fact]
+        public void Fire_Transition_To_DoesAction()
+        {
+            bool _entered = false;
+            bool _exited = false;
+            bool _actionWasExecuted = false;
+
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .OnExit(() => _exited = true)
+                .Transition(Trigger.X)
+                .To(State.B)
+                .Do(() => _actionWasExecuted = true); ;
+
+            sm.Configure(State.B)
+                .OnEntry(() => _entered = true);
+
+            sm.Fire(Trigger.X);
+
+            Assert.Equal(State.B, sm.State);
+            Assert.True(_entered);
+            Assert.True(_exited);
+            Assert.True(_actionWasExecuted);
+        }
+
         private bool SomethingTrue(object _)
         {
             return true;
@@ -210,6 +236,11 @@ namespace Stateless.Tests
         private bool SomethingFalse(object _)
         {
             return false;
+        }
+
+        private void SomeAction(object [] parameter)
+        {
+
         }
     }
 }

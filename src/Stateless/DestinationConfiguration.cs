@@ -25,6 +25,17 @@ namespace Stateless
                 _triggerBehaviour.SetGuard(new TransitionGuard(guard, description));
                 return this;
             }
+
+            internal void Do(Func<bool> func)
+            {
+                _triggerBehaviour.AddAction(func);
+            }
+
+            //internal StateConfiguration Do(Action<object[], object> someAction)
+            //{
+            //    _triggerBehaviour.AddAction(someAction);
+            //    return _transitionConfiguration.StateConfiguration;
+            //}
         }
     }
 }

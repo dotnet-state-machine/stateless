@@ -10,6 +10,7 @@ namespace Stateless
         /// </summary>
         public class TransitionConfiguration
         {
+            internal StateConfiguration StateConfiguration => _stateConfiguration;
             private readonly StateConfiguration _stateConfiguration;
             private readonly TTrigger _trigger;
 

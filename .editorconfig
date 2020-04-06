@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# CS1573: Parameter has no matching param tag in the XML comment (but other parameters do)
+dotnet_diagnostic.CS1573.severity = none
