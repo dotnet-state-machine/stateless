@@ -26,16 +26,11 @@ namespace Stateless
                 return this;
             }
 
-            internal void Do(Func<bool> func)
+            internal StateConfiguration Do(Action<object[], object> someAction)
             {
-                _triggerBehaviour.AddAction(func);
+                _triggerBehaviour.AddAction(someAction);
+                return _transitionConfiguration.StateConfiguration;
             }
-
-            //internal StateConfiguration Do(Action<object[], object> someAction)
-            //{
-            //    _triggerBehaviour.AddAction(someAction);
-            //    return _transitionConfiguration.StateConfiguration;
-            //}
         }
     }
 }

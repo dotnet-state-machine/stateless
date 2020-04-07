@@ -357,6 +357,11 @@ namespace Stateless
                 _unhandledTriggerAction.Execute(representativeState.UnderlyingState, trigger, result?.UnmetGuardConditions);
                 return;
             }
+            // If trigger handler has action, execute it
+            if (result.Handler.HasAction())
+            {
+                result.Handler.ExecuteAction(trigger, args);
+            }
 
             switch (result.Handler)
             {

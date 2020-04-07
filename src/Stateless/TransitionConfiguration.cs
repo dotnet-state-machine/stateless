@@ -37,11 +37,6 @@ namespace Stateless
                 return new DestinationConfiguration(this, destination, triggerBehaviour);
             }
 
-            internal TriggerBehaviour GetTriggerBehaviour()
-            {
-                return _stateConfiguration.Representation.TriggerBehaviours[_trigger].First();
-            }
-
             internal DestinationConfiguration Self()
             {
                 var destinationState = _stateConfiguration.State;

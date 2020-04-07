@@ -60,6 +60,16 @@ namespace Stateless
             public ICollection<string> UnmetGuardConditions(object[] args) => _guard.UnmetGuardConditions(args);
 
             public abstract bool ResultsInTransitionFrom(TState source, object[] args, out TState destination);
+
+            internal bool HasAction()
+            {
+                return _triggerAction != null;
+            }
+
+            internal void ExecuteAction(TTrigger trigger, object[] args)
+            {
+                _triggerAction(args, trigger);
+            }
         }
     }
 }

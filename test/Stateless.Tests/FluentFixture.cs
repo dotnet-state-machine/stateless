@@ -215,7 +215,7 @@ namespace Stateless.Tests
                 .OnExit(() => _exited = true)
                 .Transition(Trigger.X)
                 .To(State.B)
-                .Do(() => _actionWasExecuted = true); ;
+                .Do((t, r) => _actionWasExecuted = true); ;
 
             sm.Configure(State.B)
                 .OnEntry(() => _entered = true);
@@ -228,6 +228,54 @@ namespace Stateless.Tests
             Assert.True(_actionWasExecuted);
         }
 
+        [Fact]
+        public void Fire_Transition_Self_DoesAction()
+        {
+            bool _entered = false;
+            bool _exited = false;
+            bool _actionWasExecuted = false;
+
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .OnEntry(() => _entered = true)
+                .OnExit(() => _exited = true)
+                .Transition(Trigger.X)
+                .Self()
+                .Do((t, r) => _actionWasExecuted = true); ;
+
+            sm.Fire(Trigger.X);
+
+            Assert.Equal(State.A, sm.State);
+            Assert.True(_entered);
+            Assert.True(_exited);
+            Assert.True(_actionWasExecuted);
+        }
+
+        [Fact]
+        public void Fire_Transition_Internal_DoesAction()
+        {
+            bool _entered = false;
+            bool _exited = false;
+            bool _actionWasExecuted = false;
+
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .OnEntry(() => _entered = true)
+                .OnExit(() => _exited = true)
+                .Transition(Trigger.X)
+                .Internal()
+                .Do((t, r) => _actionWasExecuted = true); ;
+
+            sm.Fire(Trigger.X);
+
+            Assert.Equal(State.A, sm.State);
+            Assert.False(_entered);
+            Assert.False(_exited);
+            Assert.True(_actionWasExecuted);
+        }
+
         private bool SomethingTrue(object _)
         {
             return true;
@@ -236,11 +284,6 @@ namespace Stateless.Tests
         private bool SomethingFalse(object _)
         {
             return false;
-        }
-
-        private void SomeAction(object [] parameter)
-        {
-
         }
     }
 }
