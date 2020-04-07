@@ -1,6 +1,4 @@
-﻿
-using Xunit;
-using Stateless;
+﻿using Xunit;
 using System;
 
 namespace Stateless.Tests
