@@ -10,13 +10,11 @@ namespace Stateless
         public class DestinationConfiguration
         {
             private readonly TransitionConfiguration _transitionConfiguration;
-            private readonly TState _destination;
             private readonly TriggerBehaviour _triggerBehaviour;
 
-            internal DestinationConfiguration(TransitionConfiguration transitionConfiguration, TState destination, TriggerBehaviour triggerBehaviour)
+            internal DestinationConfiguration(TransitionConfiguration transitionConfiguration, TriggerBehaviour triggerBehaviour)
             {
                 _transitionConfiguration = transitionConfiguration;
-                _destination = destination;
                 _triggerBehaviour = triggerBehaviour;
             }
 

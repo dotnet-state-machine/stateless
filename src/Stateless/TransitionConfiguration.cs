@@ -10,8 +10,9 @@ namespace Stateless
         /// </summary>
         public class TransitionConfiguration
         {
-            internal StateConfiguration StateConfiguration => _stateConfiguration;
-            private readonly StateConfiguration _stateConfiguration;
+            internal StateConfiguration StateConfiguration { get; private set; }
+
+            private readonly StateRepresentation _representation;
             private readonly TTrigger _trigger;
 
             /// <summary>
@@ -19,9 +20,10 @@ namespace Stateless
             /// </summary>
             /// <param name="stateConfiguration"></param>
             /// <param name="trigger"></param>
-            public TransitionConfiguration(StateConfiguration stateConfiguration, TTrigger trigger)
+            internal TransitionConfiguration(StateConfiguration stateConfiguration, StateRepresentation representation ,TTrigger trigger)
             {
-                _stateConfiguration = stateConfiguration;
+                StateConfiguration = stateConfiguration;
+                _representation = representation;
                 _trigger = trigger;
             }
 
@@ -33,24 +35,24 @@ namespace Stateless
             public DestinationConfiguration To(TState destination)
             {
                 TriggerBehaviour triggerBehaviour = new TransitioningTriggerBehaviour(_trigger, destination, null);
-                _stateConfiguration.AddTriggerBehaviour(triggerBehaviour);
-                return new DestinationConfiguration(this, destination, triggerBehaviour);
+                _representation.AddTriggerBehaviour(triggerBehaviour);
+                return new DestinationConfiguration(this, triggerBehaviour);
             }
 
             internal DestinationConfiguration Self()
             {
-                var destinationState = _stateConfiguration.State;
+                var destinationState = StateConfiguration.State;
                 var ttb = new TransitioningTriggerBehaviour(_trigger, destinationState, null);
-                _stateConfiguration.AddTriggerBehaviour(ttb);
-                return new DestinationConfiguration(this, destinationState, ttb);
+                _representation.AddTriggerBehaviour(ttb);
+                return new DestinationConfiguration(this, ttb);
             }
 
             internal DestinationConfiguration Internal()
             {
-                var destinationState = _stateConfiguration.State;
+                var destinationState = StateConfiguration.State;
                 var itb = new InternalTriggerBehaviour.Sync(_trigger, (t) => true, (t, r) => { });
-                _stateConfiguration.AddTriggerBehaviour(itb);
-                return new DestinationConfiguration(this, destinationState, itb);
+                _representation.AddTriggerBehaviour(itb);
+                return new DestinationConfiguration(this, itb);
             }
         }
     }

@@ -37,8 +37,7 @@ namespace Stateless.Tests
 
             sm.Configure(State.A)
                 .OnExit(() => _exited = true)
-                .Transition(Trigger.X)
-                .To(State.B);
+                .Transition(Trigger.X).To(State.B);
 
             sm.Configure(State.B)
                 .OnEntry(() => _entered = true);
@@ -96,9 +95,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .Transition(Trigger.X)
-                .To(State.B)
-                .If((t) => SomethingTrue(t));
+                .Transition(Trigger.X).To(State.B).If((t) => SomethingTrue(t));
 
             sm.Configure(State.B);
 
@@ -113,9 +110,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .Transition(Trigger.X)
-                .To(State.B)
-                .If((t) => SomethingFalse(t), "guard description");
+                .Transition(Trigger.X).To(State.B).If((t) => SomethingFalse(t), "guard description");
 
             sm.Configure(State.B);
 
@@ -213,9 +208,7 @@ namespace Stateless.Tests
 
             sm.Configure(State.A)
                 .OnExit(() => _exited = true)
-                .Transition(Trigger.X)
-                .To(State.B)
-                .Do((t, r) => _actionWasExecuted = true); ;
+                .Transition(Trigger.X).To(State.B).Do((t, r) => _actionWasExecuted = true); ;
 
             sm.Configure(State.B)
                 .OnEntry(() => _entered = true);
@@ -240,9 +233,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .OnEntry(() => _entered = true)
                 .OnExit(() => _exited = true)
-                .Transition(Trigger.X)
-                .Self()
-                .Do((t, r) => _actionWasExecuted = true); ;
+                .Transition(Trigger.X).Self().Do((t, r) => _actionWasExecuted = true); ;
 
             sm.Fire(Trigger.X);
 
@@ -264,9 +255,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .OnEntry(() => _entered = true)
                 .OnExit(() => _exited = true)
-                .Transition(Trigger.X)
-                .Internal()
-                .Do((t, r) => _actionWasExecuted = true); ;
+                .Transition(Trigger.X).Internal().Do((t, r) => _actionWasExecuted = true);
 
             sm.Fire(Trigger.X);
 
