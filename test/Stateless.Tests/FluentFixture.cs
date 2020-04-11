@@ -332,5 +332,28 @@ namespace Stateless.Tests
             Assert.IsType<char>(parameters[2]);
             return true;
         }
+
+        [Fact]
+        public void Fire_Transition_To_If_TrueReceivedOneGenericParameters()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            var trigger = sm.SetTriggerParameters<string>(Trigger.X);
+
+            sm.Configure(State.A)
+                .Transition(Trigger.X).To(State.B).If<string>((parameter) => SomethingTrueOneGeneric(parameter));
+
+            sm.Configure(State.B);
+
+            sm.Fire(trigger, "arg0");
+
+            Assert.Equal(State.B, sm.State);
+        }
+
+        private bool SomethingTrueOneGeneric(string parameter)
+        {
+            Assert.IsType<string>(parameter);
+            return true;
+        }
     }
 }
