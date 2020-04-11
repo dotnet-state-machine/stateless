@@ -31,6 +31,18 @@ namespace Stateless
                 return this;
             }
 
+            internal DestinationConfiguration If<TArg0, TArg1>(Func<TArg0, TArg1, bool> guard, string description = null)
+            {
+                _triggerBehaviour.SetGuard(new TransitionGuard(TransitionGuard.ToPackedGuard(guard), description));
+                return this;
+            }
+
+            internal DestinationConfiguration If<TArg0, TArg1, TArg2>(Func<TArg0, TArg1, TArg2, bool> guard, string description = null)
+            {
+                _triggerBehaviour.SetGuard(new TransitionGuard(TransitionGuard.ToPackedGuard(guard), description));
+                return this;
+            }
+
             internal StateConfiguration Do(Action<object[], object> someAction)
             {
                 _triggerBehaviour.AddAction(someAction);

@@ -355,5 +355,54 @@ namespace Stateless.Tests
             Assert.IsType<string>(parameter);
             return true;
         }
+
+        [Fact]
+        public void Fire_Transition_To_If_TrueReceivedTwoGenericParameters()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            var trigger = sm.SetTriggerParameters<string, int>(Trigger.X);
+
+            sm.Configure(State.A)
+                .Transition(Trigger.X).To(State.B).If<string, int>((arg0, arg1) => SomethingTrueTwoGeneric(arg0, arg1));
+
+            sm.Configure(State.B);
+
+            sm.Fire(trigger, "arg0", 42);
+
+            Assert.Equal(State.B, sm.State);
+        }
+
+        private bool SomethingTrueTwoGeneric(string parameterOne, int parameterTwo)
+        {
+            Assert.IsType<string>(parameterOne);
+            Assert.IsType<int>(parameterTwo);
+            return true;
+        }
+
+        [Fact]
+        public void Fire_Transition_To_If_TrueReceivedThreeGenericParameters()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            var trigger = sm.SetTriggerParameters<string, int, char>(Trigger.X);
+
+            sm.Configure(State.A)
+                .Transition(Trigger.X).To(State.B).If<string, int, char>((arg0, arg1, arg2) => SomethingTrueThreeGeneric(arg0, arg1, arg2));
+
+            sm.Configure(State.B);
+
+            sm.Fire(trigger, "arg0", 42, 'x');
+
+            Assert.Equal(State.B, sm.State);
+        }
+
+        private bool SomethingTrueThreeGeneric(string parameterOne, int parameterTwo, char parameterThree)
+        {
+            Assert.IsType<string>(parameterOne);
+            Assert.IsType<int>(parameterTwo);
+            Assert.IsType<char>(parameterThree);
+            return true;
+        }
     }
 }
