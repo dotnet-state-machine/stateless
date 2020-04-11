@@ -1,5 +1,6 @@
 ﻿using Xunit;
 using System;
+using System.Threading.Tasks;
 
 namespace Stateless.Tests
 {
@@ -272,5 +273,40 @@ namespace Stateless.Tests
         {
             return false;
         }
+
+#if TASKS
+
+        bool _asyncActionWasExecuted = false;
+
+        [Fact]
+        public void Fire_Transition_To_DoesAsyncAction()
+        {
+            bool _entered = false;
+            bool _exited = false;
+
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .OnExit(() => _exited = true)
+                .Transition(Trigger.X).To(State.B).Do((t, r) => AsyncAction(t, r));
+
+            sm.Configure(State.B)
+                .OnEntry(() => _entered = true);
+
+            sm.Fire(Trigger.X);
+
+            Assert.Equal(State.B, sm.State);
+            Assert.True(_entered);
+            Assert.True(_exited);
+            Assert.True(_asyncActionWasExecuted);
+        }
+
+        private Task AsyncAction(object[] t, object r)
+        {
+            _asyncActionWasExecuted = true;
+            return Task.Delay(1);
+        }
+
+#endif
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Stateless
 {
@@ -18,7 +19,7 @@ namespace Stateless
                 _triggerBehaviour = triggerBehaviour;
             }
 
-            internal DestinationConfiguration If(Func<object [], bool> guard, string description = null)
+            internal DestinationConfiguration If(Func<object[], bool> guard, string description = null)
             {
                 _triggerBehaviour.SetGuard(new TransitionGuard(guard, description));
                 return this;
