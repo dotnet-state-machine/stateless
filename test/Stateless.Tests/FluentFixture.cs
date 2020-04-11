@@ -308,5 +308,29 @@ namespace Stateless.Tests
         }
 
 #endif
+
+        [Fact]
+        public void Fire_Transition_To_If_TrueReceivedTriggerParameters()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            var trigger = sm.SetTriggerParameters<string, int, char>(Trigger.X);
+
+            sm.Configure(State.A)
+                .Transition(Trigger.X).To(State.B).If((parameters) => SomethingTrueWithParameters(parameters));
+
+            sm.Configure(State.B);
+
+            sm.Fire(trigger, "arg0", 1, 'c');
+
+            Assert.Equal(State.B, sm.State);
+        }
+        private bool SomethingTrueWithParameters(object[] parameters)
+        {
+            Assert.IsType<string>(parameters[0]);
+            Assert.IsType<int>(parameters[1]);
+            Assert.IsType<char>(parameters[2]);
+            return true;
+        }
     }
 }
