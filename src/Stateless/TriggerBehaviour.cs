@@ -7,7 +7,8 @@ namespace Stateless
     {
         internal abstract class TriggerBehaviour
         {
-            private Action<object [], object> _triggerAction;
+            private Action<Transition, object []> _triggerAction;
+
             /// <summary>
             /// If there is no guard function, _guard is set to TransitionGuard.Empty
             /// </summary>
@@ -31,9 +32,14 @@ namespace Stateless
                 _guard = guard;
             }
 
-            internal void AddAction(Action<object[], object> someAction)
+            internal void AddAction(Action<Transition, object[]> someAction)
             {
                 _triggerAction = someAction;
+            }
+
+            internal void AddAction(Action<Transition> someAction)
+            {
+                _triggerAction = (t, r) => someAction(t);
             }
 
             /// <summary>
@@ -66,9 +72,9 @@ namespace Stateless
                 return _triggerAction != null;
             }
 
-            internal void ExecuteAction(TTrigger trigger, object[] args)
+            internal void ExecuteAction(Transition transition, object[] args)
             {
-                _triggerAction(args, trigger);
+                _triggerAction(transition, args);
             }
         }
     }

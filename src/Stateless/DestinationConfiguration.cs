@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Threading.Tasks;
 
 namespace Stateless
 {
     partial class StateMachine<TState, TTrigger>
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public class DestinationConfiguration
         {
             private readonly TransitionConfiguration _transitionConfiguration;
@@ -43,13 +39,17 @@ namespace Stateless
                 return this;
             }
 
-            internal StateConfiguration Do(Action<object[], object> someAction)
+            internal StateConfiguration Do(Action someAction)
+            {
+                _triggerBehaviour.AddAction((t, args) => someAction());
+                return _transitionConfiguration.StateConfiguration;
+            }
+
+            internal StateConfiguration Do(Action<Transition> someAction)
             {
                 _triggerBehaviour.AddAction(someAction);
                 return _transitionConfiguration.StateConfiguration;
             }
-
-
         }
     }
 }

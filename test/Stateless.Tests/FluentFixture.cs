@@ -207,7 +207,7 @@ namespace Stateless.Tests
 
             sm.Configure(State.A)
                 .OnExit(() => _exited = true)
-                .Transition(Trigger.X).To(State.B).Do((t, r) => _actionWasExecuted = true); ;
+                .Transition(Trigger.X).To(State.B).Do(() => _actionWasExecuted = true);
 
             sm.Configure(State.B)
                 .OnEntry(() => _entered = true);
@@ -232,7 +232,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .OnEntry(() => _entered = true)
                 .OnExit(() => _exited = true)
-                .Transition(Trigger.X).Self().Do((t, r) => _actionWasExecuted = true); ;
+                .Transition(Trigger.X).Self().Do(() => _actionWasExecuted = true);
 
             sm.Fire(Trigger.X);
 
@@ -254,7 +254,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .OnEntry(() => _entered = true)
                 .OnExit(() => _exited = true)
-                .Transition(Trigger.X).Internal().Do((t, r) => _actionWasExecuted = true);
+                .Transition(Trigger.X).Internal().Do(() => _actionWasExecuted = true);
 
             sm.Fire(Trigger.X);
 
@@ -288,7 +288,7 @@ namespace Stateless.Tests
 
             sm.Configure(State.A)
                 .OnExit(() => _exited = true)
-                .Transition(Trigger.X).To(State.B).Do((t, r) => AsyncAction(t, r));
+                .Transition(Trigger.X).To(State.B).Do(() => AsyncAction());
 
             sm.Configure(State.B)
                 .OnEntry(() => _entered = true);
@@ -301,7 +301,7 @@ namespace Stateless.Tests
             Assert.True(_asyncActionWasExecuted);
         }
 
-        private Task AsyncAction(object[] t, object r)
+        private Task AsyncAction()
         {
             _asyncActionWasExecuted = true;
             return Task.Delay(1);
@@ -403,6 +403,40 @@ namespace Stateless.Tests
             Assert.IsType<int>(parameterTwo);
             Assert.IsType<char>(parameterThree);
             return true;
+        }
+
+
+        bool _actionWasExecuted = false;
+        [Fact]
+        public void Fire_Transition_To_DoActionReceivesTransition()
+        {
+            bool _entered = false;
+            bool _exited = false;
+            _actionWasExecuted = false;
+
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .OnExit(() => _exited = true)
+                .Transition(Trigger.X).To(State.B).Do((transition) => ActionReceivesTransition(transition));
+
+            sm.Configure(State.B)
+                .OnEntry(() => _entered = true);
+
+            sm.Fire(Trigger.X);
+
+            Assert.Equal(State.B, sm.State);
+            Assert.True(_entered);
+            Assert.True(_exited);
+            Assert.True(_actionWasExecuted);
+        }
+
+        private void ActionReceivesTransition(StateMachine<State, Trigger>.Transition transition)
+        {
+            Assert.Equal(State.A, transition.Source);
+            Assert.Equal(Trigger.X, transition.Trigger);
+            Assert.Equal(State.B, transition.Destination);
+            _actionWasExecuted = true;
         }
     }
 }

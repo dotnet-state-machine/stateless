@@ -357,11 +357,6 @@ namespace Stateless
                 _unhandledTriggerAction.Execute(representativeState.UnderlyingState, trigger, result?.UnmetGuardConditions);
                 return;
             }
-            // If trigger handler has action, execute it
-            if (result.Handler.HasAction())
-            {
-                result.Handler.ExecuteAction(trigger, args);
-            }
 
             switch (result.Handler)
             {
@@ -374,6 +369,12 @@ namespace Stateless
                 {
                     // Handle transition, and set new state
                     var transition = new Transition(source, handler.Destination, trigger, args);
+
+                    // If trigger handler has action, execute it
+                    if (result.Handler.HasAction())
+                    {
+                        result.Handler.ExecuteAction(transition, args);
+                    }
                     HandleReentryTrigger(args, representativeState, transition);
                     break;
                 }
@@ -382,7 +383,12 @@ namespace Stateless
                 {
                     // Handle transition, and set new state
                     var transition = new Transition(source, destination, trigger, args);
-                    HandleTransitioningTrigger(args, representativeState, transition);
+                        // If trigger handler has action, execute it
+                        if (result.Handler.HasAction())
+                        {
+                            result.Handler.ExecuteAction(transition, args);
+                        }
+                        HandleTransitioningTrigger(args, representativeState, transition);
 
                     break;
                 }
@@ -390,7 +396,12 @@ namespace Stateless
                 {
                     // Internal transitions does not update the current state, but must execute the associated action.
                     var transition = new Transition(source, source, trigger, args);
-                    CurrentRepresentation.InternalAction(transition, args);
+                        // If trigger handler has action, execute it
+                        if (result.Handler.HasAction())
+                        {
+                            result.Handler.ExecuteAction(transition, args);
+                        }
+                        CurrentRepresentation.InternalAction(transition, args);
                     break;
                 }
                 default:
