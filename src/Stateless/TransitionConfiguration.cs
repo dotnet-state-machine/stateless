@@ -54,6 +54,11 @@ namespace Stateless
                 _representation.AddTriggerBehaviour(itb);
                 return new DestinationConfiguration(this, itb);
             }
+
+            internal void Dynamic(Func<TTrigger, TState> stateSelector)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

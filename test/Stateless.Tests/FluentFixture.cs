@@ -274,10 +274,7 @@ namespace Stateless.Tests
             return false;
         }
 
-#if TASKS
-
         bool _asyncActionWasExecuted = false;
-
         [Fact]
         public void Fire_Transition_To_DoesAsyncAction()
         {
@@ -306,8 +303,6 @@ namespace Stateless.Tests
             _asyncActionWasExecuted = true;
             return Task.Delay(1);
         }
-
-#endif
 
         [Fact]
         public void Fire_Transition_To_If_TrueReceivedTriggerParameters()
@@ -356,56 +351,6 @@ namespace Stateless.Tests
             return true;
         }
 
-        [Fact]
-        public void Fire_Transition_To_If_TrueReceivedTwoGenericParameters()
-        {
-            var sm = new StateMachine<State, Trigger>(State.A);
-
-            var trigger = sm.SetTriggerParameters<string, int>(Trigger.X);
-
-            sm.Configure(State.A)
-                .Transition(Trigger.X).To(State.B).If<string, int>((arg0, arg1) => SomethingTrueTwoGeneric(arg0, arg1));
-
-            sm.Configure(State.B);
-
-            sm.Fire(trigger, "arg0", 42);
-
-            Assert.Equal(State.B, sm.State);
-        }
-
-        private bool SomethingTrueTwoGeneric(string parameterOne, int parameterTwo)
-        {
-            Assert.IsType<string>(parameterOne);
-            Assert.IsType<int>(parameterTwo);
-            return true;
-        }
-
-        [Fact]
-        public void Fire_Transition_To_If_TrueReceivedThreeGenericParameters()
-        {
-            var sm = new StateMachine<State, Trigger>(State.A);
-
-            var trigger = sm.SetTriggerParameters<string, int, char>(Trigger.X);
-
-            sm.Configure(State.A)
-                .Transition(Trigger.X).To(State.B).If<string, int, char>((arg0, arg1, arg2) => SomethingTrueThreeGeneric(arg0, arg1, arg2));
-
-            sm.Configure(State.B);
-
-            sm.Fire(trigger, "arg0", 42, 'x');
-
-            Assert.Equal(State.B, sm.State);
-        }
-
-        private bool SomethingTrueThreeGeneric(string parameterOne, int parameterTwo, char parameterThree)
-        {
-            Assert.IsType<string>(parameterOne);
-            Assert.IsType<int>(parameterTwo);
-            Assert.IsType<char>(parameterThree);
-            return true;
-        }
-
-
         bool _actionWasExecuted = false;
         [Fact]
         public void Fire_Transition_To_DoActionReceivesTransition()
@@ -437,6 +382,63 @@ namespace Stateless.Tests
             Assert.Equal(Trigger.X, transition.Trigger);
             Assert.Equal(State.B, transition.Destination);
             _actionWasExecuted = true;
+        }
+
+        [Fact]
+        public void Fire_Transition_To_DoActionReceivesTransitionAnsOneParameter()
+        {
+            bool _entered = false;
+            bool _exited = false;
+            _actionWasExecuted = false;
+
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var trigger = sm.SetTriggerParameters<string>(Trigger.X);
+
+            sm.Configure(State.A)
+                .OnExit(() => _exited = true)
+                .Transition(Trigger.X).To(State.B).Do<string>((arg0, transition) => ActionReceivesTransitionAndOneParameter(arg0, transition));
+
+            sm.Configure(State.B)
+                .OnEntry(() => _entered = true);
+
+            sm.Fire(trigger, "42");
+
+            Assert.Equal(State.B, sm.State);
+            Assert.True(_entered);
+            Assert.True(_exited);
+            Assert.True(_actionWasExecuted);
+        }
+
+        private void ActionReceivesTransitionAndOneParameter(string arg0, StateMachine<State, Trigger>.Transition transition)
+        {
+            Assert.Equal("42", arg0);
+            _actionWasExecuted = true;
+        }
+
+        [Fact]
+        public void Fire_Transition_Dynamic_EndsUpInAnotherState()
+        {
+            bool _entered = false;
+            bool _exited = false;
+
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .OnExit(() => _exited = true)
+                .Transition(Trigger.X).Dynamic(StateSelector);
+
+            sm.Configure(State.B)
+                .OnEntry(() => _entered = true);
+
+            sm.Fire(Trigger.X);
+
+            Assert.Equal(State.B, sm.State);
+            Assert.True(_entered);
+            Assert.True(_exited);
+        }
+        private State StateSelector(Trigger trigger)
+        {
+            return State.B;
         }
     }
 }
