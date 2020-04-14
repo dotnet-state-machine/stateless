@@ -30,8 +30,8 @@ namespace Stateless.Tests
         [Fact]
         public void Fire_Transition_To_EndsUpInAnotherState()
         {
-            bool _entered = false;
-            bool _exited = false;
+            var _entered = false;
+            var _exited = false;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -52,8 +52,8 @@ namespace Stateless.Tests
         [Fact]
         public void Fire_Transition_To_Self()
         {
-            bool _entered = false;
-            bool _exited = false;
+            var _entered = false;
+            var _exited = false;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -72,8 +72,8 @@ namespace Stateless.Tests
         [Fact]
         public void Fire_Transition_Internal()
         {
-            bool _entered = false;
-            bool _exited = false;
+            var _entered = false;
+            var _exited = false;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -122,8 +122,8 @@ namespace Stateless.Tests
         [Fact]
         public void Fire_Transition_Self_If_True_Self()
         {
-            bool _entered = false;
-            bool _exited = false;
+            var _entered = false;
+            var _exited = false;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -142,8 +142,8 @@ namespace Stateless.Tests
         [Fact]
         public void Fire_Transition_Self_If_False()
         {
-            bool _entered = false;
-            bool _exited = false;
+            var _entered = false;
+            var _exited = false;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -160,8 +160,8 @@ namespace Stateless.Tests
         [Fact]
         public void Fire_Transition_Internal_If_True()
         {
-            bool _entered = false;
-            bool _exited = false;
+            var _entered = false;
+            var _exited = false;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -180,8 +180,8 @@ namespace Stateless.Tests
         [Fact]
         public void Fire_Transition_Internal_If_False()
         {
-            bool _entered = false;
-            bool _exited = false;
+            var _entered = false;
+            var _exited = false;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -200,9 +200,9 @@ namespace Stateless.Tests
         [Fact]
         public void Fire_Transition_To_DoesAction()
         {
-            bool _entered = false;
-            bool _exited = false;
-            bool _actionWasExecuted = false;
+            var _entered = false;
+            var _exited = false;
+            var _actionWasExecuted = false;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -224,9 +224,9 @@ namespace Stateless.Tests
         [Fact]
         public void Fire_Transition_Self_DoesAction()
         {
-            bool _entered = false;
-            bool _exited = false;
-            bool _actionWasExecuted = false;
+            var _entered = false;
+            var _exited = false;
+            var _actionWasExecuted = false;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -246,9 +246,9 @@ namespace Stateless.Tests
         [Fact]
         public void Fire_Transition_Internal_DoesAction()
         {
-            bool _entered = false;
-            bool _exited = false;
-            bool _actionWasExecuted = false;
+            var _entered = false;
+            var _exited = false;
+            var _actionWasExecuted = false;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -279,8 +279,8 @@ namespace Stateless.Tests
         [Fact]
         public void Fire_Transition_To_DoesAsyncAction()
         {
-            bool _entered = false;
-            bool _exited = false;
+            var _entered = false;
+            var _exited = false;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -356,8 +356,8 @@ namespace Stateless.Tests
         [Fact]
         public void Fire_Transition_To_DoActionReceivesTransition()
         {
-            bool _entered = false;
-            bool _exited = false;
+            var _entered = false;
+            var _exited = false;
             _actionWasExecuted = false;
 
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -388,8 +388,8 @@ namespace Stateless.Tests
         [Fact]
         public void Fire_Transition_To_DoActionReceivesTransitionAnsOneParameter()
         {
-            bool _entered = false;
-            bool _exited = false;
+            var _entered = false;
+            var _exited = false;
             _actionWasExecuted = false;
 
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -419,8 +419,8 @@ namespace Stateless.Tests
         [Fact]
         public void Fire_Transition_Dynamic_EndsUpInAnotherState()
         {
-            bool _entered = false;
-            bool _exited = false;
+            var _entered = false;
+            var _exited = false;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -446,8 +446,8 @@ namespace Stateless.Tests
         [Fact]
         public void Fire_Transition_DynamicWithParameters_EndsUpInAnotherState()
         {
-            bool _entered = false;
-            bool _exited = false;
+            var _entered = false;
+            var _exited = false;
 
             var sm = new StateMachine<State, Trigger>(State.A);
             var trigger = sm.SetTriggerParameters<string>(Trigger.X);
