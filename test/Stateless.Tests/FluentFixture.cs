@@ -465,6 +465,20 @@ namespace Stateless.Tests
             Assert.True(_exited);
         }
 
+        [Fact]
+        public void Configure_Transition_To_Transition_NoGuardOrAction()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .Transition(Trigger.X).To(State.B)
+                .Transition(Trigger.Y).To(State.C);
+
+            sm.Fire(Trigger.Y);
+
+            Assert.Equal(State.C, sm.State);
+        }
+
         private State StateSelectorWithParemeters(string parameter)
         {
             return State.B;

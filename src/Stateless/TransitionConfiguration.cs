@@ -36,7 +36,7 @@ namespace Stateless
             {
                 TriggerBehaviour triggerBehaviour = new TransitioningTriggerBehaviour(_trigger, destination, null);
                 _representation.AddTriggerBehaviour(triggerBehaviour);
-                return new DestinationConfiguration(this, triggerBehaviour);
+                return new DestinationConfiguration(this, triggerBehaviour, _representation);
             }
 
             internal DestinationConfiguration Self()
@@ -44,7 +44,7 @@ namespace Stateless
                 var destinationState = StateConfiguration.State;
                 var ttb = new TransitioningTriggerBehaviour(_trigger, destinationState, null);
                 _representation.AddTriggerBehaviour(ttb);
-                return new DestinationConfiguration(this, ttb);
+                return new DestinationConfiguration(this, ttb, _representation);
             }
 
             internal DestinationConfiguration Internal()
@@ -52,7 +52,7 @@ namespace Stateless
                 var destinationState = StateConfiguration.State;
                 var itb = new InternalTriggerBehaviour.Sync(_trigger, (t) => true, (t, r) => { });
                 _representation.AddTriggerBehaviour(itb);
-                return new DestinationConfiguration(this, itb);
+                return new DestinationConfiguration(this, itb, _representation);
             }
 
             internal DestinationConfiguration Dynamic(Func<TState> destinationStateSelector, string destinationStateSelectorDescription = null, Reflection.DynamicStateInfos possibleDestinationStates = null)
@@ -71,7 +71,7 @@ namespace Stateless
 
                 _representation.AddTriggerBehaviour(dtb);
 
-                return new DestinationConfiguration(this, dtb);
+                return new DestinationConfiguration(this, dtb, _representation);
             }
 
             internal DestinationConfiguration Dynamic<TArg>(Func<TArg, TState> destinationStateSelector, string destinationStateSelectorDescription = null, Reflection.DynamicStateInfos possibleDestinationStates = null)
@@ -90,7 +90,7 @@ namespace Stateless
 
                 _representation.AddTriggerBehaviour(dtb);
 
-                return new DestinationConfiguration(this, dtb);
+                return new DestinationConfiguration(this, dtb, _representation);
 
             }
         }

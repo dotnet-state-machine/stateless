@@ -8,11 +8,13 @@ namespace Stateless
         {
             private readonly TransitionConfiguration _transitionConfiguration;
             private readonly TriggerBehaviour _triggerBehaviour;
+            private readonly StateRepresentation _representation;
 
-            internal DestinationConfiguration(TransitionConfiguration transitionConfiguration, TriggerBehaviour triggerBehaviour)
+            internal DestinationConfiguration(TransitionConfiguration transitionConfiguration, TriggerBehaviour triggerBehaviour, StateRepresentation representation)
             {
                 _transitionConfiguration = transitionConfiguration;
                 _triggerBehaviour = triggerBehaviour;
+                _representation = representation;
             }
 
             internal DestinationConfiguration If(Func<object[], bool> guard, string description = null)
@@ -25,6 +27,11 @@ namespace Stateless
             {
                 _triggerBehaviour.SetGuard(new TransitionGuard(TransitionGuard.ToPackedGuard(guard), description));
                 return this;
+            }
+
+            public TransitionConfiguration Transition(TTrigger trigger)
+            {
+                return new TransitionConfiguration(_transitionConfiguration.StateConfiguration, _representation, trigger);
             }
 
             internal StateConfiguration Do(Action someAction)
