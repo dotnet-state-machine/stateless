@@ -1712,10 +1712,9 @@ namespace Stateless
             }
 
             /// <summary>
-            /// 
+            /// Creates a new transition. Use To(), Self(), Internal() or Dynamic() to set up the destination.
             /// </summary>
-            /// <param name="trigger"></param>
-            /// <returns></returns>
+            /// <param name="trigger">The event trigger that will trigger this transition.</param>
             public TransitionConfiguration Transition(TTrigger trigger)
             {
                 return new TransitionConfiguration(this, _representation, trigger);

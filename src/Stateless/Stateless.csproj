@@ -31,8 +31,4 @@
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' OR '$(TargetFramework)' == 'net472' ">
     <DefineConstants>$(DefineConstants);TASKS</DefineConstants>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Include="..\..\.editorconfig" Link=".editorconfig" />
-  </ItemGroup>
 </Project>

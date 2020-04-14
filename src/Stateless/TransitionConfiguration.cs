@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Linq;
 
 namespace Stateless
 {
     partial class StateMachine<TState, TTrigger>
     {
         /// <summary>
-        /// 
+        /// This class containd the required information for a transition.
         /// </summary>
         public class TransitionConfiguration
         {
@@ -16,11 +15,12 @@ namespace Stateless
             private readonly TTrigger _trigger;
 
             /// <summary>
-            /// 
+            /// The TransitionConfiguration contains the information required to create a new transition.
             /// </summary>
-            /// <param name="stateConfiguration"></param>
-            /// <param name="trigger"></param>
-            internal TransitionConfiguration(StateConfiguration stateConfiguration, StateRepresentation representation ,TTrigger trigger)
+            /// <param name="stateConfiguration"> Current state being configured</param>
+            /// <param name="representation">A reporesentation of the state</param>
+            /// <param name="trigger">Trigger for this transition</param>
+            internal TransitionConfiguration(StateConfiguration stateConfiguration, StateRepresentation representation, TTrigger trigger)
             {
                 StateConfiguration = stateConfiguration;
                 _representation = representation;
@@ -28,17 +28,20 @@ namespace Stateless
             }
 
             /// <summary>
-            /// 
+            /// Adds a new transition to the destination state
             /// </summary>
-            /// <param name="destination"></param>
-            /// <returns></returns>
-            public DestinationConfiguration To(TState destination)
+            /// <param name="destination">Destination state</param>
+            internal DestinationConfiguration To(TState destination)
             {
                 TriggerBehaviour triggerBehaviour = new TransitioningTriggerBehaviour(_trigger, destination, null);
                 _representation.AddTriggerBehaviour(triggerBehaviour);
                 return new DestinationConfiguration(this, triggerBehaviour, _representation);
             }
 
+            /// <summary>
+            /// Creates a new re-entrant transition. This transition, when triggered, will execute the state's
+            /// Exit and Entry actions, if any has been added.
+            /// </summary>
             internal DestinationConfiguration Self()
             {
                 var destinationState = StateConfiguration.State;
@@ -47,6 +50,12 @@ namespace Stateless
                 return new DestinationConfiguration(this, ttb, _representation);
             }
 
+            /// <summary>
+            /// Creates a new internal transition. This transition, when triggered, not cause any state change,
+            /// nor will the Exit or Entry actions of the state be executed. Only the action configured will be
+            /// executed.
+            /// </summary>
+            /// <returns></returns>
             internal DestinationConfiguration Internal()
             {
                 var destinationState = StateConfiguration.State;
@@ -55,6 +64,13 @@ namespace Stateless
                 return new DestinationConfiguration(this, itb, _representation);
             }
 
+            /// <summary>
+            /// Creates a new dynamic transition. The destination is determined at run time. A Func must be
+            /// supplied, this method will detyermine the destination state.
+            /// </summary>
+            /// <param name="destinationStateSelector">A method to determine the destination state</param>
+            /// <param name="destinationStateSelectorDescription">A description of the state selector</param>
+            /// <param name="possibleDestinationStates">An optional list of states (useful if the DotGraph feature is used).</param>
             internal DestinationConfiguration Dynamic(Func<TState> destinationStateSelector, string destinationStateSelectorDescription = null, Reflection.DynamicStateInfos possibleDestinationStates = null)
             {
                 if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
@@ -74,6 +90,14 @@ namespace Stateless
                 return new DestinationConfiguration(this, dtb, _representation);
             }
 
+            /// <summary>
+            /// Creates a new dynamic transition. The destination is determined at run time. A Func must be
+            /// supplied, this method will detyermine the destination state.
+            /// </summary>
+            /// <typeparam name="TArg">A parameter for the destination selector Func.</typeparam>
+            /// <param name="destinationStateSelector">A method to determine the destination state</param>
+            /// <param name="destinationStateSelectorDescription">A description of the state selector</param>
+            /// <param name="possibleDestinationStates">An optional list of states (useful if the DotGraph feature is used).</param>
             internal DestinationConfiguration Dynamic<TArg>(Func<TArg, TState> destinationStateSelector, string destinationStateSelectorDescription = null, Reflection.DynamicStateInfos possibleDestinationStates = null)
             {
                 if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
@@ -91,7 +115,6 @@ namespace Stateless
                 _representation.AddTriggerBehaviour(dtb);
 
                 return new DestinationConfiguration(this, dtb, _representation);
-
             }
         }
     }

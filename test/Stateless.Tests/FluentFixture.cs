@@ -12,6 +12,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             var trans = sm.Configure(State.A).Transition(Trigger.X);
+
             Assert.NotNull(trans);
             Assert.IsType<StateMachine<State, Trigger>.TransitionConfiguration>(trans);
         }
@@ -409,7 +410,7 @@ namespace Stateless.Tests
             Assert.True(_actionWasExecuted);
         }
 
-        private void ActionReceivesTransitionAndOneParameter(string arg0, StateMachine<State, Trigger>.Transition transition)
+        private void ActionReceivesTransitionAndOneParameter(string arg0, StateMachine<State, Trigger>.Transition _)
         {
             Assert.Equal("42", arg0);
             _actionWasExecuted = true;
@@ -479,7 +480,7 @@ namespace Stateless.Tests
             Assert.Equal(State.C, sm.State);
         }
 
-        private State StateSelectorWithParemeters(string parameter)
+        private State StateSelectorWithParemeters(string _)
         {
             return State.B;
         }
