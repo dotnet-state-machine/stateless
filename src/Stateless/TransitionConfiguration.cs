@@ -59,19 +59,39 @@ namespace Stateless
             {
                 if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
 
-                    var dtb = new DynamicTriggerBehaviour(_trigger,
-                            args => destinationStateSelector(),
-                            null,           // No transition guard
-                            Reflection.DynamicTransitionInfo.Create(_trigger,
-                                null,       // No guards
-                                Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),
-                                possibleDestinationStates
-                            )
-                        );
+                var dtb = new DynamicTriggerBehaviour(_trigger,
+                        args => destinationStateSelector(),
+                        null,           // No transition guard
+                        Reflection.DynamicTransitionInfo.Create(_trigger,
+                            null,       // No guards
+                            Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),
+                            possibleDestinationStates
+                        )
+                    );
 
                 _representation.AddTriggerBehaviour(dtb);
 
                 return new DestinationConfiguration(this, dtb);
+            }
+
+            internal DestinationConfiguration Dynamic<TArg>(Func<TArg, TState> destinationStateSelector, string destinationStateSelectorDescription = null, Reflection.DynamicStateInfos possibleDestinationStates = null)
+            {
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
+                var dtb = new DynamicTriggerBehaviour(_trigger,
+                        args => destinationStateSelector(ParameterConversion.Unpack<TArg>(args, 0)),
+                        null,           // No transition guard
+                        Reflection.DynamicTransitionInfo.Create(_trigger,
+                            null,       // No guards
+                            Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),
+                            possibleDestinationStates
+                        )
+                    );
+
+                _representation.AddTriggerBehaviour(dtb);
+
+                return new DestinationConfiguration(this, dtb);
+
             }
         }
     }

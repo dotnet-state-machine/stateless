@@ -21,7 +21,7 @@ namespace Stateless
                 return this;
             }
 
-            internal DestinationConfiguration If<TArg0>(Func<TArg0, bool> guard, string description = null)
+            internal DestinationConfiguration If<TArg>(Func<TArg, bool> guard, string description = null)
             {
                 _triggerBehaviour.SetGuard(new TransitionGuard(TransitionGuard.ToPackedGuard(guard), description));
                 return this;
@@ -43,11 +43,11 @@ namespace Stateless
                 return _transitionConfiguration.StateConfiguration;
             }
 
-            internal StateConfiguration Do<TArg0>(Action<TArg0, Transition> someAction)
+            internal StateConfiguration Do<TArg>(Action<TArg, Transition> someAction)
             {
                 if (someAction == null) throw new ArgumentNullException(nameof(someAction));
                 
-                _triggerBehaviour.AddAction((t, args) => someAction(ParameterConversion.Unpack<TArg0>(args, 0), t));
+                _triggerBehaviour.AddAction((t, args) => someAction(ParameterConversion.Unpack<TArg>(args, 0), t));
                 return _transitionConfiguration.StateConfiguration;
             }
         }

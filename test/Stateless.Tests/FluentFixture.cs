@@ -436,7 +436,36 @@ namespace Stateless.Tests
             Assert.True(_entered);
             Assert.True(_exited);
         }
+
         private State StateSelector()
+        {
+            return State.B;
+        }
+
+        [Fact]
+        public void Fire_Transition_DynamicWithParameters_EndsUpInAnotherState()
+        {
+            bool _entered = false;
+            bool _exited = false;
+
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var trigger = sm.SetTriggerParameters<string>(Trigger.X);
+
+            sm.Configure(State.A)
+                .OnExit(() => _exited = true)
+                .Transition(Trigger.X).Dynamic<string>((s) => StateSelectorWithParemeters(s));
+
+            sm.Configure(State.B)
+                .OnEntry(() => _entered = true);
+
+            sm.Fire(trigger, "42");
+
+            Assert.Equal(State.B, sm.State);
+            Assert.True(_entered);
+            Assert.True(_exited);
+        }
+
+        private State StateSelectorWithParemeters(string parameter)
         {
             return State.B;
         }
