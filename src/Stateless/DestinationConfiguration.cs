@@ -5,7 +5,7 @@ namespace Stateless
     partial class StateMachine<TState, TTrigger>
     {
         /// <summary>
-        /// This class containd the required trigger information for a transition.
+        /// This class contains the required trigger information for a transition.
         /// </summary>
         public class DestinationConfiguration
         {
