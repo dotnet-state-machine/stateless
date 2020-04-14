@@ -25,7 +25,7 @@ namespace Stateless
             /// </summary>
             /// <param name="guard">This method is run when the state machine fires the trigger.</param>
             /// <param name="description">Optional description of the guard</param>
-            internal DestinationConfiguration If(Func<object[], bool> guard, string description = null)
+            public DestinationConfiguration If(Func<object[], bool> guard, string description = null)
             {
                 _triggerBehaviour.SetGuard(new TransitionGuard(guard, description));
                 return this;
@@ -37,7 +37,7 @@ namespace Stateless
             /// <typeparam name="TArg">The parameter to the guard function </typeparam>
             /// <param name="guard">This method is run when the state machine fires the trigger.</param>
             /// <param name="description">Optional description of the guard</param>
-            internal DestinationConfiguration If<TArg>(Func<TArg, bool> guard, string description = null)
+            public DestinationConfiguration If<TArg>(Func<TArg, bool> guard, string description = null)
             {
                 _triggerBehaviour.SetGuard(new TransitionGuard(TransitionGuard.ToPackedGuard(guard), description));
                 return this;
@@ -47,7 +47,7 @@ namespace Stateless
             /// Creates a new transition. Use To(), Self(), Internal() or Dynamic() to set up the destination.
             /// </summary>
             /// <param name="trigger">The event trigger that will trigger this transition.</param>
-            internal TransitionConfiguration Transition(TTrigger trigger)
+            public TransitionConfiguration Transition(TTrigger trigger)
             {
                 return new TransitionConfiguration(_transitionConfiguration.StateConfiguration, _representation, trigger);
             }
@@ -56,7 +56,7 @@ namespace Stateless
             /// Adds an action to a transition. The action will be executed before the Exit action(s) (if any) are executed.
             /// </summary>
             /// <param name="someAction">The action run when the trigger event is handled.</param>
-            internal StateConfiguration Do(Action someAction)
+            public StateConfiguration Do(Action someAction)
             {
                 if (someAction == null) throw new ArgumentNullException(nameof(someAction));
 
@@ -68,7 +68,7 @@ namespace Stateless
             /// Adds an action to a transition. The action will be executed before the Exit action(s) (if any) are executed.
             /// </summary>
             /// <param name="someAction">The action run when the trigger event is handled.</param>
-            internal StateConfiguration Do(Action<Transition> someAction)
+            public StateConfiguration Do(Action<Transition> someAction)
             {
                 if (someAction == null) throw new ArgumentNullException(nameof(someAction));
 
@@ -81,7 +81,7 @@ namespace Stateless
             /// </summary>
             /// <typeparam name="TArg">The paramter used by the action.</typeparam>
             /// <param name="someAction">The action run when the trigger event is handled.</param>
-            internal StateConfiguration Do<TArg>(Action<TArg, Transition> someAction)
+            public StateConfiguration Do<TArg>(Action<TArg, Transition> someAction)
             {
                 if (someAction == null) throw new ArgumentNullException(nameof(someAction));
                 

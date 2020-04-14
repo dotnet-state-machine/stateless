@@ -31,7 +31,7 @@ namespace Stateless
             /// Adds a new transition to the destination state
             /// </summary>
             /// <param name="destination">Destination state</param>
-            internal DestinationConfiguration To(TState destination)
+            public DestinationConfiguration To(TState destination)
             {
                 TriggerBehaviour triggerBehaviour = new TransitioningTriggerBehaviour(_trigger, destination, null);
                 _representation.AddTriggerBehaviour(triggerBehaviour);
@@ -42,7 +42,7 @@ namespace Stateless
             /// Creates a new re-entrant transition. This transition, when triggered, will execute the state's
             /// Exit and Entry actions, if any has been added.
             /// </summary>
-            internal DestinationConfiguration Self()
+            public DestinationConfiguration Self()
             {
                 var destinationState = StateConfiguration.State;
                 var ttb = new TransitioningTriggerBehaviour(_trigger, destinationState, null);
@@ -56,7 +56,7 @@ namespace Stateless
             /// executed.
             /// </summary>
             /// <returns></returns>
-            internal DestinationConfiguration Internal()
+            public DestinationConfiguration Internal()
             {
                 var destinationState = StateConfiguration.State;
                 var itb = new InternalTriggerBehaviour.Sync(_trigger, (t) => true, (t, r) => { });
@@ -71,7 +71,7 @@ namespace Stateless
             /// <param name="destinationStateSelector">A method to determine the destination state</param>
             /// <param name="destinationStateSelectorDescription">A description of the state selector</param>
             /// <param name="possibleDestinationStates">An optional list of states (useful if the DotGraph feature is used).</param>
-            internal DestinationConfiguration Dynamic(Func<TState> destinationStateSelector, string destinationStateSelectorDescription = null, Reflection.DynamicStateInfos possibleDestinationStates = null)
+            public DestinationConfiguration Dynamic(Func<TState> destinationStateSelector, string destinationStateSelectorDescription = null, Reflection.DynamicStateInfos possibleDestinationStates = null)
             {
                 if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
 
@@ -98,7 +98,7 @@ namespace Stateless
             /// <param name="destinationStateSelector">A method to determine the destination state</param>
             /// <param name="destinationStateSelectorDescription">A description of the state selector</param>
             /// <param name="possibleDestinationStates">An optional list of states (useful if the DotGraph feature is used).</param>
-            internal DestinationConfiguration Dynamic<TArg>(Func<TArg, TState> destinationStateSelector, string destinationStateSelectorDescription = null, Reflection.DynamicStateInfos possibleDestinationStates = null)
+            public DestinationConfiguration Dynamic<TArg>(Func<TArg, TState> destinationStateSelector, string destinationStateSelectorDescription = null, Reflection.DynamicStateInfos possibleDestinationStates = null)
             {
                 if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
 
