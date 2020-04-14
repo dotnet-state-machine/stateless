@@ -55,9 +55,23 @@ namespace Stateless
                 return new DestinationConfiguration(this, itb);
             }
 
-            internal void Dynamic(Func<TTrigger, TState> stateSelector)
+            internal DestinationConfiguration Dynamic(Func<TState> destinationStateSelector, string destinationStateSelectorDescription = null, Reflection.DynamicStateInfos possibleDestinationStates = null)
             {
-                throw new NotImplementedException();
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
+                    var dtb = new DynamicTriggerBehaviour(_trigger,
+                            args => destinationStateSelector(),
+                            null,           // No transition guard
+                            Reflection.DynamicTransitionInfo.Create(_trigger,
+                                null,       // No guards
+                                Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),
+                                possibleDestinationStates
+                            )
+                        );
+
+                _representation.AddTriggerBehaviour(dtb);
+
+                return new DestinationConfiguration(this, dtb);
             }
         }
     }

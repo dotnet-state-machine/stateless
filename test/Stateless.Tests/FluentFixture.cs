@@ -436,7 +436,7 @@ namespace Stateless.Tests
             Assert.True(_entered);
             Assert.True(_exited);
         }
-        private State StateSelector(Trigger trigger)
+        private State StateSelector()
         {
             return State.B;
         }
