@@ -19,7 +19,7 @@ namespace Stateless
             StateRepresentation _superstate; // null
 
             readonly ICollection<StateRepresentation> _substates = new List<StateRepresentation>();
-            public TState InitialTransitionTarget { get; private set; } = default(TState);
+            public TState InitialTransitionTarget { get; private set; } = default;
 
             public StateRepresentation(TState state)
             {
@@ -33,7 +33,7 @@ namespace Stateless
 
             public bool CanHandle(TTrigger trigger, params object[] args)
             {
-                return TryFindHandler(trigger, args, out TriggerBehaviourResult unused);
+                return TryFindHandler(trigger, args, out TriggerBehaviourResult _);
             }
 
             public bool TryFindHandler(TTrigger trigger, object[] args, out TriggerBehaviourResult handler)
