@@ -207,6 +207,10 @@ namespace Stateless
 
                 State = transition.Destination;
                 var newRepresentation = GetRepresentation(transition.Destination);
+
+                // Alert all listeners of state transition
+                await _onTransitionedEvent.InvokeAsync(transition);
+
                 await newRepresentation.EnterAsync(transition, args);
 
                 // Check if there is an intital transition configured
@@ -227,8 +231,6 @@ namespace Stateless
                         State = newRepresentation.UnderlyingState;
                     }
                 }
-                // Alert all listeners of state transition
-                await _onTransitionedEvent.InvokeAsync(new Transition(source, destination, trigger, args));
             }
             else
             {
