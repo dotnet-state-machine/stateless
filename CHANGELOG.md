@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 5.1.2 - 2020.04.27
+### Fixed
+ - Fixed wrong onTransitionEvent ordering in Async firing [#372]
 
 ## [5.1.1] - 2020.04.03
 ### Changed
@@ -111,6 +114,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 ### Fixed
 
+[#373]: https://github.com/dotnet-state-machine/stateless/issues/372
 [#365]: https://github.com/dotnet-state-machine/stateless/pull/365
 [#272]: https://github.com/dotnet-state-machine/stateless/issues/272
 [#275]: https://github.com/dotnet-state-machine/stateless/issues/275
