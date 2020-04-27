@@ -118,6 +118,46 @@ namespace Stateless.Tests
             Assert.Equal(State.C, sm.State);
         }
 
+        /// <summary>
+        /// Check that the immediate fireing modes executes entry/exit out of order.
+        /// </summary>
+        [Fact]
+        public async Task ImmediateModeTransitionsAreInCorrectOrderWithAsyncDriving()
+        {
+            var record = new List<State>();
+            var sm = new StateMachine<State, Trigger>(State.A, FiringMode.Immediate);
+
+            sm.OnTransitioned((t) =>
+            {
+                record.Add(t.Destination);
+            });
+
+            sm.Configure(State.A)
+                .Permit(Trigger.X, State.B);
+
+            sm.Configure(State.B)
+                .OnEntryAsync(async () =>
+                {
+                    await sm.FireAsync(Trigger.Y).ConfigureAwait(false);
+                })
+                .Permit(Trigger.Y, State.C);
+
+            sm.Configure(State.C)
+                .OnEntryAsync(async () =>
+                {
+                    await sm.FireAsync(Trigger.Z).ConfigureAwait(false);
+                })
+                .Permit(Trigger.Z, State.A);
+
+            await sm.FireAsync(Trigger.X);
+
+            Assert.Equal(new List<State>() { 
+                State.B,
+                State.C,
+                State.A
+            }, record);
+        }
+
         [Fact]
         public async void EntersSubStateofSubstateAsyncOnEntryCountAndOrder()
         {
