@@ -182,7 +182,7 @@ namespace Stateless
             if (result.Handler is ReentryTriggerBehaviour handler)
             {
                 // Handle transition, and set new state
-                var transition = new Transition(source, handler.Destination, trigger);
+                var transition = new Transition(source, handler.Destination, trigger, args);
                 transition = await representativeState.ExitAsync(transition);
                 State = transition.Destination;
                 var newRepresentation = GetRepresentation(transition.Destination);
@@ -190,23 +190,28 @@ namespace Stateless
                 if (!source.Equals(transition.Destination))
                 {
                     // Then Exit the final superstate
-                    transition = new Transition(handler.Destination, handler.Destination, trigger);
+                    transition = new Transition(handler.Destination, handler.Destination, trigger, args);
                     await newRepresentation.ExitAsync(transition);
                 }
 
-                await _onTransitionedEvent.InvokeAsync(new Transition(source, handler.Destination, trigger));
+                await _onTransitionedEvent.InvokeAsync(new Transition(source, handler.Destination, trigger, args));
 
                 await newRepresentation.EnterAsync(transition, args);
             }
             // Check if it is an internal transition, or a transition from one state to another.
             else if (result.Handler.ResultsInTransitionFrom(source, args, out var destination))
             {
-                var transition = new Transition(source, destination, trigger);
+                var transition = new Transition(source, destination, trigger, args);
 
                 transition = await representativeState.ExitAsync(transition).ConfigureAwait(false);
 
                 State = transition.Destination;
                 var newRepresentation = GetRepresentation(transition.Destination);
+
+                // Alert all listeners of state transition
+                await _onTransitionedEvent.InvokeAsync(transition);
+
+                await newRepresentation.EnterAsync(transition, args);
 
                 // Check if there is an intital transition configured
                 if (newRepresentation.HasInitialTransition)
@@ -220,25 +225,16 @@ namespace Stateless
                     // Check if state has substate(s), and if an initial transition(s) has been set up.
                     while (newRepresentation.GetSubstates().Any() && newRepresentation.HasInitialTransition)
                     {
-                        var initialTransition = new Transition(source, newRepresentation.InitialTransitionTarget, trigger);
+                        var initialTransition = new InitialTransition(source, newRepresentation.InitialTransitionTarget, trigger, args);
                         newRepresentation = GetRepresentation(newRepresentation.InitialTransitionTarget);
                         await newRepresentation.EnterAsync(initialTransition, args);
                         State = newRepresentation.UnderlyingState;
                     }
-                    //Alert all listeners of state transition
-                    await _onTransitionedEvent.InvokeAsync(new Transition(source, destination, trigger));
-                }
-                else
-                {
-                    //Alert all listeners of state transition
-                    await _onTransitionedEvent.InvokeAsync(new Transition(source, destination, trigger));
-
-                    await newRepresentation.EnterAsync(transition, args);
                 }
             }
             else
             {
-                var transition = new Transition(source, destination, trigger);
+                var transition = new Transition(source, destination, trigger, args);
 
                 await CurrentRepresentation.InternalActionAsync(transition, args).ConfigureAwait(false);
             }
