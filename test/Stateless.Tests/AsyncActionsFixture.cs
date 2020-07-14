@@ -30,7 +30,7 @@ namespace Stateless.Tests
 
             var test = "";
             sm.Configure(State.B)
-              .OnAsyncEntry(() => Task.Run(() => test = "foo"));
+              .OnEntryAsync(() => Task.Run(() => test = "foo"));
 
             await sm.FireAsync(Trigger.X).ConfigureAwait(false);
 
@@ -47,7 +47,7 @@ namespace Stateless.Tests
               .Permit(Trigger.X, State.B);
 
             sm.Configure(State.B)
-              .OnAsyncEntry(() => TaskResult.Done);
+              .OnEntryAsync(() => TaskResult.Done);
 
             Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
         }
@@ -255,7 +255,7 @@ namespace Stateless.Tests
             bool onExitStateAfired = false;
 
             sm.Configure(State.B)
-                .OnAsyncEntry((Func<StateMachine<State, Trigger>.Transition, Task>) (t => Task.Run(() => onEntryStateBfired = true)))
+                .OnEntryAsync((Func<StateMachine<State, Trigger>.Transition, Task>) (t => Task.Run(() => onEntryStateBfired = true)))
                 .PermitReentry(Trigger.X)
                 .OnExitAsync(t => Task.Run(() => onExitStateBfired = true));
 

@@ -232,8 +232,8 @@ namespace Stateless
                     .ToArray();
 
                 // Find a handler for the trigger
-                var handlerResult = TryFindLocalHandlerResult(trigger, actual, r => !r.UnmetGuardConditions.Any())
-                                ?? TryFindLocalHandlerResult(trigger, actual, r => r.UnmetGuardConditions.Any());
+                var handlerResult = TryFindLocalHandlerResult(trigger, actual)
+                                ?? TryFindLocalHandlerResult(trigger, actual);
 
                 if (handlerResult == null) return Tuple.Create(false, (TriggerBehaviourResult) null);
 

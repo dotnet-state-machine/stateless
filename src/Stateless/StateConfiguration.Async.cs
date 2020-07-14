@@ -389,7 +389,6 @@ namespace Stateless
             /// <param name="entryAction">Action to execute.</param>
             /// <param name="entryActionDescription">Action description.</param>
             /// <returns>The receiver.</returns>
-            [Obsolete("Replaced by OnAsyncEntry (OnEntryAsync implies this method is asynchronous which is not the case)")]
             public StateConfiguration OnEntryAsync(Func<Task> entryAction, string entryActionDescription = null)
             {
                 if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
@@ -404,84 +403,15 @@ namespace Stateless
             /// Specify an asynchronous action that will execute when transitioning into
             /// the configured state.
             /// </summary>
-            /// <param name="entryAction">Action to execute.</param>
-            /// <param name="entryActionDescription">Action description.</param>
-            /// <returns>The receiver.</returns>
-            public StateConfiguration OnAsyncEntry(Func<Task> entryAction, string entryActionDescription = null)
-            {
-                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
-
-                _representation.AddEntryAction(
-                    (t, args) => entryAction(),
-                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
-                return this;
-            }
-
-            /// <summary>
-            /// Specify an asynchronous action that will execute when transitioning into
-            /// the configured state.
-            /// </summary>
-            /// <param name="entryAction">Action to execute.</param>
-            /// <param name="entryActionDescription">Action description.</param>
-            /// <returns>The receiver.</returns>
-            public StateConfiguration OnAsyncEntry(Func<CancellationToken, Task> entryAction, string entryActionDescription = null)
-            {
-                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
-
-                _representation.AddEntryAction(
-                    (t, args, ct) => entryAction(ct),
-                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
-                return this;
-            }
-
-            /// <summary>
-            /// Specify an asynchronous action that will execute when transitioning into
-            /// the configured state.
-            /// </summary>
             /// <param name="entryAction">Action to execute, providing details of the transition.</param>
             /// <param name="entryActionDescription">Action description.</param>
             /// <returns>The receiver.</returns>
-            [Obsolete("Replaced by OnAsyncEntry (OnEntryAsync implies this method is asynchronous which is not the case)")]
             public StateConfiguration OnEntryAsync(Func<Transition, Task> entryAction, string entryActionDescription = null)
             {
                 if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
 
                 _representation.AddEntryAction(
                     (t, args) => entryAction(t),
-                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
-                return this;
-            }
-
-            /// <summary>
-            /// Specify an asynchronous action that will execute when transitioning into
-            /// the configured state.
-            /// </summary>
-            /// <param name="entryAction">Action to execute, providing details of the transition.</param>
-            /// <param name="entryActionDescription">Action description.</param>
-            /// <returns>The receiver.</returns>
-            public StateConfiguration OnAsyncEntry(Func<Transition, Task> entryAction, string entryActionDescription = null)
-            {
-                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
-
-                _representation.AddEntryAction(
-                    (t, args) => entryAction(t),
-                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
-                return this;
-            }
-
-            /// <summary>
-            /// Specify an asynchronous action that will execute when transitioning into
-            /// the configured state.
-            /// </summary>
-            /// <param name="entryAction">Action to execute, providing details of the transition.</param>
-            /// <param name="entryActionDescription">Action description.</param>
-            /// <returns>The receiver.</returns>
-            public StateConfiguration OnAsyncEntry(Func<Transition, CancellationToken, Task> entryAction, string entryActionDescription = null)
-            {
-                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
-
-                _representation.AddEntryAction(
-                    (t, args, ct) => entryAction(t, ct),
                     Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
                 return this;
             }
