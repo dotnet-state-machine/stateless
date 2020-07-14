@@ -67,6 +67,8 @@ namespace TelephoneCallExample
                 .SubstateOf(State.Connected)
                 .Permit(Trigger.TakenOffHold, State.Connected)
                 .Permit(Trigger.PhoneHurledAgainstWall, State.PhoneDestroyed);
+
+            _machine.OnTransitioned(t => Console.WriteLine($"OnTransitioned: {t.Source} -> {t.Destination} via {t.Trigger}({string.Join(", ",  t.Parameters)})"));
         }
 
         void OnSetVolume(int volume)
@@ -117,7 +119,7 @@ namespace TelephoneCallExample
 
         public void Print()
         {
-            Console.WriteLine("[{1}] placed call and [Status:] {0}", _machine, _caller);
+            Console.WriteLine("[{1}] placed call and [Status:] {0}", _machine.State, _caller);
         }
 
         public void Dialed(string callee)

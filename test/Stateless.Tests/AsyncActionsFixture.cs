@@ -10,6 +10,17 @@ namespace Stateless.Tests
     public class AsyncActionsFixture
     {
         [Fact]
+        public void StateMutatorShouldBeCalledOnlyOnce()
+        {
+            var state = State.B;
+            var count = 0;
+            var sm = new StateMachine<State, Trigger>(() => state, (s) => { state = s; count++; });
+            sm.Configure(State.B).Permit(Trigger.X, State.C);
+            sm.FireAsync(Trigger.X);
+            Assert.Equal(1, count);
+        }
+
+        [Fact]
         public async Task CanFireAsyncEntryAction()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -261,6 +272,31 @@ namespace Stateless.Tests
         }
 
         [Fact]
+        public async void TransitionToSuperstateDoesNotExitSuperstate()
+        {
+            StateMachine<State, Trigger> sm = new StateMachine<State, Trigger>(State.B);
+
+            bool superExit = false;
+            bool superEntry = false;
+            bool subExit = false;
+
+            sm.Configure(State.A)
+                .OnEntryAsync(t => Task.Run(() => superEntry = true))
+                .OnExitAsync(t => Task.Run(() => superExit = true));
+
+            sm.Configure(State.B)
+                .SubstateOf(State.A)
+                .Permit(Trigger.Y, State.A)
+                .OnExitAsync(t => Task.Run(() => subExit = true));
+
+            await sm.FireAsync(Trigger.Y);
+
+            Assert.True(subExit);
+            Assert.False(superEntry);
+            Assert.False(superExit);
+        }
+
+        [Fact]
         public async void IgnoredTriggerMustBeIgnoredAsync()
         {
             bool nullRefExcThrown = false;
@@ -285,6 +321,27 @@ namespace Stateless.Tests
             Assert.False(nullRefExcThrown);
         }
 
+        [Fact]
+        public void VerifyNotEnterSuperstateWhenDoingInitialTransition()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .Permit(Trigger.X, State.B);
+
+            sm.Configure(State.B)
+                .InitialTransition(State.C)
+                .OnEntry(() => sm.Fire(Trigger.Y))
+                .Permit(Trigger.Y, State.D);
+
+            sm.Configure(State.C)
+                .SubstateOf(State.B)
+                .Permit(Trigger.Y, State.D);
+
+            sm.FireAsync(Trigger.X);
+
+            Assert.Equal(State.D, sm.State);
+        }
     }
 }
 

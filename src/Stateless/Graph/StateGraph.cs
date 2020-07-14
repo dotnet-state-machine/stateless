@@ -9,8 +9,10 @@ namespace Stateless.Graph
     /// graph structure, in preparation for feeding it to a diagram
     /// generator 
     /// </summary>
-    class StateGraph
+    public class StateGraph
     {
+        private StateInfo initialState;
+
         /// <summary>
         /// List of all states in the graph, indexed by the string representation of the underlying State object.
         /// </summary>
@@ -27,8 +29,15 @@ namespace Stateless.Graph
         /// </summary>
         public List<Decision> Decisions { get; private set; } = new List<Decision>();
 
+        /// <summary>
+        /// Creates a new instance of <see cref="StateGraph"/>.
+        /// </summary>
+        /// <param name="machineInfo">An object which exposes the states, transitions, and actions of this machine.</param>
         public StateGraph(StateMachineInfo machineInfo)
         {
+            // Add initial state
+            initialState = machineInfo.InitialState;
+
             // Start with top-level superstates
             AddSuperstates(machineInfo);
 
@@ -47,7 +56,7 @@ namespace Stateless.Graph
         /// </summary>
         /// <param name="style"></param>
         /// <returns></returns>
-        public string ToGraph(IGraphStyle style)
+        public string ToGraph(GraphStyleBase style)
         {
             string dirgraphText = style.GetPrefix().Replace("\n", System.Environment.NewLine);
 
@@ -76,6 +85,11 @@ namespace Stateless.Graph
             List<string> transits = style.FormatAllTransitions(Transitions);
             foreach (var transit in transits)
                 dirgraphText += System.Environment.NewLine + transit;
+
+            // Add initial transition if present
+            var initialStateName = initialState.UnderlyingState.ToString();
+            dirgraphText += System.Environment.NewLine + $" init [label=\"\", shape=point];";
+            dirgraphText += System.Environment.NewLine + $" init -> {initialStateName}[style = \"solid\"]";
 
             dirgraphText += System.Environment.NewLine + "}";
 
@@ -153,8 +167,7 @@ namespace Stateless.Graph
                     {
                         foreach (var dynamicStateInfo in dyno.PossibleDestinationStates)
                         {
-                            State toState = null;
-                            States.TryGetValue(dynamicStateInfo.DestinationState, out toState);
+                            States.TryGetValue(dynamicStateInfo.DestinationState, out State toState);
                             if (toState != null)
                             {
                                 DynamicTransition dtrans = new DynamicTransition(decide, toState, dyno.Trigger, dynamicStateInfo.Criterion);

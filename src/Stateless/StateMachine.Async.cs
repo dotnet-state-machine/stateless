@@ -266,7 +266,7 @@ namespace Stateless
             if (searchResult.Item2.Handler is ReentryTriggerBehaviour handler)
             {
                 // Handle transition, and set new state
-                var transition = new Transition(source, handler.Destination, trigger);
+                var transition = new Transition(source, handler.Destination, trigger, args);
                 transition = await representativeState.ExitAsync(transition);
                 State = transition.Destination;
                 var newRepresentation = GetRepresentation(transition.Destination);
@@ -274,11 +274,11 @@ namespace Stateless
                 if (!source.Equals(transition.Destination))
                 {
                     // Then Exit the final superstate
-                    transition = new Transition(handler.Destination, handler.Destination, trigger);
+                    transition = new Transition(handler.Destination, handler.Destination, trigger, args);
                     await newRepresentation.ExitAsync(transition);
                 }
 
-                await _onTransitionedEvent.InvokeAsync(new Transition(source, handler.Destination, trigger));
+                await _onTransitionedEvent.InvokeAsync(new Transition(source, handler.Destination, trigger, args));
 
                 await newRepresentation.EnterAsync(transition, ct, args);
             }
