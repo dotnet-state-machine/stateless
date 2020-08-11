@@ -46,5 +46,18 @@ namespace Stateless.Tests
             var twp = new StateMachine<State, Trigger>.TriggerWithParameters<string, string>(Trigger.X);
             Assert.Throws<ArgumentException>(() => twp.ValidateParameters(new[] { "a", "b", "c" }));
         }
+
+        /// <summary>
+        /// issue #380 - default params on PermitIfDynamic lead to ambiguity at compile time... explicits work properly.
+        /// </summary>
+        [Fact]
+        public void StateParameterIsNotAmbiguous()
+        {
+            var fsm = new StateMachine<State, Trigger>(State.A);
+            StateMachine<State, Trigger>.TriggerWithParameters<State> pressTrigger = fsm.SetTriggerParameters<State>(Trigger.X);
+
+            fsm.Configure(State.A)
+                .PermitDynamicIf(pressTrigger, state => state);
+        }
     }
 }
