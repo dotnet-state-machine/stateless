@@ -236,6 +236,9 @@ namespace Stateless
             {
                 var transition = new Transition(source, destination, trigger, args);
 
+                // Alert all listeners of state transition
+                await _onTransitionedInternalEvent.InvokeAsync(transition);
+
                 await CurrentRepresentation.InternalActionAsync(transition, args).ConfigureAwait(false);
             }
         }

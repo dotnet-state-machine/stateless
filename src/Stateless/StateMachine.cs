@@ -29,6 +29,7 @@ namespace Stateless
         private readonly Action<TState> _stateMutator;
         private UnhandledTriggerAction _unhandledTriggerAction;
         private OnTransitionedEvent _onTransitionedEvent;
+        private OnTransitionedEvent _onTransitionedInternalEvent;
         private readonly FiringMode _firingMode;
 
         private class QueuedTrigger
@@ -93,6 +94,7 @@ namespace Stateless
         {
             _unhandledTriggerAction = new UnhandledTriggerAction.Sync(DefaultUnhandledTriggerAction);
             _onTransitionedEvent = new OnTransitionedEvent();
+            _onTransitionedInternalEvent = new OnTransitionedEvent();
         }
 
         /// <summary>
@@ -386,7 +388,9 @@ namespace Stateless
                     // Internal transitions does not update the current state, but must execute the associated action.
                     var transition = new Transition(source, source, trigger, args);
                     CurrentRepresentation.InternalAction(transition, args);
-                    break;
+                        _onTransitionedInternalEvent.Invoke(transition);
+                    
+                        break;
                 }
                 default:
                     throw new InvalidOperationException("State machine configuration incorrect, no handler for trigger.");
@@ -599,6 +603,19 @@ namespace Stateless
         {
             if (onTransitionAction == null) throw new ArgumentNullException(nameof(onTransitionAction));
             _onTransitionedEvent.Register(onTransitionAction);
+        }
+
+        /// <summary>
+        /// Registers a callback that will be invoked every time the statemachine
+        /// has an internal transition.
+        /// </summary>
+        /// <param name="onInternalTransitionAction">
+        /// The action to execute, accepting the details of the transition
+        /// </param>
+        public void OnTransitionedInternal(Action<Transition> onInternalTransitionAction)
+        {
+            if (onInternalTransitionAction == null) throw new ArgumentNullException(nameof(onInternalTransitionAction));
+            _onTransitionedInternalEvent.Register(onInternalTransitionAction);
         }
     }
 }
