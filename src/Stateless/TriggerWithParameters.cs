@@ -7,7 +7,7 @@ namespace Stateless
         /// <summary>
         /// Associates configured parameters with an underlying trigger value.
         /// </summary>
-        public abstract class TriggerWithParameters
+        public class TriggerWithParameters
         {
             readonly TTrigger _underlyingTrigger;
             readonly Type[] _argumentTypes;

@@ -208,6 +208,36 @@ namespace Stateless
         /// Actions associated with leaving the current state and entering the new one
         /// will be invoked.
         /// </summary>
+        /// <param name="trigger">The trigger to fire.</param>
+        /// <param name="args">A variable-length parameters list containing arguments. </param>
+        /// <exception cref="System.InvalidOperationException">The current state does
+        /// not allow the trigger to be fired.</exception>
+        public void Fire(TriggerWithParameters trigger, params object[] args)
+        {
+            if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+            InternalFire(trigger.Trigger, args);
+        }
+
+        /// <summary>
+        /// Specify the arguments that must be supplied when a specific trigger is fired.
+        /// </summary>
+        /// <param name="trigger">The underlying trigger value.</param>
+        /// <param name="argumentTypes">The argument types expected by the trigger.</param>
+        /// <returns>An object that can be passed to the Fire() method in order to
+        /// fire the parameterised trigger.</returns>
+        public TriggerWithParameters SetTriggerParameters(TTrigger trigger, params Type[] argumentTypes)
+        {
+            var configuration = new TriggerWithParameters(trigger, argumentTypes);
+            SaveTriggerConfiguration(configuration);
+            return configuration;
+        }
+
+        /// <summary>
+        /// Transition from the current state via the specified trigger.
+        /// The target state is determined by the configuration of the current state.
+        /// Actions associated with leaving the current state and entering the new one
+        /// will be invoked.
+        /// </summary>
         /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
         /// <param name="trigger">The trigger to fire.</param>
         /// <param name="arg0">The first argument.</param>
