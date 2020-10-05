@@ -357,7 +357,7 @@ namespace Stateless.Tests
         public void TheOnTransitionEventFiresBeforeTheOnEntryEvent()
         {
             var sm = new StateMachine<State, Trigger>(State.B);
-            var expectedOrdering = new List<string> { "OnExit", "OnTransitioned", "OnEntry" };
+            var expectedOrdering = new List<string> { "OnExit", "OnTransitioned", "OnEntry", "OnTransitionedCompleted" };
             var actualOrdering = new List<string>();
 
             sm.Configure(State.B)
@@ -368,6 +368,7 @@ namespace Stateless.Tests
                 .OnEntry(() => actualOrdering.Add("OnEntry"));
 
             sm.OnTransitioned(t => actualOrdering.Add("OnTransitioned"));
+            sm.OnTransitionCompleted(t => actualOrdering.Add("OnTransitionedCompleted"));
 
             sm.Fire(Trigger.X);
 

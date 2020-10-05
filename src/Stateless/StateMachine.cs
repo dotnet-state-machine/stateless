@@ -29,6 +29,7 @@ namespace Stateless
         private readonly Action<TState> _stateMutator;
         private UnhandledTriggerAction _unhandledTriggerAction;
         private OnTransitionedEvent _onTransitionedEvent;
+        private OnTransitionedEvent _onTransitionCompletedEvent;
         private readonly FiringMode _firingMode;
 
         private class QueuedTrigger
@@ -93,6 +94,7 @@ namespace Stateless
         {
             _unhandledTriggerAction = new UnhandledTriggerAction.Sync(DefaultUnhandledTriggerAction);
             _onTransitionedEvent = new OnTransitionedEvent();
+            _onTransitionCompletedEvent = new OnTransitionedEvent();
         }
 
         /// <summary>
@@ -407,11 +409,14 @@ namespace Stateless
 
                 _onTransitionedEvent.Invoke(transition);
                 representation = EnterState(newRepresentation, transition, args);
+                _onTransitionCompletedEvent.Invoke(transition);
+
             }
             else
             {
                 _onTransitionedEvent.Invoke(transition);
                 representation = EnterState(newRepresentation, transition, args);
+                _onTransitionCompletedEvent.Invoke(transition);
             }
             State = representation.UnderlyingState;
         }
@@ -428,10 +433,14 @@ namespace Stateless
             var representation = EnterState(newRepresentation, transition, args);
 
             // Check if state has changed by entering new state (by fireing triggers in OnEntry or such)
-            if (representation.UnderlyingState.Equals(State)) return;
+            if (!representation.UnderlyingState.Equals(State))
+            {
+                // The state has been changed after entering the state, must update current state to new one
+                State = representation.UnderlyingState;
+            }
 
-            // The state has been changed after entering the state, must update current state to new one
-            State = representation.UnderlyingState;
+
+            _onTransitionCompletedEvent.Invoke(transition);
         }
 
         private StateRepresentation EnterState(StateRepresentation representation, Transition transition, object [] args)
@@ -599,6 +608,19 @@ namespace Stateless
         {
             if (onTransitionAction == null) throw new ArgumentNullException(nameof(onTransitionAction));
             _onTransitionedEvent.Register(onTransitionAction);
+        }
+
+        /// <summary>
+        /// Registers a callback that will be invoked every time the statemachine
+        /// transitions from one state into another and all the OnEntryFrom etc methods
+        /// have been invoked
+        /// </summary>
+        /// <param name="onTransitionAction">The action to execute, accepting the details
+        /// of the transition.</param>
+        public void OnTransitionCompleted(Action<Transition> onTransitionAction)
+        {
+            if (onTransitionAction == null) throw new ArgumentNullException(nameof(onTransitionAction));
+            _onTransitionCompletedEvent.Register(onTransitionAction);
         }
     }
 }
