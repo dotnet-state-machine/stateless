@@ -439,7 +439,6 @@ namespace Stateless
                 State = representation.UnderlyingState;
             }
 
-
             _onTransitionCompletedEvent.Invoke(transition);
         }
 

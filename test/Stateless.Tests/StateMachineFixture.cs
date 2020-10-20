@@ -377,10 +377,10 @@ namespace Stateless.Tests
         /// The expected ordering is OnExit, OnTransitioned, OnEntry, OnTransitionCompleted
         /// </summary>
         [Fact]
-        public void TheOnTransitionedEventFiresBeforeTheOnEntryEventAndOnTransitionedCompletedFiresAfterwards()
+        public void TheOnTransitionedEventFiresBeforeTheOnEntryEventAndOnTransitionCompletedFiresAfterwards()
         {
             var sm = new StateMachine<State, Trigger>(State.B);
-            var expectedOrdering = new List<string> { "OnExit", "OnTransitioned", "OnEntry", "OnTransitionedCompleted" };
+            var expectedOrdering = new List<string> { "OnExit", "OnTransitioned", "OnEntry", "OnTransitionCompleted" };
             var actualOrdering = new List<string>();
 
             sm.Configure(State.B)
@@ -391,7 +391,7 @@ namespace Stateless.Tests
                 .OnEntry(() => actualOrdering.Add("OnEntry"));
 
             sm.OnTransitioned(t => actualOrdering.Add("OnTransitioned"));
-            sm.OnTransitionCompleted(t => actualOrdering.Add("OnTransitionedCompleted"));
+            sm.OnTransitionCompleted(t => actualOrdering.Add("OnTransitionCompleted"));
 
             sm.Fire(Trigger.X);
 
