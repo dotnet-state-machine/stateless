@@ -485,7 +485,7 @@ namespace Stateless.Tests
                 .Permit(Trigger.X, State.A);
 
             StateMachine<State, Trigger>.Transition transition = null;
-            sm.OnTransitioned(t => transition = t);
+            sm.OnTransitionCompleted(t => transition = t);
 
             string firstParameter = "the parameter";
             int secondParameter = 99;
