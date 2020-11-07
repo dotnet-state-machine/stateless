@@ -361,5 +361,25 @@ namespace Stateless.Tests
         {
             return new StateMachine<State, Trigger>.StateRepresentation(state);
         }
+
+        // Issue #398 - Set guard description if substate transition fails
+        [Fact]
+        public void SetGuardDescriptionWhenSubstateGuardFails()
+        {
+            const string expectedGuardDescription = "Guard failed";
+            ICollection<string> guardDescriptions = null;
+
+            var fsm = new StateMachine<State, Trigger>(State.B);
+            fsm.OnUnhandledTrigger((state, trigger, descriptions) => guardDescriptions = descriptions);
+
+            fsm.Configure(State.B).SubstateOf(State.A).PermitIf(Trigger.X, State.C, () => false, expectedGuardDescription);
+
+            fsm.Fire(Trigger.X);
+
+            Assert.Equal(fsm.State, State.B);
+            Assert.True(guardDescriptions != null);
+            Assert.Equal(guardDescriptions.Count, 1);
+            Assert.Equal(guardDescriptions.First(), expectedGuardDescription);
+        }
     }
 }
