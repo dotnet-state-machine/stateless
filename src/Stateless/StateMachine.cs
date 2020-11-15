@@ -10,7 +10,7 @@ namespace Stateless
     /// </summary>
     public enum FiringMode
     {
-        /// <summary> Use immediate mode when the queing of trigger events are not needed. Care must be taken when using this mode, as there is no run-to-completion guaranteed.</summary>
+        /// <summary> Use immediate mode when the queuing of trigger events are not needed. Care must be taken when using this mode, as there is no run-to-completion guaranteed.</summary>
         Immediate,
         /// <summary> Use the queued Fire-ing mode when run-to-completion is required. This is the recommended mode.</summary>
         Queued
@@ -28,7 +28,7 @@ namespace Stateless
         private readonly Func<TState> _stateAccessor;
         private readonly Action<TState> _stateMutator;
         private UnhandledTriggerAction _unhandledTriggerAction;
-        private OnTransitionedEvent _onTransitionedEvent;
+        private readonly OnTransitionedEvent _onTransitionedEvent;
         private readonly FiringMode _firingMode;
 
         private class QueuedTrigger
@@ -87,7 +87,7 @@ namespace Stateless
 
 
         /// <summary>
-        /// Default constuctor
+        /// Default constructor
         /// </summary>
         StateMachine()
         {
@@ -260,7 +260,7 @@ namespace Stateless
         }
 
         /// <summary>
-        /// Activates current state. Actions associated with activating the currrent state
+        /// Activates current state. Actions associated with activating the current state
         /// will be invoked. The activation is idempotent and subsequent activation of the same current state
         /// will not lead to re-execution of activation callbacks.
         /// </summary>
@@ -271,7 +271,7 @@ namespace Stateless
         }
 
         /// <summary>
-        /// Deactivates current state. Actions associated with deactivating the currrent state
+        /// Deactivates current state. Actions associated with deactivating the current state
         /// will be invoked. The deactivation is idempotent and subsequent deactivation of the same current state
         /// will not lead to re-execution of deactivation callbacks.
         /// </summary>
@@ -590,7 +590,7 @@ namespace Stateless
         }
 
         /// <summary>
-        /// Registers a callback that will be invoked every time the statemachine
+        /// Registers a callback that will be invoked every time the state machine
         /// transitions from one state into another.
         /// </summary>
         /// <param name="onTransitionAction">The action to execute, accepting the details
