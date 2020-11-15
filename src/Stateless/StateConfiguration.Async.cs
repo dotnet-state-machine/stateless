@@ -65,6 +65,7 @@ namespace Stateless
             /// <returns></returns>
             public StateConfiguration InternalTransitionAsyncIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<bool> guard, Func<TArg0, Transition, Task> internalAction)
             {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
                 _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Async(trigger.Trigger, guard, (t, args) => internalAction(ParameterConversion.Unpack<TArg0>(args, 0), t)));
@@ -82,6 +83,7 @@ namespace Stateless
             /// <returns></returns>
             public StateConfiguration InternalTransitionAsyncIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<bool> guard, Func<TArg0, TArg1, Transition, Task> internalAction)
             {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
                 _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Async(trigger.Trigger, guard, (t, args) => internalAction(
@@ -102,6 +104,7 @@ namespace Stateless
             /// <returns></returns>
             public StateConfiguration InternalTransitionAsyncIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<bool> guard, Func<TArg0, TArg1, TArg2, Transition, Task> internalAction)
             {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
                 _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Async(trigger.Trigger, guard, (t, args) => internalAction(
