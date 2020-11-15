@@ -194,7 +194,7 @@ namespace Stateless.Tests
         [Fact]
         public void WhenDiscriminatedByAnonymousGuard_Binding()
         {
-            Func<bool> anonymousGuard = () => true;
+            bool anonymousGuard() => true;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -234,7 +234,7 @@ namespace Stateless.Tests
         [Fact]
         public void WhenDiscriminatedByAnonymousGuardWithDescription_Binding()
         {
-            Func<bool> anonymousGuard = () => true;
+            bool anonymousGuard() => true;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
