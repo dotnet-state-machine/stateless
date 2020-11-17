@@ -1,9 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);TASKS</DefineConstants>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <TargetFrameworks>netcoreapp2.2;net472</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.1;net472</TargetFrameworks>
     <IsPackable>false</IsPackable>
     <AssemblyName>Stateless.Tests</AssemblyName>
     <AssemblyOriginatorKeyFile>../../asset/Stateless.snk</AssemblyOriginatorKeyFile>
@@ -22,6 +22,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
     <PackageReference Include="xunit" Version="2.4.0" />
+    <PackageReference Include="xunit.analyzers" Version="0.10.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
   </ItemGroup>
 

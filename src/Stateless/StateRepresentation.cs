@@ -19,7 +19,7 @@ namespace Stateless
             StateRepresentation _superstate; // null
 
             readonly ICollection<StateRepresentation> _substates = new List<StateRepresentation>();
-            public TState InitialTransitionTarget { get; private set; } = default(TState);
+            public TState InitialTransitionTarget { get; private set; } = default;
 
             public StateRepresentation(TState state)
             {
@@ -33,15 +33,14 @@ namespace Stateless
 
             public bool CanHandle(TTrigger trigger, params object[] args)
             {
-                return TryFindHandler(trigger, args, out TriggerBehaviourResult unused);
+                return TryFindHandler(trigger, args, out TriggerBehaviourResult _);
             }
 
             public bool TryFindHandler(TTrigger trigger, object[] args, out TriggerBehaviourResult handler)
             {
-                TriggerBehaviourResult localHandler = null;
                 TriggerBehaviourResult superStateHandler = null;
 
-                bool handlerFound = (TryFindLocalHandler(trigger, args, out localHandler) ||
+                bool handlerFound = (TryFindLocalHandler(trigger, args, out TriggerBehaviourResult localHandler) ||
                                     (Superstate != null && Superstate.TryFindHandler(trigger, args, out superStateHandler)));
 
                 // If no handler for super state, replace by local handler (see issue #398)
