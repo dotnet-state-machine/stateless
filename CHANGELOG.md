@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 5.1.6 - 2020.11.21
+### Fixed
+ - Added support for new OnTransitionCompletedEvent, which is run after all OnExit / OnEntry methods have run [#394]
+
 ## 5.1.5 - 2020.11.16
 ### Changed
 - Fixed spelling errors
@@ -128,7 +132,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Deprecated
 ### Removed
 ### Fixed
-
+[#394]: https://github.com/dotnet-state-machine/stateless/issues/394
 [#401]: https://github.com/dotnet-state-machine/stateless/issues/401
 [#398]: https://github.com/dotnet-state-machine/stateless/issues/398
 [#380]: https://github.com/dotnet-state-machine/stateless/issues/380

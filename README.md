@@ -7,13 +7,13 @@ var phoneCall = new StateMachine<State, Trigger>(State.OffHook);
 
 phoneCall.Configure(State.OffHook)
     .Permit(Trigger.CallDialled, State.Ringing);
-	
-phoneCall.Configure(State.Ringing)
-    .Permit(Trigger.CallConnected, State.Connected);
- 
+
 phoneCall.Configure(State.Connected)
-    .OnEntry(() => StartCallTimer())
-    .OnExit(() => StopCallTimer())
+    .OnEntry(t => StartCallTimer())
+    .OnExit(t => StopCallTimer())
+    .InternalTransition(Trigger.MuteMicrophone, t => OnMute())
+    .InternalTransition(Trigger.UnmuteMicrophone, t => OnUnmute())
+    .InternalTransition<int>(_setVolumeTrigger, (volume, t) => OnSetVolume(volume))
     .Permit(Trigger.LeftMessage, State.OffHook)
     .Permit(Trigger.PlacedOnHold, State.OnHold);
 
@@ -64,6 +64,22 @@ The call can move between the `Connected` and `OnHold` states without the `Start
 
 Entry/Exit event handlers can be supplied with a parameter of type `Transition` that describes the trigger, source and destination states.
 
+### Internal transitions
+
+Sometimes an event does needs to be handled, but the state shouldn't change. This is an internal transition. Use `InternalTransition` for this.
+
+### Initial state transitions
+
+A substate can be marked as initial state. When the state machine enters the super state it will also automatically enter the substate. This can be configured like this:
+
+```csharp
+    sm.Configure(State.B)
+        .InitialTransition(State.C);
+
+    sm.Configure(State.C)
+        .SubstateOf(State.B);
+```
+
 ### External State Storage
 
 Stateless is designed to be embedded in various application models. For example, some ORMs place requirements upon where mapped data may be stored, and UI frameworks often require state to be stored in special "bindable" properties. To this end, the `StateMachine` constructor can accept function arguments that will be used to read and write the state values:
@@ -77,6 +93,11 @@ var stateMachine = new StateMachine<State, Trigger>(
 In this example the state machine will use the `myState` object for state storage.
 
 Another example can be found in the JsonExample solution, located in the example folder. 
+
+
+### Activation / Deactivation
+
+It might be necessary to perform some code before storing the object state, and likewise when restoring the object state. Use `Deactivate` and `Activate` for this. Activation should only be called once before normal operation starts, and once before state storage. 
 
 ### Introspection
 

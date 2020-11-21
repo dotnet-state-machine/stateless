@@ -28,7 +28,8 @@ namespace Stateless
         private readonly Func<TState> _stateAccessor;
         private readonly Action<TState> _stateMutator;
         private UnhandledTriggerAction _unhandledTriggerAction;
-        private OnTransitionedEvent _onTransitionCompletedEvent;
+        private readonly OnTransitionedEvent _onTransitionedEvent;
+        private readonly OnTransitionedEvent _onTransitionCompletedEvent;
         private readonly FiringMode _firingMode;
 
         private class QueuedTrigger
