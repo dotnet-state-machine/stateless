@@ -15,6 +15,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
  - Added CLSCompliant attribute, which went missing in November 2019 [#401]
 
+## 5.1.5 - 2020.11.16
+### Changed
+- Fixed spelling errors
+- Fixed analyser warnings (mostly null checks )
+### Fixed
+ - Added CLSCompliant attribute, which went missing in November 2019 [#401]
+
 ## 5.1.4 - 2020.11.07
 ### Fixed
  - Fixed Unmet guard collection not set by OnUnhandledTrigger if transition guard of substate fails [#398]
@@ -132,6 +139,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Deprecated
 ### Removed
 ### Fixed
+
 [#394]: https://github.com/dotnet-state-machine/stateless/issues/394
 [#401]: https://github.com/dotnet-state-machine/stateless/issues/401
 [#398]: https://github.com/dotnet-state-machine/stateless/issues/398
