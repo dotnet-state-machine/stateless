@@ -12,7 +12,7 @@ namespace Stateless.Graph
         /// <summary>
         /// The superstate of this state (null if none)
         /// </summary>
-        public SuperState SuperState { get; set; } = null;
+        public SuperState SuperState { get; set; }
 
         /// <summary>
         /// List of all transitions that leave this state (never null)
