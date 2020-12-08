@@ -18,7 +18,7 @@ namespace Stateless.Tests
             var twp = new StateMachine<State, Trigger>.TriggerWithParameters<string>(Trigger.X);
             twp.ValidateParameters(new[] { "arg" });
         }
-        
+
         [Fact]
         public void ParametersArePolymorphic()
         {
@@ -58,6 +58,20 @@ namespace Stateless.Tests
 
             fsm.Configure(State.A)
                 .PermitDynamicIf(pressTrigger, state => state);
+        }
+
+        [Fact]
+        public void IncompatibleParameterListIsNotValid()
+        {
+            var twp = new StateMachine<State, Trigger>.TriggerWithParameters(Trigger.X, new Type[] { typeof(int), typeof(string) });
+            Assert.Throws<ArgumentException>(() => twp.ValidateParameters(new object[] { 123 }));
+        }
+
+        [Fact]
+        public void ParameterListOfCorrectTypeAreAccepted()
+        {
+            var twp = new StateMachine<State, Trigger>.TriggerWithParameters(Trigger.X, new Type[] { typeof(int), typeof(string) });
+            twp.ValidateParameters(new object[] { 123, "arg" });
         }
     }
 }
