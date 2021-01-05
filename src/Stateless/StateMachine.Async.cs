@@ -231,7 +231,7 @@ namespace Stateless
                         newRepresentation = GetRepresentation(newRepresentation.InitialTransitionTarget);
 
                         // Alert all listeners of initial state transition
-                        await _onTransitionedEvent.InvokeAsync(transition);
+                        await _onTransitionedEvent.InvokeAsync(new Transition(transition.Destination, initialTransition.Destination, transition.Trigger, transition.Parameters));
 
                         await newRepresentation.EnterAsync(initialTransition, args);
                         State = newRepresentation.UnderlyingState;
