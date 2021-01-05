@@ -469,7 +469,7 @@ namespace Stateless
                 State = representation.UnderlyingState;
             }
 
-            _onTransitionCompletedEvent.Invoke(transition);
+            _onTransitionCompletedEvent.Invoke(new Transition(transition.Source, State, transition.Trigger, transition.Parameters));
         }
 
         private StateRepresentation EnterState(StateRepresentation representation, Transition transition, object [] args)

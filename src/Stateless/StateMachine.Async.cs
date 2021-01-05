@@ -238,7 +238,7 @@ namespace Stateless
                     }
                 }
 
-                await _onTransitionCompletedEvent.InvokeAsync(transition);
+                await _onTransitionCompletedEvent.InvokeAsync(new Transition(transition.Source, State, transition.Trigger, transition.Parameters));
             }
             else
             {
