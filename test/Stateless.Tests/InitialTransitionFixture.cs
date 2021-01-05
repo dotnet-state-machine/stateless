@@ -272,7 +272,7 @@ namespace Stateless.Tests
         [Fact]
         public void TransitionEvents_OrderingWithInitialTransition()
         {
-            var expectedOrdering = new List<string> { "OnExitA", "OnTransitioned", "OnEntryB", "OnTransitioned", "OnEntryC", "OnTransitionCompleted" };
+            var expectedOrdering = new List<string> { "OnExitA", "OnTransitionedAB", "OnEntryB", "OnTransitionedBC", "OnEntryC", "OnTransitionCompletedAC" };
             var actualOrdering = new List<string>();
 
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -289,8 +289,8 @@ namespace Stateless.Tests
                 .SubstateOf(State.B)
                 .OnEntry(() => actualOrdering.Add("OnEntryC"));
 
-            sm.OnTransitioned(t => actualOrdering.Add("OnTransitioned"));
-            sm.OnTransitionCompleted(t => actualOrdering.Add("OnTransitionCompleted"));
+            sm.OnTransitioned(t => actualOrdering.Add($"OnTransitioned{t.Source}{t.Destination}"));
+            sm.OnTransitionCompleted(t => actualOrdering.Add($"OnTransitionCompleted{t.Source}{t.Destination}"));
 
             sm.Fire(Trigger.X);
             Assert.Equal(State.C, sm.State);
@@ -305,7 +305,7 @@ namespace Stateless.Tests
         [Fact]
         public async void AsyncTransitionEvents_OrderingWithInitialTransition()
         {
-            var expectedOrdering = new List<string> { "OnExitA", "OnTransitioned", "OnEntryB", "OnTransitioned", "OnEntryC", "OnTransitionCompleted" };
+            var expectedOrdering = new List<string> { "OnExitA", "OnTransitionedAB", "OnEntryB", "OnTransitionedBC", "OnEntryC", "OnTransitionCompletedAC" };
             var actualOrdering = new List<string>();
 
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -322,8 +322,8 @@ namespace Stateless.Tests
                 .SubstateOf(State.B)
                 .OnEntry(() => actualOrdering.Add("OnEntryC"));
 
-            sm.OnTransitionedAsync(t => Task.Run(() => actualOrdering.Add("OnTransitioned")));
-            sm.OnTransitionCompletedAsync(t => Task.Run(() => actualOrdering.Add("OnTransitionCompleted")));
+            sm.OnTransitionedAsync(t => Task.Run(() => actualOrdering.Add($"OnTransitioned{t.Source}{t.Destination}")));
+            sm.OnTransitionCompletedAsync(t => Task.Run(() => actualOrdering.Add($"OnTransitionCompleted{t.Source}{t.Destination}")));
 
             // await so that the async call completes before asserting anything
             await sm.FireAsync(Trigger.X);
