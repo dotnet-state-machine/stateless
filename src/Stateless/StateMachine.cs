@@ -497,6 +497,9 @@ namespace Stateless
 
                 var initialTransition = new InitialTransition(transition.Source, representation.InitialTransitionTarget, transition.Trigger, args);
                 representation = GetRepresentation(representation.InitialTransitionTarget);
+
+                // Alert all listeners of initial state transition
+                _onTransitionedEvent.Invoke(initialTransition);
                 representation = EnterState(representation, initialTransition, args);
             }
 

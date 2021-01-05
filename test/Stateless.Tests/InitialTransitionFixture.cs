@@ -272,7 +272,7 @@ namespace Stateless.Tests
         [Fact]
         public void TransitionEvents_OrderingWithInitialTransition()
         {
-            var expectedOrdering = new List<string> { "OnExitA", "OnTransitioned", "OnEntryB", "OnEntryC", "OnTransitionCompleted" };
+            var expectedOrdering = new List<string> { "OnExitA", "OnTransitioned", "OnEntryB", "OnTransitioned", "OnEntryC", "OnTransitionCompleted" };
             var actualOrdering = new List<string>();
 
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -305,7 +305,7 @@ namespace Stateless.Tests
         [Fact]
         public async void AsyncTransitionEvents_OrderingWithInitialTransition()
         {
-            var expectedOrdering = new List<string> { "OnExitA", "OnTransitioned", "OnEntryB", "OnEntryC", "OnTransitionCompleted" };
+            var expectedOrdering = new List<string> { "OnExitA", "OnTransitioned", "OnEntryB", "OnTransitioned", "OnEntryC", "OnTransitionCompleted" };
             var actualOrdering = new List<string>();
 
             var sm = new StateMachine<State, Trigger>(State.A);

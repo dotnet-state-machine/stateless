@@ -229,6 +229,10 @@ namespace Stateless
                     {
                         var initialTransition = new InitialTransition(source, newRepresentation.InitialTransitionTarget, trigger, args);
                         newRepresentation = GetRepresentation(newRepresentation.InitialTransitionTarget);
+
+                        // Alert all listeners of initial state transition
+                        await _onTransitionedEvent.InvokeAsync(transition);
+
                         await newRepresentation.EnterAsync(initialTransition, args);
                         State = newRepresentation.UnderlyingState;
                     }
