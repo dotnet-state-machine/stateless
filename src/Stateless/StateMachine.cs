@@ -29,6 +29,7 @@ namespace Stateless
         private readonly Action<TState> _stateMutator;
         private UnhandledTriggerAction _unhandledTriggerAction;
         private readonly OnTransitionedEvent _onTransitionedEvent;
+        private readonly OnTransitionedEvent _onTransitionCompletedEvent;
         private readonly FiringMode _firingMode;
 
         private class QueuedTrigger
@@ -93,6 +94,7 @@ namespace Stateless
         {
             _unhandledTriggerAction = new UnhandledTriggerAction.Sync(DefaultUnhandledTriggerAction);
             _onTransitionedEvent = new OnTransitionedEvent();
+            _onTransitionCompletedEvent = new OnTransitionedEvent();
         }
 
         /// <summary>
@@ -200,6 +202,36 @@ namespace Stateless
         public void Fire(TTrigger trigger)
         {
             InternalFire(trigger, new object[0]);
+        }
+
+        /// <summary>
+        /// Transition from the current state via the specified trigger.
+        /// The target state is determined by the configuration of the current state.
+        /// Actions associated with leaving the current state and entering the new one
+        /// will be invoked.
+        /// </summary>
+        /// <param name="trigger">The trigger to fire.</param>
+        /// <param name="args">A variable-length parameters list containing arguments. </param>
+        /// <exception cref="System.InvalidOperationException">The current state does
+        /// not allow the trigger to be fired.</exception>
+        public void Fire(TriggerWithParameters trigger, params object[] args)
+        {
+            if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+            InternalFire(trigger.Trigger, args);
+        }
+
+        /// <summary>
+        /// Specify the arguments that must be supplied when a specific trigger is fired.
+        /// </summary>
+        /// <param name="trigger">The underlying trigger value.</param>
+        /// <param name="argumentTypes">The argument types expected by the trigger.</param>
+        /// <returns>An object that can be passed to the Fire() method in order to
+        /// fire the parameterised trigger.</returns>
+        public TriggerWithParameters SetTriggerParameters(TTrigger trigger, params Type[] argumentTypes)
+        {
+            var configuration = new TriggerWithParameters(trigger, argumentTypes);
+            SaveTriggerConfiguration(configuration);
+            return configuration;
         }
 
         /// <summary>
@@ -407,11 +439,14 @@ namespace Stateless
 
                 _onTransitionedEvent.Invoke(transition);
                 representation = EnterState(newRepresentation, transition, args);
+                _onTransitionCompletedEvent.Invoke(transition);
+
             }
             else
             {
                 _onTransitionedEvent.Invoke(transition);
                 representation = EnterState(newRepresentation, transition, args);
+                _onTransitionCompletedEvent.Invoke(transition);
             }
             State = representation.UnderlyingState;
         }
@@ -428,10 +463,13 @@ namespace Stateless
             var representation = EnterState(newRepresentation, transition, args);
 
             // Check if state has changed by entering new state (by fireing triggers in OnEntry or such)
-            if (representation.UnderlyingState.Equals(State)) return;
+            if (!representation.UnderlyingState.Equals(State))
+            {
+                // The state has been changed after entering the state, must update current state to new one
+                State = representation.UnderlyingState;
+            }
 
-            // The state has been changed after entering the state, must update current state to new one
-            State = representation.UnderlyingState;
+            _onTransitionCompletedEvent.Invoke(transition);
         }
 
         private StateRepresentation EnterState(StateRepresentation representation, Transition transition, object [] args)
@@ -599,6 +637,19 @@ namespace Stateless
         {
             if (onTransitionAction == null) throw new ArgumentNullException(nameof(onTransitionAction));
             _onTransitionedEvent.Register(onTransitionAction);
+        }
+
+        /// <summary>
+        /// Registers a callback that will be invoked every time the statemachine
+        /// transitions from one state into another and all the OnEntryFrom etc methods
+        /// have been invoked
+        /// </summary>
+        /// <param name="onTransitionAction">The action to execute, accepting the details
+        /// of the transition.</param>
+        public void OnTransitionCompleted(Action<Transition> onTransitionAction)
+        {
+            if (onTransitionAction == null) throw new ArgumentNullException(nameof(onTransitionAction));
+            _onTransitionCompletedEvent.Register(onTransitionAction);
         }
     }
 }
