@@ -26,6 +26,8 @@ namespace Stateless
 
         public static TArg Unpack<TArg>(object[] args, int index)
         {
+            if (args.Length == 0) return default;
+
             return (TArg)Unpack(args, typeof(TArg), index);
         }
 
