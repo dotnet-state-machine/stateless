@@ -6,8 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## 5.1.7 - 2021.01.10
 ### Fixed
- - Fixed OnTransitionCompletedEvent, it now has the correct Destination state when there is an initial transition. [#413]
+ - Fixed nullReferenceException when getting permitted triggers on a dynamic transition. [#413]
 
+## 5.1.7 - 2021.01.10
+### Fixed
+ - Fixed OnTransitionCompletedEvent, it now has the correct Destination state when there is an initial transition. [#413]
 
 ## 5.1.6 - 2020.11.21
 ### Fixed
@@ -145,6 +148,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 ### Fixed
 
+[#416]: https://github.com/dotnet-state-machine/stateless/issues/416
 [#413]: https://github.com/dotnet-state-machine/stateless/issues/413
 [#394]: https://github.com/dotnet-state-machine/stateless/issues/394
 [#401]: https://github.com/dotnet-state-machine/stateless/issues/401
