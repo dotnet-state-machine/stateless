@@ -1,6 +1,8 @@
 #if TASKS
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Stateless
@@ -136,18 +138,24 @@ namespace Stateless
             {
                 InternalTriggerBehaviour internalTransition = null;
 
-                // Look for actions in superstate(s) recursivly until we hit the topmost superstate, or we actually find some trigger handlers.
-                StateRepresentation aStateRep = this;
-                while (aStateRep != null)
+                // Get list of candidate trigger handlers
+                if (!TriggerBehaviours.TryGetValue(transition.Trigger, out ICollection<TriggerBehaviour> possible))
                 {
-                    if (aStateRep.TryFindLocalHandler(transition.Trigger, args, out TriggerBehaviourResult result))
-                    {
-                        // Trigger handler(s) found in this state
-                        internalTransition = result.Handler as InternalTriggerBehaviour;
-                        break;
-                    }
-                    // Try to look for trigger handlers in superstate (if it exists)
-                    aStateRep = aStateRep._superstate;
+                    return ;
+                }
+
+                if (possible.Count == 1)
+                {
+                    internalTransition = possible.First() as InternalTriggerBehaviour;
+                }
+                else
+                {
+                    // Guard functions are executed here
+                    var actual = possible
+                        .Select(h => new TriggerBehaviourResult(h, h.UnmetGuardConditions(args)))
+                        .ToArray();
+
+                    internalTransition = possible.First() as InternalTriggerBehaviour;
                 }
 
                 // Execute internal transition event handler
