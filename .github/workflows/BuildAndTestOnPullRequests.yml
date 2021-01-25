@@ -16,11 +16,5 @@ jobs:
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
        
-    - name: Setup NuGet
-      uses: NuGet/setup-nuget@v1.0.2
-     
-    - name: Restore NuGet Packages
-      run: nuget restore stateless.sln
- 
     - name: Build and Publish Web App
-      run: msbuild stateless.sln /p:Configuration=Release
+      run: msbuild stateless.sln /restore  /p:Configuration=Release -m
