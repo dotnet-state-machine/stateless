@@ -9,9 +9,10 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: Checkout Code 
+
     - uses: actions/checkout@v1
-           
+      name: Checkout Code
+     
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
        
