@@ -75,14 +75,20 @@ namespace Stateless
                     await action.ExecuteAsync().ConfigureAwait(false);
             }
 
+
             public async Task EnterAsync(Transition transition, params object[] entryArgs)
             {
-                if (!Includes(transition.Source))
+                if (transition.IsReentry)
+                {
+                    await ExecuteEntryActionsAsync(transition, entryArgs).ConfigureAwait(false);
+                }
+                else if (!Includes(transition.Source))
                 {
                     if (_superstate != null && !(transition is InitialTransition))
                         await _superstate.EnterAsync(transition, entryArgs).ConfigureAwait(false);
+
+                    await ExecuteEntryActionsAsync(transition, entryArgs).ConfigureAwait(false);
                 }
-                await ExecuteEntryActionsAsync(transition, entryArgs).ConfigureAwait(false);
             }
 
             public async Task<Transition> ExitAsync(Transition transition)
