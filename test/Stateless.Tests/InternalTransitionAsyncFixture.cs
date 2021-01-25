@@ -5,8 +5,11 @@ namespace Stateless.Tests
 {
     public class InternalTransitionAsyncFixture
     {
+        /// <summary>
+        /// This unit test demonstrated bug report #417
+        /// </summary>
         [Fact]
-        public async Task Stateless_InternalTransitionAsyncIf_Guard()
+        public async Task InternalTransitionAsyncIf_GuardExecutedOnlyOnce()
         {
             var guardCalls = 0;
             var order = new Order

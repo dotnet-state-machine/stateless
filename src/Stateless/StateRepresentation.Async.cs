@@ -1,8 +1,6 @@
 #if TASKS
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Stateless
@@ -79,44 +77,31 @@ namespace Stateless
 
             public async Task EnterAsync(Transition transition, params object[] entryArgs)
             {
-                if (transition.IsReentry)
-                {
-                    await ExecuteEntryActionsAsync(transition, entryArgs).ConfigureAwait(false);
-                }
-                else if (!Includes(transition.Source))
+                if (!Includes(transition.Source))
                 {
                     if (_superstate != null && !(transition is InitialTransition))
                         await _superstate.EnterAsync(transition, entryArgs).ConfigureAwait(false);
-
-                    await ExecuteEntryActionsAsync(transition, entryArgs).ConfigureAwait(false);
                 }
+                await ExecuteEntryActionsAsync(transition, entryArgs).ConfigureAwait(false);
             }
 
             public async Task<Transition> ExitAsync(Transition transition)
             {
-                if (transition.IsReentry)
+                await ExecuteExitActionsAsync(transition).ConfigureAwait(false);
+                if (_superstate != null && !Includes(transition.Destination))
                 {
-                    await ExecuteExitActionsAsync(transition).ConfigureAwait(false);
-                }
-                else if (!Includes(transition.Destination))
-                {
-                    await ExecuteExitActionsAsync(transition).ConfigureAwait(false);
-
-                    if (_superstate != null)
+                    // Check if destination is within the state list
+                    if (IsIncludedIn(transition.Destination))
                     {
-                        // Check if destination is within the state list
-                        if (IsIncludedIn(transition.Destination))
-                        {
-                            // Destination state is within the list, exit first superstate only if it is NOT the the first
-                            if (!_superstate.UnderlyingState.Equals(transition.Destination))
-                            {
-                                return await _superstate.ExitAsync(transition).ConfigureAwait(false);
-                            }
-                        }
-                        else
+                        // Destination state is within the list, exit first superstate only if it is NOT the first
+                        if (!_superstate.UnderlyingState.Equals(transition.Destination))
                         {
                             return await _superstate.ExitAsync(transition).ConfigureAwait(false);
                         }
+                    }
+                    else
+                    {
+                        return await _superstate.ExitAsync(transition).ConfigureAwait(false);
                     }
                 }
                 return transition;
@@ -132,40 +117,6 @@ namespace Stateless
             {
                 foreach (var action in ExitActions)
                     await action.ExecuteAsync(transition).ConfigureAwait(false);
-            }
-
-            async Task ExecuteInternalActionsAsync(Transition transition, object[] args)
-            {
-                InternalTriggerBehaviour internalTransition = null;
-
-                // Get list of candidate trigger handlers
-                if (!TriggerBehaviours.TryGetValue(transition.Trigger, out ICollection<TriggerBehaviour> possible))
-                {
-                    return ;
-                }
-
-                if (possible.Count == 1)
-                {
-                    internalTransition = possible.First() as InternalTriggerBehaviour;
-                }
-                else
-                {
-                    // Guard functions are executed here
-                    var actual = possible
-                        .Select(h => new TriggerBehaviourResult(h, h.UnmetGuardConditions(args)))
-                        .ToArray();
-
-                    internalTransition = possible.First() as InternalTriggerBehaviour;
-                }
-
-                // Execute internal transition event handler
-                if (internalTransition == null) throw new ArgumentNullException("The configuration is incorrect, no action assigned to this internal transition.");
-                await (internalTransition.ExecuteAsync(transition, args)).ConfigureAwait(false);
-            }
-
-            internal Task InternalActionAsync(Transition transition, object[] args)
-            {
-                return ExecuteInternalActionsAsync(transition, args);
             }
         }
     }
