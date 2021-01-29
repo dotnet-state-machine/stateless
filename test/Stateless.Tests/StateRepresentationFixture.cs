@@ -381,5 +381,30 @@ namespace Stateless.Tests
             Assert.Equal(guardDescriptions.Count, 1);
             Assert.Equal(guardDescriptions.First(), expectedGuardDescription);
         }
+
+        // Issue #422 - Add all guard descriptions to result if multiple guards fail for same trigger
+        [Fact]
+        public void AddAllGuardDescriptionsWhenMultipleGuardsFailForSameTrigger()
+        {
+            ICollection<string> expectedGuardDescriptions = new List<string> { "PermitReentryIf guard failed", "PermitIf guard failed" };
+            ICollection<string> guardDescriptions = null;
+
+            var fsm = new StateMachine<State, Trigger>(State.A);
+            fsm.OnUnhandledTrigger((state, trigger, descriptions) => guardDescriptions = descriptions);
+
+            fsm.Configure(State.A)
+                .PermitReentryIf(Trigger.X, () => false, "PermitReentryIf guard failed")
+                .PermitIf(Trigger.X, State.C, () => false, "PermitIf guard failed");
+
+            fsm.Fire(Trigger.X);
+
+            Assert.Equal(fsm.State, State.A);
+            Assert.True(guardDescriptions != null);
+            Assert.Equal(2, guardDescriptions.Count);
+            foreach(var description in guardDescriptions)
+            {
+                Assert.True(expectedGuardDescriptions.Contains(description));
+            }
+        }
     }
 }
