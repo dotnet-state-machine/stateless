@@ -16,15 +16,17 @@ jobs:
       with:
         dotnet-version: 3.1.101
 
-    - name: Get version
-      id: get_version
-      uses: jasondavis303/net-sdk-proj-file-version@v1.0.1
+    - uses: naminodarie/get-net-sdk-project-versions-action@v1
+      id: get-version
       with:
-          # Filepath of the *.csproj file, relative to root of repository
-          PROJ_FILE: src\Stateless\Stateless.csproj
-
-    - name: Next Step
-      run: echo "${{ steps.get_version.outputs.ASSEMBLY_VERSION }}"
+        proj-path: src/Stateless/Stateless.csproj
+    - run: echo "${{steps.get-version.outputs.version}}"
+    - run: echo "${{steps.get-version.outputs.version-prefix}}" 
+    - run: echo "${{steps.get-version.outputs.version-suffix}}" 
+    - run: echo "${{steps.get-version.outputs.package-version}}" 
+    - run: echo "${{steps.get-version.outputs.assembly-version}}" 
+    - run: echo "${{steps.get-version.outputs.file-version}}" 
+    - run: echo "${{steps.get-version.outputs.informational-version}}" 
     
     - name: Install dependencies
       run: dotnet restore
