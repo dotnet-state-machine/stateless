@@ -22,13 +22,14 @@ jobs:
         proj-path: src/Stateless/Stateless.csproj
     - run: echo "${{steps.get-version.outputs.version}}"
 
-    - name: Create version number
+    - name: Create version number if master
       if: github.branch == 'master'
-      run: |
+      env:
         VERSION="${{steps.get-version.outputs.version}}"
-    - name: Create version number
+        
+    - name: Create version number if dev
       if: github.branch == 'dev'
-      run: |
+      env:
         VERSION="${{steps.get-version.outputs.version}}-alpha-${{github.run_number}}"
     
     - run: echo "${{VERSION}}"
