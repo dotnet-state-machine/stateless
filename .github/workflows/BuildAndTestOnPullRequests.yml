@@ -1,22 +1,32 @@
 name: CI for Pull Requests
 
 on:
+  push:
+    branches: [ dev, master ]
   pull_request:
     branches: [ dev , master ]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
+
     - uses: actions/checkout@v2
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.x
-    - name: Restore dependencies
+        dotnet-version: 3.1.101
+
+    - uses: naminodarie/get-net-sdk-project-versions-action@v1
+      id: get-version
+      with:
+        proj-path: src/Stateless/Stateless.csproj
+    - run: echo "${{steps.get-version.outputs.version}}"
+    
+    - name: Install dependencies
       run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+      
+    - name: Build Stateless solution
+      run: dotnet build  Stateless.sln --configuration Release --no-restore
+      
+    - name: Test Stateless
+      run: dotnet test --no-restore --no-build --configuration Release
