@@ -7,20 +7,13 @@ on:
     branches: [ dev , master ]
 
 jobs:
-  build:
+  Build Stateless solution:
     runs-on: windows-latest
-
     steps:
 
     - uses: actions/checkout@v2
       with:
         dotnet-version: 3.1.101
-
-    - uses: naminodarie/get-net-sdk-project-versions-action@v1
-      id: get-version
-      with:
-        proj-path: src/Stateless/Stateless.csproj
-    - run: echo "${{steps.get-version.outputs.version}}"
     
     - name: Install dependencies
       run: dotnet restore
@@ -30,3 +23,22 @@ jobs:
       
     - name: Test Stateless
       run: dotnet test --no-restore --no-build --configuration Release
+      
+  Publish alpha version:
+    if: github.event_name == 'push' && github.branch == 'dev'
+    runs-on: windows-latest
+
+    steps:
+      - name: Prepare package
+      - run: dotnet pack src/stateless/stateless.csproj --version-suffix alpha-${{github.run_id}} --configuration Debug
+      
+      - name: Publish package
+      - run: dotnet nuget push src\stateless\bin\Debug\ -s nuget.org ---api-key ${{ secrets.NUGETAPIKEY }}
+  Publish Nuget package:
+    if: github.event_name == 'push' && github.branch == 'master'
+    runs-on: windows-latest
+    steps:
+      - name: Prepare package
+      - run: dotnet pack src/stateless/stateless.csproj --version-suffix alpha-${{github.run_id}} --configuration Release
+      - name: Publish package
+      - run: dotnet nuget push src\stateless\bin\Release\ -s nuget.org ---api-key ${{ secrets.NUGETAPIKEY }}
