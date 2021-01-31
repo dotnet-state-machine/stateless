@@ -26,13 +26,13 @@ jobs:
       if: github.branch == 'master'
       run: echo "Setting version number to ${{VERSION}}"
       env:
-        VERSION="${{steps.get-version.outputs.version}}"
+        VERSION:"${{steps.get-version.outputs.version}}"
         
     - name: Create version number if dev
       if: github.branch == 'dev'
       run: echo "Setting version number to ${{VERSION}}"
       env:
-        VERSION="${{steps.get-version.outputs.version}}-alpha-${{github.run_number}}"
+        VERSION:"${{steps.get-version.outputs.version}}-alpha-${{github.run_number}}"
     
     
     - name: Install dependencies
