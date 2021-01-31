@@ -21,7 +21,7 @@ jobs:
       uses: jasondavis303/net-sdk-proj-file-version@v1.0.1
       with:
           # Filepath of the *.csproj file, relative to root of repository
-          PROJ_FILE: src/Stateless/stateless.csproj
+          PROJ_FILE: src\Stateless\Stateless.csproj
 
     - name: Next Step
       run: echo "${{ steps.get_version.outputs.ASSEMBLY_VERSION }}"
