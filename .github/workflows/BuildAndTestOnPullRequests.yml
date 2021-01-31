@@ -26,13 +26,14 @@ jobs:
       if: github.branch == 'master'
       env:
         VERSION="${{steps.get-version.outputs.version}}"
+      run: echo "Setting version number to ${{VERSION}}"
         
     - name: Create version number if dev
       if: github.branch == 'dev'
       env:
         VERSION="${{steps.get-version.outputs.version}}-alpha-${{github.run_number}}"
+      run: echo "Setting version number to ${{VERSION}}"
     
-    - run: echo "${{VERSION}}"
     
     - name: Install dependencies
       run: dotnet restore
