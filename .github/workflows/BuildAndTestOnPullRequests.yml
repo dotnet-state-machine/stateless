@@ -7,7 +7,7 @@ on:
     branches: [ dev , master ]
 
 jobs:
-  Build Stateless solution:
+  Build_Stateless_solution:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
@@ -23,7 +23,7 @@ jobs:
     - name: Test Stateless
       run: dotnet test --no-restore --no-build --configuration Release
       
-  Publish alpha version:
+  Publish_alpha_version:
     if: github.event_name == 'push' && github.branch == 'dev'
     runs-on: windows-latest
     steps:
@@ -32,7 +32,7 @@ jobs:
     - name: Publish package
       run: dotnet nuget push src\stateless\bin\Debug\ -s nuget.org ---api-key ${{ secrets.NUGETAPIKEY }}
   
-  Publish Nuget package:
+  Publish_Nuget_package:
     if: github.event_name == 'push' && github.branch == 'master'
     runs-on: windows-latest
     steps:
