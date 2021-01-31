@@ -21,12 +21,17 @@ jobs:
       with:
         proj-path: src/Stateless/Stateless.csproj
     - run: echo "${{steps.get-version.outputs.version}}"
-    - run: echo "${{steps.get-version.outputs.version-prefix}}" 
-    - run: echo "${{steps.get-version.outputs.version-suffix}}" 
-    - run: echo "${{steps.get-version.outputs.package-version}}" 
-    - run: echo "${{steps.get-version.outputs.assembly-version}}" 
-    - run: echo "${{steps.get-version.outputs.file-version}}" 
-    - run: echo "${{steps.get-version.outputs.informational-version}}" 
+
+    - name: Create version number
+      if: github.branch == 'master'
+      run: |
+        VERSION="${{steps.get-version.outputs.version}}"
+    - name: Create version number
+      if: github.branch == 'dev'
+      run: |
+        VERSION="${{steps.get-version.outputs.version}}-alpha-${{github.run_number}}"
+    
+    - run: echo "${{VERSION}}"
     
     - name: Install dependencies
       run: dotnet restore
