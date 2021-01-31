@@ -1,20 +1,33 @@
 name: CI for Pull Requests
 
 on:
+  push:
+    branches: [ dev, master ]
   pull_request:
     branches: [ dev , master ]
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
 
-    - uses: actions/checkout@v1
-      name: Checkout Code
-     
-    - name: Add msbuild to PATH
-      uses: microsoft/setup-msbuild@v1.0.2
-       
-    - name: Build and run tests
-      run: msbuild stateless.sln /restore  /p:Configuration=Release -m
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.101
+    
+    - name: Install dependencies
+      run: dotnet restore
+      
+    - name: set pr build number (if pr)
+      id: PRNUMBER
+      if: ${{ github.event_name == 'pull_request' }}
+      uses: kkak10/pr-number-action@v1.3
+      
+    - name: Build Stateless solution
+      run: dotnet build  Stateless.sln --configuration Release --no-restore
+      
+    - name: Test Stateless
+      run: dotnet test --no-restore --no-build --configuration $config
