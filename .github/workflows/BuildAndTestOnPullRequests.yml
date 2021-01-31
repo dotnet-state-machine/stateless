@@ -28,7 +28,7 @@ jobs:
     runs-on: windows-latest
     steps:
     - name: Prepare package
-      run: dotnet pack src/stateless/stateless.csproj --version-suffix alpha-${{github.run_id}} --configuration Debug
+      run: dotnet pack src/stateless/stateless.csproj --version-suffix dev-${{github.run_id}} --configuration Debug
     - name: Publish package
       run: dotnet nuget push src\stateless\bin\Debug\ -s nuget.org ---api-key ${{ secrets.NUGETAPIKEY }}
   
@@ -37,6 +37,6 @@ jobs:
     runs-on: windows-latest
     steps:
     - name: Prepare package
-      run: dotnet pack src/stateless/stateless.csproj --version-suffix alpha-${{github.run_id}} --configuration Release
+      run: dotnet pack src/stateless/stateless.csproj --configuration Release
     - name: Publish package
       run: dotnet nuget push src\stateless\bin\Release\ -s nuget.org ---api-key ${{ secrets.NUGETAPIKEY }}
