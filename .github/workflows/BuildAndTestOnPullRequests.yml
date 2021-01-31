@@ -21,18 +21,6 @@ jobs:
       with:
         proj-path: src/Stateless/Stateless.csproj
     - run: echo "${{steps.get-version.outputs.version}}"
-
-    - name: Create version number if master
-      if: github.branch == 'master'
-      env:
-        VERSION:"${{steps.get-version.outputs.version}}"
-      run: echo "Setting version number to ${{VERSION}}"
-        
-    - name: Create version number if dev
-      if: github.branch == 'dev'
-      env:
-        VERSION:"${{steps.get-version.outputs.version}}-alpha-${{github.run_number}}"
-      run: echo "Setting version number to ${{VERSION}}"
     
     - name: Install dependencies
       run: dotnet restore
