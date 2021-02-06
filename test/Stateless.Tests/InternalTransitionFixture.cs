@@ -87,7 +87,7 @@ namespace Stateless.Tests
         {
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A)
-                .InternalTransition(Trigger.X, () => { });
+                .Transition(Trigger.X).Internal();
 
             Assert.Equal(State.A, sm.State);
             sm.Fire(Trigger.X);
@@ -100,11 +100,11 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .InternalTransition(Trigger.X, () => { })
+                .Transition(Trigger.X).Internal()
                 .Transition(Trigger.Y).To(State.B);
 
             sm.Configure(State.B)
-                    .InternalTransition(Trigger.X, () => { })
+                    .Transition(Trigger.X).Internal()
                     .Transition(Trigger.Y).To(State.A);
 
             // This should not cause any state changes
@@ -126,8 +126,8 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.B);
 
             sm.Configure(State.A)
-                    .InternalTransition(Trigger.X, () => { })
-                    .InternalTransition(Trigger.Y, () => { });
+                    .Transition(Trigger.X).Internal()
+                    .Transition(Trigger.Y).Internal();
 
             sm.Configure(State.B)
                     .SubstateOf(State.A);
@@ -148,8 +148,8 @@ namespace Stateless.Tests
 
             sm.Configure(State.B)
                     .SubstateOf(State.A)
-                    .InternalTransition(Trigger.X, () => { })
-                    .InternalTransition(Trigger.Y, () => { });
+                    .Transition(Trigger.X).Internal()
+                    .Transition(Trigger.Y).Internal();
 
             // This should not cause any state changes
             Assert.Equal(State.B, sm.State);
@@ -169,7 +169,7 @@ namespace Stateless.Tests
             var callbackInvoked = false;
 
             sm.Configure(State.B)
-                .InternalTransition(trigger, (i, s, transition) =>
+                .Transition(Trigger.X).Internal().Do<int, string>((i, s, transition) =>
                 {
                     callbackInvoked = true;
                     Assert.Equal(intParam, i);
@@ -179,6 +179,7 @@ namespace Stateless.Tests
             sm.Fire(trigger, intParam, strParam);
             Assert.True(callbackInvoked);
         }
+
 
         [Fact]
         public void AllowTriggerWithThreeParameters()
@@ -191,7 +192,7 @@ namespace Stateless.Tests
             var callbackInvoked = false;
 
             sm.Configure(State.B)
-                .InternalTransition(trigger, (i, s, b, transition) =>
+                .Transition(Trigger.X).Internal().Do<int, string, bool>((i, s, b, transition) =>
                 {
                     callbackInvoked = true;
                     Assert.Equal(intParam, i);
@@ -209,7 +210,7 @@ namespace Stateless.Tests
             var isPermitted = true;
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A)
-                .InternalTransitionIf(Trigger.X, u => isPermitted, t => { });
+                .Transition(Trigger.X).Internal().If(u => isPermitted).Do(t => { });
 
             Assert.Equal(1, sm.GetPermittedTriggers().ToArray().Length);
             isPermitted = false;
@@ -224,11 +225,11 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .InternalTransition(Trigger.X, () => handledIn = State.A);
+                .Transition(Trigger.X).Internal().Do(() => handledIn = State.A);
 
             sm.Configure(State.B)
                 .SubstateOf(State.A)
-                .InternalTransition(Trigger.X, () => handledIn = State.B);
+                .Transition(Trigger.X).Internal().Do(() => handledIn = State.B);
 
             // The state machine is in state A. It should only be handled in in State A, so handledIn should be equal to State.A
             sm.Fire(Trigger.X);
@@ -243,13 +244,13 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.B);
 
             sm.Configure(State.A)
-                .InternalTransition(Trigger.X, () => handledIn = State.A);
+                .Transition(Trigger.X).Internal().Do(() => handledIn = State.A);
 
             sm.Configure(State.B)
                 .SubstateOf(State.A)
-                .InternalTransition(Trigger.X, () => handledIn = State.B);
+                .Transition(Trigger.X).Internal().Do(() => handledIn = State.B);
 
-            // The state machine is in state B. It should only be handled in in State B, so handledIn should be equal to State.B
+            // The state machine is in state B. It should only be handled in State B, so handledIn should be equal to State.B
             sm.Fire(Trigger.X);
 
             Assert.Equal(State.B, handledIn);
@@ -262,8 +263,8 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .InternalTransition(Trigger.X, () => handled++)
-                .InternalTransition(Trigger.Y, () => handled++);
+                .Transition(Trigger.X).Internal().Do(() => handled++)
+                .Transition(Trigger.Y).Internal().Do(() => handled++);
 
             sm.Fire(Trigger.X);
 
@@ -273,6 +274,7 @@ namespace Stateless.Tests
 
             Assert.Equal(2, handled);
         }
+
         [Fact]
         public async Task AsyncHandlesNonAsyndActionAsync()
         {
@@ -281,7 +283,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .InternalTransition(Trigger.Y, () => handled=true);
+                .Transition(Trigger.Y).Internal().Do(() => handled = true);
 
             await sm.FireAsync(Trigger.Y);
 

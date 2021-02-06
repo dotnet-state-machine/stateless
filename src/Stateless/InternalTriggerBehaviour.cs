@@ -23,15 +23,13 @@ namespace Stateless
 
             public class Sync: InternalTriggerBehaviour
             {
-                public Action<Transition, object[]> InternalAction { get; }
-
                 public Sync(TTrigger trigger, Func<object[], bool> guard, Action<Transition, object[]> internalAction, string guardDescription = null) : base(trigger, new TransitionGuard(guard, guardDescription))
                 {
-                    InternalAction = internalAction;
+                    AddAction(internalAction);
                 }
                 public override void Execute(Transition transition, object[] args)
                 {
-                    InternalAction(transition, args);
+                    ExecuteAction(transition, args);
                 }
 
                 public override Task ExecuteAsync(Transition transition, object[] args)

@@ -15,7 +15,7 @@ namespace Stateless
             /// <summary>
             /// 
             /// </summary>
-            public StateMachine<TState, TTrigger> Machine => _transitionConfiguration.StateConfiguration.Machine;
+            public StateMachine<TState, TTrigger> Machine { get { return _transitionConfiguration.StateConfiguration.Machine; } }
 
             internal DestinationConfiguration(TransitionConfiguration transitionConfiguration, TriggerBehaviour triggerBehaviour, StateRepresentation representation)
             {
@@ -93,15 +93,45 @@ namespace Stateless
             /// <summary>
             /// Adds an action to a transition. The action will be executed before the Exit action(s) (if any) are executed.
             /// </summary>
-            /// <typeparam name="TArg">The paramter used by the action.</typeparam>
+            /// <typeparam name="TArg">The parameter used by the action.</typeparam>
             /// <param name="someAction">The action run when the trigger event is handled.</param>
             public StateConfiguration Do<TArg>(Action<TArg, Transition> someAction)
             {
                 if (someAction == null) throw new ArgumentNullException(nameof(someAction));
-                
+
                 _triggerBehaviour.AddAction((t, args) => someAction(ParameterConversion.Unpack<TArg>(args, 0), t));
                 return _transitionConfiguration.StateConfiguration;
             }
+
+            /// <summary>
+            /// Adds an action to a transition. The action will be executed before the Exit action(s) (if any) are executed.
+            /// </summary>
+            /// <typeparam name="TArg0">The parameter used by the action.</typeparam>
+            /// <typeparam name="TArg1">The parameter used by the action.</typeparam>
+            /// <param name="someAction">The action run when the trigger event is handled.</param>
+            public StateConfiguration Do<TArg0, TArg1>(Action<TArg0, TArg1, Transition> someAction)
+            {
+                if (someAction == null) throw new ArgumentNullException(nameof(someAction));
+
+                _triggerBehaviour.AddAction((t, args) => someAction(ParameterConversion.Unpack<TArg0>(args, 0), ParameterConversion.Unpack<TArg1>(args, 1), t));
+                return _transitionConfiguration.StateConfiguration;
+            }
+
+            /// <summary>
+            /// Adds an action to a transition. The action will be executed before the Exit action(s) (if any) are executed.
+            /// </summary>
+            /// <typeparam name="TArg0">The parameter used by the action.</typeparam>
+            /// <typeparam name="TArg1">The parameter used by the action.</typeparam>
+            /// <typeparam name="TArg2">The parameter used by the action.</typeparam>
+            /// <param name="someAction">The action run when the trigger event is handled.</param>
+            public StateConfiguration Do<TArg0, TArg1, TArg2>(Action<TArg0, TArg1, TArg2, Transition> someAction)
+            {
+                if (someAction == null) throw new ArgumentNullException(nameof(someAction));
+
+                _triggerBehaviour.AddAction((t, args) => someAction(ParameterConversion.Unpack<TArg0>(args, 0), ParameterConversion.Unpack<TArg1>(args, 1), ParameterConversion.Unpack<TArg2>(args, 2), t));
+                return _transitionConfiguration.StateConfiguration;
+            }
+
             /// <summary>
             /// 
             /// </summary>

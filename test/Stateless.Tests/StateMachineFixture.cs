@@ -932,7 +932,8 @@ namespace Stateless.Tests
         {
             var trigger = Trigger.X;
             var sm = new StateMachine<State, Trigger>(State.A);
-            sm.Configure(State.A).InternalTransition(sm.SetTriggerParameters<string>(trigger), (arg, _) => { });
+            var paramTrigger = sm.SetTriggerParameters<string>(trigger);
+            sm.Configure(State.A).Transition(trigger).Internal().Do<string>((arg, _) => { });
             Assert.True(sm.CanFire(trigger));
         }
 
@@ -941,7 +942,9 @@ namespace Stateless.Tests
         {
             var trigger = Trigger.X;
             var sm = new StateMachine<State, Trigger>(State.A);
-            sm.Configure(State.A).InternalTransition(sm.SetTriggerParameters<string>(trigger), (arg, _) => { });
+            var paramTrigger = sm.SetTriggerParameters<string>(trigger);
+            sm.Configure(State.A).Transition(trigger).Internal().Do<string>((arg, _) => { });
+
             Assert.Single(sm.PermittedTriggers, trigger);
         }
 

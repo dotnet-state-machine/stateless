@@ -433,7 +433,7 @@ namespace Stateless
                         {
                             result.Handler.ExecuteAction(transition, args);
                         }
-                        CurrentRepresentation.InternalAction(transition, args);
+                        //CurrentRepresentation.InternalAction(transition, args);
                     break;
                 }
                 default:

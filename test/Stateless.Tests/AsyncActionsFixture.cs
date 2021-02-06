@@ -95,16 +95,16 @@ namespace Stateless.Tests
             Assert.Equal("foo", test); // Should await action
         }
 
-        [Fact]
-        public void WhenSyncFireInternalAsyncAction()
-        {
-            var sm = new StateMachine<State, Trigger>(State.A);
+        //[Fact]
+        //public void WhenSyncFireInternalAsyncAction()
+        //{
+        //    var sm = new StateMachine<State, Trigger>(State.A);
 
-            sm.Configure(State.A)
-              .InternalTransitionAsync(Trigger.X, () => TaskResult.Done);
+        //    sm.Configure(State.A)
+        //      .InternalTransitionAsync(Trigger.X, () => TaskResult.Done);
 
-            Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
-        }
+        //    Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
+        //}
 
         [Fact]
         public async Task CanInvokeOnTransitionedAsyncAction()

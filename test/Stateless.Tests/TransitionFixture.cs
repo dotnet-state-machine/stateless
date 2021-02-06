@@ -25,20 +25,8 @@ namespace Stateless.Tests
             var machine = new StateMachine<int, int>(1);
 
             machine.Configure(1)
-                .InternalTransitionIf(
-                    1,
-                    t => { return true; },
-                    () =>
-                    {
-                        Assert.True(true);
-                    })
-                .InternalTransitionIf(
-                    1,
-                    u => { return false; },
-                    () =>
-                    {
-                        Assert.True(false);
-                    });
+                .Transition(1).Internal().If((t) => true).Do(() => Assert.True(true))
+                .Transition(1).Internal().If((u) => false).Do(() => Assert.True(false));
 
             machine.Fire(1);
         }
