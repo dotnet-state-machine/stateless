@@ -57,7 +57,7 @@ namespace Stateless
                     handlerResult = null;
                     return false;
                 }
-               
+
                 // Guard functions are executed here
                 var actual = possible
                     .Select(h => new TriggerBehaviourResult(h, h.UnmetGuardConditions(args)))
@@ -301,13 +301,13 @@ namespace Stateless
                     (_superstate != null && _superstate.IsIncludedIn(state));
             }
 
-			public IEnumerable<TTrigger> PermittedTriggers
-			{
-				get
-				{
-					return GetPermittedTriggers();
-				}
-			}
+            public IEnumerable<TTrigger> PermittedTriggers
+            {
+                get
+                {
+                    return GetPermittedTriggers();
+                }
+            }
 
             public IEnumerable<TTrigger> GetPermittedTriggers(params object[] args)
             {
@@ -329,3 +329,4 @@ namespace Stateless
             public bool HasInitialTransition { get; private set; }
         }
     }
+}

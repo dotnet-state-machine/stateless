@@ -131,14 +131,6 @@ namespace Stateless
             return CurrentRepresentation.GetPermittedTriggers(args);
         }
 
-        /// <summary>
-        /// The currently-permissible trigger values.
-        /// </summary>
-        public IEnumerable<TTrigger> GetPermittedTriggers(params object[] args)
-        {
-            return CurrentRepresentation.GetPermittedTriggers(args);
-        }
-
         StateRepresentation CurrentRepresentation
         {
             get
