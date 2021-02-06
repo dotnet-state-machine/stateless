@@ -18,7 +18,7 @@ namespace Stateless.Tests
             var twp = new StateMachine<State, Trigger>.TriggerWithParameters<string>(Trigger.X);
             twp.ValidateParameters(new[] { "arg" });
         }
-        
+
         [Fact]
         public void ParametersArePolymorphic()
         {
@@ -45,6 +45,33 @@ namespace Stateless.Tests
         {
             var twp = new StateMachine<State, Trigger>.TriggerWithParameters<string, string>(Trigger.X);
             Assert.Throws<ArgumentException>(() => twp.ValidateParameters(new[] { "a", "b", "c" }));
+        }
+
+        /// <summary>
+        /// issue #380 - default params on PermitIfDynamic lead to ambiguity at compile time... explicits work properly.
+        /// </summary>
+        [Fact]
+        public void StateParameterIsNotAmbiguous()
+        {
+            var fsm = new StateMachine<State, Trigger>(State.A);
+            StateMachine<State, Trigger>.TriggerWithParameters<State> pressTrigger = fsm.SetTriggerParameters<State>(Trigger.X);
+
+            fsm.Configure(State.A)
+                .PermitDynamicIf(pressTrigger, state => state);
+        }
+
+        [Fact]
+        public void IncompatibleParameterListIsNotValid()
+        {
+            var twp = new StateMachine<State, Trigger>.TriggerWithParameters(Trigger.X, new Type[] { typeof(int), typeof(string) });
+            Assert.Throws<ArgumentException>(() => twp.ValidateParameters(new object[] { 123 }));
+        }
+
+        [Fact]
+        public void ParameterListOfCorrectTypeAreAccepted()
+        {
+            var twp = new StateMachine<State, Trigger>.TriggerWithParameters(Trigger.X, new Type[] { typeof(int), typeof(string) });
+            twp.ValidateParameters(new object[] { 123, "arg" });
         }
     }
 }

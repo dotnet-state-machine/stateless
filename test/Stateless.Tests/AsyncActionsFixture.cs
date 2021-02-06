@@ -122,6 +122,22 @@ namespace Stateless.Tests
         }
 
         [Fact]
+        public async Task CanInvokeOnTransitionCompletedAsyncAction()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+              .Permit(Trigger.X, State.B);
+
+            var test = "";
+            sm.OnTransitionCompletedAsync(_ => Task.Run(() => test = "foo"));
+
+            await sm.FireAsync(Trigger.X).ConfigureAwait(false);
+
+            Assert.Equal("foo", test); // Should await action
+        }
+
+        [Fact]
         public async Task WillInvokeSyncOnTransitionedIfRegisteredAlongWithAsyncAction()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -141,6 +157,25 @@ namespace Stateless.Tests
         }
 
         [Fact]
+        public async Task WillInvokeSyncOnTransitionCompletedIfRegisteredAlongWithAsyncAction()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+              .Permit(Trigger.X, State.B);
+
+            var test1 = "";
+            var test2 = "";
+            sm.OnTransitionCompleted(_ => test1 = "foo1");
+            sm.OnTransitionCompletedAsync(_ => Task.Run(() => test2 = "foo2"));
+
+            await sm.FireAsync(Trigger.X).ConfigureAwait(false);
+
+            Assert.Equal("foo1", test1);
+            Assert.Equal("foo2", test2);
+        }
+
+        [Fact]
         public void WhenSyncFireAsyncOnTransitionedAction()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -149,6 +184,19 @@ namespace Stateless.Tests
               .Permit(Trigger.X, State.B);
 
             sm.OnTransitionedAsync(_ => TaskResult.Done);
+
+            Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
+        }
+
+        [Fact]
+        public void WhenSyncFireAsyncOnTransitionCompletedAction()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+              .Permit(Trigger.X, State.B);
+
+            sm.OnTransitionCompletedAsync(_ => TaskResult.Done);
 
             Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
         }

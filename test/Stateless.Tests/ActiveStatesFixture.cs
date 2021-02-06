@@ -23,6 +23,7 @@ namespace Stateless.Tests
 
             // should not be called for activation
             sm.OnTransitioned(t => actualOrdering.Add("OnTransitioned"));
+            sm.OnTransitionCompleted(t => actualOrdering.Add("OnTransitionCompleted"));
 
             sm.Activate();
 
@@ -67,6 +68,7 @@ namespace Stateless.Tests
 
             // should not be called for activation
             sm.OnTransitioned(t => actualOrdering.Add("OnTransitioned"));
+            sm.OnTransitionCompleted(t => actualOrdering.Add("OnTransitionCompleted"));
 
             sm.Activate();
             sm.Deactivate();
@@ -110,10 +112,12 @@ namespace Stateless.Tests
                 "ExitedA",
                 "OnTransitioned",
                 "EnteredB",
+                "OnTransitionCompleted",
 
                 "ExitedB",
                 "OnTransitioned",
                 "EnteredA",
+                "OnTransitionCompleted",
 
             };
 
@@ -134,6 +138,7 @@ namespace Stateless.Tests
               .Permit(Trigger.Y, State.A);
 
             sm.OnTransitioned(t => actualOrdering.Add("OnTransitioned"));
+            sm.OnTransitionCompleted(t => actualOrdering.Add("OnTransitionCompleted"));
 
             sm.Activate();
             sm.Fire(Trigger.X);

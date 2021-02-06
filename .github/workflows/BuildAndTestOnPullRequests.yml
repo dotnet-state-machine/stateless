@@ -1,0 +1,38 @@
+name: CI for Pull Requests
+
+on:
+  push:
+    branches: [ dev, master ]
+  pull_request:
+    branches: [ dev , master ]
+
+jobs:
+  Build_Stateless_solution:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        dotnet-version: 3.1.101
+    
+    - name: Install dependencies
+      run: dotnet restore
+      
+    - name: Build Stateless solution
+      run: dotnet build  Stateless.sln --configuration Release --no-restore
+      
+    - name: Test Stateless
+      run: dotnet test --no-restore --no-build --configuration Release
+      
+    - name: Pack alpha version
+      if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
+      run: dotnet pack src/stateless/stateless.csproj --version-suffix dev-${{github.run_id}} --configuration Release
+    - name: Publish alpha version
+      if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
+      run: dotnet nuget push src\stateless\bin\Release\*.nupkg -s nuget.org --api-key ${{ secrets.NUGETAPIKEY }}
+  
+    - name: Pack Release version
+      if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+      run: dotnet pack src/stateless/stateless.csproj --configuration Release
+    - name: Publish Release version
+      if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+      run: dotnet nuget push src\stateless\bin\Release\*.nupkg -s nuget.org --api-key ${{ secrets.NUGETAPIKEY }}
