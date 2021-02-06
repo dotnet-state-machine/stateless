@@ -14,7 +14,7 @@
     <AssemblyOriginatorKeyFile>../../asset/Stateless.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
-    
+    <PackageIcon>Stateless.png</PackageIcon>
     <PackageProjectUrl>https://github.com/dotnet-state-machine/stateless</PackageProjectUrl>
     <license>http://www.apache.org/licenses/LICENSE-2.0</license>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
@@ -27,4 +27,8 @@
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' OR '$(TargetFramework)' == 'net472' OR '$(TargetFramework)' == 'net50'">
     <DefineConstants>$(DefineConstants);TASKS</DefineConstants>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\asset\Stateless.png" Pack="true" PackagePath="\"/>
+  </ItemGroup>
 </Project>

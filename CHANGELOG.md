@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  - Added support for net50
 ### Changed
  - Only run tests under net50
+ - Non-code change: Switch to using Github Actions
 ### Fixed
  - Fixed the bug "IgnoreIf Guard description is raised when PermitReentryIf Guard Fails". [#422]
 
