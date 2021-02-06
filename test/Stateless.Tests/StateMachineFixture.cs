@@ -238,15 +238,6 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        public void ImplicitReentryIsDisallowed()
-        {
-            var sm = new StateMachine<State, Trigger>(State.B);
-
-            Assert.Throws<ArgumentException>(() => sm.Configure(State.B)
-               .Transition(Trigger.X).To(State.B));
-        }
-
-        [Fact]
         public void TriggerParametersAreImmutableOnceSet()
         {
             var sm = new StateMachine<State, Trigger>(State.B);
@@ -923,7 +914,7 @@ namespace Stateless.Tests
         {
             var trigger = Trigger.X;
             var sm = new StateMachine<State, Trigger>(State.A);
-            sm.Configure(State.A).InternalTransition(trigger, (_) => { });
+            sm.Configure(State.A).Transition(trigger).Internal().Do( (_) => { });
             Assert.True(sm.CanFire(trigger));
         }
 
@@ -932,7 +923,7 @@ namespace Stateless.Tests
         {
             var trigger = Trigger.X;
             var sm = new StateMachine<State, Trigger>(State.A);
-            sm.Configure(State.A).InternalTransition(trigger, (_) => { });
+            sm.Configure(State.A).Transition(trigger).Internal().Do((_) => { });
             Assert.Single(sm.PermittedTriggers, trigger);
         }
 
@@ -977,7 +968,7 @@ namespace Stateless.Tests
         {
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A)
-                .InternalTransition(Trigger.Y, _ => { })
+                .Transition(Trigger.Y).Internal().Do((_) => { })
                 .Ignore(Trigger.Z)
                 .Transition(Trigger.X).To(State.B);
 

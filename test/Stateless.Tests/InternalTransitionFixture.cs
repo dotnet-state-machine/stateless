@@ -6,9 +6,8 @@ namespace Stateless.Tests
 {
     public class InternalTransitionFixture
     {
-
         /// <summary>
-        /// The expected behaviour of the internal transistion is that the state does not change.
+        /// The expected behaviour of the internal transition is that the state does not change.
         /// This will fail if the state changes after the trigger has fired.
         /// </summary>
         [Fact]
@@ -16,7 +15,7 @@ namespace Stateless.Tests
         {
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A)
-                .InternalTransition(Trigger.X, t => { });
+                .Transition(Trigger.X).Internal().Do((_) => { });
 
             Assert.Equal(State.A, sm.State);
             sm.Fire(Trigger.X);
@@ -29,12 +28,12 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .InternalTransition(Trigger.X, t => { })
+                .Transition(Trigger.X).Internal().Do((_) => { })
                 .Transition(Trigger.Y).To(State.B);
 
             sm.Configure(State.B)
-                    .InternalTransition(Trigger.X, t => { })
-                    .Transition(Trigger.X).To(State.A);
+                    .Transition(Trigger.X).Internal().Do((_) => { })
+                    .Transition(Trigger.Y).To(State.A);
 
             // This should not cause any state changes
             Assert.Equal(State.A, sm.State);
@@ -55,7 +54,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.B);
 
             sm.Configure(State.A)
-                    .InternalTransition(Trigger.X, t => { });
+                    .Transition(Trigger.X).Internal().Do((_) => { });                    
 
             sm.Configure(State.B)
                     .SubstateOf(State.A);
@@ -74,7 +73,8 @@ namespace Stateless.Tests
 
             sm.Configure(State.B)
                     .SubstateOf(State.A)
-                    .InternalTransition(Trigger.X, t => { });
+                    .Transition(Trigger.X).Internal().Do((_) => { });
+                    
 
             // This should not cause any state changes
             Assert.Equal(State.B, sm.State);
