@@ -24,7 +24,7 @@ jobs:
       run: dotnet test --no-restore --no-build --configuration Release
       
   Publish_alpha_version:
-    if: github.event_name == 'push' && github.branch == 'dev'
+    if: github.branch == 'dev'
     runs-on: windows-latest
     steps:
     - name: Prepare package
@@ -33,7 +33,7 @@ jobs:
       run: dotnet nuget push src\stateless\bin\Debug\ -s nuget.org ---api-key ${{ secrets.NUGETAPIKEY }}
   
   Publish_Nuget_package:
-    if: github.event_name == 'push' && github.branch == 'master'
+    if: github.branch == 'master'
     runs-on: windows-latest
     steps:
     - name: Prepare package
