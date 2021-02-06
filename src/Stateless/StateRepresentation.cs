@@ -279,11 +279,21 @@ namespace Stateless
                 _substates.Add(substate);
             }
 
+            /// <summary>
+            /// Checks if the state is in the set of this state or its sub-states
+            /// </summary>
+            /// <param name="state">The state to check</param>
+            /// <returns>True if included</returns>
             public bool Includes(TState state)
             {
                 return _state.Equals(state) || _substates.Any(s => s.Includes(state));
             }
 
+            /// <summary>
+            /// Checks if the state is in the set of this state or a super-state
+            /// </summary>
+            /// <param name="state">The state to check</param>
+            /// <returns>True if included</returns>
             public bool IsIncludedIn(TState state)
             {
                 return
