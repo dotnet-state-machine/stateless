@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AssemblyTitle>Stateless</AssemblyTitle>
     <Product>Stateless</Product>
-    <TargetFrameworks>net50</TargetFrameworks>
+    <TargetFramework>net50</TargetFramework>
     <Description>Create state machines and lightweight state machine-based workflows directly in .NET code</Description>
     <Copyright>Copyright © Stateless Contributors 2009-2019</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
@@ -29,6 +29,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\asset\Stateless.png" Pack="true" PackagePath="\"/>
+    <None Include="..\..\asset\Stateless.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 </Project>

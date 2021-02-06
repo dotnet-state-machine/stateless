@@ -720,10 +720,9 @@ namespace Stateless.Tests
         {
             var sm = new StateMachine<State, Trigger>(State.B);
             var x = sm.SetTriggerParameters<int>(Trigger.X);
-            sm.Configure(State.A).PermitIf(x, State.D, i => i == 3);
-            {
-                sm.Configure(State.B).SubstateOf(State.A).PermitIf(x, State.C, i => i == 2);
-            }
+            sm.Configure(State.A).Transition(x).To( State.D).If<int>( i => i == 3);
+            sm.Configure(State.B).SubstateOf(State.A).Transition(x).To(State.C).If<int>( i => i == 2);
+            
             sm.Fire(x, 3);
             Assert.Equal(sm.State, State.D);
         }
@@ -733,9 +732,9 @@ namespace Stateless.Tests
         {
             var sm = new StateMachine<State, Trigger>(State.B);
             var x = sm.SetTriggerParameters<int>(Trigger.X);
-            sm.Configure(State.A).PermitIf(x, State.D, i => i == 3);
+            sm.Configure(State.A).Transition(x).To(State.D).If<int>(i => i == 3);
             {
-                sm.Configure(State.B).SubstateOf(State.A).PermitIf(x, State.C, i => i == 2);
+                sm.Configure(State.B).SubstateOf(State.A).Transition(x).To(State.C).If<int>(i => i == 2);
             }
             sm.Fire(x, 2);
             Assert.Equal(sm.State, State.C);
