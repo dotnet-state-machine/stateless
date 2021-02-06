@@ -88,7 +88,24 @@ namespace Stateless
 
             private static TriggerBehaviourResult TryFindLocalHandlerResultWithUnmetGuardConditions(IEnumerable<TriggerBehaviourResult> results)
             {
-                return results.FirstOrDefault(r => r.UnmetGuardConditions.Any());
+                var result = results.FirstOrDefault(r => r.UnmetGuardConditions.Any());
+
+                if (result != null)
+                {
+                    var unmetConditions = results.Where(r => r.UnmetGuardConditions.Any())
+                                                 .SelectMany(r => r.UnmetGuardConditions);
+
+                    // Add other unmet conditions to first result
+                    foreach (var condition in unmetConditions)
+                    {
+                        if (!result.UnmetGuardConditions.Contains(condition))
+                        {
+                            result.UnmetGuardConditions.Add(condition);
+                        }
+                    }
+                }
+
+                return result;
             }
 
             public void AddActivateAction(Action action, Reflection.InvocationInfo activateActionDescription)
