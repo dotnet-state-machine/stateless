@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Stateless.Tests
@@ -265,6 +267,73 @@ namespace Stateless.Tests
             sm.Fire(Trigger.X);
 
             Assert.Equal("BCD", onEntryCount);
+        }
+
+        [Fact]
+        public void TransitionEvents_OrderingWithInitialTransition()
+        {
+            var expectedOrdering = new List<string> { "OnExitA", "OnTransitionedAB", "OnEntryB", "OnTransitionedBC", "OnEntryC", "OnTransitionCompletedAC" };
+            var actualOrdering = new List<string>();
+
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .Permit(Trigger.X, State.B)
+                .OnExit(() => actualOrdering.Add("OnExitA"));
+
+            sm.Configure(State.B)
+                .InitialTransition(State.C)
+                .OnEntry(() => actualOrdering.Add("OnEntryB"));
+
+            sm.Configure(State.C)
+                .SubstateOf(State.B)
+                .OnEntry(() => actualOrdering.Add("OnEntryC"));
+
+            sm.OnTransitioned(t => actualOrdering.Add($"OnTransitioned{t.Source}{t.Destination}"));
+            sm.OnTransitionCompleted(t => actualOrdering.Add($"OnTransitionCompleted{t.Source}{t.Destination}"));
+
+            sm.Fire(Trigger.X);
+            Assert.Equal(State.C, sm.State);
+
+            Assert.Equal(expectedOrdering.Count, actualOrdering.Count);
+            for (int i = 0; i < expectedOrdering.Count; i++)
+            {
+                Assert.Equal(expectedOrdering[i], actualOrdering[i]);
+            }
+        }
+
+        [Fact]
+        public async void AsyncTransitionEvents_OrderingWithInitialTransition()
+        {
+            var expectedOrdering = new List<string> { "OnExitA", "OnTransitionedAB", "OnEntryB", "OnTransitionedBC", "OnEntryC", "OnTransitionCompletedAC" };
+            var actualOrdering = new List<string>();
+
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .Permit(Trigger.X, State.B)
+                .OnExit(() => actualOrdering.Add("OnExitA"));
+
+            sm.Configure(State.B)
+                .InitialTransition(State.C)
+                .OnEntry(() => actualOrdering.Add("OnEntryB"));
+
+            sm.Configure(State.C)
+                .SubstateOf(State.B)
+                .OnEntry(() => actualOrdering.Add("OnEntryC"));
+
+            sm.OnTransitionedAsync(t => Task.Run(() => actualOrdering.Add($"OnTransitioned{t.Source}{t.Destination}")));
+            sm.OnTransitionCompletedAsync(t => Task.Run(() => actualOrdering.Add($"OnTransitionCompleted{t.Source}{t.Destination}")));
+
+            // await so that the async call completes before asserting anything
+            await sm.FireAsync(Trigger.X);
+            Assert.Equal(State.C, sm.State);
+
+            Assert.Equal(expectedOrdering.Count, actualOrdering.Count);
+            for (int i = 0; i < expectedOrdering.Count; i++)
+            {
+                Assert.Equal(expectedOrdering[i], actualOrdering[i]);
+            }
         }
     }
 }

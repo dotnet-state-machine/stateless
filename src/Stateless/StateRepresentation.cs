@@ -38,8 +38,15 @@ namespace Stateless
 
             public bool TryFindHandler(TTrigger trigger, object[] args, out TriggerBehaviourResult handler)
             {
-                return (TryFindLocalHandler(trigger, args, out handler) ||
-                    (Superstate != null && Superstate.TryFindHandler(trigger, args, out handler)));
+                TriggerBehaviourResult superStateHandler = null;
+
+                bool handlerFound = (TryFindLocalHandler(trigger, args, out TriggerBehaviourResult localHandler) ||
+                                    (Superstate != null && Superstate.TryFindHandler(trigger, args, out superStateHandler)));
+
+                // If no handler for super state, replace by local handler (see issue #398)
+                handler = superStateHandler ?? localHandler;
+
+                return handlerFound;
             }
 
             private bool TryFindLocalHandler(TTrigger trigger, object[] args, out TriggerBehaviourResult handlerResult)
@@ -81,7 +88,24 @@ namespace Stateless
 
             private static TriggerBehaviourResult TryFindLocalHandlerResultWithUnmetGuardConditions(IEnumerable<TriggerBehaviourResult> results)
             {
-               return results.FirstOrDefault(r => r.UnmetGuardConditions.Any());
+                var result = results.FirstOrDefault(r => r.UnmetGuardConditions.Any());
+
+                if (result != null)
+                {
+                    var unmetConditions = results.Where(r => r.UnmetGuardConditions.Any())
+                                                 .SelectMany(r => r.UnmetGuardConditions);
+
+                    // Add other unmet conditions to first result
+                    foreach (var condition in unmetConditions)
+                    {
+                        if (!result.UnmetGuardConditions.Contains(condition))
+                        {
+                            result.UnmetGuardConditions.Add(condition);
+                        }
+                    }
+                }
+
+                return result;
             }
 
             public void AddActivateAction(Action action, Reflection.InvocationInfo activateActionDescription)
@@ -255,11 +279,21 @@ namespace Stateless
                 _substates.Add(substate);
             }
 
+            /// <summary>
+            /// Checks if the state is in the set of this state or its sub-states
+            /// </summary>
+            /// <param name="state">The state to check</param>
+            /// <returns>True if included</returns>
             public bool Includes(TState state)
             {
                 return _state.Equals(state) || _substates.Any(s => s.Includes(state));
             }
 
+            /// <summary>
+            /// Checks if the state is in the set of this state or a super-state
+            /// </summary>
+            /// <param name="state">The state to check</param>
+            /// <returns>True if included</returns>
             public bool IsIncludedIn(TState state)
             {
                 return
@@ -295,4 +329,3 @@ namespace Stateless
             public bool HasInitialTransition { get; private set; }
         }
     }
-}
