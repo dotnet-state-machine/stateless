@@ -15,7 +15,8 @@ namespace Stateless.Tests
             var state = State.B;
             var count = 0;
             var sm = new StateMachine<State, Trigger>(() => state, (s) => { state = s; count++; });
-            sm.Configure(State.B).Permit(Trigger.X, State.C);
+            sm.Configure(State.B).Transition(Trigger.X).To(State.C);
+
             sm.FireAsync(Trigger.X);
             Assert.Equal(1, count);
         }
@@ -26,7 +27,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-              .Permit(Trigger.X, State.B);
+                .Transition(Trigger.X).To(State.B);
 
             var test = "";
             sm.Configure(State.B)
@@ -44,7 +45,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-              .Permit(Trigger.X, State.B);
+              .Transition(Trigger.X).To(State.B);
 
             sm.Configure(State.B)
               .OnEntryAsync(() => TaskResult.Done);
@@ -60,7 +61,7 @@ namespace Stateless.Tests
             var test = "";
             sm.Configure(State.A)
               .OnExitAsync(() => Task.Run(() => test = "foo"))
-              .Permit(Trigger.X, State.B);
+              .Transition(Trigger.X).To(State.B);
 
             await sm.FireAsync(Trigger.X).ConfigureAwait(false);
 
@@ -75,7 +76,7 @@ namespace Stateless.Tests
 
             sm.Configure(State.A)
               .OnExitAsync(() => TaskResult.Done)
-              .Permit(Trigger.X, State.B);
+              .Transition(Trigger.X).To(State.B);
 
             Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
         }
@@ -111,7 +112,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-              .Permit(Trigger.X, State.B);
+              .Transition(Trigger.X).To(State.B);
 
             var test = "";
             sm.OnTransitionedAsync(_ => Task.Run(() => test = "foo"));
@@ -127,7 +128,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-              .Permit(Trigger.X, State.B);
+              .Transition(Trigger.X).To(State.B);
 
             var test = "";
             sm.OnTransitionCompletedAsync(_ => Task.Run(() => test = "foo"));
@@ -143,7 +144,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-              .Permit(Trigger.X, State.B);
+              .Transition(Trigger.X).To(State.B);
 
             var test1 = "";
             var test2 = "";
@@ -162,7 +163,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-              .Permit(Trigger.X, State.B);
+              .Transition(Trigger.X).To(State.B);
 
             var test1 = "";
             var test2 = "";
@@ -181,7 +182,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-              .Permit(Trigger.X, State.B);
+              .Transition(Trigger.X).To(State.B);
 
             sm.OnTransitionedAsync(_ => TaskResult.Done);
 
@@ -194,7 +195,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-              .Permit(Trigger.X, State.B);
+              .Transition(Trigger.X).To(State.B);
 
             sm.OnTransitionCompletedAsync(_ => TaskResult.Done);
 
@@ -207,7 +208,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-              .Permit(Trigger.X, State.B);
+              .Transition(Trigger.X).To(State.B);
 
             var test = "";
             sm.OnUnhandledTriggerAsync((s, t, u) => Task.Run(() => test = "foo"));
@@ -222,7 +223,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .Permit(Trigger.X, State.B);
+                .Transition(Trigger.X).To(State.B);
 
             sm.OnUnhandledTriggerAsync((s, t) => TaskResult.Done);
 
@@ -234,7 +235,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-              .Permit(Trigger.X, State.B);
+              .Transition(Trigger.X).To(State.B);
 
             sm.OnUnhandledTriggerAsync((s, t, u) => TaskResult.Done);
 
@@ -334,8 +335,8 @@ namespace Stateless.Tests
 
             sm.Configure(State.B)
                 .SubstateOf(State.A)
-                .Permit(Trigger.Y, State.A)
-                .OnExitAsync(t => Task.Run(() => subExit = true));
+                .OnExitAsync(t => Task.Run(() => subExit = true))
+                .Transition(Trigger.Y).To(State.A);
 
             await sm.FireAsync(Trigger.Y);
 
@@ -350,7 +351,7 @@ namespace Stateless.Tests
             bool nullRefExcThrown = false;
             var stateMachine = new StateMachine<State, Trigger>(State.B);
             stateMachine.Configure(State.A)
-                .Permit(Trigger.X, State.C);
+                .Transition(Trigger.X).To(State.C);
 
             stateMachine.Configure(State.B)
                 .SubstateOf(State.A)
@@ -361,7 +362,7 @@ namespace Stateless.Tests
                 // >>> The following statement should not throw a NullReferenceException
                 await stateMachine.FireAsync(Trigger.X);
             }
-            catch (NullReferenceException )
+            catch (NullReferenceException)
             {
                 nullRefExcThrown = true;
             }
@@ -375,16 +376,16 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .Permit(Trigger.X, State.B);
+                .Transition(Trigger.X).To(State.B);
 
             sm.Configure(State.B)
                 .InitialTransition(State.C)
                 .OnEntry(() => sm.Fire(Trigger.Y))
-                .Permit(Trigger.Y, State.D);
+                .Transition(Trigger.Y).To(State.D);
 
             sm.Configure(State.C)
                 .SubstateOf(State.B)
-                .Permit(Trigger.Y, State.D);
+                .Transition(Trigger.Y).To(State.D);
 
             sm.FireAsync(Trigger.X);
 

@@ -45,7 +45,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<TState, TTransition>(a);
 
             sm.Configure(a)
-                .Permit(x, b);
+                .Transition(x).To(b);
 
             sm.Fire(x);
 
@@ -65,7 +65,7 @@ namespace Stateless.Tests
         {
             var state = State.B;
             var sm = new StateMachine<State, Trigger>(() => state, s => state = s);
-            sm.Configure(State.B).Permit(Trigger.X, State.C);
+            sm.Configure(State.B).Transition(Trigger.X).To(State.C);
             Assert.Equal(State.B, sm.State);
             Assert.Equal(State.B, state);
             sm.Fire(Trigger.X);
@@ -79,7 +79,7 @@ namespace Stateless.Tests
             var state = State.B;
             var count = 0;
             var sm = new StateMachine<State, Trigger>(() => state, (s) => { state = s; count++; });
-            sm.Configure(State.B).Permit(Trigger.X, State.C);
+            sm.Configure(State.B).Transition(Trigger.X).To(State.C);
             sm.Fire(Trigger.X);
             Assert.Equal(1, count);
         }
@@ -116,14 +116,14 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.B);
 
             sm.Configure(State.A)
-                .Permit(Trigger.Z, State.B);
+                .Transition(Trigger.Z).To(State.B);
 
             sm.Configure(State.B)
                 .SubstateOf(State.C)
-                .Permit(Trigger.X, State.A);
+                .Transition(Trigger.X).To(State.A);
 
             sm.Configure(State.C)
-                .Permit(Trigger.Y, State.A);
+                .Transition(Trigger.Y).To(State.A);
 
             var permitted = sm.GetPermittedTriggers();
 
@@ -139,10 +139,10 @@ namespace Stateless.Tests
 
             sm.Configure(State.B)
                 .SubstateOf(State.C)
-                .Permit(Trigger.X, State.A);
+                .Transition(Trigger.X).To(State.A);
 
             sm.Configure(State.C)
-                .Permit(Trigger.X, State.B);
+                .Transition(Trigger.X).To(State.B);
 
             var permitted = sm.GetPermittedTriggers();
             Assert.Equal(1, permitted.Count());
@@ -243,7 +243,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.B);
 
             Assert.Throws<ArgumentException>(() => sm.Configure(State.B)
-               .Permit(Trigger.X, State.B));
+               .Transition(Trigger.X).To(State.B));
         }
 
         [Fact]
@@ -295,7 +295,7 @@ namespace Stateless.Tests
             var x = sm.SetTriggerParameters<string, int>(Trigger.X);
 
             sm.Configure(State.B)
-                .Permit(Trigger.X, State.C);
+                .Transition(Trigger.X).To(State.C);
 
             string entryArgS = null;
             int entryArgI = 0;
@@ -341,7 +341,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.B);
 
             sm.Configure(State.B)
-                .Permit(Trigger.X, State.A);
+                .Transition(Trigger.X).To(State.A);
 
             StateMachine<State, Trigger>.Transition transition = null;
             sm.OnTransitioned(t => transition = t);
@@ -361,7 +361,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.B);
 
             sm.Configure(State.B)
-                .Permit(Trigger.X, State.A);
+                .Transition(Trigger.X).To(State.A);
 
             StateMachine<State, Trigger>.Transition transition = null;
             sm.OnTransitionCompleted(t => transition = t);
@@ -386,7 +386,7 @@ namespace Stateless.Tests
             var actualOrdering = new List<string>();
 
             sm.Configure(State.B)
-                .Permit(Trigger.X, State.A)
+                .Transition(Trigger.X).To(State.A)
                 .OnExit(() => actualOrdering.Add("OnExit"));
 
             sm.Configure(State.A)
@@ -411,7 +411,7 @@ namespace Stateless.Tests
             var triggerX = sm.SetTriggerParameters<string>(Trigger.X);
 
             sm.Configure(State.B)
-                .Permit(Trigger.X, State.A);
+                .Transition(Trigger.X).To(State.A);
 
             StateMachine<State, Trigger>.Transition transition = null;
             sm.OnTransitioned(t => transition = t);
@@ -434,7 +434,7 @@ namespace Stateless.Tests
             var triggerX = sm.SetTriggerParameters<string>(Trigger.X);
 
             sm.Configure(State.B)
-                .Permit(Trigger.X, State.A);
+                .Transition(Trigger.X).To(State.A);
 
             StateMachine<State, Trigger>.Transition transition = null;
             sm.OnTransitionCompleted(t => transition = t);
@@ -457,7 +457,7 @@ namespace Stateless.Tests
             var triggerX = sm.SetTriggerParameters<string, int, bool>(Trigger.X);
 
             sm.Configure(State.B)
-                .Permit(Trigger.X, State.A);
+                .Transition(Trigger.X).To(State.A);
 
             StateMachine<State, Trigger>.Transition transition = null;
             sm.OnTransitioned(t => transition = t);
@@ -484,7 +484,7 @@ namespace Stateless.Tests
             var triggerX = sm.SetTriggerParameters<string, int, bool>(Trigger.X);
 
             sm.Configure(State.B)
-                .Permit(Trigger.X, State.A);
+                .Transition(Trigger.X).To(State.A);
 
             StateMachine<State, Trigger>.Transition transition = null;
             sm.OnTransitionCompleted(t => transition = t);
@@ -843,7 +843,7 @@ namespace Stateless.Tests
 
             sm.Configure(State.B)
                 .SubstateOf(State.A)
-                .Permit(Trigger.Y, State.A)
+                .Transition(Trigger.Y).To(State.A)
                 .OnExit(() => subExit = true);
 
             sm.Fire(Trigger.Y);
@@ -886,7 +886,7 @@ namespace Stateless.Tests
         {
             var trigger = Trigger.X;
             var sm = new StateMachine<State, Trigger>(State.A);
-            sm.Configure(State.A).Permit(trigger, State.B);
+            sm.Configure(State.A).Transition(trigger).To(State.B);
             Assert.True(sm.CanFire(trigger));
         }
         [Fact]
@@ -894,7 +894,7 @@ namespace Stateless.Tests
         {
             var trigger = Trigger.X;
             var sm = new StateMachine<State, Trigger>(State.A);
-            sm.Configure(State.A).Permit(trigger, State.B);
+            sm.Configure(State.A).Transition(trigger).To(State.B);
             Assert.Single(sm.PermittedTriggers, trigger);
         }
 
@@ -904,7 +904,7 @@ namespace Stateless.Tests
         {
             var trigger = Trigger.X;
             var sm = new StateMachine<State, Trigger>(State.A);
-            sm.Configure(State.A).Permit(trigger, State.B);
+            sm.Configure(State.A).Transition(trigger).To(State.B);
             sm.SetTriggerParameters<string>(trigger);
             Assert.True(sm.CanFire(trigger));
         }
@@ -913,7 +913,7 @@ namespace Stateless.Tests
         {
             var trigger = Trigger.X;
             var sm = new StateMachine<State, Trigger>(State.A);
-            sm.Configure(State.A).Permit(trigger, State.B);
+            sm.Configure(State.A).Transition(trigger).To(State.B);
             sm.SetTriggerParameters<string>(trigger);
             Assert.Single(sm.PermittedTriggers, trigger);
         }
@@ -977,9 +977,10 @@ namespace Stateless.Tests
         {
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A)
-                .Permit(Trigger.X, State.B)
                 .InternalTransition(Trigger.Y, _ => { })
-                .Ignore(Trigger.Z);
+                .Ignore(Trigger.Z)
+                .Transition(Trigger.X).To(State.B);
+
             Assert.All(new[] { Trigger.X, Trigger.Y, Trigger.Z }, trigger => Assert.Contains(trigger, sm.PermittedTriggers));
         }
 
@@ -988,7 +989,7 @@ namespace Stateless.Tests
         {
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A)
-                .Permit(Trigger.X, State.B);
+                .Transition(Trigger.X).To(State.B);
             Assert.All(new[] { Trigger.Y, Trigger.Z }, trigger => Assert.DoesNotContain(trigger, sm.PermittedTriggers));
         }
 
@@ -1004,11 +1005,11 @@ namespace Stateless.Tests
             StateMachine<State, Trigger> hsm(State initialState)
                 => new StateMachine<State, Trigger>(initialState)
                         .Configure(superState)
-                        .Permit(superStateTrigger, otherState)
+                        .Transition(superStateTrigger).To(otherState)
                     .Machine
                         .Configure(subState)
                         .SubstateOf(superState)
-                        .Permit(subStateTrigger, otherState)
+                        .Transition(subStateTrigger).To(otherState)
                     .Machine;
 
             var hsmInSuperstate = hsm(superState);

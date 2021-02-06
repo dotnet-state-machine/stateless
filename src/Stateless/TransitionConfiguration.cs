@@ -116,6 +116,16 @@ namespace Stateless
 
                 return new DestinationConfiguration(this, dtb, _representation);
             }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="exitAction"></param>
+            /// <returns></returns>
+            public StateConfiguration OnExit(Action exitAction)
+            {
+                return StateConfiguration.OnExit(exitAction);
+            }
         }
     }
 }

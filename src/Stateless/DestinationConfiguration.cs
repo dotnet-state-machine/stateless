@@ -12,12 +12,26 @@ namespace Stateless
             private readonly TransitionConfiguration _transitionConfiguration;
             private readonly TriggerBehaviour _triggerBehaviour;
             private readonly StateRepresentation _representation;
+            /// <summary>
+            /// 
+            /// </summary>
+            public StateMachine<TState, TTrigger> Machine => _transitionConfiguration.StateConfiguration.Machine;
 
             internal DestinationConfiguration(TransitionConfiguration transitionConfiguration, TriggerBehaviour triggerBehaviour, StateRepresentation representation)
             {
                 _transitionConfiguration = transitionConfiguration;
                 _triggerBehaviour = triggerBehaviour;
                 _representation = representation;
+            }
+            /// <summary>
+            /// Adds a guard function to the trigger. This guard function will determine if the transition will occur or not.
+            /// </summary>
+            /// <param name="guard">This method is run when the state machine fires the trigger.</param>
+            /// <param name="description">Optional description of the guard</param>
+            public DestinationConfiguration If(Func<bool> guard, string description = null)
+            {
+                _triggerBehaviour.SetGuard(new TransitionGuard(guard, description));
+                return this;
             }
 
             /// <summary>
@@ -87,6 +101,15 @@ namespace Stateless
                 
                 _triggerBehaviour.AddAction((t, args) => someAction(ParameterConversion.Unpack<TArg>(args, 0), t));
                 return _transitionConfiguration.StateConfiguration;
+            }
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="action"></param>
+            /// <returns></returns>
+            public StateConfiguration OnExit(Action action)
+            {
+                return _transitionConfiguration.OnExit(action);
             }
         }
     }

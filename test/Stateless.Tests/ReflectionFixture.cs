@@ -103,7 +103,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .Permit(Trigger.X, State.B);
+                .Transition(Trigger.X).To(State.B);
 
             StateMachineInfo inf = sm.GetInfo();
 
@@ -139,8 +139,8 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .Permit(Trigger.X, State.B)
-                .Permit(Trigger.Y, State.C);
+                .Transition(Trigger.X).To(State.B)
+                .Transition(Trigger.Y).To(State.C);
 
             StateMachineInfo inf = sm.GetInfo();
 
@@ -544,7 +544,7 @@ namespace Stateless.Tests
 
             sm.Configure(State.A)
                 .Ignore(Trigger.Y)
-                .Permit(Trigger.X, State.B);
+                .Transition(Trigger.X).To(State.B);
 
             StateMachineInfo inf = sm.GetInfo();
 

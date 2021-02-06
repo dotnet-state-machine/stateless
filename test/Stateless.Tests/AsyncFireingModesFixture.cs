@@ -22,7 +22,7 @@ namespace Stateless.Tests
 
             sm.Configure(State.A)
                 .OnEntry(() => record.Add("EnterA"))
-                .Permit(Trigger.X, State.B)
+                .Transition(Trigger.X).To(State.B)
                 .OnExit(() => record.Add("ExitA"));
 
             sm.Configure(State.B)
@@ -32,7 +32,7 @@ namespace Stateless.Tests
                     // Fire this before finishing processing the entry action
                     sm.FireAsync(Trigger.Y);
                 })
-                .Permit(Trigger.Y, State.A)
+                .Transition(Trigger.Y).To(State.A)
                 .OnExit(() => record.Add("ExitB"));
 
             sm.FireAsync(Trigger.X);
@@ -56,7 +56,7 @@ namespace Stateless.Tests
 
             sm.Configure(State.A)
                 .OnEntry(() => record.Add("EnterA"))
-                .Permit(Trigger.X, State.B)
+                .Transition(Trigger.X).To(State.B)
                 .OnExit(() => record.Add("ExitA"));
 
             sm.Configure(State.B)
@@ -66,7 +66,7 @@ namespace Stateless.Tests
                     sm.FireAsync(Trigger.Y);
                     record.Add("EnterB");
                 })
-                .Permit(Trigger.Y, State.A)
+                .Transition(Trigger.Y).To(State.A)
                 .OnExit(() => record.Add("ExitB"));
 
             sm.FireAsync(Trigger.X);
@@ -89,7 +89,7 @@ namespace Stateless.Tests
 
             sm.Configure(State.A)
                 .OnEntry(() => record.Add("EnterA"))
-                .Permit(Trigger.X, State.B)
+                .Transition(Trigger.X).To(State.B)
                 .OnExit(() => record.Add("ExitA"));
 
             sm.Configure(State.B)
@@ -99,12 +99,12 @@ namespace Stateless.Tests
                     // Fire this before finishing processing the entry action
                     sm.Fire(Trigger.X);
                 })
-                .Permit(Trigger.X, State.C)
+                .Transition(Trigger.X).To(State.C)
                 .OnExit(() => record.Add("ExitB"));
 
             sm.Configure(State.C)
                 .OnEntry(() => record.Add("EnterC"))
-                .Permit(Trigger.X, State.A)
+                .Transition(Trigger.X).To(State.A)
                 .OnExit(() => record.Add("ExitC"));
 
             sm.FireAsync(Trigger.X);
@@ -133,21 +133,21 @@ namespace Stateless.Tests
             });
 
             sm.Configure(State.A)
-                .Permit(Trigger.X, State.B);
+                .Transition(Trigger.X).To(State.B);
 
             sm.Configure(State.B)
                 .OnEntryAsync(async () =>
                 {
                     await sm.FireAsync(Trigger.Y).ConfigureAwait(false);
                 })
-                .Permit(Trigger.Y, State.C);
+                .Transition(Trigger.Y).To(State.C);
 
             sm.Configure(State.C)
                 .OnEntryAsync(async () =>
                 {
                     await sm.FireAsync(Trigger.Z).ConfigureAwait(false);
                 })
-                .Permit(Trigger.Z, State.A);
+                .Transition(Trigger.Z).To(State.A);
 
             await sm.FireAsync(Trigger.X);
 
@@ -171,7 +171,7 @@ namespace Stateless.Tests
                     onEntryCount += "A";
                     await Task.Delay(10);
                 })
-                .Permit(Trigger.X, State.B);
+                .Transition(Trigger.X).To(State.B);
 
             sm.Configure(State.B)
                 .OnEntryAsync(async () =>

@@ -128,14 +128,14 @@ namespace Stateless.Tests
               .OnDeactivate(() => actualOrdering.Add("DeactivatedA"))
               .OnEntry(() => actualOrdering.Add("EnteredA"))
               .OnExit(() => actualOrdering.Add("ExitedA"))
-              .Permit(Trigger.X, State.B);
+              .Transition(Trigger.X).To(State.B);
 
             sm.Configure(State.B)
               .OnActivate(() => actualOrdering.Add("ActivatedB"))
               .OnDeactivate(() => actualOrdering.Add("DeactivatedB"))
               .OnEntry(() => actualOrdering.Add("EnteredB"))
               .OnExit(() => actualOrdering.Add("ExitedB"))
-              .Permit(Trigger.Y, State.A);
+              .Transition(Trigger.Y).To(State.A);
 
             sm.OnTransitioned(t => actualOrdering.Add("OnTransitioned"));
             sm.OnTransitionCompleted(t => actualOrdering.Add("OnTransitionCompleted"));
@@ -166,13 +166,13 @@ namespace Stateless.Tests
               .SubstateOf(State.C)
               .OnActivate(() => actualOrdering.Add("ActivatedA"))
               .OnDeactivate(() => actualOrdering.Add("DeactivatedA"))
-              .Permit(Trigger.X, State.B);
+              .Transition(Trigger.X).To(State.B);
 
             sm.Configure(State.B)
               .SubstateOf(State.C)
               .OnActivate(() => actualOrdering.Add("ActivatedB"))
               .OnDeactivate(() => actualOrdering.Add("DeactivatedB"))
-              .Permit(Trigger.Y, State.A);
+              .Transition(Trigger.Y).To(State.A);
 
             sm.Configure(State.C)
               .OnActivate(() => actualOrdering.Add("ActivatedC"))

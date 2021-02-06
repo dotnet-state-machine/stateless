@@ -20,7 +20,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A, FiringMode.Immediate);
 
             sm.Configure(State.A)
-                .Permit(Trigger.X, State.B);
+                .Transition(Trigger.X).To(State.B);
 
             sm.Configure(State.B)
                 .OnEntry(() =>
@@ -28,14 +28,14 @@ namespace Stateless.Tests
                     System.Console.WriteLine("OnEntryS2()");
                     sm.Fire(Trigger.X);
                 })
-                .Permit(Trigger.X, State.C);
+                .Transition(Trigger.X).To(State.C);
 
             sm.Configure(State.C)
                 .OnEntry(() =>
                 {
                     System.Console.WriteLine("OnEntryS3()");
                 })
-                .Permit(Trigger.X, State.A);
+                .Transition(Trigger.X).To(State.A);
 
 
             sm.Fire(Trigger.X);

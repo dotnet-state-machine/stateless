@@ -30,11 +30,11 @@ namespace Stateless.Tests
 
             sm.Configure(State.A)
                 .InternalTransition(Trigger.X, t => { })
-                .Permit(Trigger.Y, State.B);
+                .Transition(Trigger.Y).To(State.B);
 
             sm.Configure(State.B)
                     .InternalTransition(Trigger.X, t => { })
-                    .Permit(Trigger.Y, State.A);
+                    .Transition(Trigger.X).To(State.A);
 
             // This should not cause any state changes
             Assert.Equal(State.A, sm.State);
@@ -101,11 +101,11 @@ namespace Stateless.Tests
 
             sm.Configure(State.A)
                 .InternalTransition(Trigger.X, () => { })
-                .Permit(Trigger.Y, State.B);
+                .Transition(Trigger.Y).To(State.B);
 
             sm.Configure(State.B)
                     .InternalTransition(Trigger.X, () => { })
-                    .Permit(Trigger.Y, State.A);
+                    .Transition(Trigger.Y).To(State.A);
 
             // This should not cause any state changes
             Assert.Equal(State.A, sm.State);

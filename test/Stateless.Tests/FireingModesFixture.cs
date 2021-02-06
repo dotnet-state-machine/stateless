@@ -20,8 +20,8 @@ namespace Stateless.Tests
 
             sm.Configure(State.A)
                 .OnEntry(() => record.Add("EnterA"))
-                .Permit(Trigger.X, State.B)
-                .OnExit(() => record.Add("ExitA"));
+                .OnExit(() => record.Add("ExitA"))
+                .Transition(Trigger.X).To(State.B);
 
             sm.Configure(State.B)
                 .OnEntry(() =>
@@ -30,8 +30,8 @@ namespace Stateless.Tests
                     sm.Fire(Trigger.Y);
                     record.Add("EnterB");
                 })
-                .Permit(Trigger.Y, State.A)
-                .OnExit(() => record.Add("ExitB"));
+                .OnExit(() => record.Add("ExitB"))
+                .Transition(Trigger.Y).To(State.A);
 
             sm.Fire(Trigger.X);
 
@@ -53,7 +53,7 @@ namespace Stateless.Tests
 
             sm.Configure(State.A)
                 .OnEntry(() => record.Add("EnterA"))
-                .Permit(Trigger.X, State.B)
+                .Transition(Trigger.X).To(State.B)
                 .OnExit(() => record.Add("ExitA"));
 
             sm.Configure(State.B)
@@ -63,7 +63,7 @@ namespace Stateless.Tests
                     sm.Fire(Trigger.Y);
                     record.Add("EnterB");
                 })
-                .Permit(Trigger.Y, State.A)
+                .Transition(Trigger.Y).To(State.A)
                 .OnExit(() => record.Add("ExitB"));
 
             sm.Fire(Trigger.X);
@@ -86,7 +86,7 @@ namespace Stateless.Tests
 
             sm.Configure(State.A)
                 .OnEntry(() => record.Add("EnterA"))
-                .Permit(Trigger.X, State.B)
+                .Transition(Trigger.X).To(State.B)
                 .OnExit(() => record.Add("ExitA"));
 
             sm.Configure(State.B)
@@ -96,12 +96,12 @@ namespace Stateless.Tests
                     // Fire this before finishing processing the entry action
                     sm.Fire(Trigger.X);
                 })
-                .Permit(Trigger.X, State.C)
+                .Transition(Trigger.X).To(State.C)
                 .OnExit(() => record.Add("ExitB"));
 
             sm.Configure(State.C)
                 .OnEntry(() => record.Add("EnterC"))
-                .Permit(Trigger.X, State.A)
+                .Transition(Trigger.X).To(State.A)
                 .OnExit(() => record.Add("ExitC"));
 
             sm.Fire(Trigger.X);

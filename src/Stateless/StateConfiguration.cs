@@ -33,19 +33,6 @@ namespace Stateless
             public StateMachine<TState, TTrigger> Machine { get { return _machine; } }
 
             /// <summary>
-            /// Accept the specified trigger and transition to the destination state.
-            /// </summary>
-            /// <param name="trigger">The accepted trigger.</param>
-            /// <param name="destinationState">The state that the trigger will cause a
-            /// transition to.</param>
-            /// <returns>The receiver.</returns>
-            public StateConfiguration Permit(TTrigger trigger, TState destinationState)
-            {
-                EnforceNotIdentityTransition(destinationState);
-                return InternalPermit(trigger, destinationState);
-            }
-
-            /// <summary>
             /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
             /// </summary>
             /// <param name="trigger"></param>
