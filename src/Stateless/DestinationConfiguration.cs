@@ -35,6 +35,30 @@ namespace Stateless
             }
 
             /// <summary>
+            /// Adds guard functions to the trigger. The guard functions will determine if the transition will occur or not.
+            /// </summary>
+            /// <param name="guards">Functions and their descriptions that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <returns>The receiver.</returns>
+            public DestinationConfiguration If(params Tuple<Func<bool>, string>[] guards)
+            {
+                _triggerBehaviour.SetGuard(new TransitionGuard(guards));
+                return this;
+            }
+
+            /// <summary>
+            /// Adds guard functions to the trigger. The guard functions will determine if the transition will occur or not.
+            /// </summary>
+            /// <param name="guards">Functions and their descriptions that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <returns>The receiver.</returns>
+            public DestinationConfiguration If<TArg>(params Tuple<Func<TArg, bool>, string>[] guards)
+            {
+                _triggerBehaviour.SetGuard(new TransitionGuard(TransitionGuard.ToPackedGuards(guards)));
+                return this;
+            }
+
+            /// <summary>
             /// Adds a guard function to the trigger. This guard function will determine if the transition will occur or not.
             /// </summary>
             /// <param name="guard">This method is run when the state machine fires the trigger.</param>
@@ -58,12 +82,34 @@ namespace Stateless
             }
 
             /// <summary>
+            /// Adds a guard function to the trigger. This guard function will determine if the transition will occur or not.
+            /// </summary>
+            /// <typeparam name="TArg0">The parameter to the guard function </typeparam>
+            /// <typeparam name="TArg1">The parameter to the guard function </typeparam>
+            /// <param name="guard">This method is run when the state machine fires the trigger.</param>
+            /// <param name="description">Optional description of the guard</param>
+            public DestinationConfiguration If<TArg0, TArg1>(Func<TArg0, TArg1, bool> guard, string description = null)
+            {
+                _triggerBehaviour.SetGuard(new TransitionGuard(TransitionGuard.ToPackedGuard(guard), description));
+                return this;
+            }
+
+            /// <summary>
             /// Creates a new transition. Use To(), Self(), Internal() or Dynamic() to set up the destination.
             /// </summary>
             /// <param name="trigger">The event trigger that will trigger this transition.</param>
             public TransitionConfiguration Transition(TTrigger trigger)
             {
                 return new TransitionConfiguration(_transitionConfiguration.StateConfiguration, _representation, trigger);
+            }
+
+            /// <summary>
+            /// Creates a new transition. Use To(), Self(), Internal() or Dynamic() to set up the destination.
+            /// </summary>
+            /// <param name="trigger">The event trigger that will trigger this transition.</param>
+            public TransitionConfiguration Transition(TriggerWithParameters trigger)
+            {
+                return new TransitionConfiguration(_transitionConfiguration.StateConfiguration, _representation, trigger.Trigger);
             }
 
             /// <summary>

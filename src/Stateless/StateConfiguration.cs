@@ -36,26 +36,6 @@ namespace Stateless
             /// Accept the specified trigger and transition to the destination state.
             /// </summary>
             /// <param name="trigger">The accepted trigger.</param>
-            /// <param name="destinationState">The state that the trigger will cause a
-            /// transition to.</param>
-            /// <param name="guard">Function that must return true in order for the
-            /// trigger to be accepted.</param>
-            /// <param name="guardDescription">Guard description</param>
-            /// <returns>The receiver.</returns>
-            public StateConfiguration PermitIf(TTrigger trigger, TState destinationState, Func<bool> guard, string guardDescription = null)
-            {
-                EnforceNotIdentityTransition(destinationState);
-
-                return InternalPermitIf(
-                    trigger,
-                    destinationState,
-                    new TransitionGuard(guard, guardDescription));
-            }
-
-            /// <summary>
-            /// Accept the specified trigger and transition to the destination state.
-            /// </summary>
-            /// <param name="trigger">The accepted trigger.</param>
             /// <param name="guards">Functions and their descriptions that must return true in order for the
             /// trigger to be accepted.</param>
             /// <param name="destinationState">State of the destination.</param>
@@ -1538,6 +1518,15 @@ namespace Stateless
             public TransitionConfiguration Transition(TTrigger trigger)
             {
                 return new TransitionConfiguration(this, _representation, trigger);
+            }
+
+            /// <summary>
+            /// Creates a new transition. Use To(), Self(), Internal() or Dynamic() to set up the destination.
+            /// </summary>
+            /// <param name="trigger">The event trigger that will trigger this transition.</param>
+            public TransitionConfiguration Transition(TriggerWithParameters trigger)
+            {
+                return new TransitionConfiguration(this, _representation, trigger.Trigger);
             }
         }
     }

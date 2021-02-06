@@ -198,7 +198,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .PermitIf(Trigger.X, State.B, anonymousGuard);
+                .Transition(Trigger.X).To(State.B).If( anonymousGuard);
 
             StateMachineInfo inf = sm.GetInfo();
 
@@ -238,7 +238,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .PermitIf(Trigger.X, State.B, anonymousGuard, "description");
+                .Transition(Trigger.X).To( State.B).If( anonymousGuard, "description");
 
             StateMachineInfo inf = sm.GetInfo();
 
@@ -277,7 +277,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .PermitIf(Trigger.X, State.B, IsTrue);
+                .Transition(Trigger.X).To(State.B).If(IsTrue);
 
             StateMachineInfo inf = sm.GetInfo();
 
@@ -316,7 +316,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .PermitIf(Trigger.X, State.B, IsTrue, "description");
+                .Transition(Trigger.X).To(State.B).If(IsTrue, "description");
 
             StateMachineInfo inf = sm.GetInfo();
 
@@ -832,13 +832,13 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .PermitIf(Trigger.X, State.B, Permit);
+                .Transition(Trigger.X).To(State.B).If(Permit);
             sm.Configure(State.B)
-                .PermitIf(Trigger.X, State.C, Permit, UserDescription + "B-Permit");
+                .Transition(Trigger.X).To(State.C).If( Permit, UserDescription + "B-Permit");
             sm.Configure(State.C)
-                .PermitIf(Trigger.X, State.B, () => Permit());
+                .Transition(Trigger.X).To(State.B).If(() => Permit());
             sm.Configure(State.D)
-                .PermitIf(Trigger.X, State.C, () => Permit(), UserDescription + "D-Permit");
+                .Transition(Trigger.X).To(State.C).If( () => Permit(), UserDescription + "D-Permit");
 
             StateMachineInfo inf = sm.GetInfo();
 

@@ -372,7 +372,7 @@ namespace Stateless.Tests
             var fsm = new StateMachine<State, Trigger>(State.B);
             fsm.OnUnhandledTrigger((state, trigger, descriptions) => guardDescriptions = descriptions);
 
-            fsm.Configure(State.B).SubstateOf(State.A).PermitIf(Trigger.X, State.C, () => false, expectedGuardDescription);
+            fsm.Configure(State.B).SubstateOf(State.A).Transition(Trigger.X).To( State.C).If( () => false, expectedGuardDescription);
 
             fsm.Fire(Trigger.X);
 
@@ -394,7 +394,7 @@ namespace Stateless.Tests
 
             fsm.Configure(State.A)
                 .PermitReentryIf(Trigger.X, () => false, "PermitReentryIf guard failed")
-                .PermitIf(Trigger.X, State.C, () => false, "PermitIf guard failed");
+                .Transition(Trigger.X).To(State.C).If( () => false, "PermitIf guard failed");
 
             fsm.Fire(Trigger.X);
 
