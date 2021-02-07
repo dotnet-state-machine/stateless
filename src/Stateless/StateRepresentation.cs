@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Stateless
 {
@@ -113,9 +114,19 @@ namespace Stateless
                 ActivateActions.Add(new ActivateActionBehaviour.Sync(_state, action, activateActionDescription));
             }
 
+            public void AddActivateAction(Func<Task> action, Reflection.InvocationInfo activateActionDescription)
+            {
+                ActivateActions.Add(new ActivateActionBehaviour.Async(_state, action, activateActionDescription));
+            }
+
             public void AddDeactivateAction(Action action, Reflection.InvocationInfo deactivateActionDescription)
             {
                 DeactivateActions.Add(new DeactivateActionBehaviour.Sync(_state, action, deactivateActionDescription));
+            }
+
+            public void AddDeactivateAction(Func<Task> action, Reflection.InvocationInfo deactivateActionDescription)
+            {
+                DeactivateActions.Add(new DeactivateActionBehaviour.Async(_state, action, deactivateActionDescription));
             }
 
             public void AddEntryAction(TTrigger trigger, Action<Transition, object[]> action, Reflection.InvocationInfo entryActionDescription)

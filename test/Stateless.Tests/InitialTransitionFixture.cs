@@ -203,7 +203,7 @@ namespace Stateless.Tests
                 .InitialTransition(State.B)
                 .OnEntry(t => onEntryStateAfired = ++order)
                 .OnExit(t => onExitStateAfired = ++order)
-                .PermitReentry(Trigger.X);
+                .Transition(Trigger.X).Self();
 
             sm.Configure(State.B)
                 .SubstateOf(State.A)
@@ -322,8 +322,8 @@ namespace Stateless.Tests
                 .SubstateOf(State.B)
                 .OnEntry(() => actualOrdering.Add("OnEntryC"));
 
-            sm.OnTransitionedAsync(t => Task.Run(() => actualOrdering.Add($"OnTransitioned{t.Source}{t.Destination}")));
-            sm.OnTransitionCompletedAsync(t => Task.Run(() => actualOrdering.Add($"OnTransitionCompleted{t.Source}{t.Destination}")));
+            sm.OnTransitioned(t => Task.Run(() => actualOrdering.Add($"OnTransitioned{t.Source}{t.Destination}")));
+            sm.OnTransitionCompleted(t => Task.Run(() => actualOrdering.Add($"OnTransitionCompleted{t.Source}{t.Destination}")));
 
             // await so that the async call completes before asserting anything
             await sm.FireAsync(Trigger.X);

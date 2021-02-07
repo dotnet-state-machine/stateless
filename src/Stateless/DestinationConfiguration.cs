@@ -187,6 +187,28 @@ namespace Stateless
             {
                 return _transitionConfiguration.OnExit(action);
             }
+
+            /// <summary>
+            /// Specify an action that will execute when transitioning from
+            /// the configured state.
+            /// </summary>
+            /// <param name="exitAction">Action to execute, providing details of the transition.</param>
+            /// <param name="exitActionDescription">Action description.</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration OnExit(Action<Transition> exitAction, string exitActionDescription = null)
+            {
+                return _transitionConfiguration.OnExit(exitAction, exitActionDescription);
+            }
+
+            /// <summary>
+            /// Ignore the specified trigger when in the configured state.
+            /// </summary>
+            /// <param name="trigger">The trigger to ignore.</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration Ignore(TTrigger trigger)
+            {
+                return _transitionConfiguration.Ignore(trigger);
+            }
         }
     }
 }

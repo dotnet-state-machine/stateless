@@ -230,7 +230,7 @@ namespace Stateless.Tests
 
             sm.Configure(State.B)
                 .OnEntry(t => fired = true)
-                .PermitReentry(Trigger.X);
+                .Transition(Trigger.X).Self();
 
             sm.Fire(Trigger.X);
 
@@ -542,7 +542,7 @@ namespace Stateless.Tests
 
             sm.Configure(State.A)
                 .OnEntry(CountCalls)
-                .PermitReentry(Trigger.X)
+                .Transition(Trigger.X).Self()
                 .Ignore(Trigger.Y);
 
             _numCalls = 0;
@@ -561,7 +561,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .OnEntryFrom(Trigger.X, CountCalls)
                 .OnEntryFrom(Trigger.Y, CountCalls)
-                .PermitReentry(Trigger.X)
+                .Transition(Trigger.X).Self()
                 .Ignore(Trigger.Y);
 
             _numCalls = 0;
@@ -583,7 +583,7 @@ namespace Stateless.Tests
 
             sm.Configure(State.B)
                 .OnEntry(t => onEntryStateBfired = true)
-                .PermitReentry(Trigger.X)
+                .Transition(Trigger.X).Self()
                 .OnExit(t => onExitStateBfired = true);
 
             sm.Configure(State.A)
@@ -746,7 +746,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
             var x = sm.SetTriggerParameters<int>(Trigger.X);
             sm.Configure(State.A)
-                .PermitReentryIf(x, i => i == 3);
+                .Transition(x).Self().If<int>(i => i == 3);
             sm.Fire(x, 3);
             Assert.Equal(sm.State, State.A);
         }
@@ -757,7 +757,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
             var x = sm.SetTriggerParameters<int>(Trigger.X);
             sm.Configure(State.A)
-                .PermitReentryIf(x, i => i == 3);
+                .Transition(x).Self().If<int>( i => i == 3);
 
             Assert.Throws<InvalidOperationException>(() => sm.Fire(x, 2));
         }
@@ -857,7 +857,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .SubstateOf(State.B)
                 .OnEntry(() => entryA++)
-                .PermitReentry(Trigger.X)
+                .Transition(Trigger.X).Self()
                 .OnExit(() => exitA++);
 
             sm.Configure(State.B)

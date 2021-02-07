@@ -54,9 +54,7 @@ namespace Stateless
 
                 public override void Execute()
                 {
-                    throw new InvalidOperationException(
-                        $"Cannot execute asynchronous action specified in OnDeactivateAsync for '{_state}' state. " +
-                         "Use asynchronous version of Deactivate [DeactivateAsync]");
+                    _action().GetAwaiter().GetResult();
                 }
 
                 public override Task ExecuteAsync()

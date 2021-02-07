@@ -45,7 +45,7 @@ namespace Stateless
             public DestinationConfiguration Self()
             {
                 var destinationState = StateConfiguration.State;
-                var ttb = new TransitioningTriggerBehaviour(_trigger, destinationState, null);
+                var ttb = new ReentryTriggerBehaviour(_trigger, destinationState, null);
                 _representation.AddTriggerBehaviour(ttb);
                 return new DestinationConfiguration(this, ttb, _representation);
             }
@@ -125,6 +125,28 @@ namespace Stateless
             public StateConfiguration OnExit(Action exitAction)
             {
                 return StateConfiguration.OnExit(exitAction);
+            }
+
+            /// <summary>
+            /// Specify an action that will execute when transitioning from
+            /// the configured state.
+            /// </summary>
+            /// <param name="exitAction">Action to execute, providing details of the transition.</param>
+            /// <param name="exitActionDescription">Action description.</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration OnExit(Action<Transition> exitAction, string exitActionDescription = null)
+            {
+                return StateConfiguration.OnExit(exitAction, exitActionDescription);
+            }
+
+            /// <summary>
+            /// Ignore the specified trigger when in the configured state.
+            /// </summary>
+            /// <param name="trigger">The trigger to ignore.</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration Ignore(TTrigger trigger)
+            {
+                return StateConfiguration.Ignore(trigger);
             }
         }
     }

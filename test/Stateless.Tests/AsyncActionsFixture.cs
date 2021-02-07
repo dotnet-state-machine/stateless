@@ -1,6 +1,5 @@
-#if TASKS
-
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Xunit;
@@ -17,7 +16,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(() => state, (s) => { state = s; count++; });
             sm.Configure(State.B).Transition(Trigger.X).To(State.C);
 
-            sm.FireAsync(Trigger.X);
+            sm.FireAsync(Trigger.X).GetAwaiter().GetResult();
             Assert.Equal(1, count);
         }
 
@@ -31,83 +30,48 @@ namespace Stateless.Tests
 
             var test = "";
             sm.Configure(State.B)
-              .OnEntryAsync(() => Task.Run(() => test = "foo"));
+              .OnEntry(() => Task.Run(() => test = "foo"));
 
             await sm.FireAsync(Trigger.X).ConfigureAwait(false);
 
             Assert.Equal("foo", test); // Should await action
             Assert.Equal(State.B, sm.State); // Should transition to destination state
-        }
-
-        [Fact]
-        public void WhenSyncFireAsyncEntryAction()
-        {
-            var sm = new StateMachine<State, Trigger>(State.A);
-
-            sm.Configure(State.A)
-              .Transition(Trigger.X).To(State.B);
-
-            sm.Configure(State.B)
-              .OnEntryAsync(() => TaskResult.Done);
-
-            Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
         }
 
         [Fact]
         public async Task CanFireAsyncExitAction()
         {
+            var toggle = new ManualResetEvent(false);
             var sm = new StateMachine<State, Trigger>(State.A);
 
             var test = "";
             sm.Configure(State.A)
-              .OnExitAsync(() => Task.Run(() => test = "foo"))
+              .OnExit(() => Task.Run(() => { test = "foo"; toggle.Set(); }))
               .Transition(Trigger.X).To(State.B);
 
             await sm.FireAsync(Trigger.X).ConfigureAwait(false);
-
+            toggle.WaitOne(20);
             Assert.Equal("foo", test); // Should await action
             Assert.Equal(State.B, sm.State); // Should transition to destination state
         }
 
         [Fact]
-        public void WhenSyncFireAsyncExitAction()
-        {
-            var sm = new StateMachine<State, Trigger>(State.A);
-
-            sm.Configure(State.A)
-              .OnExitAsync(() => TaskResult.Done)
-              .Transition(Trigger.X).To(State.B);
-
-            Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
-        }
-
-        [Fact]
         public async Task CanFireInternalAsyncAction()
         {
+            var toggle = new ManualResetEvent(false);
             var sm = new StateMachine<State, Trigger>(State.A);
 
             var test = "";
             sm.Configure(State.A)
-              .InternalTransitionAsync(Trigger.X, () => Task.Run(() => test = "foo"));
+                .Transition(Trigger.X).Internal().Do(() => Task.Run(() => { test = "foo"; toggle.Set(); }));
 
             await sm.FireAsync(Trigger.X).ConfigureAwait(false);
-
+            toggle.WaitOne(20);
             Assert.Equal("foo", test); // Should await action
         }
 
-        //[Fact]
-        //public void WhenSyncFireInternalAsyncAction()
-        //{
-        //    var sm = new StateMachine<State, Trigger>(State.A);
-
-        //    sm.Configure(State.A)
-        //      .InternalTransitionAsync(Trigger.X, () => TaskResult.Done);
-
-        //    Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
-        //}
-
         [Fact]
-        public async Task CanInvokeOnTransitionedAsyncAction()
+        public async Task CanInvokeOnTransitionedAction()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -115,7 +79,7 @@ namespace Stateless.Tests
               .Transition(Trigger.X).To(State.B);
 
             var test = "";
-            sm.OnTransitionedAsync(_ => Task.Run(() => test = "foo"));
+            sm.OnTransitioned(_ => Task.Run(() => test = "foo"));
 
             await sm.FireAsync(Trigger.X).ConfigureAwait(false);
 
@@ -123,7 +87,7 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        public async Task CanInvokeOnTransitionCompletedAsyncAction()
+        public async Task CanInvokeOnTransitionCompletedAction()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -131,7 +95,7 @@ namespace Stateless.Tests
               .Transition(Trigger.X).To(State.B);
 
             var test = "";
-            sm.OnTransitionCompletedAsync(_ => Task.Run(() => test = "foo"));
+            sm.OnTransitionCompleted(_ => Task.Run(() => test = "foo"));
 
             await sm.FireAsync(Trigger.X).ConfigureAwait(false);
 
@@ -149,7 +113,7 @@ namespace Stateless.Tests
             var test1 = "";
             var test2 = "";
             sm.OnTransitioned(_ => test1 = "foo1");
-            sm.OnTransitionedAsync(_ => Task.Run(() => test2 = "foo2"));
+            sm.OnTransitioned(_ => Task.Run(() => test2 = "foo2"));
 
             await sm.FireAsync(Trigger.X).ConfigureAwait(false);
 
@@ -168,7 +132,7 @@ namespace Stateless.Tests
             var test1 = "";
             var test2 = "";
             sm.OnTransitionCompleted(_ => test1 = "foo1");
-            sm.OnTransitionCompletedAsync(_ => Task.Run(() => test2 = "foo2"));
+            sm.OnTransitionCompleted(_ => Task.Run(() => test2 = "foo2"));
 
             await sm.FireAsync(Trigger.X).ConfigureAwait(false);
 
@@ -177,33 +141,7 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        public void WhenSyncFireAsyncOnTransitionedAction()
-        {
-            var sm = new StateMachine<State, Trigger>(State.A);
-
-            sm.Configure(State.A)
-              .Transition(Trigger.X).To(State.B);
-
-            sm.OnTransitionedAsync(_ => TaskResult.Done);
-
-            Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
-        }
-
-        [Fact]
-        public void WhenSyncFireAsyncOnTransitionCompletedAction()
-        {
-            var sm = new StateMachine<State, Trigger>(State.A);
-
-            sm.Configure(State.A)
-              .Transition(Trigger.X).To(State.B);
-
-            sm.OnTransitionCompletedAsync(_ => TaskResult.Done);
-
-            Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
-        }
-
-        [Fact]
-        public async Task CanInvokeOnUnhandledTriggerAsyncAction()
+        public async Task CanInvokeOnUnhandledTriggerAction()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -211,35 +149,11 @@ namespace Stateless.Tests
               .Transition(Trigger.X).To(State.B);
 
             var test = "";
-            sm.OnUnhandledTriggerAsync((s, t, u) => Task.Run(() => test = "foo"));
+            sm.OnUnhandledTrigger((s, t, u) => Task.Run(() => test = "foo"));
 
             await sm.FireAsync(Trigger.Z).ConfigureAwait(false);
 
             Assert.Equal("foo", test); // Should await action
-        }
-        [Fact]
-        public void WhenSyncFireOnUnhandledTriggerAsyncTask()
-        {
-            var sm = new StateMachine<State, Trigger>(State.A);
-
-            sm.Configure(State.A)
-                .Transition(Trigger.X).To(State.B);
-
-            sm.OnUnhandledTriggerAsync((s, t) => TaskResult.Done);
-
-            Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.Z));
-        }
-        [Fact]
-        public void WhenSyncFireOnUnhandledTriggerAsyncAction()
-        {
-            var sm = new StateMachine<State, Trigger>(State.A);
-
-            sm.Configure(State.A)
-              .Transition(Trigger.X).To(State.B);
-
-            sm.OnUnhandledTriggerAsync((s, t, u) => TaskResult.Done);
-
-            Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.Z));
         }
 
         [Fact]
@@ -249,7 +163,7 @@ namespace Stateless.Tests
 
             var activated = false;
             sm.Configure(State.A)
-              .OnActivateAsync(() => Task.Run(() => activated = true));
+              .OnActivate(() => Task.Run(() => activated = true));
 
             await sm.ActivateAsync().ConfigureAwait(false);
 
@@ -263,7 +177,7 @@ namespace Stateless.Tests
 
             var deactivated = false;
             sm.Configure(State.A)
-              .OnDeactivateAsync(() => Task.Run(() => deactivated = true));
+              .OnDeactivate(() => Task.Run(() => deactivated = true));
 
             await sm.ActivateAsync().ConfigureAwait(false);
             await sm.DeactivateAsync().ConfigureAwait(false);
@@ -272,31 +186,9 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        public void WhenSyncActivateAsyncOnActivateAction()
+        public void IfSelfTransitionPermited_ActionsFire_InSubstate_async()
         {
-            var sm = new StateMachine<State, Trigger>(State.A);
-
-            sm.Configure(State.A)
-              .OnActivateAsync(() => TaskResult.Done);
-
-            Assert.Throws<InvalidOperationException>(() => sm.Activate());
-        }
-
-        [Fact]
-        public void WhenSyncDeactivateAsyncOnDeactivateAction()
-        {
-            var sm = new StateMachine<State, Trigger>(State.A);
-
-            sm.Configure(State.A)
-              .OnDeactivateAsync(() => TaskResult.Done);
-
-            sm.Activate();
-
-            Assert.Throws<InvalidOperationException>(() => sm.Deactivate());
-        }
-        [Fact]
-        public async void IfSelfTransitionPermited_ActionsFire_InSubstate_async()
-        {
+            var toggle = new ManualResetEvent(false);
             var sm = new StateMachine<State, Trigger>(State.A);
 
             bool onEntryStateBfired = false;
@@ -304,16 +196,16 @@ namespace Stateless.Tests
             bool onExitStateAfired = false;
 
             sm.Configure(State.B)
-                .OnEntryAsync(t => Task.Run(() => onEntryStateBfired = true))
-                .PermitReentry(Trigger.X)
-                .OnExitAsync(t => Task.Run(() => onExitStateBfired = true));
+                .OnEntry(t => Task.Run(() => onEntryStateBfired = true))
+                .Transition(Trigger.X).Self()
+                .OnExit(t => Task.Run(() => { onExitStateBfired = true; toggle.Set(); }));
 
             sm.Configure(State.A)
                 .SubstateOf(State.B)
-                .OnExitAsync(t => Task.Run(() => onExitStateAfired = true));
+                .OnExit(t => Task.Run(() => onExitStateAfired = true));
 
-            await sm.FireAsync(Trigger.X).ConfigureAwait(false);
-
+            sm.Fire(Trigger.X);
+            Assert.True(toggle.WaitOne(20));
             Assert.Equal(State.B, sm.State);
             Assert.True(onExitStateAfired);
             Assert.True(onExitStateBfired);
@@ -321,7 +213,7 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        public async void TransitionToSuperstateDoesNotExitSuperstate()
+        public void TransitionToSuperstateDoesNotExitSuperstate()
         {
             StateMachine<State, Trigger> sm = new StateMachine<State, Trigger>(State.B);
 
@@ -330,15 +222,15 @@ namespace Stateless.Tests
             bool subExit = false;
 
             sm.Configure(State.A)
-                .OnEntryAsync(t => Task.Run(() => superEntry = true))
-                .OnExitAsync(t => Task.Run(() => superExit = true));
+                .OnEntry(t => Task.Run(() => superEntry = true))
+                .OnExit(t => Task.Run(() => superExit = true));
 
             sm.Configure(State.B)
                 .SubstateOf(State.A)
-                .OnExitAsync(t => Task.Run(() => subExit = true))
+                .OnExit(t => Task.Run(() => subExit = true))
                 .Transition(Trigger.Y).To(State.A);
 
-            await sm.FireAsync(Trigger.Y);
+            sm.FireAsync(Trigger.Y).GetAwaiter().GetResult();
 
             Assert.True(subExit);
             Assert.False(superEntry);
@@ -371,7 +263,7 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        public void VerifyNotEnterSuperstateWhenDoingInitialTransition()
+        public async void VerifyNotEnterSuperstateWhenDoingInitialTransition()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -387,11 +279,9 @@ namespace Stateless.Tests
                 .SubstateOf(State.B)
                 .Transition(Trigger.Y).To(State.D);
 
-            sm.FireAsync(Trigger.X);
+            await sm.FireAsync(Trigger.X);
 
             Assert.Equal(State.D, sm.State);
         }
     }
 }
-
-#endif

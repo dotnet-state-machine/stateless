@@ -483,7 +483,7 @@ namespace Stateless.Tests
 
             sm.Configure(State.B)
                 .OnEntry(TestEntryAction, "DoThisEntry")
-                .PermitReentry(Trigger.Z);
+                .Transition(Trigger.Z).Self();
 
             string dotGraph = UmlDotGraph.Format(sm.GetInfo());
 

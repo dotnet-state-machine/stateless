@@ -393,7 +393,7 @@ namespace Stateless.Tests
             fsm.OnUnhandledTrigger((state, trigger, descriptions) => guardDescriptions = descriptions);
 
             fsm.Configure(State.A)
-                .PermitReentryIf(Trigger.X, () => false, "PermitReentryIf guard failed")
+                .Transition(Trigger.X).Self().If( () => false, "PermitReentryIf guard failed")
                 .Transition(Trigger.X).To(State.C).If( () => false, "PermitIf guard failed");
 
             fsm.Fire(Trigger.X);
