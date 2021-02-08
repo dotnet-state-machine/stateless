@@ -31,17 +31,51 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        public void Sdfsf()
+        public void DynamicOneArg()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
             var trigger = sm.SetTriggerParameters<int>(Trigger.X);
             sm.Configure(State.A)
-                .PermitDynamicIf(trigger, (i) => i == 1 ? State.C : State.B, (i) => i == 1 ? true : false);
+                .Transition(trigger).Dynamic<int>((i) => i == 1 ? State.C : State.B);
 
             // Should not throw
-            sm.GetPermittedTriggers().ToList();
+            Assert.NotNull(sm.GetPermittedTriggers().ToList());
 
             sm.Fire(trigger, 1);
+
+            Assert.Equal(State.C, sm.State);
+        }
+
+        [Fact]
+        public void DynamicTwoArg()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var trigger = sm.SetTriggerParameters<int, int>(Trigger.X);
+            sm.Configure(State.A)
+                .Transition(trigger).Dynamic<int, int>((i, j) => i == 1 ? State.C : State.B);
+
+            // Should not throw
+            Assert.NotNull( sm.GetPermittedTriggers().ToList());
+
+            sm.Fire(trigger, 1, 2);
+
+            Assert.Equal(State.C, sm.State);
+        }
+
+        [Fact]
+        public void DynamicThreeArg()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var trigger = sm.SetTriggerParameters<int, int, int>(Trigger.X);
+            sm.Configure(State.A)
+                .Transition(trigger).Dynamic<int, int, int>((i, j, k) => i == 1 ? State.C : State.B);
+
+            // Should not throw
+            Assert.NotNull(sm.GetPermittedTriggers().ToList());
+
+            sm.Fire(trigger, 1,2,3);
+
+            Assert.Equal(State.C, sm.State);
         }
     }
 }

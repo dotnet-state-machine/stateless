@@ -794,20 +794,6 @@ namespace Stateless
             /// </summary>
             /// <param name="trigger">The accepted trigger.</param>
             /// <param name="destinationStateSelector">Function to calculate the state
-            /// that the trigger will cause a transition to.</param>            
-            /// <returns>The receiver.</returns>
-            /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
-            public StateConfiguration PermitDynamicIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, TState> destinationStateSelector)
-            {
-                return PermitDynamicIf<TArg0>(trigger, destinationStateSelector, null, Array.Empty<Tuple<Func<bool>, string>>());
-            }
-
-            /// <summary>
-            /// Accept the specified trigger and transition to the destination state, calculated
-            /// dynamically by the supplied function.
-            /// </summary>
-            /// <param name="trigger">The accepted trigger.</param>
-            /// <param name="destinationStateSelector">Function to calculate the state
             /// that the trigger will cause a transition to.</param>
             /// <param name="possibleDestinationStates">Optional list of possible target states.</param>
             /// <param name="guards">Functions and their descriptions that must return true in order for the

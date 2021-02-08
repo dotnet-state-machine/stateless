@@ -57,7 +57,7 @@ namespace Stateless.Tests
             StateMachine<State, Trigger>.TriggerWithParameters<State> pressTrigger = fsm.SetTriggerParameters<State>(Trigger.X);
 
             fsm.Configure(State.A)
-                .PermitDynamicIf(pressTrigger, state => state);
+                .Transition(pressTrigger).Dynamic<State>(state => state);
         }
 
         [Fact]

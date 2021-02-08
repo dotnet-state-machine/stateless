@@ -696,8 +696,9 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
             var x = sm.SetTriggerParameters<int>(Trigger.X);
             sm.Configure(State.A)
-                .PermitDynamicIf(x, i => i == 3 ? State.B : State.C, i => i == 3 || i == 5)
-                .PermitDynamicIf(x, i => i == 2 ? State.C : State.D, i => i == 2 || i == 4);
+                .Transition(x).Dynamic<int>(i => i == 3 ? State.B : State.C).If<int>(i => i == 3 || i == 5)
+                .Transition(x).Dynamic<int>(i => i == 2 ? State.C : State.D).If<int>(i => i == 2 || i == 4);
+
             sm.Fire(x, 3);
             Assert.Equal(sm.State, State.B);
         }
@@ -707,8 +708,10 @@ namespace Stateless.Tests
         {
             var sm = new StateMachine<State, Trigger>(State.A);
             var x = sm.SetTriggerParameters<int>(Trigger.X);
-            sm.Configure(State.A).PermitDynamicIf(x, i => i == 4 ? State.B : State.C, i => i % 2 == 0)
-                .PermitDynamicIf(x, i => i == 2 ? State.C : State.D, i => i == 2);
+
+            sm.Configure(State.A)
+                .Transition(x).Dynamic<int>(i => i == 4 ? State.B : State.C).If<int>(i => i % 2 == 0)
+                .Transition(x).Dynamic<int>(i => i == 2 ? State.C : State.D).If<int>(i => i == 2);
 
             Assert.Throws<InvalidOperationException>(() => sm.Fire(x, 2));
         }
