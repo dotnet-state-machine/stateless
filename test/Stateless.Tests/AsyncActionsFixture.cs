@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,20 +10,21 @@ namespace Stateless.Tests
     public class AsyncActionsFixture
     {
         [Fact]
-        public void StateMutatorShouldBeCalledOnlyOnce()
+        public async Task StateMutatorShouldBeCalledOnlyOnce()
         {
             var state = State.B;
             var count = 0;
             var sm = new StateMachine<State, Trigger>(() => state, (s) => { state = s; count++; });
             sm.Configure(State.B).Transition(Trigger.X).To(State.C);
 
-            sm.FireAsync(Trigger.X).GetAwaiter().GetResult();
+            await sm.FireAsync(Trigger.X);
             Assert.Equal(1, count);
         }
 
         [Fact]
         public async Task CanFireAsyncEntryAction()
         {
+            var semaphore = new SemaphoreSlim(0);
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
@@ -30,9 +32,11 @@ namespace Stateless.Tests
 
             var test = "";
             sm.Configure(State.B)
-              .OnEntry(() => Task.Run(() => test = "foo"));
+              .OnEntry(() => Task.Run(() => { test = "foo"; semaphore.Release(); }));
 
-            await sm.FireAsync(Trigger.X).ConfigureAwait(false);
+            await sm.FireAsync(Trigger.X);
+            
+            Assert.True(semaphore.Wait(20));
 
             Assert.Equal("foo", test); // Should await action
             Assert.Equal(State.B, sm.State); // Should transition to destination state
@@ -186,9 +190,10 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        public void IfSelfTransitionPermited_ActionsFire_InSubstate_async()
+        public async Task IfSelfTransitionPermited_ActionsFire_InSubstate_async()
         {
-            var toggle = new ManualResetEvent(false);
+            var semaphore = new SemaphoreSlim(0);
+            
             var sm = new StateMachine<State, Trigger>(State.A);
 
             bool onEntryStateBfired = false;
@@ -196,16 +201,18 @@ namespace Stateless.Tests
             bool onExitStateAfired = false;
 
             sm.Configure(State.B)
-                .OnEntry(t => Task.Run(() => onEntryStateBfired = true))
+                .OnEntry(t => Task.Run(() => { onEntryStateBfired = true; semaphore.Release(); }))
                 .Transition(Trigger.X).Self()
-                .OnExit(t => Task.Run(() => { onExitStateBfired = true; toggle.Set(); }));
+                .OnExit(t => Task.Run(() => { onExitStateBfired = true;  }));
 
             sm.Configure(State.A)
                 .SubstateOf(State.B)
-                .OnExit(t => Task.Run(() => onExitStateAfired = true));
+                .OnExit(t => Task.Run(() => { onExitStateAfired = true;  }));
 
-            sm.Fire(Trigger.X);
-            Assert.True(toggle.WaitOne(20));
+            await sm.FireAsync(Trigger.X);
+            Console.WriteLine("semaphore: " + semaphore.CurrentCount);
+            semaphore.Wait(20);
+
             Assert.Equal(State.B, sm.State);
             Assert.True(onExitStateAfired);
             Assert.True(onExitStateBfired);
@@ -213,8 +220,9 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        public void TransitionToSuperstateDoesNotExitSuperstate()
+        public async Task TransitionToSuperstateDoesNotExitSuperstate()
         {
+            var semaphore = new SemaphoreSlim(0);
             StateMachine<State, Trigger> sm = new StateMachine<State, Trigger>(State.B);
 
             bool superExit = false;
@@ -227,11 +235,11 @@ namespace Stateless.Tests
 
             sm.Configure(State.B)
                 .SubstateOf(State.A)
-                .OnExit(t => Task.Run(() => subExit = true))
+                .OnExit(t => Task.Run(() => { subExit = true; semaphore.Release(); }))
                 .Transition(Trigger.Y).To(State.A);
 
-            sm.FireAsync(Trigger.Y).GetAwaiter().GetResult();
-
+            await sm.FireAsync(Trigger.Y);
+            Assert.True(semaphore.Wait(20));
             Assert.True(subExit);
             Assert.False(superEntry);
             Assert.False(superExit);

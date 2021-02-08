@@ -45,7 +45,6 @@ namespace Stateless
         /// Construct a state machine.
         /// </summary>
         /// <param name="initialState">The initial state.</param>
-        /// <param name="firingMode">Optional specification of fireing mode.</param>
         public StateMachine(TState initialState) : this()
         {
             var reference = new StateReference { State = initialState };
