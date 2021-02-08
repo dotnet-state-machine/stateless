@@ -10,7 +10,7 @@ namespace Stateless.Tests
         {
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A)
-                .PermitDynamic(Trigger.X, () => State.B);
+                .Transition(Trigger.X).Dynamic(() => State.B);
 
             sm.Fire(Trigger.X);
 

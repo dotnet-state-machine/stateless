@@ -255,7 +255,7 @@ namespace Stateless.Tests
 
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A)
-                .PermitDynamic(Trigger.X, () => State.B);
+                    .Transition(Trigger.X).Dynamic(() => State.B);
 
             string dotGraph = UmlDotGraph.Format(sm.GetInfo());
 
@@ -450,7 +450,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .PermitDynamic(Trigger.X, DestinationSelector, null, new DynamicStateInfos { { State.B, "ChoseB"}, { State.C, "ChoseC" } });
+                .Transition(Trigger.X).Dynamic(DestinationSelector, null, new DynamicStateInfos { { State.B, "ChoseB" }, { State.C, "ChoseC" } });
 
             sm.Configure(State.B);
             sm.Configure(State.C);

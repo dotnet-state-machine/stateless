@@ -617,34 +617,6 @@ namespace Stateless
             /// <param name="trigger">The accepted trigger.</param>
             /// <param name="destinationStateSelector">Function to calculate the state
             /// that the trigger will cause a transition to.</param>
-            /// <param name="destinationStateSelectorDescription">Optional description for the function to calculate the state </param>
-            /// <param name="possibleDestinationStates">Optional array of possible destination states (used by output formatters) </param>
-            /// <returns>The receiver.</returns>
-            public StateConfiguration PermitDynamic(TTrigger trigger, Func<TState> destinationStateSelector,
-                string destinationStateSelectorDescription = null, Reflection.DynamicStateInfos possibleDestinationStates = null)
-            {
-                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
-
-                _representation.AddTriggerBehaviour(
-                    new DynamicTriggerBehaviour(trigger,
-                        args => destinationStateSelector(),
-                        null,           // No transition guard
-                        Reflection.DynamicTransitionInfo.Create(trigger,
-                            null,       // No guards
-                            Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),
-                            possibleDestinationStates
-                        )
-                    ));
-                return this;
-            }
-
-            /// <summary>
-            /// Accept the specified trigger and transition to the destination state, calculated
-            /// dynamically by the supplied function.
-            /// </summary>
-            /// <param name="trigger">The accepted trigger.</param>
-            /// <param name="destinationStateSelector">Function to calculate the state
-            /// that the trigger will cause a transition to.</param>
             /// <param name="destinationStateSelectorDescription">Optional description of the function to calculate the state </param>
             /// <param name="possibleDestinationStates">Optional list of possible target states.</param>
             /// <returns>The receiver.</returns>

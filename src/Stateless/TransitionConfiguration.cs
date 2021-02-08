@@ -18,7 +18,7 @@ namespace Stateless
             /// The TransitionConfiguration contains the information required to create a new transition.
             /// </summary>
             /// <param name="stateConfiguration"> Current state being configured</param>
-            /// <param name="representation">A reporesentation of the state</param>
+            /// <param name="representation">A representation of the state</param>
             /// <param name="trigger">Trigger for this transition</param>
             internal TransitionConfiguration(StateConfiguration stateConfiguration, StateRepresentation representation, TTrigger trigger)
             {
@@ -66,7 +66,7 @@ namespace Stateless
 
             /// <summary>
             /// Creates a new dynamic transition. The destination is determined at run time. A Func must be
-            /// supplied, this method will detyermine the destination state.
+            /// supplied, this method will determine the destination state.
             /// </summary>
             /// <param name="destinationStateSelector">A method to determine the destination state</param>
             /// <param name="destinationStateSelectorDescription">A description of the state selector</param>
@@ -92,7 +92,7 @@ namespace Stateless
 
             /// <summary>
             /// Creates a new dynamic transition. The destination is determined at run time. A Func must be
-            /// supplied, this method will detyermine the destination state.
+            /// supplied, this method will determine the destination state.
             /// </summary>
             /// <typeparam name="TArg">A parameter for the destination selector Func.</typeparam>
             /// <param name="destinationStateSelector">A method to determine the destination state</param>
