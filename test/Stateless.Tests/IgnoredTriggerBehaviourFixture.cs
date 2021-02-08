@@ -9,7 +9,7 @@ namespace Stateless.Tests
         public void StateRemainsUnchanged()
         {
             var ignored = new StateMachine<State, Trigger>.IgnoredTriggerBehaviour(Trigger.X, null);
-            Assert.False(ignored.ResultsInTransitionFrom(State.B, new object[0], out _));
+            Assert.False(ignored.ResultsInTransitionFrom(State.B, Array.Empty<object>(), out _));
         }
 
         [Fact]

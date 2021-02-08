@@ -170,7 +170,7 @@ namespace Stateless
         /// not allow the trigger to be fired.</exception>
         public void Fire(TTrigger trigger)
         {
-            InternalFire(trigger, new object[0]);
+            InternalFire(trigger, Array.Empty<object>());
         }
 
         /// <summary>

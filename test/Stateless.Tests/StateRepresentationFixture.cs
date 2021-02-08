@@ -319,7 +319,7 @@ namespace Stateless.Tests
             var transition = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(Trigger.X, State.C, transitionGuard);
             super.AddTriggerBehaviour(transition);
 
-            var reslt= sub.TryFindHandler(Trigger.X, new object[0], out StateMachine<State, Trigger>.TriggerBehaviourResult result);
+            var reslt= sub.TryFindHandler(Trigger.X, Array.Empty<object>(), out StateMachine<State, Trigger>.TriggerBehaviourResult result);
 
             Assert.False(reslt);
             Assert.False(sub.CanHandle(Trigger.X));
@@ -339,7 +339,7 @@ namespace Stateless.Tests
             var transition = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(Trigger.X, State.C, transitionGuard);
 
             super.AddTriggerBehaviour(transition);
-            sub.TryFindHandler(Trigger.X, new object[0], out StateMachine<State, Trigger>.TriggerBehaviourResult result);
+            sub.TryFindHandler(Trigger.X, Array.Empty<object>(), out StateMachine<State, Trigger>.TriggerBehaviourResult result);
 
             Assert.True(sub.CanHandle(Trigger.X));
             Assert.True(super.CanHandle(Trigger.X));

@@ -341,7 +341,7 @@ namespace Stateless.Tests
             Assert.Equal(Trigger.X, transition.Trigger);
             Assert.Equal(State.B, transition.Source);
             Assert.Equal(State.A, transition.Destination);
-            Assert.Equal(new object[0], transition.Parameters);
+            Assert.Equal(Array.Empty<object>(), transition.Parameters);
         }
 
         [Fact]
@@ -361,7 +361,7 @@ namespace Stateless.Tests
             Assert.Equal(Trigger.X, transition.Trigger);
             Assert.Equal(State.B, transition.Source);
             Assert.Equal(State.A, transition.Destination);
-            Assert.Equal(new object[0], transition.Parameters);
+            Assert.Equal(Array.Empty<object>(), transition.Parameters);
         }
 
         /// <summary>
