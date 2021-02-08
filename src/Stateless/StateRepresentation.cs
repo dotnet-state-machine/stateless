@@ -111,12 +111,12 @@ namespace Stateless
 
             public void AddActivateAction(Action action, Reflection.InvocationInfo activateActionDescription)
             {
-                ActivateActions.Add(new ActivateActionBehaviour.Sync(_state, action, activateActionDescription));
+                ActivateActions.Add(new ActivateActionBehaviour.Sync(action, activateActionDescription));
             }
 
             public void AddActivateAction(Func<Task> action, Reflection.InvocationInfo activateActionDescription)
             {
-                ActivateActions.Add(new ActivateActionBehaviour.Async(_state, action, activateActionDescription));
+                ActivateActions.Add(new ActivateActionBehaviour.Async(action, activateActionDescription));
             }
 
             public void AddDeactivateAction(Action action, Reflection.InvocationInfo deactivateActionDescription)

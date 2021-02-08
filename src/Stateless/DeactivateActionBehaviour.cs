@@ -7,11 +7,9 @@ namespace Stateless
     {
         internal abstract class DeactivateActionBehaviour
         {
-            readonly TState _state;
 
             protected DeactivateActionBehaviour(TState state, Reflection.InvocationInfo actionDescription)
             {
-                _state = state;
                 Description = actionDescription ?? throw new ArgumentNullException(nameof(actionDescription));
             }
 

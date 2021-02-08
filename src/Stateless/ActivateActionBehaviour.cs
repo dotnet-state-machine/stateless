@@ -7,14 +7,10 @@ namespace Stateless
     {
         internal abstract class ActivateActionBehaviour
         {
-            readonly TState _state;
-
-            protected ActivateActionBehaviour(TState state, Reflection.InvocationInfo actionDescription)
+            protected ActivateActionBehaviour(Reflection.InvocationInfo actionDescription)
             {
-                _state = state;
                 Description = actionDescription ?? throw new ArgumentNullException(nameof(actionDescription));
             }
-
             internal Reflection.InvocationInfo Description { get; }
 
             public abstract void Execute();
@@ -24,8 +20,8 @@ namespace Stateless
             {
                 readonly Action _action;
 
-                public Sync(TState state, Action action, Reflection.InvocationInfo actionDescription)
-                    : base(state, actionDescription)
+                public Sync(Action action, Reflection.InvocationInfo actionDescription)
+                    : base(actionDescription)
                 {
                     _action = action;
                 }
@@ -46,8 +42,8 @@ namespace Stateless
             {
                 readonly Func<Task> _action;
 
-                public Async(TState state, Func<Task> action, Reflection.InvocationInfo actionDescription)
-                    : base(state, actionDescription)
+                public Async(Func<Task> action, Reflection.InvocationInfo actionDescription)
+                    : base(actionDescription)
                 {
                     _action = action;
                 }
