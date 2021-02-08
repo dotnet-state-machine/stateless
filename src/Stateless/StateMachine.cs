@@ -1,7 +1,9 @@
 ﻿using Stateless.Reflection;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Stateless
@@ -21,6 +23,7 @@ namespace Stateless
         private readonly OnTransitionedEvent _onTransitionedEvent;
         private readonly OnTransitionedEvent _onTransitionCompletedEvent;
 
+        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
         private class QueuedTrigger
         {
             public TTrigger Trigger { get; set; }
@@ -97,7 +100,7 @@ namespace Stateless
             return CurrentRepresentation.GetPermittedTriggers(args);
         }
 
-        StateRepresentation CurrentRepresentation
+        private StateRepresentation CurrentRepresentation
         {
             get
             {
@@ -134,7 +137,7 @@ namespace Stateless
             return new StateMachineInfo(info.Values, typeof(TState), typeof(TTrigger), initialState);
         }
 
-        StateRepresentation GetRepresentation(TState state)
+        private StateRepresentation GetRepresentation(TState state)
         {
             if (!_stateConfiguration.TryGetValue(state, out StateRepresentation result))
             {
@@ -181,7 +184,7 @@ namespace Stateless
         /// not allow the trigger to be fired.</exception>
         public async Task FireAsync(TTrigger trigger)
         {
-            await Task.Run(() => InternalFire(trigger, new object[0]));
+            await Task.Run(() => InternalFire(trigger, Array.Empty<object>()));
         }
 
         /// <summary>
@@ -201,20 +204,6 @@ namespace Stateless
         }
 
         /// <summary>
-        /// Specify the arguments that must be supplied when a specific trigger is fired.
-        /// </summary>
-        /// <param name="trigger">The underlying trigger value.</param>
-        /// <param name="argumentTypes">The argument types expected by the trigger.</param>
-        /// <returns>An object that can be passed to the Fire() method in order to
-        /// fire the parameterised trigger.</returns>
-        public TriggerWithParameters SetTriggerParameters(TTrigger trigger, params Type[] argumentTypes)
-        {
-            var configuration = new TriggerWithParameters(trigger, argumentTypes);
-            SaveTriggerConfiguration(configuration);
-            return configuration;
-        }
-
-        /// <summary>
         /// Transition from the current state via the specified trigger.
         /// The target state is determined by the configuration of the current state.
         /// Actions associated with leaving the current state and entering the new one
@@ -229,6 +218,22 @@ namespace Stateless
         {
             if (trigger == null) throw new ArgumentNullException(nameof(trigger));
             InternalFire(trigger.Trigger, arg0);
+        }
+
+        /// <summary>
+        /// Transition from the current state via the specified trigger.
+        /// The target state is determined by the configuration of the current state.
+        /// Actions associated with leaving the current state and entering the new one
+        /// will be invoked.
+        /// </summary>
+        /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+        /// <param name="trigger">The trigger to fire.</param>
+        /// <param name="arg0">The first argument.</param>
+        /// <exception cref="System.InvalidOperationException">The current state does
+        /// not allow the trigger to be fired.</exception>
+        public async Task FireAsync<TArg0>(TriggerWithParameters<TArg0> trigger, TArg0 arg0)
+        {
+            await Task.Run(() => Fire(trigger, arg0));
         }
 
         /// <summary>
@@ -258,6 +263,24 @@ namespace Stateless
         /// </summary>
         /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
         /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
+        /// <param name="arg0">The first argument.</param>
+        /// <param name="arg1">The second argument.</param>
+        /// <param name="trigger">The trigger to fire.</param>
+        /// <exception cref="System.InvalidOperationException">The current state does
+        /// not allow the trigger to be fired.</exception>
+        public async Task FireAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, TArg0 arg0, TArg1 arg1)
+        {
+            await Task.Run(() => Fire(trigger, arg0, arg1));
+        }
+
+        /// <summary>
+        /// Transition from the current state via the specified trigger.
+        /// The target state is determined by the configuration of the current state.
+        /// Actions associated with leaving the current state and entering the new one
+        /// will be invoked.
+        /// </summary>
+        /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+        /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
         /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
         /// <param name="arg0">The first argument.</param>
         /// <param name="arg1">The second argument.</param>
@@ -269,6 +292,26 @@ namespace Stateless
         {
             if (trigger == null) throw new ArgumentNullException(nameof(trigger));
             InternalFire(trigger.Trigger, arg0, arg1, arg2);
+        }
+
+        /// <summary>
+        /// Transition from the current state via the specified trigger.
+        /// The target state is determined by the configuration of the current state.
+        /// Actions associated with leaving the current state and entering the new one
+        /// will be invoked.
+        /// </summary>
+        /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+        /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
+        /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
+        /// <param name="arg0">The first argument.</param>
+        /// <param name="arg1">The second argument.</param>
+        /// <param name="arg2">The third argument.</param>
+        /// <param name="trigger">The trigger to fire.</param>
+        /// <exception cref="System.InvalidOperationException">The current state does
+        /// not allow the trigger to be fired.</exception>
+        public async Task FireAsync<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, TArg0 arg0, TArg1 arg1, TArg2 arg2)
+        {
+            await Task.Run(() => Fire(trigger, arg0, arg1, arg2));
         }
 
         /// <summary>
@@ -314,35 +357,27 @@ namespace Stateless
         }
 
         /// <summary>
-        /// Determine how to Fire the trigger
-        /// </summary>
-        /// <param name="trigger">The trigger. </param>
-        /// <param name="args">A variable-length parameters list containing arguments. </param>
-        void InternalFire(TTrigger trigger, params object[] args)
-        {
-                InternalFireQueued(trigger, args);
-        }
-
-        /// <summary>
         /// Queue events and then fire in order.
         /// If only one event is queued, this behaves identically to the non-queued version.
         /// </summary>
         /// <param name="trigger">  The trigger. </param>
         /// <param name="args">     A variable-length parameters list containing arguments. </param>
-        private void InternalFireQueued(TTrigger trigger, params object[] args)
+        private void InternalFire(TTrigger trigger, params object[] args)
         {
             // Add trigger to queue
             _eventQueue.Enqueue(new QueuedTrigger { Trigger = trigger, Args = args });
 
+            _semaphore.Wait();
             // If a trigger is already being handled then the trigger will be queued (FIFO) and processed later.
             if (_firing)
             {
+                _semaphore.Release();
                 return;
             }
-
             try
             {
                 _firing = true;
+                _semaphore.Release();
 
                 // Empty queue for triggers
                 while (_eventQueue.Any())
@@ -353,7 +388,9 @@ namespace Stateless
             }
             finally
             {
+                _semaphore.Wait();
                 _firing = false;
+                _semaphore.Release();
             }
         }
 
@@ -578,6 +615,20 @@ namespace Stateless
                 "StateMachine {{ State = {0}, PermittedTriggers = {{ {1} }}}}",
                 State,
                 string.Join(", ", GetPermittedTriggers().Select(t => t.ToString()).ToArray()));
+        }
+
+        /// <summary>
+        /// Specify the arguments that must be supplied when a specific trigger is fired.
+        /// </summary>
+        /// <param name="trigger">The underlying trigger value.</param>
+        /// <param name="argumentTypes">The argument types expected by the trigger.</param>
+        /// <returns>An object that can be passed to the Fire() method in order to
+        /// fire the parametrised trigger.</returns>
+        public TriggerWithParameters SetTriggerParameters(TTrigger trigger, params Type[] argumentTypes)
+        {
+            var configuration = new TriggerWithParameters(trigger, argumentTypes);
+            SaveTriggerConfiguration(configuration);
+            return configuration;
         }
 
         /// <summary>
