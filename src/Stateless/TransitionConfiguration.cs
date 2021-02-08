@@ -94,27 +94,31 @@ namespace Stateless
             /// Creates a new dynamic transition. The destination is determined at run time. A Func must be
             /// supplied, this method will determine the destination state.
             /// </summary>
-            /// <typeparam name="TArg">A parameter for the destination selector Func.</typeparam>
-            /// <param name="destinationStateSelector">A method to determine the destination state</param>
-            /// <param name="destinationStateSelectorDescription">A description of the state selector</param>
-            /// <param name="possibleDestinationStates">An optional list of states (useful if the DotGraph feature is used).</param>
-            public DestinationConfiguration Dynamic<TArg>(Func<TArg, TState> destinationStateSelector, string destinationStateSelectorDescription = null, Reflection.DynamicStateInfos possibleDestinationStates = null)
+            /// <param name="destinationStateSelector">Function to calculate the state
+            /// that the trigger will cause a transition to.</param>
+            /// <param name="destinationStateSelectorDescription">Optional description of the function to calculate the state </param>
+            /// <param name="possibleDestinationStates">Optional list of possible target states.</param>
+            /// <returns>The receiver.</returns>
+            /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+            public DestinationConfiguration Dynamic<TArg0>(Func<TArg0, TState> destinationStateSelector,
+    string destinationStateSelectorDescription = null, Reflection.DynamicStateInfos possibleDestinationStates = null)
             {
                 if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
 
+
                 var dtb = new DynamicTriggerBehaviour(_trigger,
-                        args => destinationStateSelector(ParameterConversion.Unpack<TArg>(args, 0)),
-                        null,           // No transition guard
-                        Reflection.DynamicTransitionInfo.Create(_trigger,
-                            null,       // No guards
-                            Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),
-                            possibleDestinationStates
-                        )
-                    );
+                    args => destinationStateSelector(
+                        ParameterConversion.Unpack<TArg0>(args, 0)),
+                    null,       // No transition guards
+                    Reflection.DynamicTransitionInfo.Create(_trigger,
+                        null,    // No guards
+                        Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),
+                        possibleDestinationStates)
+                );
 
                 _representation.AddTriggerBehaviour(dtb);
-
                 return new DestinationConfiguration(this, dtb, _representation);
+
             }
 
             /// <summary>

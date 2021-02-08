@@ -388,7 +388,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
             var trigger = sm.SetTriggerParameters<int>(Trigger.X);
             sm.Configure(State.A)
-                .PermitDynamic(trigger, i => i == 1 ? State.B : State.C);
+                .Transition(trigger).Dynamic<int>(i => i == 1 ? State.B : State.C);
 
             StateMachineInfo inf = sm.GetInfo();
 
