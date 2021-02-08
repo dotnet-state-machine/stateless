@@ -19,9 +19,7 @@ namespace Stateless.Tests
             };
             var stateMachine = new StateMachine<OrderStatus, OrderStateTrigger>(order.Status);
             stateMachine.Configure(OrderStatus.OrderPlaced)
-                 .InternalTransitionAsyncIf(OrderStateTrigger.PaymentCompleted,
-                       () => PreCondition(ref guardCalls),
-                       () => ChangePaymentState(order, PaymentStatus.Completed));
+                .Transition(OrderStateTrigger.PaymentCompleted).Internal().If(() => PreCondition(ref guardCalls)).Do(async () => await ChangePaymentState(order, PaymentStatus.Completed));
 
             await stateMachine.FireAsync(OrderStateTrigger.PaymentCompleted);
 

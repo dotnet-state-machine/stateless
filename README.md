@@ -185,7 +185,7 @@ On platforms that provide `Task<T>`, the `StateMachine` supports `async` entry/e
 
 ```csharp
 stateMachine.Configure(State.Assigned)
-    .OnEntryAsync(async () => await SendEmailToAssignee());
+    .OnEntry(async () => await SendEmailToAssignee());
 ```
 
 Asynchronous handlers must be registered using the `*Async()` methods in these cases.

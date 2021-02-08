@@ -124,7 +124,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .Permit(Trigger.X, State.B);
+                .Transition(Trigger.X).To(State.B);
 
             string dotGraph = UmlDotGraph.Format(sm.GetInfo());
 
@@ -143,7 +143,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .Permit(Trigger.X, State.B);
+                .Transition(Trigger.X).To(State.B);
 
             string dotGraph = UmlDotGraph.Format(sm.GetInfo());
 
@@ -165,8 +165,8 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .Permit(Trigger.X, State.B)
-                .Permit(Trigger.Y, State.C);
+                .Transition(Trigger.X).To(State.B)
+                .Transition(Trigger.Y).To(State.C);
 
             Assert.Equal(expected, UmlDotGraph.Format(sm.GetInfo()));
         }
@@ -182,7 +182,8 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .PermitIf(Trigger.X, State.B, anonymousGuard);
+                .Transition(Trigger.X).To(State.B).If(anonymousGuard);
+
             sm.Configure(State.B);
 
             Assert.Equal(expected, UmlDotGraph.Format(sm.GetInfo()));
@@ -201,7 +202,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .PermitIf(Trigger.X, State.B, anonymousGuard, "description");
+                .Transition(Trigger.X).To(State.B).If(anonymousGuard, "description");
 
             string dotGraph = UmlDotGraph.Format(sm.GetInfo());
 
@@ -223,7 +224,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .PermitIf(Trigger.X, State.B, IsTrue);
+                .Transition(Trigger.X).To(State.B).If(IsTrue);
 
             Assert.Equal(expected, UmlDotGraph.Format(sm.GetInfo()));
         }
@@ -239,7 +240,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .PermitIf(Trigger.X, State.B, IsTrue, "description");
+                .Transition(Trigger.X).To(State.B).If(IsTrue, "description");
             sm.Configure(State.B);
             Assert.Equal(expected, UmlDotGraph.Format(sm.GetInfo()));
         }
@@ -254,7 +255,7 @@ namespace Stateless.Tests
 
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A)
-                .PermitDynamic(Trigger.X, () => State.B);
+                    .Transition(Trigger.X).Dynamic(() => State.B);
 
             string dotGraph = UmlDotGraph.Format(sm.GetInfo());
 
@@ -276,7 +277,8 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
             var trigger = sm.SetTriggerParameters<int>(Trigger.X);
             sm.Configure(State.A)
-                .PermitDynamic(trigger, i => i == 1 ? State.B : State.C);
+                .Transition(trigger).Dynamic<int>(i => i == 1 ? State.B : State.C);
+                
 
             string dotGraph = UmlDotGraph.Format(sm.GetInfo());
 
@@ -360,7 +362,7 @@ namespace Stateless.Tests
 
             sm.Configure(State.A)
                 .Ignore(Trigger.Y)
-                .Permit(Trigger.X, State.B);
+                .Transition(Trigger.X).To(State.B);
 
             Assert.Equal(expected, UmlDotGraph.Format(sm.GetInfo()));
         }
@@ -381,9 +383,9 @@ namespace Stateless.Tests
 
             sm.Configure(State.A)
                 .OnEntry(() => { }, "OnEntry")
-                .Permit(Trigger.X, State.B)
-                .PermitIf(Trigger.Y, State.C, anonymousGuard, "IsTriggerY")
-                .PermitIf(Trigger.Z, State.B, anonymousGuard, "IsTriggerZ");
+                .Transition(Trigger.X).To(State.B)
+                .Transition(Trigger.Y).To(State.C).If(anonymousGuard, "IsTriggerY")
+                .Transition(Trigger.Z).To(State.B).If(anonymousGuard, "IsTriggerZ");
 
             sm.Configure(State.B)
                 .OnEntryFrom(Trigger.X, TestEntryAction, "BX");
@@ -413,10 +415,10 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .Permit(Trigger.X, State.B)
-                .Permit(Trigger.Y, State.C)
                 .OnEntry(TestEntryAction, "EnterA")
-                .OnExit(TestEntryAction, "ExitA");
+                .OnExit(TestEntryAction, "ExitA")
+                .Transition(Trigger.X).To(State.B)
+                .Transition(Trigger.Y).To(State.C);
 
             sm.Configure(State.B)
                 .SubstateOf(State.D);
@@ -449,7 +451,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .PermitDynamic(Trigger.X, DestinationSelector, null, new DynamicStateInfos { { State.B, "ChoseB"}, { State.C, "ChoseC" } });
+                .Transition(Trigger.X).Dynamic(DestinationSelector, null, new DynamicStateInfos { { State.B, "ChoseB" }, { State.C, "ChoseC" } });
 
             sm.Configure(State.B);
             sm.Configure(State.C);
@@ -478,11 +480,11 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .OnEntry(TestEntryAction, "DoEntry")
                 .Ignore(Trigger.Y)
-                .Permit(Trigger.X, State.B);
+                .Transition(Trigger.X).To(State.B);
 
             sm.Configure(State.B)
                 .OnEntry(TestEntryAction, "DoThisEntry")
-                .PermitReentry(Trigger.Z);
+                .Transition(Trigger.Z).Self();
 
             string dotGraph = UmlDotGraph.Format(sm.GetInfo());
 

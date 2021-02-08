@@ -43,9 +43,7 @@ namespace Stateless
 
                 public override void Execute(TState state, TTrigger trigger, ICollection<string> unmetGuards)
                 {
-                    throw new InvalidOperationException(
-                        "Cannot execute asynchronous action specified in OnUnhandledTrigger. " +
-                        "Use asynchronous version of Fire [FireAsync]");
+                    _action(state, trigger, unmetGuards).GetAwaiter().GetResult();
                 }
 
                 public override Task ExecuteAsync(TState state, TTrigger trigger, ICollection<string> unmetGuards)

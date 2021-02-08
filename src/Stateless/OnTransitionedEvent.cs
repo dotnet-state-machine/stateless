@@ -8,32 +8,28 @@ namespace Stateless
     {
         class OnTransitionedEvent
         {
-            event Action<Transition> _onTransitioned;
+            private event Action<Transition> OnTransitioned;
             readonly List<Func<Transition, Task>> _onTransitionedAsync = new List<Func<Transition, Task>>();
 
             public void Invoke(Transition transition)
             {
                 if (_onTransitionedAsync.Count != 0)
-                    throw new InvalidOperationException(
-                        "Cannot execute asynchronous action specified as OnTransitioned callback. " +
-                        "Use asynchronous version of Fire [FireAsync]");
+                    InvokeAsync(transition).GetAwaiter().GetResult();
 
-                _onTransitioned?.Invoke(transition);
+                OnTransitioned?.Invoke(transition);
             }
 
-#if TASKS
             public async Task InvokeAsync(Transition transition)
             {
-                _onTransitioned?.Invoke(transition);
+                OnTransitioned?.Invoke(transition);
 
                 foreach (var callback in _onTransitionedAsync)
                     await callback(transition).ConfigureAwait(false);
             }
-#endif
 
             public void Register(Action<Transition> action)
             {
-                _onTransitioned += action;
+                OnTransitioned += action;
             }
 
             public void Register(Func<Transition, Task> action)

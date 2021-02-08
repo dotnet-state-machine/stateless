@@ -33,7 +33,7 @@ namespace JsonExample
         [JsonConstructor]
         private Member(string state, string name)
         {
-            var memberState = (MembershipState) Enum.Parse(typeof(MembershipState), state);
+            var memberState = (MembershipState)Enum.Parse(typeof(MembershipState), state);
             _stateMachine = new StateMachine<MembershipState, MemberTriggers>(memberState);
             Name = name;
 
@@ -43,15 +43,15 @@ namespace JsonExample
         private void ConfigureStateMachine()
         {
             _stateMachine.Configure(MembershipState.Active)
-                .Permit(MemberTriggers.Suspend, MembershipState.Inactive)
-                .Permit(MemberTriggers.Terminate, MembershipState.Terminated);
+                .Transition(MemberTriggers.Suspend).To(MembershipState.Inactive)
+                .Transition(MemberTriggers.Terminate).To(MembershipState.Terminated);
 
             _stateMachine.Configure(MembershipState.Inactive)
-                .Permit(MemberTriggers.Reactivate, MembershipState.Active)
-                .Permit(MemberTriggers.Terminate, MembershipState.Terminated);
+                .Transition(MemberTriggers.Reactivate).To(MembershipState.Active)
+                .Transition(MemberTriggers.Terminate).To(MembershipState.Terminated);
 
             _stateMachine.Configure(MembershipState.Terminated)
-                .Permit(MemberTriggers.Reactivate, MembershipState.Active);
+                .Transition(MemberTriggers.Reactivate).To(MembershipState.Active);
         }
 
         public void Terminate()
@@ -86,6 +86,6 @@ namespace JsonExample
     }
 
 
-    
+
 
 }

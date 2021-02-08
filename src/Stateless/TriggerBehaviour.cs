@@ -7,10 +7,12 @@ namespace Stateless
     {
         internal abstract class TriggerBehaviour
         {
+            private Action<Transition, object []> _triggerAction;
+
             /// <summary>
             /// If there is no guard function, _guard is set to TransitionGuard.Empty
             /// </summary>
-            readonly TransitionGuard _guard;
+            private TransitionGuard _guard;
 
             /// <summary>
             /// TriggerBehaviour constructor
@@ -24,6 +26,21 @@ namespace Stateless
             }
 
             public TTrigger Trigger { get; }
+
+            internal void SetGuard(TransitionGuard guard)
+            {
+                _guard = guard;
+            }
+
+            internal void AddAction(Action<Transition, object[]> someAction)
+            {
+                _triggerAction = someAction;
+            }
+
+            internal void AddAction(Action<Transition> someAction)
+            {
+                _triggerAction = (t, r) => someAction(t);
+            }
 
             /// <summary>
             /// Guard is the transition guard for this trigger.  Equal to
@@ -49,6 +66,16 @@ namespace Stateless
             public ICollection<string> UnmetGuardConditions(object[] args) => _guard.UnmetGuardConditions(args);
 
             public abstract bool ResultsInTransitionFrom(TState source, object[] args, out TState destination);
+
+            internal bool HasAction()
+            {
+                return _triggerAction != null;
+            }
+
+            internal void ExecuteAction(Transition transition, object[] args)
+            {
+                _triggerAction(transition, args);
+            }
         }
     }
 }

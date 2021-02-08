@@ -319,7 +319,7 @@ namespace Stateless.Tests
             var transition = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(Trigger.X, State.C, transitionGuard);
             super.AddTriggerBehaviour(transition);
 
-            var reslt= sub.TryFindHandler(Trigger.X, new object[0], out StateMachine<State, Trigger>.TriggerBehaviourResult result);
+            var reslt= sub.TryFindHandler(Trigger.X, Array.Empty<object>(), out StateMachine<State, Trigger>.TriggerBehaviourResult result);
 
             Assert.False(reslt);
             Assert.False(sub.CanHandle(Trigger.X));
@@ -339,7 +339,7 @@ namespace Stateless.Tests
             var transition = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(Trigger.X, State.C, transitionGuard);
 
             super.AddTriggerBehaviour(transition);
-            sub.TryFindHandler(Trigger.X, new object[0], out StateMachine<State, Trigger>.TriggerBehaviourResult result);
+            sub.TryFindHandler(Trigger.X, Array.Empty<object>(), out StateMachine<State, Trigger>.TriggerBehaviourResult result);
 
             Assert.True(sub.CanHandle(Trigger.X));
             Assert.True(super.CanHandle(Trigger.X));
@@ -372,7 +372,7 @@ namespace Stateless.Tests
             var fsm = new StateMachine<State, Trigger>(State.B);
             fsm.OnUnhandledTrigger((state, trigger, descriptions) => guardDescriptions = descriptions);
 
-            fsm.Configure(State.B).SubstateOf(State.A).PermitIf(Trigger.X, State.C, () => false, expectedGuardDescription);
+            fsm.Configure(State.B).SubstateOf(State.A).Transition(Trigger.X).To( State.C).If( () => false, expectedGuardDescription);
 
             fsm.Fire(Trigger.X);
 
@@ -393,8 +393,8 @@ namespace Stateless.Tests
             fsm.OnUnhandledTrigger((state, trigger, descriptions) => guardDescriptions = descriptions);
 
             fsm.Configure(State.A)
-                .PermitReentryIf(Trigger.X, () => false, "PermitReentryIf guard failed")
-                .PermitIf(Trigger.X, State.C, () => false, "PermitIf guard failed");
+                .Transition(Trigger.X).Self().If( () => false, "PermitReentryIf guard failed")
+                .Transition(Trigger.X).To(State.C).If( () => false, "PermitIf guard failed");
 
             fsm.Fire(Trigger.X);
 

@@ -9,7 +9,7 @@ namespace Stateless.Tests
         public void StateRemainsUnchanged()
         {
             var ignored = new StateMachine<State, Trigger>.IgnoredTriggerBehaviour(Trigger.X, null);
-            Assert.False(ignored.ResultsInTransitionFrom(State.B, new object[0], out _));
+            Assert.False(ignored.ResultsInTransitionFrom(State.B, Array.Empty<object>(), out _));
         }
 
         [Fact]
@@ -54,7 +54,7 @@ namespace Stateless.Tests
             bool internalActionExecuted = false;
             var stateMachine = new StateMachine<State, Trigger>(State.B);
             stateMachine.Configure(State.A)
-                .Permit(Trigger.X, State.C);
+                .Transition(Trigger.X).To(State.C);
 
             stateMachine.Configure(State.B)
                 .SubstateOf(State.A)
@@ -78,7 +78,7 @@ namespace Stateless.Tests
         {
             var stateMachine = new StateMachine<State, Trigger>(State.B);
             stateMachine.Configure(State.A)
-                .Permit(Trigger.X, State.C);
+                .Transition(Trigger.X).To(State.C);
 
             stateMachine.Configure(State.B)
                 .SubstateOf(State.A)
@@ -93,7 +93,7 @@ namespace Stateless.Tests
         {
             var stateMachine = new StateMachine<State, Trigger>(State.B);
             stateMachine.Configure(State.A)
-                .Permit(Trigger.X, State.C);
+                .Transition(Trigger.X).To(State.C);
 
             stateMachine.Configure(State.B)
                 .SubstateOf(State.A)

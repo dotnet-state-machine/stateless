@@ -34,21 +34,21 @@ namespace BugTrackerExample
 
             // Configure the Open state
             _machine.Configure(State.Open)
-                .Permit(Trigger.Assign, State.Assigned);
+                .Transition(Trigger.Assign).To(State.Assigned);
 
             // Configure the Assigned state
             _machine.Configure(State.Assigned)
                 .SubstateOf(State.Open)
+                .OnExit(OnDeassigned)
                 .OnEntryFrom(_assignTrigger, OnAssigned)  // This is where the TriggerWithParameters is used. Note that the TriggerWithParameters object is used, not something from the enum
-                .PermitReentry(Trigger.Assign)
-                .Permit(Trigger.Close, State.Closed)
-                .Permit(Trigger.Defer, State.Deferred)
-                .OnExit(OnDeassigned);
+                .Transition(Trigger.Assign).Self()
+                .Transition(Trigger.Close).To(State.Closed)
+                .Transition(Trigger.Defer).To(State.Deferred);
 
             // Configure the Deferred state
             _machine.Configure(State.Deferred)
                 .OnEntry(() => _assignee = null)
-                .Permit(Trigger.Assign, State.Assigned);
+                .Transition(Trigger.Assign).To(State.Assigned);
         }
 
         public void Close()

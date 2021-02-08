@@ -48,25 +48,25 @@ namespace TelephoneCallExample
             _setCalleeTrigger = _machine.SetTriggerParameters<string>(Trigger.CallDialed);
 
             _machine.Configure(State.OffHook)
-	            .Permit(Trigger.CallDialed, State.Ringing);
+	            .Transition(Trigger.CallDialed).To(State.Ringing);
 
             _machine.Configure(State.Ringing)
                 .OnEntryFrom(_setCalleeTrigger, callee => OnDialed(callee), "Caller number to call")
-	            .Permit(Trigger.CallConnected, State.Connected);
+	            .Transition(Trigger.CallConnected).To(State.Connected);
 
             _machine.Configure(State.Connected)
                 .OnEntry(t => StartCallTimer())
                 .OnExit(t => StopCallTimer())
-                .InternalTransition(Trigger.MuteMicrophone, t => OnMute())
-                .InternalTransition(Trigger.UnmuteMicrophone, t => OnUnmute())
-                .InternalTransition<int>(_setVolumeTrigger, (volume, t) => OnSetVolume(volume))
-                .Permit(Trigger.LeftMessage, State.OffHook)
-	            .Permit(Trigger.PlacedOnHold, State.OnHold);
+                .Transition(Trigger.MuteMicrophone).Internal().Do(() => OnMute())
+                .Transition(Trigger.UnmuteMicrophone).Internal().Do( () => OnUnmute())
+                .Transition(Trigger.SetVolume).Internal().Do<int>( (volume, t) => OnSetVolume(volume))
+                .Transition(Trigger.LeftMessage).To(State.OffHook)
+	            .Transition(Trigger.PlacedOnHold).To(State.OnHold);
 
             _machine.Configure(State.OnHold)
                 .SubstateOf(State.Connected)
-                .Permit(Trigger.TakenOffHold, State.Connected)
-                .Permit(Trigger.PhoneHurledAgainstWall, State.PhoneDestroyed);
+                .Transition(Trigger.TakenOffHold).To(State.Connected)
+                .Transition(Trigger.PhoneHurledAgainstWall).To(State.PhoneDestroyed);
 
             _machine.OnTransitioned(t => Console.WriteLine($"OnTransitioned: {t.Source} -> {t.Destination} via {t.Trigger}({string.Join(", ",  t.Parameters)})"));
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Stateless
 {
@@ -57,7 +58,7 @@ namespace Stateless
                     handlerResult = null;
                     return false;
                 }
-               
+
                 // Guard functions are executed here
                 var actual = possible
                     .Select(h => new TriggerBehaviourResult(h, h.UnmetGuardConditions(args)))
@@ -110,12 +111,22 @@ namespace Stateless
 
             public void AddActivateAction(Action action, Reflection.InvocationInfo activateActionDescription)
             {
-                ActivateActions.Add(new ActivateActionBehaviour.Sync(_state, action, activateActionDescription));
+                ActivateActions.Add(new ActivateActionBehaviour.Sync(action, activateActionDescription));
+            }
+
+            public void AddActivateAction(Func<Task> action, Reflection.InvocationInfo activateActionDescription)
+            {
+                ActivateActions.Add(new ActivateActionBehaviour.Async(action, activateActionDescription));
             }
 
             public void AddDeactivateAction(Action action, Reflection.InvocationInfo deactivateActionDescription)
             {
                 DeactivateActions.Add(new DeactivateActionBehaviour.Sync(_state, action, deactivateActionDescription));
+            }
+
+            public void AddDeactivateAction(Func<Task> action, Reflection.InvocationInfo deactivateActionDescription)
+            {
+                DeactivateActions.Add(new DeactivateActionBehaviour.Async(_state, action, deactivateActionDescription));
             }
 
             public void AddEntryAction(TTrigger trigger, Action<Transition, object[]> action, Reflection.InvocationInfo entryActionDescription)
@@ -242,7 +253,7 @@ namespace Stateless
 
                 // Execute internal transition event handler
                 if (internalTransition == null) throw new ArgumentNullException("The configuration is incorrect, no action assigned to this internal transition.");
-                internalTransition.InternalAction(transition, args);
+                internalTransition.Execute(transition, args);
             }
             public void AddTriggerBehaviour(TriggerBehaviour triggerBehaviour)
             {
@@ -301,13 +312,13 @@ namespace Stateless
                     (_superstate != null && _superstate.IsIncludedIn(state));
             }
 
-			public IEnumerable<TTrigger> PermittedTriggers
-			{
-				get
-				{
-					return GetPermittedTriggers();
-				}
-			}
+            public IEnumerable<TTrigger> PermittedTriggers
+            {
+                get
+                {
+                    return GetPermittedTriggers();
+                }
+            }
 
             public IEnumerable<TTrigger> GetPermittedTriggers(params object[] args)
             {

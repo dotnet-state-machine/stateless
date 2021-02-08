@@ -19,8 +19,8 @@ namespace OnOffExample
             var onOffSwitch = new StateMachine<string, char>(off);
 
             // Configure state machine with the Configure method, supplying the state to be configured as a parameter
-            onOffSwitch.Configure(off).Permit(space, on);
-            onOffSwitch.Configure(on).Permit(space, off);
+            onOffSwitch.Configure(off).Transition(space).To(on);
+            onOffSwitch.Configure(on).Transition(space).To(off);
 
             Console.WriteLine("Press <space> to toggle the switch. Any other key will exit the program.");
 
@@ -28,7 +28,7 @@ namespace OnOffExample
             {
                 Console.WriteLine("Switch is in state: " + onOffSwitch.State);
                 var pressed = Console.ReadKey(true).KeyChar;
-                
+
                 // Check if user wants to exit
                 if (pressed != space) break;
 
