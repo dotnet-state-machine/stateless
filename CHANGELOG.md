@@ -31,15 +31,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## 5.1.5 - 2020.11.16
 ### Changed
-- Fixed spelling errors
-- Fixed analyser warnings (mostly null checks )
-### Fixed
- - Added CLSCompliant attribute, which went missing in November 2019 [#401]
-
-## 5.1.5 - 2020.11.16
-### Changed
-- Fixed spelling errors
-- Fixed analyser warnings (mostly null checks )
+ - Fixed spelling errors
+ - Fixed analyser warnings (mostly null checks)
 ### Fixed
  - Added CLSCompliant attribute, which went missing in November 2019 [#401]
 
