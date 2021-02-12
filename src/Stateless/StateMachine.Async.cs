@@ -232,7 +232,7 @@ namespace Stateless
             else
             {
                 await _onTransitionedEvent.InvokeAsync(transition);
-                representation = EnterState(newRepresentation, transition, args);
+                representation = await EnterStateAsync(newRepresentation, transition, args);
                 await _onTransitionCompletedEvent.InvokeAsync(transition);
             }
             State = representation.UnderlyingState;
