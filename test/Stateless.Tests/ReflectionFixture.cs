@@ -1,5 +1,4 @@
-﻿using System;
-using Xunit;
+﻿using Xunit;
 using Stateless.Reflection;
 using Xunit.Sdk;
 using System.Linq;

@@ -157,95 +157,141 @@ namespace Stateless
                 _firing = false;
             }
         }
+
         async Task InternalFireOneAsync(TTrigger trigger, params object[] args)
         {
             // If this is a trigger with parameters, we must validate the parameter(s)
-            if (_triggerConfiguration.TryGetValue(trigger, out var configuration))
+            if (_triggerConfiguration.TryGetValue(trigger, out TriggerWithParameters configuration))
                 configuration.ValidateParameters(args);
 
             var source = State;
             var representativeState = GetRepresentation(source);
 
             // Try to find a trigger handler, either in the current state or a super state.
-            if (!representativeState.TryFindHandler(trigger, args, out var result))
+            if (!representativeState.TryFindHandler(trigger, args, out TriggerBehaviourResult result))
             {
-                await _unhandledTriggerAction.ExecuteAsync(representativeState.UnderlyingState, trigger, result?.UnmetGuardConditions).ConfigureAwait(false);
-                return;
-            }
-            // Check if this trigger should be ignored
-            if (result.Handler is IgnoredTriggerBehaviour)
-            {
+                await _unhandledTriggerAction.ExecuteAsync(representativeState.UnderlyingState, trigger, result?.UnmetGuardConditions);
                 return;
             }
 
-            // Handle special case, re-entry in superstate
-            if (result.Handler is ReentryTriggerBehaviour handler)
+            switch (result.Handler)
             {
-                // Handle transition, and set new state
-                var transition = new Transition(source, handler.Destination, trigger, args);
-                transition = await representativeState.ExitAsync(transition);
-                State = transition.Destination;
-                var newRepresentation = GetRepresentation(transition.Destination);
+                // Check if this trigger should be ignored
+                case IgnoredTriggerBehaviour _:
+                    return;
+                // Handle special case, re-entry in superstate
+                // Check if it is an internal transition, or a transition from one state to another.
+                case ReentryTriggerBehaviour handler:
+                    {
+                        // Handle transition, and set new state
+                        var transition = new Transition(source, handler.Destination, trigger, args);
+                        await HandleReentryTriggerAsync(args, representativeState, transition);
+                        break;
+                    }
+                case DynamicTriggerBehaviour _ when (result.Handler.ResultsInTransitionFrom(source, args, out var destination)):
+                case TransitioningTriggerBehaviour _ when (result.Handler.ResultsInTransitionFrom(source, args, out destination)):
+                    {
+                        // Handle transition, and set new state
+                        var transition = new Transition(source, destination, trigger, args);
+                        await HandleTransitioningTriggerAsync(args, representativeState, transition);
 
-                if (!source.Equals(transition.Destination))
-                {
-                    // Then Exit the final superstate
-                    transition = new Transition(handler.Destination, handler.Destination, trigger, args);
-                    await newRepresentation.ExitAsync(transition);
-                }
+                        break;
+                    }
+                case InternalTriggerBehaviour itb:
+                    {
+                        // Internal transitions does not update the current state, but must execute the associated action.
+                        var transition = new Transition(source, source, trigger, args);
 
-                await _onTransitionedEvent.InvokeAsync(new Transition(source, handler.Destination, trigger, args));
-
-                await newRepresentation.EnterAsync(transition, args);
-
-                await _onTransitionCompletedEvent.InvokeAsync(new Transition(source, handler.Destination, trigger, args));
+                        if (itb is InternalTriggerBehaviour.Async ita)
+                            await ita.ExecuteAsync(transition, args);
+                        else
+                            await Task.Run(() => itb.Execute(transition, args));
+                        break;
+                    }
+                default:
+                    throw new InvalidOperationException("State machine configuration incorrect, no handler for trigger.");
             }
-            // Check if it is an internal transition, or a transition from one state to another.
-            else if (result.Handler.ResultsInTransitionFrom(source, args, out var destination))
+        }
+
+        private async Task HandleReentryTriggerAsync(object[] args, StateRepresentation representativeState, Transition transition)
+        {
+            StateRepresentation representation;
+            transition = await representativeState.ExitAsync(transition);
+            var newRepresentation = GetRepresentation(transition.Destination);
+
+            if (!transition.Source.Equals(transition.Destination))
             {
-                var transition = new Transition(source, destination, trigger, args);
+                // Then Exit the final superstate
+                transition = new Transition(transition.Destination, transition.Destination, transition.Trigger, args);
+                await newRepresentation.ExitAsync(transition);
 
-                transition = await representativeState.ExitAsync(transition).ConfigureAwait(false);
-
-                State = transition.Destination;
-                var newRepresentation = GetRepresentation(transition.Destination);
-
-                // Alert all listeners of state transition
                 await _onTransitionedEvent.InvokeAsync(transition);
-
-                await newRepresentation.EnterAsync(transition, args);
-
-                // Check if there is an intital transition configured
-                if (newRepresentation.HasInitialTransition)
-                {
-                    // Verify that the target state is a substate
-                    if (!newRepresentation.GetSubstates().Any(s => s.UnderlyingState.Equals(newRepresentation.InitialTransitionTarget)))
-                    {
-                        throw new InvalidOperationException($"The target ({newRepresentation.InitialTransitionTarget}) for the initial transition is not a substate.");
-                    }
-
-                    // Check if state has substate(s), and if an initial transition(s) has been set up.
-                    while (newRepresentation.GetSubstates().Any() && newRepresentation.HasInitialTransition)
-                    {
-                        var initialTransition = new InitialTransition(source, newRepresentation.InitialTransitionTarget, trigger, args);
-                        newRepresentation = GetRepresentation(newRepresentation.InitialTransitionTarget);
-
-                        // Alert all listeners of initial state transition
-                        await _onTransitionedEvent.InvokeAsync(new Transition(transition.Destination, initialTransition.Destination, transition.Trigger, transition.Parameters));
-
-                        await newRepresentation.EnterAsync(initialTransition, args);
-                        State = newRepresentation.UnderlyingState;
-                    }
-                }
-
-                await _onTransitionCompletedEvent.InvokeAsync(new Transition(transition.Source, State, transition.Trigger, transition.Parameters));
+                representation = await EnterStateAsync(newRepresentation, transition, args);
+                await _onTransitionCompletedEvent.InvokeAsync(transition);
             }
             else
             {
-                var transition = new Transition(source, destination, trigger, args);
-
-                await CurrentRepresentation.InternalActionAsync(transition, args).ConfigureAwait(false);
+                await _onTransitionedEvent.InvokeAsync(transition);
+                representation = await EnterStateAsync(newRepresentation, transition, args);
+                await _onTransitionCompletedEvent.InvokeAsync(transition);
             }
+            State = representation.UnderlyingState;
+        }
+
+        private async Task HandleTransitioningTriggerAsync(object[] args, StateRepresentation representativeState, Transition transition)
+        {
+            transition = await representativeState.ExitAsync(transition);
+
+            State = transition.Destination;
+            var newRepresentation = GetRepresentation(transition.Destination);
+
+            //Alert all listeners of state transition
+            await _onTransitionedEvent.InvokeAsync(transition);
+            var representation =await EnterStateAsync(newRepresentation, transition, args);
+
+            // Check if state has changed by entering new state (by fireing triggers in OnEntry or such)
+            if (!representation.UnderlyingState.Equals(State))
+            {
+                // The state has been changed after entering the state, must update current state to new one
+                State = representation.UnderlyingState;
+            }
+
+           await _onTransitionCompletedEvent.InvokeAsync(new Transition(transition.Source, State, transition.Trigger, transition.Parameters));
+        }
+
+
+        private async Task<StateRepresentation> EnterStateAsync(StateRepresentation representation, Transition transition, object[] args)
+        {
+            // Enter the new state
+            await representation.EnterAsync(transition, args);
+
+            if (FiringMode.Immediate.Equals(_firingMode) && !State.Equals(transition.Destination))
+            {
+                // This can happen if triggers are fired in OnEntry
+                // Must update current representation with updated State
+                representation = GetRepresentation(State);
+                transition = new Transition(transition.Source, State, transition.Trigger, args);
+            }
+
+            // Recursively enter substates that have an initial transition
+            if (representation.HasInitialTransition)
+            {
+                // Verify that the target state is a substate
+                // Check if state has substate(s), and if an initial transition(s) has been set up.
+                if (!representation.GetSubstates().Any(s => s.UnderlyingState.Equals(representation.InitialTransitionTarget)))
+                {
+                    throw new InvalidOperationException($"The target ({representation.InitialTransitionTarget}) for the initial transition is not a substate.");
+                }
+
+                var initialTransition = new InitialTransition(transition.Source, representation.InitialTransitionTarget, transition.Trigger, args);
+                representation = GetRepresentation(representation.InitialTransitionTarget);
+
+                // Alert all listeners of initial state transition
+                await _onTransitionedEvent.InvokeAsync(new Transition(transition.Destination, initialTransition.Destination, transition.Trigger, transition.Parameters));
+                representation = await EnterStateAsync(representation, initialTransition, args);
+            }
+
+            return representation;
         }
 
         /// <summary>

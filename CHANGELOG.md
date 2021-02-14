@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 5.2.0
+### Added
+ - Added support for net50
+### Changed
+ - Only run tests under net50
+ - Non-code change: Switch to using Github Actions
+### Fixed
+ - Fixed the bug "IgnoreIf Guard description is raised when PermitReentryIf Guard Fails". [#422]
+
+## 5.1.8
+### Fixed
+- Fixed bug "When adding .PermitDynamicIf, call .PermitTriggers throw NullReferenceException" [#416]
+
 ## 5.1.7 - 2021.01.10
 ### Fixed
  - Fixed nullReferenceException when getting permitted triggers on a dynamic transition. [#413]
@@ -18,21 +31,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## 5.1.5 - 2020.11.16
 ### Changed
-- Fixed spelling errors
-- Fixed analyser warnings (mostly null checks )
-### Fixed
- - Added CLSCompliant attribute, which went missing in November 2019 [#401]
-
-## 5.1.5 - 2020.11.16
-### Changed
-- Fixed spelling errors
-- Fixed analyser warnings (mostly null checks )
+ - Fixed spelling errors
+ - Fixed analyser warnings (mostly null checks)
 ### Fixed
  - Added CLSCompliant attribute, which went missing in November 2019 [#401]
 
 ## 5.1.4 - 2020.11.07
 ### Fixed
- - Fixed Unmet guard collection not set by OnUnhandledTrigger if transition guard of substate fails [#398]
+ - Fixed Unmet guard collection not set by OnUnhandledTrigger if transition guard of substate fails [#398] (Thanks to the awesome DeepakParamkusam)
  
 ## 5.1.3 - 2020.08.12
 ### Fixed
@@ -148,6 +154,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 ### Fixed
 
+[#422]: https://github.com/dotnet-state-machine/stateless/issues/422
 [#416]: https://github.com/dotnet-state-machine/stateless/issues/416
 [#413]: https://github.com/dotnet-state-machine/stateless/issues/413
 [#394]: https://github.com/dotnet-state-machine/stateless/issues/394
