@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## 5.2.0
+## 5.2.0 - 2021.02.14 
 ### Added
  - Added support for net50
 ### Changed
@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  - Non-code change: Switch to using Github Actions
 ### Fixed
  - Fixed the bug "IgnoreIf Guard description is raised when PermitReentryIf Guard Fails". [#422]
+ - Fixed bug "InternalTransitionAsyncIf guard clause called twice". [#422]
 
 ## 5.1.8
 ### Fixed
@@ -154,6 +155,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 ### Fixed
 
+[#417]: https://github.com/dotnet-state-machine/stateless/issues/417
 [#422]: https://github.com/dotnet-state-machine/stateless/issues/422
 [#416]: https://github.com/dotnet-state-machine/stateless/issues/416
 [#413]: https://github.com/dotnet-state-machine/stateless/issues/413
