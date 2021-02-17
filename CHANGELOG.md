@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 5.10.1
+Re-releasing 5.2.0 as v5.10.1.
+The version number was accidentally set to 5.10 when creating the 5.2 release.
+Version 5.10.0 is now listed as the newest, since it has the highest version number.
+5.2.0 and 5.10.0 are identical.
+
 ## 5.2.0
 ### Added
  - Added support for net50
