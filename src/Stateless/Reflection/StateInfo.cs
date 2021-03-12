@@ -143,7 +143,7 @@ namespace Stateless.Reflection
         /// <summary> 
         /// Transitions defined for this state.
         /// </summary>
-        public IEnumerable<TransitionInfo> Transitions { get { return FixedTransitions.Concat<TransitionInfo>(DynamicTransitions); } }
+        public IEnumerable<TransitionInfo> Transitions { get { return (FixedTransitions ?? Enumerable.Empty<FixedTransitionInfo>()).Concat<TransitionInfo>(DynamicTransitions ?? Enumerable.Empty<DynamicTransitionInfo>()); } }
 
         /// <summary>
         /// Transitions defined for this state.
