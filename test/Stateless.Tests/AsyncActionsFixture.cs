@@ -2,11 +2,13 @@
 
 using System;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 using Xunit;
 
 namespace Stateless.Tests
 {
+
     public class AsyncActionsFixture
     {
         [Fact]
@@ -19,7 +21,87 @@ namespace Stateless.Tests
             sm.FireAsync(Trigger.X);
             Assert.Equal(1, count);
         }
+        
+        [Fact]
+        public async Task SuperStateShouldNotExitOnSubStateTransition_WhenUsingAsyncTriggers()
+        {
+            // Arrange.
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var record = new List<string>();
 
+            sm.Configure(State.A)
+                .OnEntryAsync(() => Task.Run(() => record.Add("Entered state A")))
+                .OnExitAsync(() => Task.Run(() => record.Add("Exited state A")))
+                .Permit(Trigger.X, State.B);
+            
+            sm.Configure(State.B) // Our super state.
+                .InitialTransition(State.C)
+                .OnEntryAsync(() => Task.Run(() => record.Add("Entered super state B")))
+                .OnExitAsync(() => Task.Run(() => record.Add("Exited super state B")));
+
+            sm.Configure(State.C) // Our first sub state.
+                .OnEntryAsync(() => Task.Run(() => record.Add("Entered sub state C")))
+                .OnExitAsync(() => Task.Run(() => record.Add("Exited sub state C")))
+                .Permit(Trigger.Y, State.D)
+                .SubstateOf(State.B);
+            sm.Configure(State.D) // Our second sub state.
+                .OnEntryAsync(() => Task.Run(() => record.Add("Entered sub state D")))
+                .OnExitAsync(() => Task.Run(() => record.Add("Exited sub state D")))
+                .SubstateOf(State.B);
+
+            
+            // Act.
+            await sm.FireAsync(Trigger.X).ConfigureAwait(false);
+            await sm.FireAsync(Trigger.Y).ConfigureAwait(false);
+            
+            // Assert.
+            Assert.Equal("Exited state A", record[0]);
+            Assert.Equal("Entered super state B", record[1]);
+            Assert.Equal("Entered sub state C", record[2]);
+            Assert.Equal("Exited sub state C", record[3]);
+            Assert.Equal("Entered sub state D", record[4]); // Before the patch the actual result was "Exited super state B"
+        }
+
+        [Fact]
+        public void SuperStateShouldNotExitOnSubStateTransition_WhenUsingSyncTriggers()
+        {
+            // Arrange.
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var record = new List<string>();
+
+            sm.Configure(State.A)
+                .OnEntry(() => record.Add("Entered state A"))
+                .OnExit(() => record.Add("Exited state A"))
+                .Permit(Trigger.X, State.B);
+            
+            sm.Configure(State.B) // Our super state.
+                .InitialTransition(State.C)
+                .OnEntry(() => record.Add("Entered super state B"))
+                .OnExit(() => record.Add("Exited super state B"));
+
+            sm.Configure(State.C) // Our first sub state.
+                .OnEntry(() => record.Add("Entered sub state C"))
+                .OnExit(() => record.Add("Exited sub state C"))
+                .Permit(Trigger.Y, State.D)
+                .SubstateOf(State.B);
+            sm.Configure(State.D) // Our second sub state.
+                .OnEntry(() => record.Add("Entered sub state D"))
+                .OnExit(() => record.Add("Exited sub state D"))
+                .SubstateOf(State.B);
+
+            
+            // Act.
+            sm.Fire(Trigger.X);
+            sm.Fire(Trigger.Y);
+            
+            // Assert.
+            Assert.Equal("Exited state A", record[0]);
+            Assert.Equal("Entered super state B", record[1]);
+            Assert.Equal("Entered sub state C", record[2]);
+            Assert.Equal("Exited sub state C", record[3]);
+            Assert.Equal("Entered sub state D", record[4]);
+        }
+        
         [Fact]
         public async Task CanFireAsyncEntryAction()
         {
