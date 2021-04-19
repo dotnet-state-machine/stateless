@@ -31,7 +31,7 @@ namespace Stateless.Graph
             string stateRepresentationString = "";
             var sourceName = stateInfo.StateName;
 
-            StringBuilder label = new StringBuilder(sourceName);
+            StringBuilder label = new StringBuilder($"\"{sourceName}\"");
 
             if ((stateInfo.EntryActions.Count > 0) || (stateInfo.ExitActions.Count > 0))
             {
@@ -63,9 +63,9 @@ namespace Stateless.Graph
         public override string FormatOneState(State state)
         {
             if ((state.EntryActions.Count == 0) && (state.ExitActions.Count == 0))
-                return state.StateName + " [label=\"" + state.StateName + "\"];\n";
+                return $"\"{state.StateName}\" [label=\"{state.StateName}\"];\n";
 
-            string f = state.StateName + " [label=\"" + state.StateName + "|";
+            string f = $"\"{state.StateName}\" [label=\"{state.StateName}|";
 
             List<string> es = new List<string>();
             es.AddRange(state.EntryActions.Select(act => "entry / " + act));
@@ -115,12 +115,12 @@ namespace Stateless.Graph
         /// <returns></returns>
         public override string FormatOneDecisionNode(string nodeName, string label)
         {
-            return nodeName + " [shape = \"diamond\", label = \"" + label + "\"];\n";
+            return $"\"{nodeName}\" [shape = \"diamond\", label = \"{label}\"];\n";
         }
 
         internal string FormatOneLine(string fromNodeName, string toNodeName, string label)
         {
-            return fromNodeName + " -> " + toNodeName + " " + "[style=\"solid\", label=\"" + label + "\"];";
+            return $"\"{fromNodeName}\" -> \"{toNodeName}\" [style=\"solid\", label=\"{label}\"];";
         }
     }
 }
