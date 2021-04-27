@@ -36,7 +36,7 @@ namespace Stateless.Tests
 
         static readonly string suffix = Environment.NewLine
             + $" init [label=\"\", shape=point];" + Environment.NewLine
-            + $" init -> A[style = \"solid\"]" + Environment.NewLine
+            + $" init -> \"A\"[style = \"solid\"]" + Environment.NewLine
             + "}";
 
         string Prefix(Style style)
@@ -68,10 +68,10 @@ namespace Stateless.Tests
             }
 
             if (es.Count == 0)
-                b = label + " [label=\"" + label + "\"];\n";
+                b = $"\"{label}\" [label=\"{label}\"];\n";
             else
             {
-                b = label + " [label=\"" + label + "|" + String.Join("\\n", es) + "\"];\n";
+                b = $"\"{label}\"" + " [label=\"" + label + "|" + String.Join("\\n", es) + "\"];\n";
             }
 
             return b.Replace("\n", Environment.NewLine);
@@ -81,15 +81,15 @@ namespace Stateless.Tests
         {
             string b;
 
-            b = nodeName + " [shape = \"diamond\", label = \"" + label + "\"];\n";
+            b = $"\"{nodeName}\"" + " [shape = \"diamond\", label = \"" + label + "\"];\n";
 
             return b.Replace("\n", Environment.NewLine);
         }
 
         string Line(string from, string to, string label)
         {
-            string s = "\n" + from + " -> " + to
-                + " [style=\"solid\"";
+            string s = "\n\"" + from + "\" -> \"" + to
+                + "\" [style=\"solid\"";
 
             if (label != null)
                 s += ", label=\"" + label + "\"";
@@ -105,7 +105,7 @@ namespace Stateless.Tests
                 throw new Exception("WRITE MORE CODE");
 
             string s = "\n"
-                + "subgraph cluster" + graphName + "\n"
+                + "subgraph \"cluster" + graphName + "\"\n"
                 + "\t{\n"
                 + "\tlabel = \"" + label + "\"\n";
 
@@ -394,6 +394,50 @@ namespace Stateless.Tests
             string dotGraph = UmlDotGraph.Format(sm.GetInfo());
 #if WRITE_DOTS_TO_FOLDER
             System.IO.File.WriteAllText(DestinationFolder + "OnEntryWithTriggerParameter.dot", dotGraph);
+#endif
+
+            Assert.Equal(expected, dotGraph);
+        }
+        
+        [Fact]
+        public void SpacedUmlWithSubstate()
+        {
+            string StateA = "State A";
+            string StateB = "State B";
+            string StateC = "State C";
+            string StateD = "State D";
+            string TriggerX = "Trigger X";
+            string TriggerY = "Trigger Y";
+            
+            var expected = Prefix(Style.UML)
+                           + Subgraph(Style.UML, StateD, $"{StateD}\\n----------\\nentry / Enter D",
+                               Box(Style.UML, StateB)
+                               + Box(Style.UML, StateC))
+                           + Box(Style.UML, StateA, new List<string> { "Enter A" }, new List<string> { "Exit A" })
+                           + Line(StateA, StateB, TriggerX) + Line(StateA, StateC, TriggerY)
+                           +  Environment.NewLine
+                           + $" init [label=\"\", shape=point];" + Environment.NewLine
+                           + $" init -> \"{StateA}\"[style = \"solid\"]" + Environment.NewLine
+                           + "}";
+
+            var sm = new StateMachine<string, string>("State A");
+
+            sm.Configure(StateA)
+                .Permit(TriggerX, StateB)
+                .Permit(TriggerY, StateC)
+                .OnEntry(TestEntryAction, "Enter A")
+                .OnExit(TestEntryAction, "Exit A");
+
+            sm.Configure(StateB)
+                .SubstateOf(StateD);
+            sm.Configure(StateC)
+                .SubstateOf(StateD);
+            sm.Configure(StateD)
+                .OnEntry(TestEntryAction, "Enter D");
+
+            string dotGraph = UmlDotGraph.Format(sm.GetInfo());
+#if WRITE_DOTS_TO_FOLDER
+            System.IO.File.WriteAllText(DestinationFolder + "UmlWithSubstate.dot", dotGraph);
 #endif
 
             Assert.Equal(expected, dotGraph);

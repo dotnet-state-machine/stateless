@@ -31,7 +31,7 @@ namespace Stateless.Graph
             string stateRepresentationString = "";
             var sourceName = stateInfo.StateName;
 
-            StringBuilder label = new StringBuilder($"\"{sourceName}\"");
+            StringBuilder label = new StringBuilder($"{sourceName}");
 
             if ((stateInfo.EntryActions.Count > 0) || (stateInfo.ExitActions.Count > 0))
             {
@@ -41,7 +41,7 @@ namespace Stateless.Graph
             }
 
             stateRepresentationString = "\n"
-                + $"subgraph cluster{stateInfo.NodeName}" + "\n"
+                + $"subgraph \"cluster{stateInfo.NodeName}\"" + "\n"
                 + "\t{" + "\n"
                 + $"\tlabel = \"{label.ToString()}\"" + "\n";
 
