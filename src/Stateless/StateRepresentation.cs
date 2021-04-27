@@ -36,6 +36,13 @@ namespace Stateless
                 return TryFindHandler(trigger, args, out TriggerBehaviourResult _);
             }
 
+            public bool CanHandle(TTrigger trigger, object[] args, out ICollection<string> unmetGuards)
+            {
+                bool handlerFound = TryFindHandler(trigger, args, out TriggerBehaviourResult result);
+                unmetGuards = result?.UnmetGuardConditions;
+                return handlerFound;
+            }
+
             public bool TryFindHandler(TTrigger trigger, object[] args, out TriggerBehaviourResult handler)
             {
                 TriggerBehaviourResult superStateHandler = null;

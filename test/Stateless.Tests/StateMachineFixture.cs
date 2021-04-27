@@ -1019,5 +1019,52 @@ namespace Stateless.Tests
             Assert.DoesNotContain(subStateTrigger, hsmInSuperstate.PermittedTriggers);
         }
 
+        [Fact]
+        public void CanFire_GetUnmetGuardDescriptionsIfGuardFails()
+        {
+            const string guardDescription = "Guard failed";
+            var sm = new StateMachine<State, Trigger>(State.A);
+            sm.Configure(State.A)
+              .PermitIf(Trigger.X, State.B, ()=> false, guardDescription);
+
+            bool result = sm.CanFire(Trigger.X, out ICollection<string> unmetGuards);
+
+            Assert.False(result);
+            Assert.True(unmetGuards?.Count == 1);
+            Assert.Contains(guardDescription, unmetGuards);
+        }
+
+        [Fact]
+        public void CanFire_GetNullUnmetGuardDescriptionsIfInvalidTrigger()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            bool result = sm.CanFire(Trigger.X, out ICollection<string> unmetGuards);
+
+            Assert.False(result);
+            Assert.Null(unmetGuards);
+        }
+
+        [Fact]
+        public void CanFire_GetEmptyUnmetGuardDescriptionsIfValidTrigger()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            sm.Configure(State.A).Permit(Trigger.X, State.B);
+            bool result = sm.CanFire(Trigger.X, out ICollection<string> unmetGuards);
+
+            Assert.True(result);
+            Assert.True(unmetGuards?.Count == 0);
+        }
+
+        [Fact]
+        public void CanFire_GetEmptyUnmetGuardDescriptionsIfGuardPasses()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            sm.Configure(State.A).PermitIf(Trigger.X, State.B, () => true, "Guard passed");
+            bool result = sm.CanFire(Trigger.X, out ICollection<string> unmetGuards);
+
+            Assert.True(result);
+            Assert.True(unmetGuards?.Count == 0);
+        }
+
     }
 }
