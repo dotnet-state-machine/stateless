@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 5.11.0 - 2021.04.28
+### Added
+ - Added CanFire overload to return unmet guard descriptions [#443]
+### Fixed
+ - Inconsistency in sync/async statemachine execution [#444]
+ - Added support for spaces in state/trigger names in Graphviz node graphs by wrapping them in escaped quotes #447
+
 ## 5.10.1
 Re-releasing 5.2.0 as v5.10.1.
 The version number was accidentally set to 5.10 when creating the 5.2 release.
