@@ -90,24 +90,34 @@ namespace Stateless
                     await ExecuteEntryActionsAsync(transition, entryArgs).ConfigureAwait(false);
                 }
             }
-
+            
             public async Task<Transition> ExitAsync(Transition transition)
             {
-                await ExecuteExitActionsAsync(transition).ConfigureAwait(false);
-                if (_superstate != null && !Includes(transition.Destination))
+                if (transition.IsReentry)
                 {
-                    // Check if destination is within the state list
-                    if (IsIncludedIn(transition.Destination))
+                    await ExecuteExitActionsAsync(transition).ConfigureAwait(false);
+                }
+                else if (!Includes(transition.Destination))
+                {
+                    await ExecuteExitActionsAsync(transition).ConfigureAwait(false);
+
+                    // Must check if there is a superstate, and if we are leaving that superstate
+                    if (_superstate != null)
                     {
-                        // Destination state is within the list, exit first superstate only if it is NOT the first
-                        if (!_superstate.UnderlyingState.Equals(transition.Destination))
+                        // Check if destination is within the state list
+                        if (IsIncludedIn(transition.Destination))
                         {
+                            // Destination state is within the list, exit first superstate only if it is NOT the first
+                            if (!_superstate.UnderlyingState.Equals(transition.Destination))
+                            {
+                                return await _superstate.ExitAsync(transition).ConfigureAwait(false);
+                            }
+                        }
+                        else
+                        {
+                            // Exit the superstate as well
                             return await _superstate.ExitAsync(transition).ConfigureAwait(false);
                         }
-                    }
-                    else
-                    {
-                        return await _superstate.ExitAsync(transition).ConfigureAwait(false);
                     }
                 }
                 return transition;
