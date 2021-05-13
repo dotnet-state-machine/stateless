@@ -16,22 +16,24 @@ namespace Stateless
 
             public static Func<object[], bool> ToPackedGuard<TArg0>(Func<TArg0, bool> guard)
             {
-                return args => guard(ParameterConversion.Unpack<TArg0>(args, 0));
+                return args => ParameterConversion.TryUnpack<TArg0>(args, 0, out var arg) && guard(arg);
             }
 
             public static Func<object[], bool> ToPackedGuard<TArg0, TArg1>(Func<TArg0, TArg1, bool> guard)
             {
-                return args => guard(
-                    ParameterConversion.Unpack<TArg0>(args, 0), 
-                    ParameterConversion.Unpack<TArg1>(args, 1));
+                return args => 
+                    ParameterConversion.TryUnpack<TArg0>(args, 0, out var arg0)
+                    && ParameterConversion.TryUnpack<TArg1>(args, 1, out var arg1)
+                    && guard(arg0, arg1);
             }
 
             public static Func<object[], bool> ToPackedGuard<TArg0, TArg1, TArg2>(Func<TArg0, TArg1, TArg2, bool> guard)
             {
-                return args => guard(
-                    ParameterConversion.Unpack<TArg0>(args, 0),
-                    ParameterConversion.Unpack<TArg1>(args, 1),
-                    ParameterConversion.Unpack<TArg2>(args, 2));
+                return args =>
+                    ParameterConversion.TryUnpack<TArg0>(args, 0, out var arg0)
+                    && ParameterConversion.TryUnpack<TArg1>(args, 1, out var arg1)
+                    && ParameterConversion.TryUnpack<TArg2>(args, 2, out var arg2)
+                    && guard(arg0, arg1, arg2);
             }
 
             public static Tuple<Func<object[], bool>, string>[] ToPackedGuards<TArg0>(Tuple<Func<TArg0, bool>, string>[] guards)
