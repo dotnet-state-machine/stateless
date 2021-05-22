@@ -170,7 +170,7 @@ namespace Stateless
             // Try to find a trigger handler, either in the current state or a super state.
             if (!representativeState.TryFindHandler(trigger, args, out TriggerBehaviourResult result))
             {
-                await _unhandledTriggerAction.ExecuteAsync(representativeState.UnderlyingState, trigger, result?.UnmetGuardConditions);
+                await _unhandledTriggerAction.Execute(representativeState.UnderlyingState, trigger, result?.UnmetGuardConditions).ConfigureAwait(false);
                 return;
             }
 
@@ -298,7 +298,7 @@ namespace Stateless
         public void OnUnhandledTriggerAsync(Func<TState, TTrigger, Task> unhandledTriggerAction)
         {
             if (unhandledTriggerAction == null) throw new ArgumentNullException(nameof(unhandledTriggerAction));
-            _unhandledTriggerAction = new UnhandledTriggerAction.Async((s, t, c) => unhandledTriggerAction(s, t));
+            _unhandledTriggerAction = new UnhandledTriggerAction(EventCallbackFactory.Create<TState, TTrigger, ICollection<string>>((s, t, c) => unhandledTriggerAction(s, t)));
         }
 
         /// <summary>
@@ -309,7 +309,7 @@ namespace Stateless
         public void OnUnhandledTriggerAsync(Func<TState, TTrigger, ICollection<string>, Task> unhandledTriggerAction)
         {
             if (unhandledTriggerAction == null) throw new ArgumentNullException(nameof(unhandledTriggerAction));
-            _unhandledTriggerAction = new UnhandledTriggerAction.Async(unhandledTriggerAction);
+            _unhandledTriggerAction = new UnhandledTriggerAction(EventCallbackFactory.Create(unhandledTriggerAction));
         }
 
         /// <summary>

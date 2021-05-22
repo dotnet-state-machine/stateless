@@ -241,30 +241,6 @@ namespace Stateless.Tests
 
             Assert.Equal("foo", test); // Should await action
         }
-        [Fact]
-        public void WhenSyncFireOnUnhandledTriggerAsyncTask()
-        {
-            var sm = new StateMachine<State, Trigger>(State.A);
-
-            sm.Configure(State.A)
-                .Permit(Trigger.X, State.B);
-
-            sm.OnUnhandledTriggerAsync((s, t) => TaskResult.Done);
-
-            Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.Z));
-        }
-        [Fact]
-        public void WhenSyncFireOnUnhandledTriggerAsyncAction()
-        {
-            var sm = new StateMachine<State, Trigger>(State.A);
-
-            sm.Configure(State.A)
-              .Permit(Trigger.X, State.B);
-
-            sm.OnUnhandledTriggerAsync((s, t, u) => TaskResult.Done);
-
-            Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.Z));
-        }
 
         [Fact]
         public async Task WhenActivateAsync()

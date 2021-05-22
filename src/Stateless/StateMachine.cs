@@ -46,7 +46,7 @@ namespace Stateless
         /// </summary>
         /// <param name="stateAccessor">A function that will be called to read the current state value.</param>
         /// <param name="stateMutator">An action that will be called to write new state values.</param>
-        public StateMachine(Func<TState> stateAccessor, Action<TState> stateMutator) :this(stateAccessor, stateMutator, FiringMode.Queued)
+        public StateMachine(Func<TState> stateAccessor, Action<TState> stateMutator) : this(stateAccessor, stateMutator, FiringMode.Queued)
         {
         }
 
@@ -92,7 +92,7 @@ namespace Stateless
         /// </summary>
         StateMachine()
         {
-            _unhandledTriggerAction = new UnhandledTriggerAction.Sync(DefaultUnhandledTriggerAction);
+            _unhandledTriggerAction = new UnhandledTriggerAction(EventCallbackFactory.Create<TState, TTrigger, ICollection<string>>(DefaultUnhandledTriggerAction));
             _onTransitionedEvent = new OnTransitionedEvent();
             _onTransitionCompletedEvent = new OnTransitionedEvent();
         }
@@ -386,7 +386,7 @@ namespace Stateless
             // Try to find a trigger handler, either in the current state or a super state.
             if (!representativeState.TryFindHandler(trigger, args, out TriggerBehaviourResult result))
             {
-                _unhandledTriggerAction.Execute(representativeState.UnderlyingState, trigger, result?.UnmetGuardConditions);
+                _unhandledTriggerAction.Execute(representativeState.UnderlyingState, trigger, result?.UnmetGuardConditions).GetAwaiter().GetResult();
                 return;
             }
 
@@ -398,28 +398,28 @@ namespace Stateless
                 // Handle special case, re-entry in superstate
                 // Check if it is an internal transition, or a transition from one state to another.
                 case ReentryTriggerBehaviour handler:
-                {
-                    // Handle transition, and set new state
-                    var transition = new Transition(source, handler.Destination, trigger, args);
-                    HandleReentryTrigger(args, representativeState, transition);
-                    break;
-                }
+                    {
+                        // Handle transition, and set new state
+                        var transition = new Transition(source, handler.Destination, trigger, args);
+                        HandleReentryTrigger(args, representativeState, transition);
+                        break;
+                    }
                 case DynamicTriggerBehaviour _ when (result.Handler.ResultsInTransitionFrom(source, args, out var destination)):
                 case TransitioningTriggerBehaviour _ when (result.Handler.ResultsInTransitionFrom(source, args, out destination)):
-                {
-                    // Handle transition, and set new state
-                    var transition = new Transition(source, destination, trigger, args);
-                    HandleTransitioningTrigger(args, representativeState, transition);
+                    {
+                        // Handle transition, and set new state
+                        var transition = new Transition(source, destination, trigger, args);
+                        HandleTransitioningTrigger(args, representativeState, transition);
 
-                    break;
-                }
+                        break;
+                    }
                 case InternalTriggerBehaviour _:
-                {
-                    // Internal transitions does not update the current state, but must execute the associated action.
-                    var transition = new Transition(source, source, trigger, args);
-                    CurrentRepresentation.InternalAction(transition, args);
-                    break;
-                }
+                    {
+                        // Internal transitions does not update the current state, but must execute the associated action.
+                        var transition = new Transition(source, source, trigger, args);
+                        CurrentRepresentation.InternalAction(transition, args);
+                        break;
+                    }
                 default:
                     throw new InvalidOperationException("State machine configuration incorrect, no handler for trigger.");
             }
@@ -451,7 +451,7 @@ namespace Stateless
             State = representation.UnderlyingState;
         }
 
-        private void HandleTransitioningTrigger( object[] args, StateRepresentation representativeState, Transition transition)
+        private void HandleTransitioningTrigger(object[] args, StateRepresentation representativeState, Transition transition)
         {
             transition = representativeState.Exit(transition);
 
@@ -472,7 +472,7 @@ namespace Stateless
             _onTransitionCompletedEvent.Invoke(new Transition(transition.Source, State, transition.Trigger, transition.Parameters));
         }
 
-        private StateRepresentation EnterState(StateRepresentation representation, Transition transition, object [] args)
+        private StateRepresentation EnterState(StateRepresentation representation, Transition transition, object[] args)
         {
             // Enter the new state
             representation.Enter(transition, args);
@@ -514,7 +514,7 @@ namespace Stateless
         public void OnUnhandledTrigger(Action<TState, TTrigger> unhandledTriggerAction)
         {
             if (unhandledTriggerAction == null) throw new ArgumentNullException(nameof(unhandledTriggerAction));
-            _unhandledTriggerAction = new UnhandledTriggerAction.Sync((s, t, c) => unhandledTriggerAction(s, t));
+            _unhandledTriggerAction = new UnhandledTriggerAction(EventCallbackFactory.Create<TState, TTrigger, ICollection<string>>((s, t, c) => unhandledTriggerAction(s, t)));
         }
 
         /// <summary>
@@ -525,7 +525,7 @@ namespace Stateless
         public void OnUnhandledTrigger(Action<TState, TTrigger, ICollection<string>> unhandledTriggerAction)
         {
             if (unhandledTriggerAction == null) throw new ArgumentNullException(nameof(unhandledTriggerAction));
-            _unhandledTriggerAction = new UnhandledTriggerAction.Sync(unhandledTriggerAction);
+            _unhandledTriggerAction = new UnhandledTriggerAction(EventCallbackFactory.Create(unhandledTriggerAction));
         }
 
         /// <summary>
