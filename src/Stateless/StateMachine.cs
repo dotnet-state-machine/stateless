@@ -411,11 +411,11 @@ namespace Stateless
 
                         break;
                     }
-                case InternalTriggerBehaviour _:
+                case InternalTriggerBehaviour itb:
                     {
                         // Internal transitions does not update the current state, but must execute the associated action.
                         var transition = new Transition(source, source, trigger, args);
-                        CurrentRepresentation.InternalAction(transition, args);
+                        itb.Execute(transition, args).GetAwaiter().GetResult();
                         break;
                     }
                 default:

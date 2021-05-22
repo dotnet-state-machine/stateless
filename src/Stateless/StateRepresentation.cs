@@ -140,28 +140,6 @@ namespace Stateless
                 ExitActions.Add(new ExitActionBehavior(EventCallbackFactory.Create(action), exitActionDescription));
             }
 
-            internal void InternalAction(Transition transition, object[] args)
-            {
-                InternalTriggerBehaviour internalTransition = null;
-
-                // Look for actions in superstate(s) recursivly until we hit the topmost superstate, or we actually find some trigger handlers.
-                StateRepresentation aStateRep = this;
-                while (aStateRep != null)
-                {
-                    if (aStateRep.TryFindLocalHandler(transition.Trigger, args, out TriggerBehaviourResult result))
-                    {
-                        // Trigger handler found in this state
-                        internalTransition = result.Handler as InternalTriggerBehaviour;
-                        break;
-                    }
-                    // Try to look for trigger handlers in superstate (if it exists)
-                    aStateRep = aStateRep._superstate;
-                }
-
-                // Execute internal transition event handler
-                if (internalTransition == null) throw new ArgumentNullException("The configuration is incorrect, no action assigned to this internal transition.");
-                internalTransition.Execute(transition, args).GetAwaiter().GetResult();
-            }
             public void AddTriggerBehaviour(TriggerBehaviour triggerBehaviour)
             {
                 if (!TriggerBehaviours.TryGetValue(triggerBehaviour.Trigger, out ICollection<TriggerBehaviour> allowed))
