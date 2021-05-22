@@ -1,5 +1,3 @@
-#if TASKS
-
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -370,5 +368,3 @@ namespace Stateless.Tests
         }
     }
 }
-
-#endif

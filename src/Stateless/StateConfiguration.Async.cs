@@ -1,6 +1,4 @@
-﻿#if TASKS
-
-using System;
+﻿using System;
 using System.Threading.Tasks;
 
 namespace Stateless
@@ -462,4 +460,3 @@ namespace Stateless
         }
     }
 }
-#endif

@@ -1,5 +1,4 @@
-﻿#if TASKS
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -151,7 +150,7 @@ namespace Stateless.Tests
 
             await sm.FireAsync(Trigger.X);
 
-            Assert.Equal(new List<State>() { 
+            Assert.Equal(new List<State>() {
                 State.B,
                 State.C,
                 State.A
@@ -204,4 +203,3 @@ namespace Stateless.Tests
         }
     }
 }
-#endif
