@@ -51,7 +51,7 @@ namespace Stateless
                         // Since we fell into the DynamicInvoke case, any exception will be wrapped
                         // in a TIE. We can expect this to be thrown synchronously, so it's low overhead
                         // to unwrap it.
-                        return Task.FromException(e.InnerException);
+                        return TaskResult.FromException(e.InnerException);
                     }
             }
         }
