@@ -201,7 +201,7 @@ namespace Stateless
         /// not allow the trigger to be fired.</exception>
         public void Fire(TTrigger trigger)
         {
-            InternalFireAsync(trigger, new object[0]).GetAwaiter().GetResult();
+            FireAsync(trigger).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -216,8 +216,7 @@ namespace Stateless
         /// not allow the trigger to be fired.</exception>
         public void Fire(TriggerWithParameters trigger, params object[] args)
         {
-            if (trigger == null) throw new ArgumentNullException(nameof(trigger));
-            InternalFireAsync(trigger.Trigger, args).GetAwaiter().GetResult();
+            FireAsync(trigger, args).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -247,8 +246,7 @@ namespace Stateless
         /// not allow the trigger to be fired.</exception>
         public void Fire<TArg0>(TriggerWithParameters<TArg0> trigger, TArg0 arg0)
         {
-            if (trigger == null) throw new ArgumentNullException(nameof(trigger));
-            InternalFireAsync(trigger.Trigger, arg0).GetAwaiter().GetResult();
+            FireAsync(trigger, arg0).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -266,8 +264,7 @@ namespace Stateless
         /// not allow the trigger to be fired.</exception>
         public void Fire<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, TArg0 arg0, TArg1 arg1)
         {
-            if (trigger == null) throw new ArgumentNullException(nameof(trigger));
-            InternalFireAsync(trigger.Trigger, arg0, arg1).GetAwaiter().GetResult();
+            FireAsync(trigger, arg0, arg1).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -287,8 +284,7 @@ namespace Stateless
         /// not allow the trigger to be fired.</exception>
         public void Fire<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, TArg0 arg0, TArg1 arg1, TArg2 arg2)
         {
-            if (trigger == null) throw new ArgumentNullException(nameof(trigger));
-            InternalFireAsync(trigger.Trigger, arg0, arg1, arg2).GetAwaiter().GetResult();
+            FireAsync(trigger, arg0, arg1, arg2).GetAwaiter().GetResult();
         }
 
         /// <summary>
