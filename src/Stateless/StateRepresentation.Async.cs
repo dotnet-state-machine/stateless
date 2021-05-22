@@ -44,7 +44,7 @@ namespace Stateless
 
             public void AddExitAction(Func<Transition, Task> action, Reflection.InvocationInfo exitActionDescription)
             {
-                ExitActions.Add(new ExitActionBehavior.Async(action, exitActionDescription));
+                ExitActions.Add(new ExitActionBehavior(EventCallbackFactory.Create(action), exitActionDescription));
             }
 
             public async Task ActivateAsync()
@@ -132,7 +132,7 @@ namespace Stateless
             async Task ExecuteExitActionsAsync(Transition transition)
             {
                 foreach (var action in ExitActions)
-                    await action.ExecuteAsync(transition).ConfigureAwait(false);
+                    await action.Execute(transition).ConfigureAwait(false);
             }
         }
     }

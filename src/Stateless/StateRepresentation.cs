@@ -137,7 +137,7 @@ namespace Stateless
 
             public void AddExitAction(Action<Transition> action, Reflection.InvocationInfo exitActionDescription)
             {
-                ExitActions.Add(new ExitActionBehavior.Sync(action, exitActionDescription));
+                ExitActions.Add(new ExitActionBehavior(EventCallbackFactory.Create(action), exitActionDescription));
             }
 
             public void Activate()
@@ -224,7 +224,7 @@ namespace Stateless
             void ExecuteExitActions(Transition transition)
             {
                 foreach (var action in ExitActions)
-                    action.Execute(transition);
+                    action.Execute(transition).GetAwaiter().GetResult();
             }
             internal void InternalAction(Transition transition, object[] args)
             {
