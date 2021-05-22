@@ -19,7 +19,7 @@ namespace Stateless
             {
                 case Action action:
                     action();
-                    return Task.CompletedTask;
+                    return TaskResult.Done;
 
                 case Func<Task> func:
                     return func();
@@ -39,12 +39,12 @@ namespace Stateless
             switch (Delegate)
             {
                 case null:
-                    return Task.CompletedTask;
+                    return TaskResult.Done;
 
                 default:
                     try
                     {
-                        return Delegate.DynamicInvoke(args) as Task ?? Task.CompletedTask;
+                        return Delegate.DynamicInvoke(args) as Task ?? TaskResult.Done;
                     }
                     catch (TargetInvocationException e)
                     {
@@ -69,7 +69,7 @@ namespace Stateless
             {
                 case Action<T> action:
                     action(arg);
-                    return Task.CompletedTask;
+                    return TaskResult.Done;
 
                 case Func<T, Task> func:
                     return func(arg);
@@ -92,7 +92,7 @@ namespace Stateless
             {
                 case Action<T1, T2> action:
                     action(arg1, arg2);
-                    return Task.CompletedTask;
+                    return TaskResult.Done;
 
                 case Func<T1, T2, Task> func:
                     return func(arg1, arg2);
@@ -115,7 +115,7 @@ namespace Stateless
             {
                 case Action<T1, T2, T3> action:
                     action(arg1, arg2, arg3);
-                    return Task.CompletedTask;
+                    return TaskResult.Done;
 
                 case Func<T1, T2, T3, Task> func:
                     return func(arg1, arg2, arg3);
@@ -138,7 +138,7 @@ namespace Stateless
             {
                 case Action<T1, T2, T3, T4> action:
                     action(arg1, arg2, arg3, arg4);
-                    return Task.CompletedTask;
+                    return TaskResult.Done;
 
                 case Func<T1, T2, T3, T4, Task> func:
                     return func(arg1, arg2, arg3, arg4);

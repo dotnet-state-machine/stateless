@@ -42,7 +42,7 @@ namespace Stateless
                     if (transition.Trigger.Equals(Trigger))
                         return base.Execute(transition, args);
 
-                    return Task.CompletedTask;
+                    return TaskResult.Done;
                 }
             }
         }
