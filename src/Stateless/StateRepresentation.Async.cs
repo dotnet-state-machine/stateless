@@ -24,21 +24,17 @@ namespace Stateless
                 if (action == null) throw new ArgumentNullException(nameof(action));
 
                 EntryActions.Add(
-                    new EntryActionBehavior.Async((t, args) =>
-                    {
-                        if (t.Trigger.Equals(trigger))
-                            return action(t, args);
-
-                        return TaskResult.Done;
-                    },
-                    entryActionDescription));
+                    new EntryActionBehavior.From<TTrigger>(
+                        trigger,
+                        EventCallbackFactory.Create(action),
+                        entryActionDescription));
             }
 
             public void AddEntryAction(Func<Transition, object[], Task> action, Reflection.InvocationInfo entryActionDescription)
             {
                 EntryActions.Add(
-                    new EntryActionBehavior.Async(
-                        action,
+                    new EntryActionBehavior(
+                        EventCallbackFactory.Create(action),
                         entryActionDescription));
             }
 
@@ -126,7 +122,7 @@ namespace Stateless
             async Task ExecuteEntryActionsAsync(Transition transition, object[] entryArgs)
             {
                 foreach (var action in EntryActions)
-                    await action.ExecuteAsync(transition, entryArgs).ConfigureAwait(false);
+                    await action.Execute(transition, entryArgs).ConfigureAwait(false);
             }
 
             async Task ExecuteExitActionsAsync(Transition transition)

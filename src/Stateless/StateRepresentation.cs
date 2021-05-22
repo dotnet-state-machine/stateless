@@ -127,12 +127,12 @@ namespace Stateless
 
             public void AddEntryAction(TTrigger trigger, Action<Transition, object[]> action, Reflection.InvocationInfo entryActionDescription)
             {
-                EntryActions.Add(new EntryActionBehavior.SyncFrom<TTrigger>(trigger, action, entryActionDescription));
+                EntryActions.Add(new EntryActionBehavior.From<TTrigger>(trigger, EventCallbackFactory.Create(action), entryActionDescription));
             }
 
             public void AddEntryAction(Action<Transition, object[]> action, Reflection.InvocationInfo entryActionDescription)
             {
-                EntryActions.Add(new EntryActionBehavior.Sync(action, entryActionDescription));
+                EntryActions.Add(new EntryActionBehavior(EventCallbackFactory.Create(action), entryActionDescription));
             }
 
             public void AddExitAction(Action<Transition> action, Reflection.InvocationInfo exitActionDescription)
@@ -218,7 +218,7 @@ namespace Stateless
             void ExecuteEntryActions(Transition transition, object[] entryArgs)
             {
                 foreach (var action in EntryActions)
-                    action.Execute(transition, entryArgs);
+                    action.Execute(transition, entryArgs).GetAwaiter().GetResult();
             }
 
             void ExecuteExitActions(Transition transition)

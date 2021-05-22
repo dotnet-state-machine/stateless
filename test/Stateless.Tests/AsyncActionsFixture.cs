@@ -121,20 +121,6 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        public void WhenSyncFireAsyncEntryAction()
-        {
-            var sm = new StateMachine<State, Trigger>(State.A);
-
-            sm.Configure(State.A)
-              .Permit(Trigger.X, State.B);
-
-            sm.Configure(State.B)
-              .OnEntryAsync(() => TaskResult.Done);
-
-            Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
-        }
-
-        [Fact]
         public async Task CanFireAsyncExitAction()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
