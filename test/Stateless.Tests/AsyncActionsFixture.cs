@@ -192,13 +192,16 @@ namespace Stateless.Tests
 
             var test1 = "";
             var test2 = "";
+            var test3 = "";
             sm.OnTransitioned(_ => test1 = "foo1");
             sm.OnTransitionedAsync(_ => Task.Run(() => test2 = "foo2"));
+            sm.OnTransitioned(_ => test3 = "foo3");
 
             await sm.FireAsync(Trigger.X).ConfigureAwait(false);
 
             Assert.Equal("foo1", test1);
             Assert.Equal("foo2", test2);
+            Assert.Equal("foo3", test3);
         }
 
         [Fact]
@@ -211,39 +214,16 @@ namespace Stateless.Tests
 
             var test1 = "";
             var test2 = "";
+            var test3 = "";
             sm.OnTransitionCompleted(_ => test1 = "foo1");
             sm.OnTransitionCompletedAsync(_ => Task.Run(() => test2 = "foo2"));
+            sm.OnTransitionCompleted(_ => test3 = "foo3");
 
             await sm.FireAsync(Trigger.X).ConfigureAwait(false);
 
             Assert.Equal("foo1", test1);
             Assert.Equal("foo2", test2);
-        }
-
-        [Fact]
-        public void WhenSyncFireAsyncOnTransitionedAction()
-        {
-            var sm = new StateMachine<State, Trigger>(State.A);
-
-            sm.Configure(State.A)
-              .Permit(Trigger.X, State.B);
-
-            sm.OnTransitionedAsync(_ => TaskResult.Done);
-
-            Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
-        }
-
-        [Fact]
-        public void WhenSyncFireAsyncOnTransitionCompletedAction()
-        {
-            var sm = new StateMachine<State, Trigger>(State.A);
-
-            sm.Configure(State.A)
-              .Permit(Trigger.X, State.B);
-
-            sm.OnTransitionCompletedAsync(_ => TaskResult.Done);
-
-            Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
+            Assert.Equal("foo3", test3);
         }
 
         [Fact]
