@@ -399,7 +399,7 @@ namespace Stateless
                     {
                         // Handle transition, and set new state
                         var transition = new Transition(source, handler.Destination, trigger, args);
-                        HandleReentryTrigger(args, representativeState, transition);
+                        HandleReentryTriggerAsync(args, representativeState, transition).GetAwaiter().GetResult();
                         break;
                     }
                 case DynamicTriggerBehaviour _ when (result.Handler.ResultsInTransitionFrom(source, args, out var destination)):
@@ -421,32 +421,6 @@ namespace Stateless
                 default:
                     throw new InvalidOperationException("State machine configuration incorrect, no handler for trigger.");
             }
-        }
-
-        private void HandleReentryTrigger(object[] args, StateRepresentation representativeState, Transition transition)
-        {
-            StateRepresentation representation;
-            transition = representativeState.ExitAsync(transition).GetAwaiter().GetResult();
-            var newRepresentation = GetRepresentation(transition.Destination);
-
-            if (!transition.Source.Equals(transition.Destination))
-            {
-                // Then Exit the final superstate
-                transition = new Transition(transition.Destination, transition.Destination, transition.Trigger, args);
-                newRepresentation.ExitAsync(transition).GetAwaiter().GetResult();
-
-                _onTransitionedEvent.Invoke(transition);
-                representation = EnterStateAsync(newRepresentation, transition, args).GetAwaiter().GetResult();
-                _onTransitionCompletedEvent.Invoke(transition);
-
-            }
-            else
-            {
-                _onTransitionedEvent.Invoke(transition);
-                representation = EnterStateAsync(newRepresentation, transition, args).GetAwaiter().GetResult();
-                _onTransitionCompletedEvent.Invoke(transition);
-            }
-            State = representation.UnderlyingState;
         }
 
         private void HandleTransitioningTrigger(object[] args, StateRepresentation representativeState, Transition transition)
