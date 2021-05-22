@@ -195,7 +195,7 @@ namespace Stateless
             // Try to find a trigger handler, either in the current state or a super state.
             if (!representativeState.TryFindHandler(trigger, args, out TriggerBehaviourResult result))
             {
-                await _unhandledTriggerAction.Execute(representativeState.UnderlyingState, trigger, result?.UnmetGuardConditions).ConfigureAwait(false);
+                await _unhandledTriggerAction.ExecuteAsync(representativeState.UnderlyingState, trigger, result?.UnmetGuardConditions).ConfigureAwait(false);
                 return;
             }
 
@@ -226,7 +226,7 @@ namespace Stateless
                     {
                         // Internal transitions does not update the current state, but must execute the associated action.
                         var transition = new Transition(source, source, trigger, args);
-                        await itb.Execute(transition, args).ConfigureAwait(false);
+                        await itb.ExecuteAsync(transition, args).ConfigureAwait(false);
                         break;
                     }
                 default:

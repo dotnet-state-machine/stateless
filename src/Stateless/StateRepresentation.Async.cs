@@ -62,13 +62,13 @@ namespace Stateless
             async Task ExecuteActivationActionsAsync()
             {
                 foreach (var action in ActivateActions)
-                    await action.Execute().ConfigureAwait(false);
+                    await action.ExecuteAsync().ConfigureAwait(false);
             }
 
             async Task ExecuteDeactivationActionsAsync()
             {
                 foreach (var action in DeactivateActions)
-                    await action.Execute().ConfigureAwait(false);
+                    await action.ExecuteAsync().ConfigureAwait(false);
             }
 
 
@@ -122,13 +122,13 @@ namespace Stateless
             async Task ExecuteEntryActionsAsync(Transition transition, object[] entryArgs)
             {
                 foreach (var action in EntryActions)
-                    await action.Execute(transition, entryArgs).ConfigureAwait(false);
+                    await action.ExecuteAsync(transition, entryArgs).ConfigureAwait(false);
             }
 
             async Task ExecuteExitActionsAsync(Transition transition)
             {
                 foreach (var action in ExitActions)
-                    await action.Execute(transition).ConfigureAwait(false);
+                    await action.ExecuteAsync(transition).ConfigureAwait(false);
             }
         }
     }

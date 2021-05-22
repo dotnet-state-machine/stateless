@@ -32,7 +32,7 @@ namespace Stateless
                 return false;
             }
 
-            public virtual Task Execute(Transition transition, object[] args)
+            public virtual Task ExecuteAsync(Transition transition, object[] args)
             {
                 return _callback.InvokeAsync(transition, args);
             }

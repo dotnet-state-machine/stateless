@@ -22,7 +22,7 @@ namespace Stateless
 
             internal Reflection.InvocationInfo Description { get; }
 
-            public virtual Task Execute(Transition transition)
+            public virtual Task ExecuteAsync(Transition transition)
             {
                 return _callback.InvokeAsync(transition);
             }

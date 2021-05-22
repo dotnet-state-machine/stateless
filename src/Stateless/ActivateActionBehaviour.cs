@@ -24,7 +24,7 @@ namespace Stateless
 
             internal Reflection.InvocationInfo Description { get; }
 
-            public virtual Task Execute()
+            public virtual Task ExecuteAsync()
             {
                 return _callback.InvokeAsync();
             }

@@ -22,7 +22,7 @@ namespace Stateless
 
             public Reflection.InvocationInfo Description { get; }
 
-            public virtual Task Execute(Transition transition, object[] args)
+            public virtual Task ExecuteAsync(Transition transition, object[] args)
             {
                 return _callback.InvokeAsync(transition, args);
             }
@@ -37,10 +37,10 @@ namespace Stateless
                     Trigger = trigger;
                 }
 
-                public override Task Execute(Transition transition, object[] args)
+                public override Task ExecuteAsync(Transition transition, object[] args)
                 {
                     if (transition.Trigger.Equals(Trigger))
-                        return base.Execute(transition, args);
+                        return base.ExecuteAsync(transition, args);
 
                     return TaskResult.Done;
                 }

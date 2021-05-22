@@ -15,7 +15,7 @@ namespace Stateless
                 _callback = action;
             }
 
-            public virtual Task Execute(TState state, TTrigger trigger, ICollection<string> unmetGuards)
+            public virtual Task ExecuteAsync(TState state, TTrigger trigger, ICollection<string> unmetGuards)
             {
                 return _callback.InvokeAsync(state, trigger, unmetGuards);
             }
