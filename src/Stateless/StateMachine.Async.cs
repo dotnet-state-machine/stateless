@@ -130,10 +130,10 @@ namespace Stateless
             switch (_firingMode)
             {
                 case FiringMode.Immediate:
-                    await InternalFireOneAsync(trigger, args);
+                    await InternalFireOneAsync(trigger, args).ConfigureAwait(false);
                     break;
                 case FiringMode.Queued:
-                    await InternalFireQueuedAsync(trigger, args);
+                    await InternalFireQueuedAsync(trigger, args).ConfigureAwait(false);
                     break;
                 default:
                     // If something is completely messed up we let the user know ;-)
@@ -208,7 +208,7 @@ namespace Stateless
                     {
                         // Handle transition, and set new state
                         var transition = new Transition(source, handler.Destination, trigger, args);
-                        await HandleReentryTriggerAsync(args, representativeState, transition);
+                        await HandleReentryTriggerAsync(args, representativeState, transition).ConfigureAwait(false);
                         break;
                     }
                 case DynamicTriggerBehaviour _ when (result.Handler.ResultsInTransitionFrom(source, args, out var destination)):
@@ -216,7 +216,7 @@ namespace Stateless
                     {
                         // Handle transition, and set new state
                         var transition = new Transition(source, destination, trigger, args);
-                        await HandleTransitioningTriggerAsync(args, representativeState, transition);
+                        await HandleTransitioningTriggerAsync(args, representativeState, transition).ConfigureAwait(false);
 
                         break;
                     }
@@ -235,38 +235,38 @@ namespace Stateless
         private async Task HandleReentryTriggerAsync(object[] args, StateRepresentation representativeState, Transition transition)
         {
             StateRepresentation representation;
-            transition = await representativeState.ExitAsync(transition);
+            transition = await representativeState.ExitAsync(transition).ConfigureAwait(false);
             var newRepresentation = GetRepresentation(transition.Destination);
 
             if (!transition.Source.Equals(transition.Destination))
             {
                 // Then Exit the final superstate
                 transition = new Transition(transition.Destination, transition.Destination, transition.Trigger, args);
-                await newRepresentation.ExitAsync(transition);
+                await newRepresentation.ExitAsync(transition).ConfigureAwait(false);
 
-                await _onTransitionedEvent.InvokeAsync(transition);
-                representation = await EnterStateAsync(newRepresentation, transition, args);
-                await _onTransitionCompletedEvent.InvokeAsync(transition);
+                await _onTransitionedEvent.InvokeAsync(transition).ConfigureAwait(false);
+                representation = await EnterStateAsync(newRepresentation, transition, args).ConfigureAwait(false);
+                await _onTransitionCompletedEvent.InvokeAsync(transition).ConfigureAwait(false);
             }
             else
             {
-                await _onTransitionedEvent.InvokeAsync(transition);
-                representation = await EnterStateAsync(newRepresentation, transition, args);
-                await _onTransitionCompletedEvent.InvokeAsync(transition);
+                await _onTransitionedEvent.InvokeAsync(transition).ConfigureAwait(false);
+                representation = await EnterStateAsync(newRepresentation, transition, args).ConfigureAwait(false);
+                await _onTransitionCompletedEvent.InvokeAsync(transition).ConfigureAwait(false);
             }
             State = representation.UnderlyingState;
         }
 
         private async Task HandleTransitioningTriggerAsync(object[] args, StateRepresentation representativeState, Transition transition)
         {
-            transition = await representativeState.ExitAsync(transition);
+            transition = await representativeState.ExitAsync(transition).ConfigureAwait(false);
 
             State = transition.Destination;
             var newRepresentation = GetRepresentation(transition.Destination);
 
             //Alert all listeners of state transition
-            await _onTransitionedEvent.InvokeAsync(transition);
-            var representation = await EnterStateAsync(newRepresentation, transition, args);
+            await _onTransitionedEvent.InvokeAsync(transition).ConfigureAwait(false);
+            var representation = await EnterStateAsync(newRepresentation, transition, args).ConfigureAwait(false);
 
             // Check if state has changed by entering new state (by fireing triggers in OnEntry or such)
             if (!representation.UnderlyingState.Equals(State))
@@ -275,14 +275,14 @@ namespace Stateless
                 State = representation.UnderlyingState;
             }
 
-            await _onTransitionCompletedEvent.InvokeAsync(new Transition(transition.Source, State, transition.Trigger, transition.Parameters));
+            await _onTransitionCompletedEvent.InvokeAsync(new Transition(transition.Source, State, transition.Trigger, transition.Parameters)).ConfigureAwait(false);
         }
 
 
         private async Task<StateRepresentation> EnterStateAsync(StateRepresentation representation, Transition transition, object[] args)
         {
             // Enter the new state
-            await representation.EnterAsync(transition, args);
+            await representation.EnterAsync(transition, args).ConfigureAwait(false);
 
             if (FiringMode.Immediate.Equals(_firingMode) && !State.Equals(transition.Destination))
             {
@@ -306,8 +306,8 @@ namespace Stateless
                 representation = GetRepresentation(representation.InitialTransitionTarget);
 
                 // Alert all listeners of initial state transition
-                await _onTransitionedEvent.InvokeAsync(new Transition(transition.Destination, initialTransition.Destination, transition.Trigger, transition.Parameters));
-                representation = await EnterStateAsync(representation, initialTransition, args);
+                await _onTransitionedEvent.InvokeAsync(new Transition(transition.Destination, initialTransition.Destination, transition.Trigger, transition.Parameters)).ConfigureAwait(false);
+                representation = await EnterStateAsync(representation, initialTransition, args).ConfigureAwait(false);
             }
 
             return representation;
