@@ -228,7 +228,7 @@ namespace Stateless
             }
             internal void InternalAction(Transition transition, object[] args)
             {
-                InternalTriggerBehaviour.Sync internalTransition = null;
+                InternalTriggerBehaviour internalTransition = null;
 
                 // Look for actions in superstate(s) recursivly until we hit the topmost superstate, or we actually find some trigger handlers.
                 StateRepresentation aStateRep = this;
@@ -237,10 +237,7 @@ namespace Stateless
                     if (aStateRep.TryFindLocalHandler(transition.Trigger, args, out TriggerBehaviourResult result))
                     {
                         // Trigger handler found in this state
-                        if (result.Handler is InternalTriggerBehaviour.Async)
-                            throw new InvalidOperationException("Running Async internal actions in synchronous mode is not allowed");
-
-                        internalTransition = result.Handler as InternalTriggerBehaviour.Sync;
+                        internalTransition = result.Handler as InternalTriggerBehaviour;
                         break;
                     }
                     // Try to look for trigger handlers in superstate (if it exists)
@@ -249,7 +246,7 @@ namespace Stateless
 
                 // Execute internal transition event handler
                 if (internalTransition == null) throw new ArgumentNullException("The configuration is incorrect, no action assigned to this internal transition.");
-                internalTransition.InternalAction(transition, args);
+                internalTransition.Execute(transition, args).GetAwaiter().GetResult();
             }
             public void AddTriggerBehaviour(TriggerBehaviour triggerBehaviour)
             {

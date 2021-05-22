@@ -151,17 +151,6 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        public void WhenSyncFireInternalAsyncAction()
-        {
-            var sm = new StateMachine<State, Trigger>(State.A);
-
-            sm.Configure(State.A)
-              .InternalTransitionAsync(Trigger.X, () => TaskResult.Done);
-
-            Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
-        }
-
-        [Fact]
         public async Task CanInvokeOnTransitionedAsyncAction()
         {
             var sm = new StateMachine<State, Trigger>(State.A);

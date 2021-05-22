@@ -11,7 +11,7 @@ namespace Stateless
     {
         /// <summary>
         /// Activates current state in asynchronous fashion. Actions associated with activating the currrent state
-        /// will be invoked. The activation is idempotent and subsequent activation of the same current state 
+        /// will be invoked. The activation is idempotent and subsequent activation of the same current state
         /// will not lead to re-execution of activation callbacks.
         /// </summary>
         public Task ActivateAsync()
@@ -22,7 +22,7 @@ namespace Stateless
 
         /// <summary>
         /// Deactivates current state in asynchronous fashion. Actions associated with deactivating the currrent state
-        /// will be invoked. The deactivation is idempotent and subsequent deactivation of the same current state 
+        /// will be invoked. The deactivation is idempotent and subsequent deactivation of the same current state
         /// will not lead to re-execution of deactivation callbacks.
         /// </summary>
         public Task DeactivateAsync()
@@ -201,11 +201,7 @@ namespace Stateless
                     {
                         // Internal transitions does not update the current state, but must execute the associated action.
                         var transition = new Transition(source, source, trigger, args);
-
-                        if (itb is InternalTriggerBehaviour.Async ita)
-                            await ita.ExecuteAsync(transition, args);
-                        else
-                            await Task.Run(() => itb.Execute(transition, args));
+                        await itb.Execute(transition, args).ConfigureAwait(false);
                         break;
                     }
                 default:
@@ -247,7 +243,7 @@ namespace Stateless
 
             //Alert all listeners of state transition
             await _onTransitionedEvent.InvokeAsync(transition);
-            var representation =await EnterStateAsync(newRepresentation, transition, args);
+            var representation = await EnterStateAsync(newRepresentation, transition, args);
 
             // Check if state has changed by entering new state (by fireing triggers in OnEntry or such)
             if (!representation.UnderlyingState.Equals(State))
@@ -256,7 +252,7 @@ namespace Stateless
                 State = representation.UnderlyingState;
             }
 
-           await _onTransitionCompletedEvent.InvokeAsync(new Transition(transition.Source, State, transition.Trigger, transition.Parameters));
+            await _onTransitionCompletedEvent.InvokeAsync(new Transition(transition.Source, State, transition.Trigger, transition.Parameters));
         }
 
 
