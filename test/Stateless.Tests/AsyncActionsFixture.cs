@@ -353,18 +353,6 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        public void WhenSyncDeactivateAsyncOnDeactivateAction()
-        {
-            var sm = new StateMachine<State, Trigger>(State.A);
-
-            sm.Configure(State.A)
-              .OnDeactivateAsync(() => TaskResult.Done);
-
-            sm.Activate();
-
-            Assert.Throws<InvalidOperationException>(() => sm.Deactivate());
-        }
-        [Fact]
         public async void IfSelfTransitionPermited_ActionsFire_InSubstate_async()
         {
             var sm = new StateMachine<State, Trigger>(State.A);

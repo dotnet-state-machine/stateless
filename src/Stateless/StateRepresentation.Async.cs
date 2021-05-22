@@ -16,7 +16,7 @@ namespace Stateless
 
             public void AddDeactivateAction(Func<Task> action, Reflection.InvocationInfo deactivateActionDescription)
             {
-                DeactivateActions.Add(new DeactivateActionBehaviour.Async(_state, action, deactivateActionDescription));
+                DeactivateActions.Add(new DeactivateActionBehaviour(_state, EventCallbackFactory.Create(action), deactivateActionDescription));
             }
 
             public void AddEntryAction(TTrigger trigger, Func<Transition, object[], Task> action, Reflection.InvocationInfo entryActionDescription)
@@ -72,7 +72,7 @@ namespace Stateless
             async Task ExecuteDeactivationActionsAsync()
             {
                 foreach (var action in DeactivateActions)
-                    await action.ExecuteAsync().ConfigureAwait(false);
+                    await action.Execute().ConfigureAwait(false);
             }
 
 

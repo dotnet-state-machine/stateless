@@ -122,7 +122,7 @@ namespace Stateless
 
             public void AddDeactivateAction(Action action, Reflection.InvocationInfo deactivateActionDescription)
             {
-                DeactivateActions.Add(new DeactivateActionBehaviour.Sync(_state, action, deactivateActionDescription));
+                DeactivateActions.Add(new DeactivateActionBehaviour(_state, EventCallbackFactory.Create(action), deactivateActionDescription));
             }
 
             public void AddEntryAction(TTrigger trigger, Action<Transition, object[]> action, Reflection.InvocationInfo entryActionDescription)
@@ -165,7 +165,7 @@ namespace Stateless
             void ExecuteDeactivationActions()
             {
                 foreach (var action in DeactivateActions)
-                    action.Execute();
+                    action.Execute().GetAwaiter().GetResult();
             }
 
             public void Enter(Transition transition, params object[] entryArgs)
