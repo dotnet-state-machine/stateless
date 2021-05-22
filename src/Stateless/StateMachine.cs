@@ -201,7 +201,7 @@ namespace Stateless
         /// not allow the trigger to be fired.</exception>
         public void Fire(TTrigger trigger)
         {
-            InternalFire(trigger, new object[0]);
+            InternalFireAsync(trigger, new object[0]).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -217,7 +217,7 @@ namespace Stateless
         public void Fire(TriggerWithParameters trigger, params object[] args)
         {
             if (trigger == null) throw new ArgumentNullException(nameof(trigger));
-            InternalFire(trigger.Trigger, args);
+            InternalFireAsync(trigger.Trigger, args).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -248,7 +248,7 @@ namespace Stateless
         public void Fire<TArg0>(TriggerWithParameters<TArg0> trigger, TArg0 arg0)
         {
             if (trigger == null) throw new ArgumentNullException(nameof(trigger));
-            InternalFire(trigger.Trigger, arg0);
+            InternalFireAsync(trigger.Trigger, arg0).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -267,7 +267,7 @@ namespace Stateless
         public void Fire<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, TArg0 arg0, TArg1 arg1)
         {
             if (trigger == null) throw new ArgumentNullException(nameof(trigger));
-            InternalFire(trigger.Trigger, arg0, arg1);
+            InternalFireAsync(trigger.Trigger, arg0, arg1).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -288,7 +288,7 @@ namespace Stateless
         public void Fire<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, TArg0 arg0, TArg1 arg1, TArg2 arg2)
         {
             if (trigger == null) throw new ArgumentNullException(nameof(trigger));
-            InternalFire(trigger.Trigger, arg0, arg1, arg2);
+            InternalFireAsync(trigger.Trigger, arg0, arg1, arg2).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -309,27 +309,6 @@ namespace Stateless
         public void Deactivate()
         {
             DeactivateAsync().GetAwaiter().GetResult();
-        }
-
-        /// <summary>
-        /// Determine how to Fire the trigger
-        /// </summary>
-        /// <param name="trigger">The trigger. </param>
-        /// <param name="args">A variable-length parameters list containing arguments. </param>
-        void InternalFire(TTrigger trigger, params object[] args)
-        {
-            switch (_firingMode)
-            {
-                case FiringMode.Immediate:
-                    InternalFireOneAsync(trigger, args).GetAwaiter().GetResult();
-                    break;
-                case FiringMode.Queued:
-                    InternalFireQueuedAsync(trigger, args).GetAwaiter().GetResult();
-                    break;
-                default:
-                    // If something is completely messed up we let the user know ;-)
-                    throw new InvalidOperationException("The firing mode has not been configured!");
-            }
         }
 
         /// <summary>
