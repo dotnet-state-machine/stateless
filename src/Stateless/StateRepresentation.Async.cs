@@ -11,7 +11,7 @@ namespace Stateless
         {
             public void AddActivateAction(Func<Task> action, Reflection.InvocationInfo activateActionDescription)
             {
-                ActivateActions.Add(new ActivateActionBehaviour.Async(_state, action, activateActionDescription));
+                ActivateActions.Add(new ActivateActionBehaviour(_state, EventCallbackFactory.Create(action), activateActionDescription));
             }
 
             public void AddDeactivateAction(Func<Task> action, Reflection.InvocationInfo deactivateActionDescription)
@@ -66,7 +66,7 @@ namespace Stateless
             async Task ExecuteActivationActionsAsync()
             {
                 foreach (var action in ActivateActions)
-                    await action.ExecuteAsync().ConfigureAwait(false);
+                    await action.Execute().ConfigureAwait(false);
             }
 
             async Task ExecuteDeactivationActionsAsync()
@@ -90,7 +90,7 @@ namespace Stateless
                     await ExecuteEntryActionsAsync(transition, entryArgs).ConfigureAwait(false);
                 }
             }
-            
+
             public async Task<Transition> ExitAsync(Transition transition)
             {
                 if (transition.IsReentry)

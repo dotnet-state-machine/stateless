@@ -64,7 +64,7 @@ namespace Stateless
                     handlerResult = null;
                     return false;
                 }
-               
+
                 // Guard functions are executed here
                 var actual = possible
                     .Select(h => new TriggerBehaviourResult(h, h.UnmetGuardConditions(args)))
@@ -117,7 +117,7 @@ namespace Stateless
 
             public void AddActivateAction(Action action, Reflection.InvocationInfo activateActionDescription)
             {
-                ActivateActions.Add(new ActivateActionBehaviour.Sync(_state, action, activateActionDescription));
+                ActivateActions.Add(new ActivateActionBehaviour(_state, EventCallbackFactory.Create(action), activateActionDescription));
             }
 
             public void AddDeactivateAction(Action action, Reflection.InvocationInfo deactivateActionDescription)
@@ -159,7 +159,7 @@ namespace Stateless
             void ExecuteActivationActions()
             {
                 foreach (var action in ActivateActions)
-                    action.Execute();
+                    action.Execute().GetAwaiter().GetResult();
             }
 
             void ExecuteDeactivationActions()
@@ -308,13 +308,13 @@ namespace Stateless
                     (_superstate != null && _superstate.IsIncludedIn(state));
             }
 
-			public IEnumerable<TTrigger> PermittedTriggers
-			{
-				get
-				{
-					return GetPermittedTriggers();
-				}
-			}
+            public IEnumerable<TTrigger> PermittedTriggers
+            {
+                get
+                {
+                    return GetPermittedTriggers();
+                }
+            }
 
             public IEnumerable<TTrigger> GetPermittedTriggers(params object[] args)
             {
