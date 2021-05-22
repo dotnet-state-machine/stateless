@@ -407,7 +407,7 @@ namespace Stateless
                     {
                         // Handle transition, and set new state
                         var transition = new Transition(source, destination, trigger, args);
-                        HandleTransitioningTrigger(args, representativeState, transition);
+                        HandleTransitioningTriggerAsync(args, representativeState, transition).GetAwaiter().GetResult();
 
                         break;
                     }
@@ -421,27 +421,6 @@ namespace Stateless
                 default:
                     throw new InvalidOperationException("State machine configuration incorrect, no handler for trigger.");
             }
-        }
-
-        private void HandleTransitioningTrigger(object[] args, StateRepresentation representativeState, Transition transition)
-        {
-            transition = representativeState.ExitAsync(transition).GetAwaiter().GetResult();
-
-            State = transition.Destination;
-            var newRepresentation = GetRepresentation(transition.Destination);
-
-            //Alert all listeners of state transition
-            _onTransitionedEvent.Invoke(transition);
-            var representation = EnterStateAsync(newRepresentation, transition, args).GetAwaiter().GetResult();
-
-            // Check if state has changed by entering new state (by fireing triggers in OnEntry or such)
-            if (!representation.UnderlyingState.Equals(State))
-            {
-                // The state has been changed after entering the state, must update current state to new one
-                State = representation.UnderlyingState;
-            }
-
-            _onTransitionCompletedEvent.Invoke(new Transition(transition.Source, State, transition.Trigger, transition.Parameters));
         }
 
         /// <summary>
