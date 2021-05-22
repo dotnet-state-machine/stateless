@@ -158,6 +158,12 @@ namespace Stateless
             }
         }
 
+        /// <summary>
+        /// This method handles the execution of a trigger handler. It finds a
+        /// handle, then updates the current state information.
+        /// </summary>
+        /// <param name="trigger"></param>
+        /// <param name="args"></param>
         async Task InternalFireOneAsync(TTrigger trigger, params object[] args)
         {
             // If this is a trigger with parameters, we must validate the parameter(s)

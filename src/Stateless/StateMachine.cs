@@ -321,7 +321,7 @@ namespace Stateless
             switch (_firingMode)
             {
                 case FiringMode.Immediate:
-                    InternalFireOne(trigger, args);
+                    InternalFireOneAsync(trigger, args).GetAwaiter().GetResult();
                     break;
                 case FiringMode.Queued:
                     InternalFireQueued(trigger, args);
@@ -357,69 +357,12 @@ namespace Stateless
                 while (_eventQueue.Any())
                 {
                     var queuedEvent = _eventQueue.Dequeue();
-                    InternalFireOne(queuedEvent.Trigger, queuedEvent.Args);
+                    InternalFireOneAsync(queuedEvent.Trigger, queuedEvent.Args).GetAwaiter().GetResult();
                 }
             }
             finally
             {
                 _firing = false;
-            }
-        }
-
-        /// <summary>
-        /// This method handles the execution of a trigger handler. It finds a
-        /// handle, then updates the current state information.
-        /// </summary>
-        /// <param name="trigger"></param>
-        /// <param name="args"></param>
-        void InternalFireOne(TTrigger trigger, params object[] args)
-        {
-            // If this is a trigger with parameters, we must validate the parameter(s)
-            if (_triggerConfiguration.TryGetValue(trigger, out TriggerWithParameters configuration))
-                configuration.ValidateParameters(args);
-
-            var source = State;
-            var representativeState = GetRepresentation(source);
-
-            // Try to find a trigger handler, either in the current state or a super state.
-            if (!representativeState.TryFindHandler(trigger, args, out TriggerBehaviourResult result))
-            {
-                _unhandledTriggerAction.Execute(representativeState.UnderlyingState, trigger, result?.UnmetGuardConditions).GetAwaiter().GetResult();
-                return;
-            }
-
-            switch (result.Handler)
-            {
-                // Check if this trigger should be ignored
-                case IgnoredTriggerBehaviour _:
-                    return;
-                // Handle special case, re-entry in superstate
-                // Check if it is an internal transition, or a transition from one state to another.
-                case ReentryTriggerBehaviour handler:
-                    {
-                        // Handle transition, and set new state
-                        var transition = new Transition(source, handler.Destination, trigger, args);
-                        HandleReentryTriggerAsync(args, representativeState, transition).GetAwaiter().GetResult();
-                        break;
-                    }
-                case DynamicTriggerBehaviour _ when (result.Handler.ResultsInTransitionFrom(source, args, out var destination)):
-                case TransitioningTriggerBehaviour _ when (result.Handler.ResultsInTransitionFrom(source, args, out destination)):
-                    {
-                        // Handle transition, and set new state
-                        var transition = new Transition(source, destination, trigger, args);
-                        HandleTransitioningTriggerAsync(args, representativeState, transition).GetAwaiter().GetResult();
-
-                        break;
-                    }
-                case InternalTriggerBehaviour itb:
-                    {
-                        // Internal transitions does not update the current state, but must execute the associated action.
-                        var transition = new Transition(source, source, trigger, args);
-                        itb.Execute(transition, args).GetAwaiter().GetResult();
-                        break;
-                    }
-                default:
-                    throw new InvalidOperationException("State machine configuration incorrect, no handler for trigger.");
             }
         }
 
