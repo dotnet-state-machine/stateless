@@ -298,8 +298,7 @@ namespace Stateless
         /// </summary>
         public void Activate()
         {
-            var representativeState = GetRepresentation(State);
-            representativeState.Activate();
+            ActivateAsync().GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -309,8 +308,7 @@ namespace Stateless
         /// </summary>
         public void Deactivate()
         {
-            var representativeState = GetRepresentation(State);
-            representativeState.Deactivate();
+            DeactivateAsync().GetAwaiter().GetResult();
         }
 
         /// <summary>

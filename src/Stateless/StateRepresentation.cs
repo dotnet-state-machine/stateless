@@ -142,90 +142,24 @@ namespace Stateless
 
             public void Activate()
             {
-                if (_superstate != null)
-                    _superstate.Activate();
-
-                ExecuteActivationActions();
+                ActivateAsync().GetAwaiter().GetResult();
             }
 
             public void Deactivate()
             {
-                ExecuteDeactivationActions();
-
-                if (_superstate != null)
-                    _superstate.Deactivate();
-            }
-
-            void ExecuteActivationActions()
-            {
-                foreach (var action in ActivateActions)
-                    action.Execute().GetAwaiter().GetResult();
-            }
-
-            void ExecuteDeactivationActions()
-            {
-                foreach (var action in DeactivateActions)
-                    action.Execute().GetAwaiter().GetResult();
+                DeactivateAsync().GetAwaiter().GetResult();
             }
 
             public void Enter(Transition transition, params object[] entryArgs)
             {
-                if (transition.IsReentry)
-                {
-                    ExecuteEntryActions(transition, entryArgs);
-                }
-                else if (!Includes(transition.Source))
-                {
-                    if (_superstate != null && !(transition is InitialTransition))
-                        _superstate.Enter(transition, entryArgs);
-
-                    ExecuteEntryActions(transition, entryArgs);
-                }
+                EnterAsync(transition, entryArgs).GetAwaiter().GetResult();
             }
 
             public Transition Exit(Transition transition)
             {
-                if (transition.IsReentry)
-                {
-                    ExecuteExitActions(transition);
-                }
-                else if (!Includes(transition.Destination))
-                {
-                    ExecuteExitActions(transition);
-
-                    // Must check if there is a superstate, and if we are leaving that superstate
-                    if (_superstate != null)
-                    {
-                        // Check if destination is within the state list
-                        if (IsIncludedIn(transition.Destination))
-                        {
-                            // Destination state is within the list, exit first superstate only if it is NOT the the first
-                            if (!_superstate.UnderlyingState.Equals(transition.Destination))
-                            {
-                                return _superstate.Exit(transition);
-                            }
-                        }
-                        else
-                        {
-                            // Exit the superstate as well
-                            return _superstate.Exit(transition);
-                        }
-                    }
-                }
-                return transition;
+                return ExitAsync(transition).GetAwaiter().GetResult();
             }
 
-            void ExecuteEntryActions(Transition transition, object[] entryArgs)
-            {
-                foreach (var action in EntryActions)
-                    action.Execute(transition, entryArgs).GetAwaiter().GetResult();
-            }
-
-            void ExecuteExitActions(Transition transition)
-            {
-                foreach (var action in ExitActions)
-                    action.Execute(transition).GetAwaiter().GetResult();
-            }
             internal void InternalAction(Transition transition, object[] args)
             {
                 InternalTriggerBehaviour internalTransition = null;
