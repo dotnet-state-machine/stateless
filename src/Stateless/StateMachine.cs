@@ -324,45 +324,11 @@ namespace Stateless
                     InternalFireOneAsync(trigger, args).GetAwaiter().GetResult();
                     break;
                 case FiringMode.Queued:
-                    InternalFireQueued(trigger, args);
+                    InternalFireQueuedAsync(trigger, args).GetAwaiter().GetResult();
                     break;
                 default:
                     // If something is completely messed up we let the user know ;-)
                     throw new InvalidOperationException("The firing mode has not been configured!");
-            }
-        }
-
-        /// <summary>
-        /// Queue events and then fire in order.
-        /// If only one event is queued, this behaves identically to the non-queued version.
-        /// </summary>
-        /// <param name="trigger">  The trigger. </param>
-        /// <param name="args">     A variable-length parameters list containing arguments. </param>
-        private void InternalFireQueued(TTrigger trigger, params object[] args)
-        {
-            // Add trigger to queue
-            _eventQueue.Enqueue(new QueuedTrigger { Trigger = trigger, Args = args });
-
-            // If a trigger is already being handled then the trigger will be queued (FIFO) and processed later.
-            if (_firing)
-            {
-                return;
-            }
-
-            try
-            {
-                _firing = true;
-
-                // Empty queue for triggers
-                while (_eventQueue.Any())
-                {
-                    var queuedEvent = _eventQueue.Dequeue();
-                    InternalFireOneAsync(queuedEvent.Trigger, queuedEvent.Args).GetAwaiter().GetResult();
-                }
-            }
-            finally
-            {
-                _firing = false;
             }
         }
 

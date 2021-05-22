@@ -134,9 +134,12 @@ namespace Stateless
         /// <param name="args">     A variable-length parameters list containing arguments. </param>
         async Task InternalFireQueuedAsync(TTrigger trigger, params object[] args)
         {
+            // Add trigger to queue
+            _eventQueue.Enqueue(new QueuedTrigger { Trigger = trigger, Args = args });
+
+            // If a trigger is already being handled then the trigger will be queued (FIFO) and processed later.
             if (_firing)
             {
-                _eventQueue.Enqueue(new QueuedTrigger { Trigger = trigger, Args = args });
                 return;
             }
 
@@ -144,9 +147,8 @@ namespace Stateless
             {
                 _firing = true;
 
-                await InternalFireOneAsync(trigger, args).ConfigureAwait(false);
-
-                while (_eventQueue.Count != 0)
+                // Empty queue for triggers
+                while (_eventQueue.Any())
                 {
                     var queuedEvent = _eventQueue.Dequeue();
                     await InternalFireOneAsync(queuedEvent.Trigger, queuedEvent.Args).ConfigureAwait(false);
