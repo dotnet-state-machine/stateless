@@ -426,14 +426,14 @@ namespace Stateless
         private void HandleReentryTrigger(object[] args, StateRepresentation representativeState, Transition transition)
         {
             StateRepresentation representation;
-            transition = representativeState.Exit(transition);
+            transition = representativeState.ExitAsync(transition).GetAwaiter().GetResult();
             var newRepresentation = GetRepresentation(transition.Destination);
 
             if (!transition.Source.Equals(transition.Destination))
             {
                 // Then Exit the final superstate
                 transition = new Transition(transition.Destination, transition.Destination, transition.Trigger, args);
-                newRepresentation.Exit(transition);
+                newRepresentation.ExitAsync(transition).GetAwaiter().GetResult();
 
                 _onTransitionedEvent.Invoke(transition);
                 representation = EnterState(newRepresentation, transition, args);
@@ -451,7 +451,7 @@ namespace Stateless
 
         private void HandleTransitioningTrigger(object[] args, StateRepresentation representativeState, Transition transition)
         {
-            transition = representativeState.Exit(transition);
+            transition = representativeState.ExitAsync(transition).GetAwaiter().GetResult();
 
             State = transition.Destination;
             var newRepresentation = GetRepresentation(transition.Destination);
@@ -473,7 +473,7 @@ namespace Stateless
         private StateRepresentation EnterState(StateRepresentation representation, Transition transition, object[] args)
         {
             // Enter the new state
-            representation.Enter(transition, args);
+            representation.EnterAsync(transition, args).GetAwaiter().GetResult();
 
             if (FiringMode.Immediate.Equals(_firingMode) && !State.Equals(transition.Destination))
             {

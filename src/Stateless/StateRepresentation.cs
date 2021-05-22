@@ -140,26 +140,6 @@ namespace Stateless
                 ExitActions.Add(new ExitActionBehavior(EventCallbackFactory.Create(action), exitActionDescription));
             }
 
-            public void Activate()
-            {
-                ActivateAsync().GetAwaiter().GetResult();
-            }
-
-            public void Deactivate()
-            {
-                DeactivateAsync().GetAwaiter().GetResult();
-            }
-
-            public void Enter(Transition transition, params object[] entryArgs)
-            {
-                EnterAsync(transition, entryArgs).GetAwaiter().GetResult();
-            }
-
-            public Transition Exit(Transition transition)
-            {
-                return ExitAsync(transition).GetAwaiter().GetResult();
-            }
-
             internal void InternalAction(Transition transition, object[] args)
             {
                 InternalTriggerBehaviour internalTransition = null;
