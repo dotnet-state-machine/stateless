@@ -68,7 +68,7 @@ namespace Stateless
             {
                 if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger, guard, (t, args) => entryAction(t), guardDescription));
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard, (t, args) => entryAction(t), guardDescription));
                 return this;
             }
 
@@ -95,7 +95,7 @@ namespace Stateless
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger, guard, (t, args) => internalAction(), guardDescription));
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard, (t, args) => internalAction(), guardDescription));
                 return this;
             }
 
@@ -112,7 +112,7 @@ namespace Stateless
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger, guard, (t, args) => internalAction(t), guardDescription));
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard, (t, args) => internalAction(t), guardDescription));
                 return this;
             }
 
@@ -154,7 +154,7 @@ namespace Stateless
                 if (trigger == null) throw new ArgumentNullException(nameof(trigger));
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger.Trigger, TransitionGuard.ToPackedGuard(guard), (t, args) => internalAction(ParameterConversion.Unpack<TArg0>(args, 0), t), guardDescription));
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, TransitionGuard.ToPackedGuard(guard), (t, args) => internalAction(ParameterConversion.Unpack<TArg0>(args, 0), t), guardDescription));
                 return this;
             }
 
@@ -187,7 +187,7 @@ namespace Stateless
                 if (trigger == null) throw new ArgumentNullException(nameof(trigger));
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger.Trigger, guard, (t, args) => internalAction(
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard, (t, args) => internalAction(
                      ParameterConversion.Unpack<TArg0>(args, 0),
                      ParameterConversion.Unpack<TArg1>(args, 1), t),
                      guardDescription));
@@ -209,7 +209,7 @@ namespace Stateless
                 if (trigger == null) throw new ArgumentNullException(nameof(trigger));
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(
                     trigger.Trigger,
                     TransitionGuard.ToPackedGuard(guard),
                     (t, args) => internalAction(
@@ -236,7 +236,7 @@ namespace Stateless
                 if (trigger == null) throw new ArgumentNullException(nameof(trigger));
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger.Trigger, guard, (t, args) => internalAction(
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard, (t, args) => internalAction(
                     ParameterConversion.Unpack<TArg0>(args, 0),
                     ParameterConversion.Unpack<TArg1>(args, 1),
                     ParameterConversion.Unpack<TArg2>(args, 2), t),
@@ -260,7 +260,7 @@ namespace Stateless
                 if (trigger == null) throw new ArgumentNullException(nameof(trigger));
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger.Trigger, TransitionGuard.ToPackedGuard(guard), (t, args) => internalAction(
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, TransitionGuard.ToPackedGuard(guard), (t, args) => internalAction(
                     ParameterConversion.Unpack<TArg0>(args, 0),
                     ParameterConversion.Unpack<TArg1>(args, 1),
                     ParameterConversion.Unpack<TArg2>(args, 2), t),
@@ -321,7 +321,7 @@ namespace Stateless
             }
 
             /// <summary>
-            ///  Accept the specified trigger, transition to the destination state, and guard condition. 
+            ///  Accept the specified trigger, transition to the destination state, and guard condition.
             /// </summary>
             /// <typeparam name="TArg0"></typeparam>
             /// <param name="trigger">The accepted trigger.</param>
@@ -365,7 +365,7 @@ namespace Stateless
             }
 
             /// <summary>
-            ///  Accept the specified trigger, transition to the destination state, and guard condition. 
+            ///  Accept the specified trigger, transition to the destination state, and guard condition.
             /// </summary>
             /// <typeparam name="TArg0"></typeparam>
             /// <typeparam name="TArg1"></typeparam>
@@ -388,7 +388,7 @@ namespace Stateless
             }
 
             /// <summary>
-            ///  Accept the specified trigger, transition to the destination state, and guard condition. 
+            ///  Accept the specified trigger, transition to the destination state, and guard condition.
             /// </summary>
             /// <typeparam name="TArg0"></typeparam>
             /// <typeparam name="TArg1"></typeparam>
@@ -412,7 +412,7 @@ namespace Stateless
             }
 
             /// <summary>
-            ///  Accept the specified trigger, transition to the destination state, and guard condition. 
+            ///  Accept the specified trigger, transition to the destination state, and guard condition.
             /// </summary>
             /// <typeparam name="TArg0"></typeparam>
             /// <typeparam name="TArg1"></typeparam>
@@ -436,7 +436,7 @@ namespace Stateless
             }
 
             /// <summary>
-            ///  Accept the specified trigger, transition to the destination state, and guard condition. 
+            ///  Accept the specified trigger, transition to the destination state, and guard condition.
             /// </summary>
             /// <typeparam name="TArg0"></typeparam>
             /// <typeparam name="TArg1"></typeparam>
@@ -517,7 +517,7 @@ namespace Stateless
             }
 
             /// <summary>
-            ///  Accept the specified trigger, transition to the destination state, and guard condition. 
+            ///  Accept the specified trigger, transition to the destination state, and guard condition.
             /// </summary>
             /// <typeparam name="TArg0"></typeparam>
             /// <param name="trigger">The accepted trigger.</param>
@@ -557,7 +557,7 @@ namespace Stateless
             }
 
             /// <summary>
-            ///  Accept the specified trigger, transition to the destination state, and guard condition. 
+            ///  Accept the specified trigger, transition to the destination state, and guard condition.
             /// </summary>
             /// <typeparam name="TArg0"></typeparam>
             /// <typeparam name="TArg1"></typeparam>
@@ -578,7 +578,7 @@ namespace Stateless
             }
 
             /// <summary>
-            ///  Accept the specified trigger, transition to the destination state, and guard condition. 
+            ///  Accept the specified trigger, transition to the destination state, and guard condition.
             /// </summary>
             /// <typeparam name="TArg0"></typeparam>
             /// <typeparam name="TArg1"></typeparam>
@@ -600,7 +600,7 @@ namespace Stateless
             }
 
             /// <summary>
-            ///  Accept the specified trigger, transition to the destination state, and guard condition. 
+            ///  Accept the specified trigger, transition to the destination state, and guard condition.
             /// </summary>
             /// <typeparam name="TArg0"></typeparam>
             /// <typeparam name="TArg1"></typeparam>
@@ -622,7 +622,7 @@ namespace Stateless
             }
 
             /// <summary>
-            ///  Accept the specified trigger, transition to the destination state, and guard condition. 
+            ///  Accept the specified trigger, transition to the destination state, and guard condition.
             /// </summary>
             /// <typeparam name="TArg0"></typeparam>
             /// <typeparam name="TArg1"></typeparam>
@@ -1306,7 +1306,7 @@ namespace Stateless
             /// dynamically by the supplied function.
             /// </summary>
             /// <param name="trigger">The accepted trigger.</param>
-            /// <param name="destinationStateSelector">Function to calculate the state 
+            /// <param name="destinationStateSelector">Function to calculate the state
             /// that the trigger will cause a transition to.</param>
             /// <param name="destinationStateSelectorDescription">Description of the function to calculate the state </param>
             /// <param name="guard">Function that must return true in order for the
@@ -1348,7 +1348,7 @@ namespace Stateless
             /// dynamically by the supplied function.
             /// </summary>
             /// <param name="trigger">The accepted trigger.</param>
-            /// <param name="destinationStateSelector">Function to calculate the state 
+            /// <param name="destinationStateSelector">Function to calculate the state
             /// that the trigger will cause a transition to.</param>
             /// <param name="destinationStateSelectorDescription">Description of the function to calculate the state </param>
             /// <param name="guards">Functions and their descriptions that must return true in order for the
@@ -1401,7 +1401,7 @@ namespace Stateless
             /// </summary>
             /// <param name="trigger">The accepted trigger.</param>
             /// <param name="destinationStateSelector">Function to calculate the state
-            /// that the trigger will cause a transition to.</param>            
+            /// that the trigger will cause a transition to.</param>
             /// <returns>The receiver.</returns>
             /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
             public StateConfiguration PermitDynamicIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, TState> destinationStateSelector)

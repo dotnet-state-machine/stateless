@@ -1,5 +1,3 @@
-#if TASKS
-
 using System;
 using System.Threading.Tasks;
 
@@ -11,12 +9,12 @@ namespace Stateless
         {
             public void AddActivateAction(Func<Task> action, Reflection.InvocationInfo activateActionDescription)
             {
-                ActivateActions.Add(new ActivateActionBehaviour.Async(_state, action, activateActionDescription));
+                ActivateActions.Add(new ActivateActionBehaviour(_state, action, activateActionDescription));
             }
 
             public void AddDeactivateAction(Func<Task> action, Reflection.InvocationInfo deactivateActionDescription)
             {
-                DeactivateActions.Add(new DeactivateActionBehaviour.Async(_state, action, deactivateActionDescription));
+                DeactivateActions.Add(new DeactivateActionBehaviour(_state, action, deactivateActionDescription));
             }
 
             public void AddEntryAction(TTrigger trigger, Func<Transition, object[], Task> action, Reflection.InvocationInfo entryActionDescription)
@@ -24,27 +22,23 @@ namespace Stateless
                 if (action == null) throw new ArgumentNullException(nameof(action));
 
                 EntryActions.Add(
-                    new EntryActionBehavior.Async((t, args) =>
-                    {
-                        if (t.Trigger.Equals(trigger))
-                            return action(t, args);
-
-                        return TaskResult.Done;
-                    },
-                    entryActionDescription));
+                    new EntryActionBehavior.From<TTrigger>(
+                        trigger,
+                        action,
+                        entryActionDescription));
             }
 
             public void AddEntryAction(Func<Transition, object[], Task> action, Reflection.InvocationInfo entryActionDescription)
             {
                 EntryActions.Add(
-                    new EntryActionBehavior.Async(
+                    new EntryActionBehavior(
                         action,
                         entryActionDescription));
             }
 
             public void AddExitAction(Func<Transition, Task> action, Reflection.InvocationInfo exitActionDescription)
             {
-                ExitActions.Add(new ExitActionBehavior.Async(action, exitActionDescription));
+                ExitActions.Add(new ExitActionBehavior(action, exitActionDescription));
             }
 
             public async Task ActivateAsync()
@@ -90,7 +84,7 @@ namespace Stateless
                     await ExecuteEntryActionsAsync(transition, entryArgs).ConfigureAwait(false);
                 }
             }
-            
+
             public async Task<Transition> ExitAsync(Transition transition)
             {
                 if (transition.IsReentry)
@@ -137,5 +131,3 @@ namespace Stateless
         }
     }
 }
-
-#endif
