@@ -10,10 +10,16 @@ namespace Stateless
             readonly TState _state;
             private readonly EventCallback _callback;
 
-            public DeactivateActionBehaviour(TState state, EventCallback action, Reflection.InvocationInfo actionDescription)
+            public DeactivateActionBehaviour(TState state, Action action, Reflection.InvocationInfo actionDescription)
                 : this(state, actionDescription)
             {
-                _callback = action;
+                _callback = EventCallbackFactory.Create(action);
+            }
+
+            public DeactivateActionBehaviour(TState state, Func<Task> action, Reflection.InvocationInfo actionDescription)
+                : this(state, actionDescription)
+            {
+                _callback = EventCallbackFactory.Create(action);
             }
 
             protected DeactivateActionBehaviour(TState state, Reflection.InvocationInfo actionDescription)

@@ -9,10 +9,16 @@ namespace Stateless
         {
             private readonly EventCallback<Transition, object[]> _callback;
 
-            public EntryActionBehavior(EventCallback<Transition, object[]> action, Reflection.InvocationInfo description)
+            public EntryActionBehavior(Action<Transition, object[]> action, Reflection.InvocationInfo description)
                 : this(description)
             {
-                _callback = action;
+                _callback = EventCallbackFactory.Create(action);
+            }
+
+            public EntryActionBehavior(Func<Transition, object[], Task> action, Reflection.InvocationInfo description)
+                : this(description)
+            {
+                _callback = EventCallbackFactory.Create(action);
             }
 
             protected EntryActionBehavior(Reflection.InvocationInfo description)
@@ -31,7 +37,13 @@ namespace Stateless
             {
                 internal TTriggerType Trigger { get; private set; }
 
-                public From(TTriggerType trigger, EventCallback<Transition, object[]> action, Reflection.InvocationInfo description)
+                public From(TTriggerType trigger, Action<Transition, object[]> action, Reflection.InvocationInfo description)
+                    : base(action, description)
+                {
+                    Trigger = trigger;
+                }
+
+                public From(TTriggerType trigger, Func<Transition, object[], Task> action, Reflection.InvocationInfo description)
                     : base(action, description)
                 {
                     Trigger = trigger;

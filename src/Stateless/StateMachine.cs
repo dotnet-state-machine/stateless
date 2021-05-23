@@ -92,7 +92,7 @@ namespace Stateless
         /// </summary>
         StateMachine()
         {
-            _unhandledTriggerAction = new UnhandledTriggerAction(EventCallbackFactory.Create<TState, TTrigger, ICollection<string>>(DefaultUnhandledTriggerAction));
+            _unhandledTriggerAction = new UnhandledTriggerAction(DefaultUnhandledTriggerAction);
             _onTransitionedEvent = new OnTransitionedEvent();
             _onTransitionCompletedEvent = new OnTransitionedEvent();
         }
@@ -315,7 +315,7 @@ namespace Stateless
         public void OnUnhandledTrigger(Action<TState, TTrigger> unhandledTriggerAction)
         {
             if (unhandledTriggerAction == null) throw new ArgumentNullException(nameof(unhandledTriggerAction));
-            _unhandledTriggerAction = new UnhandledTriggerAction(EventCallbackFactory.Create<TState, TTrigger, ICollection<string>>((s, t, c) => unhandledTriggerAction(s, t)));
+            _unhandledTriggerAction = new UnhandledTriggerAction((s, t, c) => unhandledTriggerAction(s, t));
         }
 
         /// <summary>
@@ -326,7 +326,7 @@ namespace Stateless
         public void OnUnhandledTrigger(Action<TState, TTrigger, ICollection<string>> unhandledTriggerAction)
         {
             if (unhandledTriggerAction == null) throw new ArgumentNullException(nameof(unhandledTriggerAction));
-            _unhandledTriggerAction = new UnhandledTriggerAction(EventCallbackFactory.Create(unhandledTriggerAction));
+            _unhandledTriggerAction = new UnhandledTriggerAction(unhandledTriggerAction);
         }
 
         /// <summary>

@@ -117,27 +117,27 @@ namespace Stateless
 
             public void AddActivateAction(Action action, Reflection.InvocationInfo activateActionDescription)
             {
-                ActivateActions.Add(new ActivateActionBehaviour(_state, EventCallbackFactory.Create(action), activateActionDescription));
+                ActivateActions.Add(new ActivateActionBehaviour(_state, action, activateActionDescription));
             }
 
             public void AddDeactivateAction(Action action, Reflection.InvocationInfo deactivateActionDescription)
             {
-                DeactivateActions.Add(new DeactivateActionBehaviour(_state, EventCallbackFactory.Create(action), deactivateActionDescription));
+                DeactivateActions.Add(new DeactivateActionBehaviour(_state, action, deactivateActionDescription));
             }
 
             public void AddEntryAction(TTrigger trigger, Action<Transition, object[]> action, Reflection.InvocationInfo entryActionDescription)
             {
-                EntryActions.Add(new EntryActionBehavior.From<TTrigger>(trigger, EventCallbackFactory.Create(action), entryActionDescription));
+                EntryActions.Add(new EntryActionBehavior.From<TTrigger>(trigger, action, entryActionDescription));
             }
 
             public void AddEntryAction(Action<Transition, object[]> action, Reflection.InvocationInfo entryActionDescription)
             {
-                EntryActions.Add(new EntryActionBehavior(EventCallbackFactory.Create(action), entryActionDescription));
+                EntryActions.Add(new EntryActionBehavior(action, entryActionDescription));
             }
 
             public void AddExitAction(Action<Transition> action, Reflection.InvocationInfo exitActionDescription)
             {
-                ExitActions.Add(new ExitActionBehavior(EventCallbackFactory.Create(action), exitActionDescription));
+                ExitActions.Add(new ExitActionBehavior(action, exitActionDescription));
             }
 
             public void AddTriggerBehaviour(TriggerBehaviour triggerBehaviour)

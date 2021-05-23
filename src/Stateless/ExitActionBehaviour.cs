@@ -9,10 +9,16 @@ namespace Stateless
         {
             private readonly EventCallback<Transition> _callback;
 
-            public ExitActionBehavior(EventCallback<Transition> action, Reflection.InvocationInfo actionDescription)
+            public ExitActionBehavior(Action<Transition> action, Reflection.InvocationInfo actionDescription)
                 : this(actionDescription)
             {
-                _callback = action;
+                _callback = EventCallbackFactory.Create(action);
+            }
+
+            public ExitActionBehavior(Func<Transition, Task> action, Reflection.InvocationInfo actionDescription)
+                : this(actionDescription)
+            {
+                _callback = EventCallbackFactory.Create(action);
             }
 
             protected ExitActionBehavior(Reflection.InvocationInfo actionDescription)

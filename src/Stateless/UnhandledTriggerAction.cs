@@ -10,9 +10,14 @@ namespace Stateless
         {
             private readonly EventCallback<TState, TTrigger, ICollection<string>> _callback;
 
-            public UnhandledTriggerAction(EventCallback<TState, TTrigger, ICollection<string>> action = null)
+            public UnhandledTriggerAction(Action<TState, TTrigger, ICollection<string>> action = null)
             {
-                _callback = action;
+                _callback = EventCallbackFactory.Create(action);
+            }
+
+            public UnhandledTriggerAction(Func<TState, TTrigger, ICollection<string>, Task> action = null)
+            {
+                _callback = EventCallbackFactory.Create(action);
             }
 
             public virtual Task ExecuteAsync(TState state, TTrigger trigger, ICollection<string> unmetGuards)

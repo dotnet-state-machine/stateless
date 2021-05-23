@@ -321,7 +321,7 @@ namespace Stateless
         public void OnUnhandledTriggerAsync(Func<TState, TTrigger, Task> unhandledTriggerAction)
         {
             if (unhandledTriggerAction == null) throw new ArgumentNullException(nameof(unhandledTriggerAction));
-            _unhandledTriggerAction = new UnhandledTriggerAction(EventCallbackFactory.Create<TState, TTrigger, ICollection<string>>((s, t, c) => unhandledTriggerAction(s, t)));
+            _unhandledTriggerAction = new UnhandledTriggerAction((s, t, c) => unhandledTriggerAction(s, t));
         }
 
         /// <summary>
@@ -332,7 +332,7 @@ namespace Stateless
         public void OnUnhandledTriggerAsync(Func<TState, TTrigger, ICollection<string>, Task> unhandledTriggerAction)
         {
             if (unhandledTriggerAction == null) throw new ArgumentNullException(nameof(unhandledTriggerAction));
-            _unhandledTriggerAction = new UnhandledTriggerAction(EventCallbackFactory.Create(unhandledTriggerAction));
+            _unhandledTriggerAction = new UnhandledTriggerAction(unhandledTriggerAction);
         }
 
         /// <summary>
