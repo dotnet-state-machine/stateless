@@ -256,6 +256,28 @@ namespace Stateless.Tests
         }
 
         [Fact]
+        public async Task WillInvokeOnTransitionedNotInOrderAsyncInSync()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+              .Permit(Trigger.X, State.B);
+
+            var tests = new List<int>();
+            sm.OnTransitioned(_ => tests.Add(1));
+            sm.OnTransitioned(_ => Task.Run(async () =>
+            {
+                await Task.Yield();
+                tests.Add(2);
+            }));
+            sm.OnTransitioned(_ => tests.Add(3));
+
+            await sm.FireAsync(Trigger.X);
+
+            Assert.NotEqual(Enumerable.Range(1, 3), tests);
+        }
+
+        [Fact]
         public async Task CanInvokeOnUnhandledTriggerAsyncAction()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
