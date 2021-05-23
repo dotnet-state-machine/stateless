@@ -286,6 +286,27 @@ namespace Stateless
                 return this;
             }
 
+
+            /// <summary>
+            /// Specify an asynchronous action that will execute when transitioning into
+            /// the configured state.
+            /// </summary>
+            /// <param name="entryAction">Action to execute, providing details of the transition.</param>
+            /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
+            /// <param name="entryActionDescription">Action description.</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration OnEntryFromAsync(TriggerWithParameters trigger, Func<Transition, Task> entryAction, string entryActionDescription = null)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
+                _representation.AddEntryAction(
+                    trigger.Trigger,
+                    (t, args) => entryAction(t),
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                return this;
+            }
+
             /// <summary>
             /// Specify an asynchronous action that will execute when transitioning into
             /// the configured state.
