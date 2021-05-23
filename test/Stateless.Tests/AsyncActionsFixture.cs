@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 
 using Xunit;
+using System.Linq;
 
 namespace Stateless.Tests
 {
@@ -190,16 +191,13 @@ namespace Stateless.Tests
 
             var test1 = "";
             var test2 = "";
-            var test3 = "";
             sm.OnTransitioned(_ => test1 = "foo1");
             sm.OnTransitionedAsync(_ => Task.Run(() => test2 = "foo2"));
-            sm.OnTransitioned(_ => test3 = "foo3");
 
             await sm.FireAsync(Trigger.X).ConfigureAwait(false);
 
             Assert.Equal("foo1", test1);
             Assert.Equal("foo2", test2);
-            Assert.Equal("foo3", test3);
         }
 
         [Fact]
@@ -212,16 +210,49 @@ namespace Stateless.Tests
 
             var test1 = "";
             var test2 = "";
-            var test3 = "";
             sm.OnTransitionCompleted(_ => test1 = "foo1");
             sm.OnTransitionCompletedAsync(_ => Task.Run(() => test2 = "foo2"));
-            sm.OnTransitionCompleted(_ => test3 = "foo3");
 
             await sm.FireAsync(Trigger.X).ConfigureAwait(false);
 
             Assert.Equal("foo1", test1);
             Assert.Equal("foo2", test2);
-            Assert.Equal("foo3", test3);
+        }
+
+        [Fact]
+        public async Task WillInvokeOnTransitionedInOrderRegardlessOfSyncOrAsync()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+              .Permit(Trigger.X, State.B);
+
+            var tests = new List<int>();
+            sm.OnTransitioned(_ => tests.Add(1));
+            sm.OnTransitionedAsync(_ => Task.Run(() => tests.Add(2)));
+            sm.OnTransitioned(_ => tests.Add(3));
+
+            await sm.FireAsync(Trigger.X);
+
+            Assert.Equal(Enumerable.Range(1, 3), tests);
+        }
+
+        [Fact]
+        public async Task WillInvokeOnTransitionCompletedInOrderRegardlessOfSyncOrAsync()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+              .Permit(Trigger.X, State.B);
+
+            var tests = new List<int>();
+            sm.OnTransitionCompleted(_ => tests.Add(1));
+            sm.OnTransitionCompletedAsync(_ => Task.Run(() => tests.Add(2)));
+            sm.OnTransitionCompleted(_ => tests.Add(3));
+
+            await sm.FireAsync(Trigger.X);
+
+            Assert.Equal(Enumerable.Range(1, 3), tests);
         }
 
         [Fact]
