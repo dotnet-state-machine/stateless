@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace Stateless.Tests
@@ -72,6 +74,31 @@ namespace Stateless.Tests
         {
             var twp = new StateMachine<State, Trigger>.TriggerWithParameters(Trigger.X, new Type[] { typeof(int), typeof(string) });
             twp.ValidateParameters(new object[] { 123, "arg" });
+        }
+
+        /// <summary>
+        /// Issue #450 - GetPermittedTriggers throws exception when triggers have different parameter types.
+        /// </summary>
+        [Theory]
+        [MemberData(nameof(DifferentTypeTriggersData))]
+        public void DifferentTypeTriggersThrowNoException(params object[] arg)
+        {
+            var fsm = new StateMachine<State, Trigger>(State.A);
+            StateMachine<State, Trigger>.TriggerWithParameters<bool> twp1 = fsm.SetTriggerParameters<bool>(Trigger.X);
+            StateMachine<State, Trigger>.TriggerWithParameters<int, string> twp2 = fsm.SetTriggerParameters<int, string>(Trigger.Y);
+            StateMachine<State, Trigger>.TriggerWithParameters<string, int, bool> twp3 = fsm.SetTriggerParameters<string, int, bool>(Trigger.Z);
+            fsm.Configure(State.A)
+                .PermitIf(twp1, State.B, p1 => true)
+                .PermitIf(twp2, State.C, (p1, p2) => true)
+                .PermitIf(twp3, State.D, (p1, p2, p3) => true);
+            Assert.Equal(1, fsm.GetPermittedTriggers(arg).Count());
+        }
+
+        public static IEnumerable<object[]> DifferentTypeTriggersData()
+        {
+            yield return new object[] { "arg", 123, true };
+            yield return new object[] { 123, "arg" };
+            yield return new object[] { true };
         }
     }
 }
