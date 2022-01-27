@@ -962,6 +962,15 @@ namespace Stateless.Tests
         }
 
         [Fact]
+        public void WhenParameterizedGuardTrue_ThenStateMachineCanFireTrigger() {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var x = sm.SetTriggerParameters<int>(Trigger.X);
+            sm.Configure(State.A).PermitIf(x, State.B, i => i == 2);
+            Assert.False(sm.CanFire(x, 1));
+            Assert.True(sm.CanFire(x, 2));
+        }
+
+        [Fact]
         public void WhenConfigureConditionallyPermittedTransitionOnTriggerWithParameters_ThenStateMachineCanEnumeratePermittedTriggers()
         {
             var trigger = Trigger.X;
