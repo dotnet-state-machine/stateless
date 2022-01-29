@@ -20,6 +20,7 @@
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <PackageId>Stateless.TheCollegedude</PackageId>
+	<PackageReadmeFile>..\..\README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' OR '$(TargetFramework)' == 'netstandard2.0' ">
@@ -32,5 +33,6 @@
 
   <ItemGroup>
     <None Include="..\..\asset\Stateless.png" Pack="true" PackagePath="\" />
+	<None Include="..\..\README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 </Project>
