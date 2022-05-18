@@ -12,7 +12,7 @@ namespace Stateless.Reflection
         internal static StateInfo CreateStateInfo<TState, TTrigger>(StateMachine<TState, TTrigger>.StateRepresentation stateRepresentation)
         {
             if (stateRepresentation == null)
-                throw new ArgumentException(nameof(stateRepresentation));
+                throw new ArgumentNullException(nameof(stateRepresentation));
 
             var ignoredTriggers = new List<IgnoredTransitionInfo>();
 

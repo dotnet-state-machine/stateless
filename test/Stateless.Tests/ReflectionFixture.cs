@@ -193,7 +193,7 @@ namespace Stateless.Tests
         [Fact]
         public void WhenDiscriminatedByAnonymousGuard_Binding()
         {
-            bool anonymousGuard() => true;
+            static bool anonymousGuard() => true;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -233,7 +233,7 @@ namespace Stateless.Tests
         [Fact]
         public void WhenDiscriminatedByAnonymousGuardWithDescription_Binding()
         {
-            bool anonymousGuard() => true;
+            static bool anonymousGuard() => true;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -581,7 +581,7 @@ namespace Stateless.Tests
             Assert.Equal(0, binding.DynamicTransitions.Count()); // Dynamic transition count mismatch
         }
 
-        void VerifyMethodNames(IEnumerable<InvocationInfo> methods, string prefix, string body, State state, InvocationInfo.Timing timing)
+        static void VerifyMethodNames(IEnumerable<InvocationInfo> methods, string prefix, string body, State state, InvocationInfo.Timing timing)
         {
             Assert.Equal(1, methods.Count());
             InvocationInfo method = methods.First();

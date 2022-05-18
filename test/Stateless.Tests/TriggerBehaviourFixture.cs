@@ -14,7 +14,7 @@ namespace Stateless.Tests
             Assert.Equal(Trigger.X, transitioning.Trigger);
         }
 
-        protected bool False(params object[] args)
+        private static bool False(params object[] args)
         {
             return false;
         }
@@ -28,7 +28,7 @@ namespace Stateless.Tests
             Assert.False(transitioning.GuardConditionsMet());
         }
 
-        protected bool True(params object[] args)
+        private static bool True(params object[] args)
         {
             return true;
         }

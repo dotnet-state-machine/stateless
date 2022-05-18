@@ -36,10 +36,10 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
             var trigger = sm.SetTriggerParameters<int>(Trigger.X);
             sm.Configure(State.A)
-                .PermitDynamicIf(trigger, (i) => i == 1 ? State.C : State.B, (i) => i == 1 ? true : false);
+                .PermitDynamicIf(trigger, (i) => i == 1 ? State.C : State.B, (i) => i == 1);
 
             // Should not throw
-            sm.GetPermittedTriggers().ToList();
+            var unused = sm.GetPermittedTriggers().ToList();
 
             sm.Fire(trigger, 1);
         }

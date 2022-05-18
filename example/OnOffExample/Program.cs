@@ -7,9 +7,9 @@ namespace OnOffExample
     /// This example has a simple state machine with only two states. The state
     /// information is of type string, and the type of the trigger is char. 
     /// </summary>
-    class Program
+    internal static class Program
     {
-        static void Main(string[] args)
+        private static void Main()
         {
             const string on = "On";
             const string off = "Off";

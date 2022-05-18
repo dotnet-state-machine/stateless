@@ -34,7 +34,7 @@ namespace Stateless.Tests
                 Enum.GetValues(typeof(Trigger)).Cast<Trigger>());
         }
 
-        void RunSimpleTest<TState, TTransition>(IEnumerable<TState> states, IEnumerable<TTransition> transitions)
+        static void RunSimpleTest<TState, TTransition>(IEnumerable<TState> states, IEnumerable<TTransition> transitions)
         {
             var a = states.First();
             var b = states.Skip(1).First();
@@ -350,7 +350,7 @@ namespace Stateless.Tests
             Assert.Equal(Trigger.X, transition.Trigger);
             Assert.Equal(State.B, transition.Source);
             Assert.Equal(State.A, transition.Destination);
-            Assert.Equal(new object[0], transition.Parameters);
+            Assert.Equal(Array.Empty<object>(), transition.Parameters);
         }
 
         [Fact]
@@ -370,7 +370,7 @@ namespace Stateless.Tests
             Assert.Equal(Trigger.X, transition.Trigger);
             Assert.Equal(State.B, transition.Source);
             Assert.Equal(State.A, transition.Destination);
-            Assert.Equal(new object[0], transition.Parameters);
+            Assert.Equal(Array.Empty<object>(), transition.Parameters);
         }
 
         /// <summary>

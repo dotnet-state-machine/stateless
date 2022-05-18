@@ -2,9 +2,9 @@
 
 namespace TelephoneCallExample
 {
-    class Program
+    internal static class Program
     {
-        static void Main(string[] args)
+        private static void Main()
         {
             var phoneCall = new PhoneCall("Lokesh");            
 

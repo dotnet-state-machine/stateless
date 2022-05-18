@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using System;
+using Xunit;
 
 namespace Stateless.Tests
 {
@@ -8,7 +9,7 @@ namespace Stateless.Tests
         public void TransitionsToDestinationState()
         {
             var transtioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(Trigger.X, State.C, null);
-            Assert.True(transtioning.ResultsInTransitionFrom(State.B, new object[0], out State destination));
+            Assert.True(transtioning.ResultsInTransitionFrom(State.B, Array.Empty<object>(), out State destination));
             Assert.Equal(State.C, destination);
         }
     }

@@ -71,17 +71,17 @@ namespace TelephoneCallExample
             _machine.OnTransitioned(t => Console.WriteLine($"OnTransitioned: {t.Source} -> {t.Destination} via {t.Trigger}({string.Join(", ",  t.Parameters)})"));
         }
 
-        void OnSetVolume(int volume)
+        static void OnSetVolume(int volume)
         {
             Console.WriteLine("Volume set to " + volume + "!");
         }
 
-        void OnUnmute()
+        static void OnUnmute()
         {
             Console.WriteLine("Microphone unmuted!");
         }
 
-        void OnMute()
+        static void OnMute()
         {
             Console.WriteLine("Microphone muted!");
         }
@@ -92,12 +92,12 @@ namespace TelephoneCallExample
             Console.WriteLine("[Phone Call] placed for : [{0}]", _callee);
         }
 
-        void StartCallTimer()
+        static void StartCallTimer()
         {
             Console.WriteLine("[Timer:] Call started at {0}", DateTime.Now);
         }
 
-        void StopCallTimer()
+        static void StopCallTimer()
         {
             Console.WriteLine("[Timer:] Call ended at {0}", DateTime.Now);
         }

@@ -2,9 +2,9 @@
 
 namespace BugTrackerExample
 {
-    class Program
+    internal static class Program
     {
-        static void Main(string[] args)
+        private static void Main()
         {
             var bug = new Bug("Incorrect stock count");
 

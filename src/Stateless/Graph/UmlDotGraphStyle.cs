@@ -43,7 +43,7 @@ namespace Stateless.Graph
             stateRepresentationString = "\n"
                 + $"subgraph \"cluster{stateInfo.NodeName}\"" + "\n"
                 + "\t{" + "\n"
-                + $"\tlabel = \"{label.ToString()}\"" + "\n";
+                + $"\tlabel = \"{label}\"" + "\n";
 
             foreach (var subState in stateInfo.SubStates)
             {
@@ -71,7 +71,7 @@ namespace Stateless.Graph
             es.AddRange(state.EntryActions.Select(act => "entry / " + act));
             es.AddRange(state.ExitActions.Select(act => "exit / " + act));
 
-            f += String.Join("\\n", es);
+            f += string.Join("\\n", es);
 
             f += "\"];\n";
 
@@ -118,7 +118,7 @@ namespace Stateless.Graph
             return $"\"{nodeName}\" [shape = \"diamond\", label = \"{label}\"];\n";
         }
 
-        internal string FormatOneLine(string fromNodeName, string toNodeName, string label)
+        private static string FormatOneLine(string fromNodeName, string toNodeName, string label)
         {
             return $"\"{fromNodeName}\" -> \"{toNodeName}\" [style=\"solid\", label=\"{label}\"];";
         }
