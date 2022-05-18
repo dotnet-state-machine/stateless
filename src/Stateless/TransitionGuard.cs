@@ -20,7 +20,7 @@ public partial class StateMachine<TState, TTrigger>
             {
                 try
                 {
-                    return guard(ParameterConversion.Unpack<TArg0>(args, 0));
+                    return ParameterConversion.TryUnpack<TArg0>(args, 0, out var arg) && guard(arg);
                 }
                 catch (ArgumentException)
                 {
@@ -35,9 +35,9 @@ public partial class StateMachine<TState, TTrigger>
             {
                 try
                 {
-                    return guard(
-                                 ParameterConversion.Unpack<TArg0>(args, 0),
-                                 ParameterConversion.Unpack<TArg1>(args, 1));
+                    return ParameterConversion.TryUnpack<TArg0>(args, 0, out var arg0)
+                        && ParameterConversion.TryUnpack<TArg1>(args, 1, out var arg1)
+                        && guard(arg0, arg1);
                 }
                 catch (ArgumentException)
                 {
@@ -52,10 +52,10 @@ public partial class StateMachine<TState, TTrigger>
             {
                 try
                 {
-                    return guard(
-                                 ParameterConversion.Unpack<TArg0>(args, 0),
-                                 ParameterConversion.Unpack<TArg1>(args, 1),
-                                 ParameterConversion.Unpack<TArg2>(args, 2));
+                    return ParameterConversion.TryUnpack<TArg0>(args, 0, out var arg0)
+                        && ParameterConversion.TryUnpack<TArg1>(args, 1, out var arg1)
+                        && ParameterConversion.TryUnpack<TArg2>(args, 2, out var arg2)
+                        && guard(arg0, arg1, arg2);
                 }
                 catch (ArgumentException)
                 {
@@ -64,21 +64,21 @@ public partial class StateMachine<TState, TTrigger>
             };
         }
 
-        public static Tuple<Func<object[], bool>, string>[] ToPackedGuards<TArg0>(Tuple<Func<TArg0, bool>, string>[] guards)
+        public static Tuple<Func<object[], bool>, string>[] ToPackedGuards<TArg0>(IEnumerable<Tuple<Func<TArg0, bool>, string>> guards)
         {
             return guards.Select(guard => new Tuple<Func<object[], bool>, string>(
                                   ToPackedGuard(guard.Item1), guard.Item2))
                          .ToArray();
         }
 
-        public static Tuple<Func<object[], bool>, string>[] ToPackedGuards<TArg0, TArg1>(Tuple<Func<TArg0, TArg1, bool>, string>[] guards)
+        public static Tuple<Func<object[], bool>, string>[] ToPackedGuards<TArg0, TArg1>(IEnumerable<Tuple<Func<TArg0, TArg1, bool>, string>> guards)
         {
             return guards.Select(guard => new Tuple<Func<object[], bool>, string>(
                                   ToPackedGuard(guard.Item1), guard.Item2))
                          .ToArray();
         }
 
-        public static Tuple<Func<object[], bool>, string>[] ToPackedGuards<TArg0, TArg1, TArg2>(Tuple<Func<TArg0, TArg1, TArg2, bool>, string>[] guards)
+        public static Tuple<Func<object[], bool>, string>[] ToPackedGuards<TArg0, TArg1, TArg2>(IEnumerable<Tuple<Func<TArg0, TArg1, TArg2, bool>, string>> guards)
         {
             return guards.Select(guard => new Tuple<Func<object[], bool>, string>(
                                   ToPackedGuard(guard.Item1), guard.Item2))
@@ -87,7 +87,7 @@ public partial class StateMachine<TState, TTrigger>
 
         #endregion
 
-        internal TransitionGuard(Tuple<Func<bool>, string>[] guards)
+        internal TransitionGuard(IEnumerable<Tuple<Func<bool>, string>> guards)
         {
             Conditions = guards
                         .Select(g => new GuardCondition(g.Item1, Reflection.InvocationInfo.Create(g.Item1, g.Item2)))
@@ -102,7 +102,7 @@ public partial class StateMachine<TState, TTrigger>
             };
         }
 
-        internal TransitionGuard(Tuple<Func<object[], bool>, string>[] guards)
+        internal TransitionGuard(IEnumerable<Tuple<Func<object[], bool>, string>> guards)
         {
             Conditions = guards
                         .Select(g => new GuardCondition(g.Item1, Reflection.InvocationInfo.Create(g.Item1, g.Item2)))
