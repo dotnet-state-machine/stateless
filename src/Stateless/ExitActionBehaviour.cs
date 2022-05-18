@@ -11,7 +11,7 @@ public partial class StateMachine<TState, TTrigger>
         public abstract void Execute(Transition      transition);
         public abstract Task ExecuteAsync(Transition transition);
 
-        protected ExitActionBehavior(InvocationInfo actionDescription)
+        private ExitActionBehavior(InvocationInfo actionDescription)
         {
             Description = actionDescription ?? throw new ArgumentNullException(nameof(actionDescription));
         }

@@ -8,7 +8,7 @@ public partial class StateMachine<TState, TTrigger>
 {
     internal abstract class EntryActionBehavior
     {
-        protected EntryActionBehavior(InvocationInfo description)
+        private EntryActionBehavior(InvocationInfo description)
         {
             Description = description;
         }

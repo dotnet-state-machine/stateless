@@ -8,12 +8,12 @@ public class ActionInfo
     /// <summary>
     /// The method invoked during the action (entry or exit)
     /// </summary>
-    public InvocationInfo Method { get; internal set; }
+    public InvocationInfo Method { get; }
 
     /// <summary>
     /// If non-null, specifies the "from" trigger that must be present for this method to be invoked
     /// </summary>
-    public string FromTrigger { get; internal set; }
+    public string FromTrigger { get; }
 
     internal static ActionInfo Create<TState, TTrigger>(StateMachine<TState, TTrigger>.EntryActionBehavior entryAction)
     {
@@ -25,7 +25,7 @@ public class ActionInfo
     /// <summary>
     /// Constructor
     /// </summary>
-    public ActionInfo(InvocationInfo method, string fromTrigger)
+    private ActionInfo(InvocationInfo method, string fromTrigger)
     {
         Method      = method;
         FromTrigger = fromTrigger;

@@ -19,12 +19,12 @@ public class DynamicStateInfo
     /// <summary>
     /// The name of the destination state
     /// </summary>
-    public string DestinationState { get; set; }
+    public string DestinationState { get; }
 
     /// <summary>
     /// The reason this destination state was chosen
     /// </summary>
-    public string Criterion { get; set; }
+    public string Criterion { get; }
 }
 
 /// <summary>

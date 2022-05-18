@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Stateless; 
+﻿namespace Stateless; 
 
 internal static class ArrayHelper {
 
@@ -8,7 +6,7 @@ internal static class ArrayHelper {
 #if NETSTANDARD1_0
         return new T[0];
 #else
-        return Array.Empty<T>();
+        return System.Array.Empty<T>();
 #endif
     }
 

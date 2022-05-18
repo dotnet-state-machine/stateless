@@ -10,7 +10,7 @@ public partial class StateMachine<TState, TTrigger>
     {
         private readonly TState _state;
 
-        protected ActivateActionBehaviour(TState state, InvocationInfo actionDescription)
+        private ActivateActionBehaviour(TState state, InvocationInfo actionDescription)
         {
             _state      = state;
             Description = actionDescription ?? throw new ArgumentNullException(nameof(actionDescription));

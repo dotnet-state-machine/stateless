@@ -6,7 +6,7 @@ namespace Stateless.Graph;
 /// <summary>
 /// Used to keep track of transitions between states
 /// </summary>
-public class Transition
+public abstract class Transition
 {
     /// <summary>
     /// The trigger that causes this transition
@@ -16,7 +16,7 @@ public class Transition
     /// <summary>
     /// List of actions to be performed by the destination state (the one being entered)
     /// </summary>
-    public List<ActionInfo> DestinationEntryActions = new();
+    public List<ActionInfo> DestinationEntryActions { get; } = new();
 
     /// <summary>
     /// Should the entry and exit actions be executed when this transition takes place
@@ -33,7 +33,7 @@ public class Transition
     /// </summary>
     /// <param name="sourceState"></param>
     /// <param name="trigger"></param>
-    public Transition(State sourceState, TriggerInfo trigger)
+    protected Transition(State sourceState, TriggerInfo trigger)
     {
         SourceState = sourceState;
         Trigger     = trigger;

@@ -7,7 +7,7 @@ public partial class StateMachine<TState, TTrigger>
 {
     internal abstract class InternalTriggerBehaviour : TriggerBehaviour
     {
-        protected InternalTriggerBehaviour(TTrigger trigger, TransitionGuard guard) : base(trigger, guard)
+        private InternalTriggerBehaviour(TTrigger trigger, TransitionGuard guard) : base(trigger, guard)
         {
         }
 

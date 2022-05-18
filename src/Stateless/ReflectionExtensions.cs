@@ -10,33 +10,32 @@ internal static class ReflectionExtensions
 #if PORTABLE_REFLECTION
         return type.GetTypeInfo().Assembly;
 #else
-            return type.Assembly;
+        return type.Assembly;
 #endif
     }
+
+    #if NETSTANDARD1_0
     public static bool IsAssignableFrom(this Type type, Type otherType)
     {
 #if PORTABLE_REFLECTION
         return type.GetTypeInfo().IsAssignableFrom(otherType.GetTypeInfo());
 #else
-            return type.IsAssignableFrom(otherType);
+        return type.IsAssignableFrom(otherType);
 #endif
     }
-
-
-
-
+    #endif
 
     /// <summary>
     ///     Convenience method to get <see cref="MethodInfo" /> for different PCL profiles.
     /// </summary>
     /// <param name="del">Delegate whose method info is desired</param>
     /// <returns>Null if <paramref name="del" /> is null, otherwise <see cref="MemberInfo.Name" />.</returns>
-    public static MethodInfo TryGetMethodInfo(this Delegate del)
+    private static MethodInfo TryGetMethodInfo(this Delegate del)
     {
 #if PORTABLE_REFLECTION
         return del?.GetMethodInfo();
 #else
-            return del?.Method;
+        return del?.Method;
 #endif
     }
 
