@@ -514,7 +514,7 @@ namespace Stateless
         public void OnUnhandledTrigger(Action<TState, TTrigger> unhandledTriggerAction)
         {
             if (unhandledTriggerAction == null) throw new ArgumentNullException(nameof(unhandledTriggerAction));
-            _unhandledTriggerAction = new UnhandledTriggerAction.Sync((s, t, c) => unhandledTriggerAction(s, t));
+            _unhandledTriggerAction = new UnhandledTriggerAction.Sync((s, t, _) => unhandledTriggerAction(s, t));
         }
 
         /// <summary>

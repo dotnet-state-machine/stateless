@@ -302,7 +302,7 @@ namespace Stateless
         public void OnUnhandledTriggerAsync(Func<TState, TTrigger, Task> unhandledTriggerAction)
         {
             if (unhandledTriggerAction == null) throw new ArgumentNullException(nameof(unhandledTriggerAction));
-            _unhandledTriggerAction = new UnhandledTriggerAction.Async((s, t, c) => unhandledTriggerAction(s, t));
+            _unhandledTriggerAction = new UnhandledTriggerAction.Async((s, t, _) => unhandledTriggerAction(s, t));
         }
 
         /// <summary>

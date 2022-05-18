@@ -201,14 +201,14 @@ namespace Stateless.Tests
 
             sm.Configure(State.A)
                 .InitialTransition(State.B)
-                .OnEntry(t => onEntryStateAfired = ++order)
-                .OnExit(t => onExitStateAfired = ++order)
+                .OnEntry(_ => onEntryStateAfired = ++order)
+                .OnExit(_ => onExitStateAfired = ++order)
                 .PermitReentry(Trigger.X);
 
             sm.Configure(State.B)
                 .SubstateOf(State.A)
-                .OnEntry(t => onEntryStateBfired = ++order)
-                .OnExit(t => onExitStateBfired = ++order);
+                .OnEntry(_ => onEntryStateBfired = ++order)
+                .OnExit(_ => onExitStateBfired = ++order);
 
             sm.Fire(Trigger.X);
 

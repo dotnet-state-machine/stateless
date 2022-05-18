@@ -211,7 +211,7 @@ namespace Stateless.Tests
             bool fired = false;
 
             sm.Configure(State.B)
-                .OnEntry(t => fired = true)
+                .OnEntry(_ => fired = true)
                 .Ignore(Trigger.X);
 
             sm.Fire(Trigger.X);
@@ -227,7 +227,7 @@ namespace Stateless.Tests
             bool fired = false;
 
             sm.Configure(State.B)
-                .OnEntry(t => fired = true)
+                .OnEntry(_ => fired = true)
                 .PermitReentry(Trigger.X);
 
             sm.Fire(Trigger.X);
@@ -321,7 +321,7 @@ namespace Stateless.Tests
 
             State? state = null;
             Trigger? trigger = null;
-            sm.OnUnhandledTrigger((s, t, u) =>
+            sm.OnUnhandledTrigger((s, t, _) =>
             {
                 state = s;
                 trigger = t;
@@ -390,8 +390,8 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .OnEntry(() => actualOrdering.Add("OnEntry"));
 
-            sm.OnTransitioned(t => actualOrdering.Add("OnTransitioned"));
-            sm.OnTransitionCompleted(t => actualOrdering.Add("OnTransitionCompleted"));
+            sm.OnTransitioned(_ => actualOrdering.Add("OnTransitioned"));
+            sm.OnTransitionCompleted(_ => actualOrdering.Add("OnTransitionCompleted"));
 
             sm.Fire(Trigger.X);
 
@@ -589,13 +589,13 @@ namespace Stateless.Tests
             bool onExitStateAfired = false;
 
             sm.Configure(State.B)
-                .OnEntry(t => onEntryStateBfired = true)
+                .OnEntry(_ => onEntryStateBfired = true)
                 .PermitReentry(Trigger.X)
-                .OnExit(t => onExitStateBfired = true);
+                .OnExit(_ => onExitStateBfired = true);
 
             sm.Configure(State.A)
                 .SubstateOf(State.B)
-                .OnExit(t => onExitStateAfired = true);
+                .OnExit(_ => onExitStateAfired = true);
 
             sm.Fire(Trigger.X);
 
@@ -814,7 +814,7 @@ namespace Stateless.Tests
         {
             var sm = new StateMachine<State, Trigger>(State.A);
             bool onUnhandledTriggerWasCalled = false;
-            sm.OnUnhandledTrigger((s, t) => { onUnhandledTriggerWasCalled = true; });  // NEVER CALLED
+            sm.OnUnhandledTrigger((_, _) => { onUnhandledTriggerWasCalled = true; });  // NEVER CALLED
             int i = 0;
             sm.Configure(State.A)
                 .PermitIf(Trigger.X, State.B, () => i == 2)
@@ -939,7 +939,7 @@ namespace Stateless.Tests
         {
             var trigger = Trigger.X;
             var sm = new StateMachine<State, Trigger>(State.A);
-            sm.Configure(State.A).InternalTransition(sm.SetTriggerParameters<string>(trigger), (arg, _) => { });
+            sm.Configure(State.A).InternalTransition(sm.SetTriggerParameters<string>(trigger), (_, _) => { });
             Assert.True(sm.CanFire(trigger));
         }
 
@@ -948,7 +948,7 @@ namespace Stateless.Tests
         {
             var trigger = Trigger.X;
             var sm = new StateMachine<State, Trigger>(State.A);
-            sm.Configure(State.A).InternalTransition(sm.SetTriggerParameters<string>(trigger), (arg, _) => { });
+            sm.Configure(State.A).InternalTransition(sm.SetTriggerParameters<string>(trigger), (_, _) => { });
             Assert.Single(sm.PermittedTriggers, trigger);
         }
 

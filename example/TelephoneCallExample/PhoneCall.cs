@@ -29,13 +29,13 @@ namespace TelephoneCallExample
         }
 
         State _state = State.OffHook;
-        
-        StateMachine<State, Trigger> _machine;
-        StateMachine<State, Trigger>.TriggerWithParameters<int> _setVolumeTrigger;
 
-        StateMachine<State, Trigger>.TriggerWithParameters<string> _setCalleeTrigger;
+        readonly StateMachine<State, Trigger>                            _machine;
+        readonly StateMachine<State, Trigger>.TriggerWithParameters<int> _setVolumeTrigger;
 
-        string _caller;
+        readonly StateMachine<State, Trigger>.TriggerWithParameters<string> _setCalleeTrigger;
+
+        readonly string _caller;
 
         string _callee;
 
@@ -55,11 +55,11 @@ namespace TelephoneCallExample
 	            .Permit(Trigger.CallConnected, State.Connected);
 
             _machine.Configure(State.Connected)
-                .OnEntry(t => StartCallTimer())
-                .OnExit(t => StopCallTimer())
-                .InternalTransition(Trigger.MuteMicrophone, t => OnMute())
-                .InternalTransition(Trigger.UnmuteMicrophone, t => OnUnmute())
-                .InternalTransition<int>(_setVolumeTrigger, (volume, t) => OnSetVolume(volume))
+                .OnEntry(_ => StartCallTimer())
+                .OnExit(_ => StopCallTimer())
+                .InternalTransition(Trigger.MuteMicrophone, _ => OnMute())
+                .InternalTransition(Trigger.UnmuteMicrophone, _ => OnUnmute())
+                .InternalTransition<int>(_setVolumeTrigger, (volume, _) => OnSetVolume(volume))
                 .Permit(Trigger.LeftMessage, State.OffHook)
 	            .Permit(Trigger.PlacedOnHold, State.OnHold);
 

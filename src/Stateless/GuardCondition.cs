@@ -6,7 +6,7 @@ namespace Stateless
     {
         internal class GuardCondition
         {
-            Reflection.InvocationInfo _methodDescription;
+            readonly Reflection.InvocationInfo _methodDescription;
 
             /// <summary>
             /// Constructor that takes in a guard with no argument.
@@ -16,7 +16,7 @@ namespace Stateless
             /// <param name="guard">No Argument Guard Condition</param>
             /// <param name="description"></param>
             internal GuardCondition(Func<bool> guard, Reflection.InvocationInfo description)
-                : this(args => guard(), description)
+                : this(_ => guard(), description)
             {
             }
 

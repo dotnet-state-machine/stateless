@@ -22,8 +22,8 @@ namespace Stateless.Tests
               .OnActivate(() => actualOrdering.Add("ActivatedC"));
 
             // should not be called for activation
-            sm.OnTransitioned(t => actualOrdering.Add("OnTransitioned"));
-            sm.OnTransitionCompleted(t => actualOrdering.Add("OnTransitionCompleted"));
+            sm.OnTransitioned(_ => actualOrdering.Add("OnTransitioned"));
+            sm.OnTransitionCompleted(_ => actualOrdering.Add("OnTransitionCompleted"));
 
             sm.Activate();
 
@@ -67,8 +67,8 @@ namespace Stateless.Tests
               .OnDeactivate(() => actualOrdering.Add("DeactivatedC"));
 
             // should not be called for activation
-            sm.OnTransitioned(t => actualOrdering.Add("OnTransitioned"));
-            sm.OnTransitionCompleted(t => actualOrdering.Add("OnTransitionCompleted"));
+            sm.OnTransitioned(_ => actualOrdering.Add("OnTransitioned"));
+            sm.OnTransitionCompleted(_ => actualOrdering.Add("OnTransitionCompleted"));
 
             sm.Activate();
             sm.Deactivate();
@@ -137,8 +137,8 @@ namespace Stateless.Tests
               .OnExit(() => actualOrdering.Add("ExitedB"))
               .Permit(Trigger.Y, State.A);
 
-            sm.OnTransitioned(t => actualOrdering.Add("OnTransitioned"));
-            sm.OnTransitionCompleted(t => actualOrdering.Add("OnTransitionCompleted"));
+            sm.OnTransitioned(_ => actualOrdering.Add("OnTransitioned"));
+            sm.OnTransitionCompleted(_ => actualOrdering.Add("OnTransitionCompleted"));
 
             sm.Activate();
             sm.Fire(Trigger.X);

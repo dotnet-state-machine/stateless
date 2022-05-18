@@ -292,7 +292,7 @@ namespace Stateless.Tests
               .Permit(Trigger.X, State.B);
 
             var test = "";
-            sm.OnUnhandledTriggerAsync((s, t, u) => Task.Run(() => test = "foo"));
+            sm.OnUnhandledTriggerAsync((_, _, _) => Task.Run(() => test = "foo"));
 
             await sm.FireAsync(Trigger.Z).ConfigureAwait(false);
 
@@ -306,7 +306,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .Permit(Trigger.X, State.B);
 
-            sm.OnUnhandledTriggerAsync((s, t) => TaskResult.Done);
+            sm.OnUnhandledTriggerAsync((_, _) => TaskResult.Done);
 
             Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.Z));
         }
@@ -318,7 +318,7 @@ namespace Stateless.Tests
             sm.Configure(State.A)
               .Permit(Trigger.X, State.B);
 
-            sm.OnUnhandledTriggerAsync((s, t, u) => TaskResult.Done);
+            sm.OnUnhandledTriggerAsync((_, _, _) => TaskResult.Done);
 
             Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.Z));
         }
@@ -385,13 +385,13 @@ namespace Stateless.Tests
             bool onExitStateAfired = false;
 
             sm.Configure(State.B)
-                .OnEntryAsync(t => Task.Run(() => onEntryStateBfired = true))
+                .OnEntryAsync(_ => Task.Run(() => onEntryStateBfired = true))
                 .PermitReentry(Trigger.X)
-                .OnExitAsync(t => Task.Run(() => onExitStateBfired = true));
+                .OnExitAsync(_ => Task.Run(() => onExitStateBfired = true));
 
             sm.Configure(State.A)
                 .SubstateOf(State.B)
-                .OnExitAsync(t => Task.Run(() => onExitStateAfired = true));
+                .OnExitAsync(_ => Task.Run(() => onExitStateAfired = true));
 
             await sm.FireAsync(Trigger.X).ConfigureAwait(false);
 
@@ -411,13 +411,13 @@ namespace Stateless.Tests
             bool subExit = false;
 
             sm.Configure(State.A)
-                .OnEntryAsync(t => Task.Run(() => superEntry = true))
-                .OnExitAsync(t => Task.Run(() => superExit = true));
+                .OnEntryAsync(_ => Task.Run(() => superEntry = true))
+                .OnExitAsync(_ => Task.Run(() => superExit = true));
 
             sm.Configure(State.B)
                 .SubstateOf(State.A)
                 .Permit(Trigger.Y, State.A)
-                .OnExitAsync(t => Task.Run(() => subExit = true));
+                .OnExitAsync(_ => Task.Run(() => subExit = true));
 
             await sm.FireAsync(Trigger.Y);
 

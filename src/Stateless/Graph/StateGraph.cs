@@ -11,7 +11,7 @@ namespace Stateless.Graph
     /// </summary>
     public class StateGraph
     {
-        private StateInfo initialState;
+        private readonly StateInfo initialState;
 
         /// <summary>
         /// List of all states in the graph, indexed by the string representation of the underlying State object.

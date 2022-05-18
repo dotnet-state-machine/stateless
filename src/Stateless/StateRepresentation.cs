@@ -248,7 +248,8 @@ namespace Stateless
                 }
 
                 // Execute internal transition event handler
-                if (internalTransition == null) throw new ArgumentNullException("The configuration is incorrect, no action assigned to this internal transition.");
+                if (internalTransition == null) 
+                    throw new ArgumentNullException(nameof(internalTransition), "The configuration is incorrect, no action assigned to this internal transition.");
                 internalTransition.InternalAction(transition, args);
             }
             public void AddTriggerBehaviour(TriggerBehaviour triggerBehaviour)

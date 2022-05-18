@@ -53,7 +53,7 @@ namespace Stateless
             /// <returns></returns>
             public StateConfiguration InternalTransition(TTrigger trigger, Action<Transition> entryAction)
             {
-                return InternalTransitionIf(trigger, t => true, entryAction);
+                return InternalTransitionIf(trigger, _ => true, entryAction);
             }
 
             /// <summary>
@@ -68,7 +68,7 @@ namespace Stateless
             {
                 if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger, guard, (t, args) => entryAction(t), guardDescription));
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger, guard, (t, _) => entryAction(t), guardDescription));
                 return this;
             }
 
@@ -80,7 +80,7 @@ namespace Stateless
             /// <returns></returns>
             public StateConfiguration InternalTransition(TTrigger trigger, Action internalAction)
             {
-                return InternalTransitionIf(trigger, t => true, internalAction);
+                return InternalTransitionIf(trigger, _ => true, internalAction);
             }
 
             /// <summary>
@@ -95,7 +95,7 @@ namespace Stateless
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger, guard, (t, args) => internalAction(), guardDescription));
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger, guard, (_, _) => internalAction(), guardDescription));
                 return this;
             }
 
@@ -112,7 +112,7 @@ namespace Stateless
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger, guard, (t, args) => internalAction(t), guardDescription));
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger, guard, (t, _) => internalAction(t), guardDescription));
                 return this;
             }
 
@@ -125,7 +125,7 @@ namespace Stateless
             /// <returns></returns>
             public StateConfiguration InternalTransition<TArg0>(TTrigger trigger, Action<Transition> internalAction)
             {
-                return InternalTransitionIf(trigger, t => true, internalAction);
+                return InternalTransitionIf(trigger, _ => true, internalAction);
             }
 
             /// <summary>
@@ -137,7 +137,7 @@ namespace Stateless
             /// <returns></returns>
             public StateConfiguration InternalTransition<TArg0>(TriggerWithParameters<TArg0> trigger, Action<TArg0, Transition> internalAction)
             {
-                return InternalTransitionIf(trigger, t => true, internalAction);
+                return InternalTransitionIf(trigger, _ => true, internalAction);
             }
 
             /// <summary>
@@ -169,7 +169,7 @@ namespace Stateless
             public StateConfiguration InternalTransition<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger,
                 Action<TArg0, TArg1, Transition> internalAction)
             {
-                return InternalTransitionIf(trigger, t => true, internalAction);
+                return InternalTransitionIf(trigger, _ => true, internalAction);
             }
 
             /// <summary>
@@ -279,7 +279,7 @@ namespace Stateless
             /// <returns></returns>
             public StateConfiguration InternalTransition<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Action<TArg0, TArg1, TArg2, Transition> internalAction)
             {
-                return InternalTransitionIf(trigger, t => true, internalAction);
+                return InternalTransitionIf(trigger, _ => true, internalAction);
             }
 
             /// <summary>
@@ -858,7 +858,7 @@ namespace Stateless
                 if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
 
                 _representation.AddEntryAction(
-                    (t, args) => entryAction(),
+                    (_, _) => entryAction(),
                     Reflection.InvocationInfo.Create(entryAction, entryActionDescription));
                 return this;
 
@@ -876,7 +876,7 @@ namespace Stateless
                 if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
 
                 _representation.AddEntryAction(
-                    (t, args) => entryAction(t),
+                    (t, _) => entryAction(t),
                     Reflection.InvocationInfo.Create(entryAction, entryActionDescription));
                 return this;
             }
@@ -895,7 +895,7 @@ namespace Stateless
 
                 _representation.AddEntryAction(
                     trigger,
-                    (t, args) => entryAction(),
+                    (_, _) => entryAction(),
                     Reflection.InvocationInfo.Create(entryAction, entryActionDescription));
                 return this;
 
@@ -915,7 +915,7 @@ namespace Stateless
 
                 _representation.AddEntryAction(
                     trigger,
-                    (t, args) => entryAction(t),
+                    (t, _) => entryAction(t),
                     Reflection.InvocationInfo.Create(entryAction, entryActionDescription));
                 return this;
             }
@@ -935,7 +935,7 @@ namespace Stateless
 
                 _representation.AddEntryAction(
                     trigger.Trigger,
-                    (t, args) => entryAction(t),
+                    (t, _) => entryAction(t),
                     Reflection.InvocationInfo.Create(entryAction, entryActionDescription));
                 return this;
 
@@ -957,7 +957,7 @@ namespace Stateless
 
                 _representation.AddEntryAction(
                     trigger.Trigger,
-                    (t, args) => entryAction(
+                    (_, args) => entryAction(
                         ParameterConversion.Unpack<TArg0>(args, 0)),
                     Reflection.InvocationInfo.Create(entryAction, entryActionDescription));
                 return this;
@@ -1002,7 +1002,7 @@ namespace Stateless
                 if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
 
                 _representation.AddEntryAction(trigger.Trigger,
-                    (t, args) => entryAction(
+                    (_, args) => entryAction(
                         ParameterConversion.Unpack<TArg0>(args, 0),
                         ParameterConversion.Unpack<TArg1>(args, 1)),
                     Reflection.InvocationInfo.Create(entryAction, entryActionDescription));
@@ -1048,7 +1048,7 @@ namespace Stateless
                 if (trigger == null) throw new ArgumentNullException(nameof(trigger));
                 if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
 
-                _representation.AddEntryAction(trigger.Trigger, (t, args) => entryAction(
+                _representation.AddEntryAction(trigger.Trigger, (_, args) => entryAction(
                     ParameterConversion.Unpack<TArg0>(args, 0),
                     ParameterConversion.Unpack<TArg1>(args, 1),
                     ParameterConversion.Unpack<TArg2>(args, 2)),
@@ -1093,7 +1093,7 @@ namespace Stateless
                 if (exitAction == null) throw new ArgumentNullException(nameof(exitAction));
 
                 _representation.AddExitAction(
-                    t => exitAction(),
+                    _ => exitAction(),
                     Reflection.InvocationInfo.Create(exitAction, exitActionDescription));
                 return this;
             }
@@ -1174,7 +1174,7 @@ namespace Stateless
 
                 _representation.AddTriggerBehaviour(
                     new DynamicTriggerBehaviour(trigger,
-                        args => destinationStateSelector(),
+                        _ => destinationStateSelector(),
                         null,           // No transition guard
                         Reflection.DynamicTransitionInfo.Create(trigger,
                             null,       // No guards
@@ -1321,7 +1321,7 @@ namespace Stateless
 
                 return InternalPermitDynamicIf(
                     trigger,
-                    args => destinationStateSelector(),
+                    _ => destinationStateSelector(),
                     destinationStateSelectorDescription,
                     new TransitionGuard(guard, guardDescription),
                     possibleDestinationStates);
@@ -1362,7 +1362,7 @@ namespace Stateless
 
                 return InternalPermitDynamicIf(
                     trigger,
-                    args => destinationStateSelector(),
+                    _ => destinationStateSelector(),
                     destinationStateSelectorDescription,
                     new TransitionGuard(guards),
                     possibleDestinationStates);
