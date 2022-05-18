@@ -295,12 +295,23 @@ public partial class StateMachine<TState, TTrigger>
 
         public IEnumerable<TTrigger> GetPermittedTriggers(params object[] args)
         {
-            var result = TriggerBehaviours
-                        .Where(t => t.Value.Any(a => !a.UnmetGuardConditions(args).Any()))
-                        .Select(t => t.Key);
+            var result = new HashSet<TTrigger>();
+            foreach (var triggerBehaviour in TriggerBehaviours)
+            {
+                try
+                {
+                    if (triggerBehaviour.Value.Any(a => !a.UnmetGuardConditions(args).Any()))
+                        result.Add(triggerBehaviour.Key);
+                }
+                catch (Exception)
+                {
+                    //Ignore
+                    //There is no need to throw an exception when trying to get the Permitted Triggers. If it's not valid just don't return it.
+                }
+            }
 
             if (Superstate is { })
-                result = result.Union(Superstate.GetPermittedTriggers(args));
+                result.UnionWith(Superstate.GetPermittedTriggers(args));
 
             return result;
         }
