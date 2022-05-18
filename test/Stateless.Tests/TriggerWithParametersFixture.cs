@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace Stateless.Tests; 
@@ -72,5 +74,30 @@ public class TriggerWithParametersFixture
     {
         var twp = new StateMachine<State, Trigger>.TriggerWithParameters(Trigger.X, new Type[] { typeof(int), typeof(string) });
         twp.ValidateParameters(new object[] { 123, "arg" });
+    }
+    
+    /// <summary>
+    /// Issue #450 - GetPermittedTriggers throws exception when triggers have different parameter types.
+    /// </summary>
+    [Theory]
+    [MemberData(nameof(DifferentTypeTriggersData))]
+    public void DifferentTypeTriggersThrowNoException(params object[] arg)
+    {
+        var fsm = new StateMachine<State, Trigger>(State.A);
+        var twp1 = fsm.SetTriggerParameters<bool>(Trigger.X);
+        var twp2 = fsm.SetTriggerParameters<int, string>(Trigger.Y);
+        var twp3 = fsm.SetTriggerParameters<string, int, bool>(Trigger.Z);
+        fsm.Configure(State.A)
+           .PermitIf(twp1, State.B, _ => true)
+           .PermitIf(twp2, State.C, (_, _) => true)
+           .PermitIf(twp3, State.D, (_, _, _) => true);
+        Assert.Equal(1, fsm.GetPermittedTriggers(arg).Count());
+    }
+
+    public static IEnumerable<object[]> DifferentTypeTriggersData()
+    {
+        yield return new object[] { "arg", 123, true };
+        yield return new object[] { 123, "arg" };
+        yield return new object[] { true };
     }
 }

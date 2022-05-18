@@ -16,22 +16,52 @@ public partial class StateMachine<TState, TTrigger>
 
         public static Func<object[], bool> ToPackedGuard<TArg0>(Func<TArg0, bool> guard)
         {
-            return args => guard(ParameterConversion.Unpack<TArg0>(args, 0));
+            return args =>
+            {
+                try
+                {
+                    return guard(ParameterConversion.Unpack<TArg0>(args, 0));
+                }
+                catch (ArgumentException)
+                {
+                    return false;
+                }
+            };
         }
 
         public static Func<object[], bool> ToPackedGuard<TArg0, TArg1>(Func<TArg0, TArg1, bool> guard)
         {
-            return args => guard(
-                                 ParameterConversion.Unpack<TArg0>(args, 0), 
+            return args =>
+            {
+                try
+                {
+                    return guard(
+                                 ParameterConversion.Unpack<TArg0>(args, 0),
                                  ParameterConversion.Unpack<TArg1>(args, 1));
+                }
+                catch (ArgumentException)
+                {
+                    return false;
+                }
+            };
         }
 
         public static Func<object[], bool> ToPackedGuard<TArg0, TArg1, TArg2>(Func<TArg0, TArg1, TArg2, bool> guard)
         {
-            return args => guard(
+            return args =>
+            {
+                try
+                {
+                    return guard(
                                  ParameterConversion.Unpack<TArg0>(args, 0),
                                  ParameterConversion.Unpack<TArg1>(args, 1),
                                  ParameterConversion.Unpack<TArg2>(args, 2));
+                }
+                catch (ArgumentException)
+                {
+                    return false;
+                }
+            };
         }
 
         public static Tuple<Func<object[], bool>, string>[] ToPackedGuards<TArg0>(Tuple<Func<TArg0, bool>, string>[] guards)
