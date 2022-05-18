@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Stateless.Reflection; 
@@ -8,17 +10,11 @@ namespace Stateless.Reflection;
 /// </summary>
 public class IgnoredTransitionInfo : TransitionInfo
 {
-    internal static IgnoredTransitionInfo Create<TState, TTrigger>(StateMachine<TState, TTrigger>.IgnoredTriggerBehaviour behaviour)
+    internal static IgnoredTransitionInfo Create<TState, TTrigger>(StateMachine<TState, TTrigger>.IgnoredTriggerBehaviour behaviour) where TState : notnull where TTrigger : notnull
     {
-        var transition = new IgnoredTransitionInfo
-        {
-            Trigger = new TriggerInfo(behaviour.Trigger),
-            GuardConditionsMethodDescriptions = (behaviour.Guard == null)
-                                                    ? new List<InvocationInfo>() : behaviour.Guard.Conditions.Select(c => c.MethodDescription)
-        };
-
-        return transition;
+        return new IgnoredTransitionInfo(behaviour.Guard?.Conditions.Select(c => c.MethodDescription) ?? new List<InvocationInfo>(), new TriggerInfo(behaviour.Trigger));
     }
 
-    private IgnoredTransitionInfo() { }
+    /// <inheritdoc />
+    private IgnoredTransitionInfo(IEnumerable<InvocationInfo> guardConditionsMethodDescriptions, TriggerInfo trigger) : base(guardConditionsMethodDescriptions, trigger) { }
 }

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+
+using System.Collections.Generic;
 
 namespace Stateless.Reflection; 
 
@@ -47,9 +49,9 @@ public class DynamicStateInfos : List<DynamicStateInfo>
     /// </summary>
     /// <param name="destinationState"></param>
     /// <param name="criterion"></param>
-    public void Add<TState>(TState destinationState, string criterion)
+    public void Add<TState>(TState destinationState, string criterion) where TState : notnull
     {
-        base.Add(new DynamicStateInfo(destinationState.ToString(), criterion));
+        base.Add(new DynamicStateInfo(destinationState.ToString()!, criterion));
     }
 }
 
@@ -61,12 +63,12 @@ public class DynamicTransitionInfo : TransitionInfo
     /// <summary>
     /// Gets method information for the destination state selector.
     /// </summary>
-    public InvocationInfo DestinationStateSelectorDescription { get; private set; }
+    public InvocationInfo DestinationStateSelectorDescription { get; }
 
     /// <summary>
     /// Gets the possible destination states.
     /// </summary>
-    public DynamicStateInfos PossibleDestinationStates { get; private set; }
+    public DynamicStateInfos PossibleDestinationStates { get; }
 
     /// <summary>
     /// Creates a new instance of <see cref="DynamicTransitionInfo"/>.
@@ -77,19 +79,18 @@ public class DynamicTransitionInfo : TransitionInfo
     /// <param name="selector">The destination selector associated with this transition.</param>
     /// <param name="possibleStates">The possible destination states.</param>
     /// <returns></returns>
-    public static DynamicTransitionInfo Create<TTrigger>(TTrigger       trigger,  IEnumerable<InvocationInfo> guards,
+    public static DynamicTransitionInfo Create<TTrigger>(TTrigger       trigger,  IEnumerable<InvocationInfo>? guards,
                                                          InvocationInfo selector, DynamicStateInfos possibleStates)
     {
-        var transition = new DynamicTransitionInfo
-        {
-            Trigger = new TriggerInfo(trigger),
-            GuardConditionsMethodDescriptions = guards ?? new List<InvocationInfo>(),
-            DestinationStateSelectorDescription = selector,
-            PossibleDestinationStates = possibleStates // behaviour.PossibleDestinationStates?.Select(x => x.ToString()).ToArray()
-        };
-
-        return transition;
+        return new DynamicTransitionInfo(guards ?? new List<InvocationInfo>(), new TriggerInfo(trigger), selector, possibleStates);
     }
 
-    private DynamicTransitionInfo() { }
+    /// <inheritdoc />
+    private DynamicTransitionInfo(IEnumerable<InvocationInfo> guardConditionsMethodDescriptions, TriggerInfo trigger,
+                                  InvocationInfo destinationStateSelectorDescription,
+                                  DynamicStateInfos possibleDestinationStates) : base(guardConditionsMethodDescriptions,
+     trigger) {
+        DestinationStateSelectorDescription = destinationStateSelectorDescription;
+        PossibleDestinationStates           = possibleDestinationStates;
+    }
 }

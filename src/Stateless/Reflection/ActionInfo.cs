@@ -1,4 +1,6 @@
-﻿namespace Stateless.Reflection; 
+﻿#nullable enable
+
+namespace Stateless.Reflection; 
 
 /// <summary>
 /// Information on entry and exit actions
@@ -13,9 +15,10 @@ public class ActionInfo
     /// <summary>
     /// If non-null, specifies the "from" trigger that must be present for this method to be invoked
     /// </summary>
-    public string FromTrigger { get; }
+    public string? FromTrigger { get; }
 
-    internal static ActionInfo Create<TState, TTrigger>(StateMachine<TState, TTrigger>.EntryActionBehavior entryAction)
+    internal static ActionInfo Create<TState, TTrigger>(StateMachine<TState, TTrigger>.EntryActionBehavior entryAction) 
+        where TState : notnull where TTrigger : notnull
     {
         if (entryAction is StateMachine<TState, TTrigger>.EntryActionBehavior.SyncFrom<TTrigger> syncFrom)
             return new ActionInfo(entryAction.Description, syncFrom.Trigger.ToString());
@@ -25,7 +28,7 @@ public class ActionInfo
     /// <summary>
     /// Constructor
     /// </summary>
-    private ActionInfo(InvocationInfo method, string fromTrigger)
+    private ActionInfo(InvocationInfo method, string? fromTrigger)
     {
         Method      = method;
         FromTrigger = fromTrigger;

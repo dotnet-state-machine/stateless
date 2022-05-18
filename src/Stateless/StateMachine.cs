@@ -21,7 +21,7 @@ public enum FiringMode
 /// </summary>
 /// <typeparam name="TState">The type used to represent the states.</typeparam>
 /// <typeparam name="TTrigger">The type used to represent the triggers that cause state transitions.</typeparam>
-public partial class StateMachine<TState, TTrigger>
+public partial class StateMachine<TState, TTrigger> where TState : notnull where TTrigger : notnull
 {
     private readonly IDictionary<TState, StateRepresentation> _stateConfiguration = new Dictionary<TState, StateRepresentation>();
     private readonly IDictionary<TTrigger, TriggerWithParameters> _triggerConfiguration = new Dictionary<TTrigger, TriggerWithParameters>();

@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,7 +11,7 @@ namespace Stateless.Reflection;
 /// </summary>
 public class StateInfo
 {
-    internal static StateInfo CreateStateInfo<TState, TTrigger>(StateMachine<TState, TTrigger>.StateRepresentation stateRepresentation)
+    internal static StateInfo CreateStateInfo<TState, TTrigger>(StateMachine<TState, TTrigger>.StateRepresentation stateRepresentation) where TState : notnull where TTrigger : notnull
     {
         if (stateRepresentation == null)
             throw new ArgumentNullException(nameof(stateRepresentation));
@@ -35,13 +37,13 @@ public class StateInfo
                              stateRepresentation.ExitActions.Select(e => e.Description).ToList());
     }
  
-    internal static void AddRelationships<TState, TTrigger>(StateInfo info, StateMachine<TState, TTrigger>.StateRepresentation stateRepresentation, Func<TState, StateInfo> lookupState)
+    internal static void AddRelationships<TState, TTrigger>(StateInfo info, StateMachine<TState, TTrigger>.StateRepresentation stateRepresentation, Func<TState, StateInfo> lookupState) where TState : notnull where TTrigger : notnull
     {
         if (lookupState == null) throw new ArgumentNullException(nameof(lookupState));
 
         var substates = stateRepresentation.GetSubstates().Select(s => lookupState(s.UnderlyingState)).ToList();
 
-        StateInfo superstate = null;
+        StateInfo? superstate = null;
         if (stateRepresentation.Superstate is { })
             superstate = lookupState(stateRepresentation.Superstate.UnderlyingState);
 
@@ -78,7 +80,7 @@ public class StateInfo
     }
 
     private StateInfo(
-        object                             underlyingState,
+        object?                            underlyingState,
         IEnumerable<IgnoredTransitionInfo> ignoredTriggers,
         IEnumerable<ActionInfo>            entryActions,
         IEnumerable<InvocationInfo>        activateActions,
@@ -94,7 +96,7 @@ public class StateInfo
     }
 
     private void AddRelationships(
-        StateInfo                          superstate,
+        StateInfo?                         superstate,
         IEnumerable<StateInfo>             substates,
         IEnumerable<FixedTransitionInfo>   transitions,
         IEnumerable<DynamicTransitionInfo> dynamicTransitions)
@@ -108,17 +110,17 @@ public class StateInfo
     /// <summary>
     /// The instance or value this state represents.
     /// </summary>
-    public object UnderlyingState { get; }
+    public object? UnderlyingState { get; }
 
     /// <summary>
     /// Substates defined for this StateResource.
     /// </summary>
-    public IEnumerable<StateInfo> Substates { get; private set; }
+    public IEnumerable<StateInfo>? Substates { get; private set; }
 
     /// <summary>
     /// Superstate defined, if any, for this StateResource.
     /// </summary>
-    public StateInfo Superstate { get; private set; }
+    public StateInfo? Superstate { get; private set; }
 
     /// <summary>
     /// Actions that are defined to be executed on state-entry.
@@ -143,17 +145,17 @@ public class StateInfo
     /// <summary> 
     /// Transitions defined for this state.
     /// </summary>
-    public IEnumerable<TransitionInfo> Transitions => FixedTransitions.Concat<TransitionInfo>(DynamicTransitions);
+    public IEnumerable<TransitionInfo> Transitions => FixedTransitions?.Concat(DynamicTransitions ?? Enumerable.Empty<TransitionInfo>()) ?? Enumerable.Empty<TransitionInfo>();
 
     /// <summary>
     /// Transitions defined for this state.
     /// </summary>
-    public IEnumerable<FixedTransitionInfo> FixedTransitions { get; private set; }
+    public IEnumerable<FixedTransitionInfo>? FixedTransitions { get; private set; }
 
     /// <summary>
     /// Dynamic Transitions defined for this state internally.
     /// </summary>
-    public IEnumerable<DynamicTransitionInfo> DynamicTransitions { get; private set; }
+    public IEnumerable<DynamicTransitionInfo>? DynamicTransitions { get; private set; }
 
     /// <summary>
     /// Triggers ignored for this state.

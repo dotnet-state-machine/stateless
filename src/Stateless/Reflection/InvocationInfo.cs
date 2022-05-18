@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 
 namespace Stateless.Reflection; 
 
@@ -7,7 +9,7 @@ namespace Stateless.Reflection;
 /// </summary>
 public class InvocationInfo
 {
-    private readonly string _description; // _description can be null if user didn't specify a description
+    private readonly string? _description; // _description can be null if user didn't specify a description
 
     /// <summary>
     /// Is the method synchronous or asynchronous?
@@ -23,7 +25,7 @@ public class InvocationInfo
 
     private readonly Timing _timing;
 
-    internal static InvocationInfo Create(Delegate method, string description, Timing timing = Timing.Synchronous)
+    internal static InvocationInfo Create(Delegate? method, string? description, Timing timing = Timing.Synchronous)
     {
         return new InvocationInfo(method?.TryGetMethodName(), description, timing);
     }
@@ -34,7 +36,7 @@ public class InvocationInfo
     /// <param name="methodName">The name of the invoked method.</param>
     /// <param name="description">A description of the invoked method.</param>
     /// <param name="timing">Sets a value indicating whether the method is invoked asynchronously.</param>
-    public InvocationInfo(string methodName, string description, Timing timing)      // description can be null if user didn't specify a description
+    public InvocationInfo(string? methodName, string? description, Timing timing)      // description can be null if user didn't specify a description
     {
         MethodName   = methodName;
         _description = description;
@@ -45,7 +47,7 @@ public class InvocationInfo
     /// The name of the invoked method.  If the method is a lambda or delegate, the name will be a compiler-generated
     /// name that is often not human-friendly (e.g. "(.ctor)b__2_0" except with angle brackets instead of parentheses)
     /// </summary>
-    public string MethodName { get; }
+    public string? MethodName { get; }
 
     /// <summary>
     /// Text returned for compiler-generated functions where the caller has not specified a description
@@ -64,9 +66,11 @@ public class InvocationInfo
         {
             if (_description is { })
                 return _description;
+            if (MethodName is null)
+                return "<null>";
             if (MethodName.IndexOfAny(new [] { '<', '>', '`' }) >= 0)
                 return DefaultFunctionDescription;
-            return MethodName ?? "<null>";
+            return MethodName;
         }
     }
 
