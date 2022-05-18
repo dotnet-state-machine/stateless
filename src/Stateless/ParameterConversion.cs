@@ -1,44 +1,43 @@
 ﻿using System;
 
-namespace Stateless
+namespace Stateless;
+
+internal static class ParameterConversion
 {
-    static class ParameterConversion
+    public static object Unpack(object[] args, Type argType, int index)
     {
-        public static object Unpack(object[] args, Type argType, int index)
-        {
-            if (args == null) throw new ArgumentNullException(nameof(args));
+        if (args == null) throw new ArgumentNullException(nameof(args));
             
-            if (args.Length == 0)
-                return null;
+        if (args.Length == 0)
+            return null;
             
-            if (args.Length <= index)
-                throw new ArgumentException(
-                    string.Format(ParameterConversionResources.ArgOfTypeRequiredInPosition, argType, index));
+        if (args.Length <= index)
+            throw new ArgumentException(
+                                        string.Format(ParameterConversionResources.ArgOfTypeRequiredInPosition, argType, index));
 
-            var arg = args[index];
+        var arg = args[index];
 
-            if (arg is { } && !argType.IsAssignableFrom(arg.GetType()))
-                throw new ArgumentException(
-                    string.Format(ParameterConversionResources.WrongArgType, index, arg.GetType(), argType));
+        if (arg is { } && !argType.IsAssignableFrom(arg.GetType()))
+            throw new ArgumentException(
+                                        string.Format(ParameterConversionResources.WrongArgType, index, arg.GetType(), argType));
 
-            return arg;
-        }
+        return arg;
+    }
 
-        public static TArg Unpack<TArg>(object[] args, int index)
-        {
-            if (args.Length == 0) return default;
+    public static TArg Unpack<TArg>(object[] args, int index)
+    {
+        if (args.Length == 0) return default;
 
-            return (TArg)Unpack(args, typeof(TArg), index);
-        }
+        return (TArg)Unpack(args, typeof(TArg), index);
+    }
 
-        public static void Validate(object[] args, Type[] expected)
-        {
-            if (args.Length > expected.Length)
-                throw new ArgumentException(
-                    string.Format(ParameterConversionResources.TooManyParameters, expected.Length, args.Length));
+    public static void Validate(object[] args, Type[] expected)
+    {
+        if (args.Length > expected.Length)
+            throw new ArgumentException(
+                                        string.Format(ParameterConversionResources.TooManyParameters, expected.Length, args.Length));
 
-            for (int i = 0; i < expected.Length; ++i)
-                Unpack(args, expected[i], i);
-        }
+        for (int i = 0; i < expected.Length; ++i)
+            Unpack(args, expected[i], i);
     }
 }

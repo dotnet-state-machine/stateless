@@ -1,24 +1,23 @@
 ﻿using System;
 
-namespace BugTrackerExample
+namespace BugTrackerExample; 
+
+internal static class Program
 {
-    internal static class Program
+    private static void Main()
     {
-        private static void Main()
-        {
-            var bug = new Bug("Incorrect stock count");
+        var bug = new Bug("Incorrect stock count");
 
-            bug.Assign("Joe");
-            bug.Defer();
-            bug.Assign("Harry");
-            bug.Assign("Fred");
-            bug.Close();
+        bug.Assign("Joe");
+        bug.Defer();
+        bug.Assign("Harry");
+        bug.Assign("Fred");
+        bug.Close();
 
-            Console.WriteLine();
-            Console.WriteLine("State machine:");
-            Console.WriteLine(bug.ToDotGraph());
+        Console.WriteLine();
+        Console.WriteLine("State machine:");
+        Console.WriteLine(bug.ToDotGraph());
 
-            Console.ReadKey(false);
-        }
+        Console.ReadKey(false);
     }
 }

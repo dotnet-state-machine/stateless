@@ -63,13 +63,13 @@ namespace Stateless
                     await Superstate.DeactivateAsync().ConfigureAwait(false);
             }
 
-            async Task ExecuteActivationActionsAsync()
+            private async Task ExecuteActivationActionsAsync()
             {
                 foreach (var action in ActivateActions)
                     await action.ExecuteAsync().ConfigureAwait(false);
             }
 
-            async Task ExecuteDeactivationActionsAsync()
+            private async Task ExecuteDeactivationActionsAsync()
             {
                 foreach (var action in DeactivateActions)
                     await action.ExecuteAsync().ConfigureAwait(false);
@@ -123,13 +123,13 @@ namespace Stateless
                 return transition;
             }
 
-            async Task ExecuteEntryActionsAsync(Transition transition, object[] entryArgs)
+            private async Task ExecuteEntryActionsAsync(Transition transition, object[] entryArgs)
             {
                 foreach (var action in EntryActions)
                     await action.ExecuteAsync(transition, entryArgs).ConfigureAwait(false);
             }
 
-            async Task ExecuteExitActionsAsync(Transition transition)
+            private async Task ExecuteExitActionsAsync(Transition transition)
             {
                 foreach (var action in ExitActions)
                     await action.ExecuteAsync(transition).ConfigureAwait(false);

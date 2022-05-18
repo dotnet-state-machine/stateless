@@ -2,56 +2,55 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Stateless
+namespace Stateless; 
+
+public partial class StateMachine<TState, TTrigger>
 {
-    public partial class StateMachine<TState, TTrigger>
+    private abstract class UnhandledTriggerAction
     {
-        abstract class UnhandledTriggerAction
+        public abstract void Execute(TState      state, TTrigger trigger, ICollection<string> unmetGuards);
+        public abstract Task ExecuteAsync(TState state, TTrigger trigger, ICollection<string> unmetGuards);
+
+        internal class Sync : UnhandledTriggerAction
         {
-            public abstract void Execute(TState state, TTrigger trigger, ICollection<string> unmetGuards);
-            public abstract Task ExecuteAsync(TState state, TTrigger trigger, ICollection<string> unmetGuards);
+            private readonly Action<TState, TTrigger, ICollection<string>> _action;
 
-            internal class Sync : UnhandledTriggerAction
+            internal Sync(Action<TState, TTrigger, ICollection<string>> action = null)
             {
-                readonly Action<TState, TTrigger, ICollection<string>> _action;
-
-                internal Sync(Action<TState, TTrigger, ICollection<string>> action = null)
-                {
-                    _action = action;
-                }
-
-                public override void Execute(TState state, TTrigger trigger, ICollection<string> unmetGuards)
-                {
-                    _action(state, trigger, unmetGuards);
-                }
-
-                public override Task ExecuteAsync(TState state, TTrigger trigger, ICollection<string> unmetGuards)
-                {
-                    Execute(state, trigger, unmetGuards);
-                    return TaskResult.Done;
-                }
+                _action = action;
             }
 
-            internal class Async : UnhandledTriggerAction
+            public override void Execute(TState state, TTrigger trigger, ICollection<string> unmetGuards)
             {
-                readonly Func<TState, TTrigger, ICollection<string>, Task> _action;
+                _action(state, trigger, unmetGuards);
+            }
 
-                internal Async(Func<TState, TTrigger, ICollection<string>, Task> action)
-                {
-                    _action = action;
-                }
+            public override Task ExecuteAsync(TState state, TTrigger trigger, ICollection<string> unmetGuards)
+            {
+                Execute(state, trigger, unmetGuards);
+                return TaskResult.Done;
+            }
+        }
 
-                public override void Execute(TState state, TTrigger trigger, ICollection<string> unmetGuards)
-                {
-                    throw new InvalidOperationException(
-                        "Cannot execute asynchronous action specified in OnUnhandledTrigger. " +
-                        "Use asynchronous version of Fire [FireAsync]");
-                }
+        internal class Async : UnhandledTriggerAction
+        {
+            private readonly Func<TState, TTrigger, ICollection<string>, Task> _action;
 
-                public override Task ExecuteAsync(TState state, TTrigger trigger, ICollection<string> unmetGuards)
-                {
-                    return _action(state, trigger, unmetGuards);
-                }
+            internal Async(Func<TState, TTrigger, ICollection<string>, Task> action)
+            {
+                _action = action;
+            }
+
+            public override void Execute(TState state, TTrigger trigger, ICollection<string> unmetGuards)
+            {
+                throw new InvalidOperationException(
+                                                    "Cannot execute asynchronous action specified in OnUnhandledTrigger. " +
+                                                    "Use asynchronous version of Fire [FireAsync]");
+            }
+
+            public override Task ExecuteAsync(TState state, TTrigger trigger, ICollection<string> unmetGuards)
+            {
+                return _action(state, trigger, unmetGuards);
             }
         }
     }

@@ -110,7 +110,7 @@ namespace Stateless
         /// </summary>
         /// <param name="trigger">The trigger. </param>
         /// <param name="args">A variable-length parameters list containing arguments. </param>
-        async Task InternalFireAsync(TTrigger trigger, params object[] args)
+        private async Task InternalFireAsync(TTrigger trigger, params object[] args)
         {
             switch (_firingMode)
             {
@@ -132,7 +132,7 @@ namespace Stateless
         /// </summary>
         /// <param name="trigger">  The trigger. </param>
         /// <param name="args">     A variable-length parameters list containing arguments. </param>
-        async Task InternalFireQueuedAsync(TTrigger trigger, params object[] args)
+        private async Task InternalFireQueuedAsync(TTrigger trigger, params object[] args)
         {
             if (_firing)
             {
@@ -158,7 +158,7 @@ namespace Stateless
             }
         }
 
-        async Task InternalFireOneAsync(TTrigger trigger, params object[] args)
+        private async Task InternalFireOneAsync(TTrigger trigger, params object[] args)
         {
             // If this is a trigger with parameters, we must validate the parameter(s)
             if (_triggerConfiguration.TryGetValue(trigger, out TriggerWithParameters configuration))

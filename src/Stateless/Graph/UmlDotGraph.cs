@@ -1,23 +1,22 @@
 ﻿using Stateless.Reflection;
 
-namespace Stateless.Graph
+namespace Stateless.Graph; 
+
+/// <summary>
+/// Class to generate a DOT graph in UML format
+/// </summary>
+public static class UmlDotGraph
 {
     /// <summary>
-    /// Class to generate a DOT graph in UML format
+    /// Generate a UML DOT graph from the state machine info
     /// </summary>
-    public static class UmlDotGraph
+    /// <param name="machineInfo"></param>
+    /// <returns></returns>
+    public static string Format(StateMachineInfo machineInfo)
     {
-        /// <summary>
-        /// Generate a UML DOT graph from the state machine info
-        /// </summary>
-        /// <param name="machineInfo"></param>
-        /// <returns></returns>
-        public static string Format(StateMachineInfo machineInfo)
-        {
-            var graph = new StateGraph(machineInfo);
+        var graph = new StateGraph(machineInfo);
 
-            return graph.ToGraph(new UmlDotGraphStyle());
-        }
-
+        return graph.ToGraph(new UmlDotGraphStyle());
     }
+
 }

@@ -1,67 +1,66 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Stateless
+namespace Stateless; 
+
+public partial class StateMachine<TState, TTrigger>
 {
-    public partial class StateMachine<TState, TTrigger>
+    internal abstract class ActivateActionBehaviour
     {
-        internal abstract class ActivateActionBehaviour
+        private readonly TState _state;
+
+        protected ActivateActionBehaviour(TState state, Reflection.InvocationInfo actionDescription)
         {
-            readonly TState _state;
+            _state      = state;
+            Description = actionDescription ?? throw new ArgumentNullException(nameof(actionDescription));
+        }
 
-            protected ActivateActionBehaviour(TState state, Reflection.InvocationInfo actionDescription)
+        internal Reflection.InvocationInfo Description { get; }
+
+        public abstract void Execute();
+        public abstract Task ExecuteAsync();
+
+        public class Sync : ActivateActionBehaviour
+        {
+            private readonly Action _action;
+
+            public Sync(TState state, Action action, Reflection.InvocationInfo actionDescription)
+                : base(state, actionDescription)
             {
-                _state = state;
-                Description = actionDescription ?? throw new ArgumentNullException(nameof(actionDescription));
+                _action = action;
             }
 
-            internal Reflection.InvocationInfo Description { get; }
-
-            public abstract void Execute();
-            public abstract Task ExecuteAsync();
-
-            public class Sync : ActivateActionBehaviour
+            public override void Execute()
             {
-                readonly Action _action;
-
-                public Sync(TState state, Action action, Reflection.InvocationInfo actionDescription)
-                    : base(state, actionDescription)
-                {
-                    _action = action;
-                }
-
-                public override void Execute()
-                {
-                    _action();
-                }
-
-                public override Task ExecuteAsync()
-                {
-                    Execute();
-                    return TaskResult.Done;
-                }
+                _action();
             }
 
-            public class Async : ActivateActionBehaviour
+            public override Task ExecuteAsync()
             {
-                readonly Func<Task> _action;
+                Execute();
+                return TaskResult.Done;
+            }
+        }
 
-                public Async(TState state, Func<Task> action, Reflection.InvocationInfo actionDescription)
-                    : base(state, actionDescription)
-                {
-                    _action = action;
-                }
+        public class Async : ActivateActionBehaviour
+        {
+            private readonly Func<Task> _action;
 
-                public override void Execute()
-                {
-                    throw new InvalidOperationException(
-                                                        $"Cannot execute asynchronous action specified in OnActivateAsync for '{_state}' state. Use asynchronous version of Activate [ActivateAsync]");
-                }
+            public Async(TState state, Func<Task> action, Reflection.InvocationInfo actionDescription)
+                : base(state, actionDescription)
+            {
+                _action = action;
+            }
 
-                public override Task ExecuteAsync()
-                {
-                    return _action();
-                }
+            public override void Execute()
+            {
+                throw new InvalidOperationException(
+                                                    $"Cannot execute asynchronous action specified in OnActivateAsync for '{_state}' state. Use asynchronous version of Activate [ActivateAsync]");
+            }
+
+            public override Task ExecuteAsync()
+            {
+                return _action();
             }
         }
     }

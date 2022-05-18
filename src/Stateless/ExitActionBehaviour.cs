@@ -1,62 +1,61 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Stateless
+namespace Stateless; 
+
+public partial class StateMachine<TState, TTrigger>
 {
-    public partial class StateMachine<TState, TTrigger>
+    internal abstract class ExitActionBehavior
     {
-        internal abstract class ExitActionBehavior
+        public abstract void Execute(Transition      transition);
+        public abstract Task ExecuteAsync(Transition transition);
+
+        protected ExitActionBehavior(Reflection.InvocationInfo actionDescription)
         {
-            public abstract void Execute(Transition transition);
-            public abstract Task ExecuteAsync(Transition transition);
+            Description = actionDescription ?? throw new ArgumentNullException(nameof(actionDescription));
+        }
 
-            protected ExitActionBehavior(Reflection.InvocationInfo actionDescription)
+        internal Reflection.InvocationInfo Description { get; }
+
+        public class Sync : ExitActionBehavior
+        {
+            private readonly Action<Transition> _action;
+
+            public Sync(Action<Transition> action, Reflection.InvocationInfo actionDescription) : base(actionDescription)
             {
-                Description = actionDescription ?? throw new ArgumentNullException(nameof(actionDescription));
+                _action = action;
             }
 
-            internal Reflection.InvocationInfo Description { get; }
-
-            public class Sync : ExitActionBehavior
+            public override void Execute(Transition transition)
             {
-                readonly Action<Transition> _action;
-
-                public Sync(Action<Transition> action, Reflection.InvocationInfo actionDescription) : base(actionDescription)
-                {
-                    _action = action;
-                }
-
-                public override void Execute(Transition transition)
-                {
-                    _action(transition);
-                }
-
-                public override Task ExecuteAsync(Transition transition)
-                {
-                    Execute(transition);
-                    return TaskResult.Done;
-                }
+                _action(transition);
             }
 
-            public class Async : ExitActionBehavior
+            public override Task ExecuteAsync(Transition transition)
             {
-                readonly Func<Transition, Task> _action;
+                Execute(transition);
+                return TaskResult.Done;
+            }
+        }
 
-                public Async(Func<Transition, Task> action, Reflection.InvocationInfo actionDescription) : base(actionDescription)
-                {
-                    _action = action;
-                }
+        public class Async : ExitActionBehavior
+        {
+            private readonly Func<Transition, Task> _action;
 
-                public override void Execute(Transition transition)
-                {
-                    throw new InvalidOperationException(
-                                                        $"Cannot execute asynchronous action specified in OnExit event for '{transition.Source}' state. Use asynchronous version of Fire [FireAsync]");
-                }
+            public Async(Func<Transition, Task> action, Reflection.InvocationInfo actionDescription) : base(actionDescription)
+            {
+                _action = action;
+            }
 
-                public override Task ExecuteAsync(Transition transition)
-                {
-                    return _action(transition);
-                }
+            public override void Execute(Transition transition)
+            {
+                throw new InvalidOperationException(
+                                                    $"Cannot execute asynchronous action specified in OnExit event for '{transition.Source}' state. Use asynchronous version of Fire [FireAsync]");
+            }
+
+            public override Task ExecuteAsync(Transition transition)
+            {
+                return _action(transition);
             }
         }
     }

@@ -2,118 +2,117 @@
 using System.Linq;
 using System.Text;
 
-namespace Stateless.Graph
+namespace Stateless.Graph; 
+
+/// <summary>
+/// Generate DOT graphs in basic UML style
+/// </summary>
+public class UmlDotGraphStyle : GraphStyleBase
 {
-    /// <summary>
-    /// Generate DOT graphs in basic UML style
-    /// </summary>
-    public class UmlDotGraphStyle : GraphStyleBase
+    /// <summary>Get the text that starts a new graph</summary>
+    /// <returns></returns>
+    public override string GetPrefix()
     {
-        /// <summary>Get the text that starts a new graph</summary>
-        /// <returns></returns>
-        public override string GetPrefix()
+        return "digraph {\n"
+             + "compound=true;\n"
+             + "node [shape=Mrecord]\n"
+             + "rankdir=\"LR\"\n";
+    }
+
+    /// <summary>
+    /// Returns the formatted text for a single superstate and its substates.
+    /// For example, for DOT files this would be a subgraph containing nodes for all the substates.
+    /// </summary>
+    /// <param name="stateInfo">The superstate to generate text for</param>
+    /// <returns>Description of the superstate, and all its substates, in the desired format</returns>
+    public override string FormatOneCluster(SuperState stateInfo)
+    {
+        var sourceName = stateInfo.StateName;
+
+        StringBuilder label = new StringBuilder($"{sourceName}");
+
+        if ((stateInfo.EntryActions.Count > 0) || (stateInfo.ExitActions.Count > 0))
         {
-            return "digraph {\n"
-                      + "compound=true;\n"
-                      + "node [shape=Mrecord]\n"
-                      + "rankdir=\"LR\"\n";
+            label.Append("\\n----------");
+            label.Append(string.Concat(stateInfo.EntryActions.Select(act => $"\\nentry / {act}")));
+            label.Append(string.Concat(stateInfo.ExitActions.Select(act => $"\\nexit / {act}")));
         }
 
-        /// <summary>
-        /// Returns the formatted text for a single superstate and its substates.
-        /// For example, for DOT files this would be a subgraph containing nodes for all the substates.
-        /// </summary>
-        /// <param name="stateInfo">The superstate to generate text for</param>
-        /// <returns>Description of the superstate, and all its substates, in the desired format</returns>
-        public override string FormatOneCluster(SuperState stateInfo)
+        var stateRepresentationString = $"\nsubgraph \"cluster{stateInfo.NodeName}\"\n\t{{\n\tlabel = \"{label}\"\n";
+
+        foreach (var subState in stateInfo.SubStates)
         {
-            var sourceName = stateInfo.StateName;
-
-            StringBuilder label = new StringBuilder($"{sourceName}");
-
-            if ((stateInfo.EntryActions.Count > 0) || (stateInfo.ExitActions.Count > 0))
-            {
-                label.Append("\\n----------");
-                label.Append(string.Concat(stateInfo.EntryActions.Select(act => $"\\nentry / {act}")));
-                label.Append(string.Concat(stateInfo.ExitActions.Select(act => $"\\nexit / {act}")));
-            }
-
-            var stateRepresentationString = $"\nsubgraph \"cluster{stateInfo.NodeName}\"\n\t{{\n\tlabel = \"{label}\"\n";
-
-            foreach (var subState in stateInfo.SubStates)
-            {
-                stateRepresentationString += FormatOneState(subState);
-            }
-
-            stateRepresentationString += "}\n";
-
-            return stateRepresentationString;
+            stateRepresentationString += FormatOneState(subState);
         }
 
-        /// <summary>
-        /// Generate the text for a single state
-        /// </summary>
-        /// <param name="state">The state to generate text for</param>
-        /// <returns></returns>
-        public override string FormatOneState(State state)
-        {
-            if ((state.EntryActions.Count == 0) && (state.ExitActions.Count == 0))
-                return $"\"{state.StateName}\" [label=\"{state.StateName}\"];\n";
+        stateRepresentationString += "}\n";
 
-            string f = $"\"{state.StateName}\" [label=\"{state.StateName}|";
+        return stateRepresentationString;
+    }
 
-            List<string> es = new List<string>();
-            es.AddRange(state.EntryActions.Select(act => $"entry / {act}"));
-            es.AddRange(state.ExitActions.Select(act => $"exit / {act}"));
+    /// <summary>
+    /// Generate the text for a single state
+    /// </summary>
+    /// <param name="state">The state to generate text for</param>
+    /// <returns></returns>
+    public override string FormatOneState(State state)
+    {
+        if ((state.EntryActions.Count == 0) && (state.ExitActions.Count == 0))
+            return $"\"{state.StateName}\" [label=\"{state.StateName}\"];\n";
 
-            f += string.Join("\\n", es);
+        string f = $"\"{state.StateName}\" [label=\"{state.StateName}|";
 
-            f += "\"];\n";
+        List<string> es = new List<string>();
+        es.AddRange(state.EntryActions.Select(act => $"entry / {act}"));
+        es.AddRange(state.ExitActions.Select(act => $"exit / {act}"));
 
-            return f;
-        }
+        f += string.Join("\\n", es);
 
-        /// <summary>
-        /// Generate text for a single transition
-        /// </summary>
-        /// <param name="sourceNodeName"></param>
-        /// <param name="trigger"></param>
-        /// <param name="actions"></param>
-        /// <param name="destinationNodeName"></param>
-        /// <param name="guards"></param>
-        /// <returns></returns>
-        public override string FormatOneTransition(string sourceNodeName, string trigger, IEnumerable<string> actions, string destinationNodeName, IEnumerable<string> guards)
-        {
-            string label = trigger ?? "";
+        f += "\"];\n";
 
-            var actionsString = string.Join(", ", actions ?? Enumerable.Empty<string>());
-            if (!string.IsNullOrEmpty(actionsString))
-                label += $" / {actionsString}";
+        return f;
+    }
+
+    /// <summary>
+    /// Generate text for a single transition
+    /// </summary>
+    /// <param name="sourceNodeName"></param>
+    /// <param name="trigger"></param>
+    /// <param name="actions"></param>
+    /// <param name="destinationNodeName"></param>
+    /// <param name="guards"></param>
+    /// <returns></returns>
+    public override string FormatOneTransition(string sourceNodeName, string trigger, IEnumerable<string> actions, string destinationNodeName, IEnumerable<string> guards)
+    {
+        string label = trigger ?? "";
+
+        var actionsString = string.Join(", ", actions ?? Enumerable.Empty<string>());
+        if (!string.IsNullOrEmpty(actionsString))
+            label += $" / {actionsString}";
             
-            foreach (var info in guards)
-            {
-                if (label.Length > 0)
-                    label += " ";
-                label += $"[{info}]";
-            }
-
-            return FormatOneLine(sourceNodeName, destinationNodeName, label);
-        }
-
-        /// <summary>
-        /// Generate the text for a single decision node
-        /// </summary>
-        /// <param name="nodeName">Name of the node</param>
-        /// <param name="label">Label for the node</param>
-        /// <returns></returns>
-        public override string FormatOneDecisionNode(string nodeName, string label)
+        foreach (var info in guards)
         {
-            return $"\"{nodeName}\" [shape = \"diamond\", label = \"{label}\"];\n";
+            if (label.Length > 0)
+                label += " ";
+            label += $"[{info}]";
         }
 
-        private static string FormatOneLine(string fromNodeName, string toNodeName, string label)
-        {
-            return $"\"{fromNodeName}\" -> \"{toNodeName}\" [style=\"solid\", label=\"{label}\"];";
-        }
+        return FormatOneLine(sourceNodeName, destinationNodeName, label);
+    }
+
+    /// <summary>
+    /// Generate the text for a single decision node
+    /// </summary>
+    /// <param name="nodeName">Name of the node</param>
+    /// <param name="label">Label for the node</param>
+    /// <returns></returns>
+    public override string FormatOneDecisionNode(string nodeName, string label)
+    {
+        return $"\"{nodeName}\" [shape = \"diamond\", label = \"{label}\"];\n";
+    }
+
+    private static string FormatOneLine(string fromNodeName, string toNodeName, string label)
+    {
+        return $"\"{fromNodeName}\" -> \"{toNodeName}\" [style=\"solid\", label=\"{label}\"];";
     }
 }

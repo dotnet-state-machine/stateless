@@ -1,18 +1,17 @@
 ﻿using System.Collections.Generic;
 
-namespace Stateless
+namespace Stateless; 
+
+public partial class StateMachine<TState, TTrigger>
 {
-    public partial class StateMachine<TState, TTrigger>
+    internal class TriggerBehaviourResult
     {
-        internal class TriggerBehaviourResult
+        public TriggerBehaviourResult(TriggerBehaviour handler, ICollection<string> unmetGuardConditions)
         {
-            public TriggerBehaviourResult(TriggerBehaviour handler, ICollection<string> unmetGuardConditions)
-            {
-                Handler = handler;
-                UnmetGuardConditions = unmetGuardConditions;
-            }
-            public TriggerBehaviour Handler { get; }
-            public ICollection<string> UnmetGuardConditions { get; }
+            Handler              = handler;
+            UnmetGuardConditions = unmetGuardConditions;
         }
+        public TriggerBehaviour    Handler              { get; }
+        public ICollection<string> UnmetGuardConditions { get; }
     }
 }
