@@ -36,7 +36,7 @@ public class DynamicTriggerBehaviour
         var sm = new StateMachine<State, Trigger>(State.A);
         var trigger = sm.SetTriggerParameters<int>(Trigger.X);
         sm.Configure(State.A)
-          .PermitDynamicIf(trigger, (i) => i == 1 ? State.C : State.B, (i) => i == 1);
+          .PermitDynamicIf(trigger, i => i == 1 ? State.C : State.B, i => i == 1);
 
         // Should not throw
         var unused = sm.GetPermittedTriggers().ToList();

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Stateless.Reflection;
 
 namespace Stateless; 
 
@@ -90,7 +91,7 @@ public partial class StateMachine<TState, TTrigger>
         internal TransitionGuard(IEnumerable<Tuple<Func<bool>, string>> guards)
         {
             Conditions = guards
-                        .Select(g => new GuardCondition(g.Item1, Reflection.InvocationInfo.Create(g.Item1, g.Item2)))
+                        .Select(g => new GuardCondition(g.Item1, InvocationInfo.Create(g.Item1, g.Item2)))
                         .ToList();
         }
 
@@ -98,14 +99,14 @@ public partial class StateMachine<TState, TTrigger>
         {
             Conditions = new List<GuardCondition>
             {
-                new(guard, Reflection.InvocationInfo.Create(guard, description))
+                new(guard, InvocationInfo.Create(guard, description))
             };
         }
 
         internal TransitionGuard(IEnumerable<Tuple<Func<object[], bool>, string>> guards)
         {
             Conditions = guards
-                        .Select(g => new GuardCondition(g.Item1, Reflection.InvocationInfo.Create(g.Item1, g.Item2)))
+                        .Select(g => new GuardCondition(g.Item1, InvocationInfo.Create(g.Item1, g.Item2)))
                         .ToList();
         }
 
@@ -113,7 +114,7 @@ public partial class StateMachine<TState, TTrigger>
         {
             Conditions = new List<GuardCondition>
             {
-                new(guard, Reflection.InvocationInfo.Create(guard, description))
+                new(guard, InvocationInfo.Create(guard, description))
             };
         }
             

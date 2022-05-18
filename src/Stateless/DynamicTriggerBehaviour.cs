@@ -1,4 +1,5 @@
 ﻿using System;
+using Stateless.Reflection;
 
 namespace Stateless; 
 
@@ -7,10 +8,10 @@ public partial class StateMachine<TState, TTrigger>
     internal class DynamicTriggerBehaviour : TriggerBehaviour
     {
         private readonly Func<object[], TState>           _destination;
-        internal Reflection.DynamicTransitionInfo TransitionInfo { get; }
+        internal DynamicTransitionInfo TransitionInfo { get; }
 
         public DynamicTriggerBehaviour(TTrigger        trigger,         Func<object[], TState>           destination, 
-                                       TransitionGuard transitionGuard, Reflection.DynamicTransitionInfo info)
+                                       TransitionGuard transitionGuard, DynamicTransitionInfo info)
             : base(trigger, transitionGuard)
         {
             _destination   = destination ?? throw new ArgumentNullException(nameof(destination));

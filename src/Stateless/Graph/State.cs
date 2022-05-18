@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-
 using Stateless.Reflection;
 
 namespace Stateless.Graph; 

@@ -2,6 +2,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Stateless.Reflection;
 
 namespace Stateless
 {
@@ -71,8 +72,8 @@ namespace Stateless
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
                 _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Async(trigger.Trigger, guard, (t, args) => internalAction(
-                    ParameterConversion.Unpack<TArg0>(args, 0),
-                    ParameterConversion.Unpack<TArg1>(args, 1), t)));
+                                                               ParameterConversion.Unpack<TArg0>(args, 0),
+                                                               ParameterConversion.Unpack<TArg1>(args, 1), t)));
                 return this;
             }
 
@@ -92,9 +93,9 @@ namespace Stateless
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
                 _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Async(trigger.Trigger, guard, (t, args) => internalAction(
-                    ParameterConversion.Unpack<TArg0>(args, 0),
-                    ParameterConversion.Unpack<TArg1>(args, 1),
-                    ParameterConversion.Unpack<TArg2>(args, 2), t)));
+                                                               ParameterConversion.Unpack<TArg0>(args, 0),
+                                                               ParameterConversion.Unpack<TArg1>(args, 1),
+                                                               ParameterConversion.Unpack<TArg2>(args, 2), t)));
                 return this;
             }
 
@@ -169,7 +170,7 @@ namespace Stateless
             {
                 _representation.AddActivateAction(
                     activateAction,
-                    Reflection.InvocationInfo.Create(activateAction, activateActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                    InvocationInfo.Create(activateAction, activateActionDescription, InvocationInfo.Timing.Asynchronous));
                 return this;
             }
 
@@ -184,7 +185,7 @@ namespace Stateless
             {
                 _representation.AddDeactivateAction(
                     deactivateAction,
-                    Reflection.InvocationInfo.Create(deactivateAction, deactivateActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                    InvocationInfo.Create(deactivateAction, deactivateActionDescription, InvocationInfo.Timing.Asynchronous));
                 return this;
             }
 
@@ -201,7 +202,7 @@ namespace Stateless
 
                 _representation.AddEntryAction(
                     (_, _) => entryAction(),
-                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                    InvocationInfo.Create(entryAction, entryActionDescription, InvocationInfo.Timing.Asynchronous));
                 return this;
 
             }
@@ -219,7 +220,7 @@ namespace Stateless
 
                 _representation.AddEntryAction(
                     (t, _) => entryAction(t),
-                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                    InvocationInfo.Create(entryAction, entryActionDescription, InvocationInfo.Timing.Asynchronous));
                 return this;
             }
 
@@ -238,7 +239,7 @@ namespace Stateless
                 _representation.AddEntryAction(
                     trigger,
                     (_, _) => entryAction(),
-                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                    InvocationInfo.Create(entryAction, entryActionDescription, InvocationInfo.Timing.Asynchronous));
                 return this;
             }
 
@@ -257,7 +258,7 @@ namespace Stateless
                 _representation.AddEntryAction(
                     trigger,
                     (t, _) => entryAction(t),
-                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                    InvocationInfo.Create(entryAction, entryActionDescription, InvocationInfo.Timing.Asynchronous));
                 return this;
             }
 
@@ -279,7 +280,7 @@ namespace Stateless
                     trigger.Trigger,
                     (_, args) => entryAction(
                         ParameterConversion.Unpack<TArg0>(args, 0)),
-                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                    InvocationInfo.Create(entryAction, entryActionDescription, InvocationInfo.Timing.Asynchronous));
                 return this;
             }
 
@@ -301,7 +302,7 @@ namespace Stateless
                     trigger.Trigger,
                     (t, args) => entryAction(
                         ParameterConversion.Unpack<TArg0>(args, 0), t),
-                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                    InvocationInfo.Create(entryAction, entryActionDescription, InvocationInfo.Timing.Asynchronous));
                 return this;
             }
 
@@ -324,7 +325,7 @@ namespace Stateless
                     (_, args) => entryAction(
                         ParameterConversion.Unpack<TArg0>(args, 0),
                         ParameterConversion.Unpack<TArg1>(args, 1)),
-                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                    InvocationInfo.Create(entryAction, entryActionDescription, InvocationInfo.Timing.Asynchronous));
                 return this;
             }
 
@@ -347,7 +348,7 @@ namespace Stateless
                     (t, args) => entryAction(
                         ParameterConversion.Unpack<TArg0>(args, 0),
                         ParameterConversion.Unpack<TArg1>(args, 1), t),
-                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                    InvocationInfo.Create(entryAction, entryActionDescription, InvocationInfo.Timing.Asynchronous));
                 return this;
             }
 
@@ -372,7 +373,7 @@ namespace Stateless
                         ParameterConversion.Unpack<TArg0>(args, 0),
                         ParameterConversion.Unpack<TArg1>(args, 1),
                         ParameterConversion.Unpack<TArg2>(args, 2)),
-                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                    InvocationInfo.Create(entryAction, entryActionDescription, InvocationInfo.Timing.Asynchronous));
                 return this;
             }
 
@@ -397,7 +398,7 @@ namespace Stateless
                         ParameterConversion.Unpack<TArg0>(args, 0),
                         ParameterConversion.Unpack<TArg1>(args, 1),
                         ParameterConversion.Unpack<TArg2>(args, 2), t),
-                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                    InvocationInfo.Create(entryAction, entryActionDescription, InvocationInfo.Timing.Asynchronous));
                 return this;
             }
 
@@ -414,7 +415,7 @@ namespace Stateless
 
                 _representation.AddExitAction(
                     _ => exitAction(),
-                    Reflection.InvocationInfo.Create(exitAction, exitActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                    InvocationInfo.Create(exitAction, exitActionDescription, InvocationInfo.Timing.Asynchronous));
                 return this;
             }
 
@@ -429,7 +430,7 @@ namespace Stateless
             {
                 _representation.AddExitAction(
                     exitAction,
-                    Reflection.InvocationInfo.Create(exitAction, exitActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                    InvocationInfo.Create(exitAction, exitActionDescription, InvocationInfo.Timing.Asynchronous));
                 return this;
             }
         }

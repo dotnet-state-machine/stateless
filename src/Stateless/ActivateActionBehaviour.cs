@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Stateless.Reflection;
 
 namespace Stateless; 
 
@@ -9,13 +10,13 @@ public partial class StateMachine<TState, TTrigger>
     {
         private readonly TState _state;
 
-        protected ActivateActionBehaviour(TState state, Reflection.InvocationInfo actionDescription)
+        protected ActivateActionBehaviour(TState state, InvocationInfo actionDescription)
         {
             _state      = state;
             Description = actionDescription ?? throw new ArgumentNullException(nameof(actionDescription));
         }
 
-        internal Reflection.InvocationInfo Description { get; }
+        internal InvocationInfo Description { get; }
 
         public abstract void Execute();
         public abstract Task ExecuteAsync();
@@ -24,7 +25,7 @@ public partial class StateMachine<TState, TTrigger>
         {
             private readonly Action _action;
 
-            public Sync(TState state, Action action, Reflection.InvocationInfo actionDescription)
+            public Sync(TState state, Action action, InvocationInfo actionDescription)
                 : base(state, actionDescription)
             {
                 _action = action;
@@ -46,7 +47,7 @@ public partial class StateMachine<TState, TTrigger>
         {
             private readonly Func<Task> _action;
 
-            public Async(TState state, Func<Task> action, Reflection.InvocationInfo actionDescription)
+            public Async(TState state, Func<Task> action, InvocationInfo actionDescription)
                 : base(state, actionDescription)
             {
                 _action = action;

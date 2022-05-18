@@ -11,7 +11,7 @@ public class StateMachineFixture
         StateA   = "A", StateB   = "B", StateC = "C",
         TriggerX = "X", TriggerY = "Y";
 
-    private int _numCalls = 0;
+    private int _numCalls;
 
     private void CountCalls()
     {
@@ -76,7 +76,7 @@ public class StateMachineFixture
     {
         var state = State.B;
         var count = 0;
-        var sm = new StateMachine<State, Trigger>(() => state, (s) => { state = s; count++; });
+        var sm = new StateMachine<State, Trigger>(() => state, s => { state = s; count++; });
         sm.Configure(State.B).Permit(Trigger.X, State.C);
         sm.Fire(Trigger.X);
         Assert.Equal(1, count);
@@ -921,7 +921,7 @@ public class StateMachineFixture
     {
         var trigger = Trigger.X;
         var sm = new StateMachine<State, Trigger>(State.A);
-        sm.Configure(State.A).InternalTransition(trigger, (_) => { });
+        sm.Configure(State.A).InternalTransition(trigger, _ => { });
         Assert.True(sm.CanFire(trigger));
     }
 
@@ -930,7 +930,7 @@ public class StateMachineFixture
     {
         var trigger = Trigger.X;
         var sm = new StateMachine<State, Trigger>(State.A);
-        sm.Configure(State.A).InternalTransition(trigger, (_) => { });
+        sm.Configure(State.A).InternalTransition(trigger, _ => { });
         Assert.Single(sm.PermittedTriggers, trigger);
     }
 

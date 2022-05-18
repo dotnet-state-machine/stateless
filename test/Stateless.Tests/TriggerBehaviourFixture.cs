@@ -9,7 +9,7 @@ public class TriggerBehaviourFixture
     public void ExposesCorrectUnderlyingTrigger()
     {
         var transitioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
-         Trigger.X, State.C, null);
+                                                              Trigger.X, State.C, null);
 
         Assert.Equal(Trigger.X, transitioning.Trigger);
     }
@@ -23,7 +23,7 @@ public class TriggerBehaviourFixture
     public void WhenGuardConditionFalse_GuardConditionsMetIsFalse()
     {
         var transitioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
-         Trigger.X, State.C, new StateMachine<State, Trigger>.TransitionGuard(False));
+                                                              Trigger.X, State.C, new StateMachine<State, Trigger>.TransitionGuard(False));
 
         Assert.False(transitioning.GuardConditionsMet());
     }
@@ -37,7 +37,7 @@ public class TriggerBehaviourFixture
     public void WhenGuardConditionTrue_GuardConditionsMetIsTrue()
     {
         var transitioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
-         Trigger.X, State.C, new StateMachine<State, Trigger>.TransitionGuard(True));
+                                                              Trigger.X, State.C, new StateMachine<State, Trigger>.TransitionGuard(True));
 
         Assert.True(transitioning.GuardConditionsMet());
     }
@@ -51,7 +51,7 @@ public class TriggerBehaviourFixture
         };
 
         var transitioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
-         Trigger.X, State.C, new StateMachine<State, Trigger>.TransitionGuard(falseGuard));
+                                                              Trigger.X, State.C, new StateMachine<State, Trigger>.TransitionGuard(falseGuard));
 
         Assert.True(transitioning.GuardConditionsMet());
     }
@@ -65,7 +65,7 @@ public class TriggerBehaviourFixture
         };
 
         var transitioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
-         Trigger.X, State.C, new StateMachine<State, Trigger>.TransitionGuard(falseGuard));
+                                                              Trigger.X, State.C, new StateMachine<State, Trigger>.TransitionGuard(falseGuard));
 
         Assert.False(transitioning.GuardConditionsMet());
     }
@@ -79,7 +79,7 @@ public class TriggerBehaviourFixture
         };
 
         var transitioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
-         Trigger.X, State.C, new StateMachine<State, Trigger>.TransitionGuard(trueGuard));
+                                                              Trigger.X, State.C, new StateMachine<State, Trigger>.TransitionGuard(trueGuard));
 
         Assert.True(transitioning.GuardConditionsMet());
     }

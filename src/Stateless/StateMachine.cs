@@ -1,7 +1,7 @@
-﻿using Stateless.Reflection;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Stateless.Reflection;
 
 namespace Stateless; 
 

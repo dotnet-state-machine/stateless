@@ -1,4 +1,5 @@
 ﻿using System;
+using Stateless.Reflection;
 
 namespace Stateless; 
 
@@ -13,12 +14,12 @@ public partial class StateMachine<TState, TTrigger>
         /// </summary>
         /// <param name="guard">No Argument Guard Condition</param>
         /// <param name="description"></param>
-        internal GuardCondition(Func<bool> guard, Reflection.InvocationInfo description)
+        internal GuardCondition(Func<bool> guard, InvocationInfo description)
             : this(_ => guard(), description)
         {
         }
 
-        internal GuardCondition(Func<object[], bool> guard, Reflection.InvocationInfo description)
+        internal GuardCondition(Func<object[], bool> guard, InvocationInfo description)
         {
             Guard             = guard       ?? throw new ArgumentNullException(nameof(guard));
             MethodDescription = description ?? throw new ArgumentNullException(nameof(description));
@@ -31,6 +32,6 @@ public partial class StateMachine<TState, TTrigger>
         internal string Description => MethodDescription.Description;
 
         // Return a more complete description of the guard method
-        internal Reflection.InvocationInfo MethodDescription { get; }
+        internal InvocationInfo MethodDescription { get; }
     }
 }

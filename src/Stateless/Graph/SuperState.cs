@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Stateless.Reflection;
 
 namespace Stateless.Graph; 
 
@@ -16,7 +17,7 @@ public class SuperState : State
     /// Constructs a new instance of SuperState.
     /// </summary>
     /// <param name="stateInfo">The super state to be represented.</param>
-    public SuperState(Reflection.StateInfo stateInfo)
+    public SuperState(StateInfo stateInfo)
         : base(stateInfo)
     {
 

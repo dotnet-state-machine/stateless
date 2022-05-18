@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Stateless.Reflection;
 
@@ -58,12 +59,12 @@ public class StateGraph
     /// <returns></returns>
     public string ToGraph(GraphStyleBase style)
     {
-        var dirgraphText = style.GetPrefix().Replace("\n", System.Environment.NewLine);
+        var dirgraphText = style.GetPrefix().Replace("\n", Environment.NewLine);
 
         // Start with the clusters
         foreach (var state in States.Values.Where(x => x is SuperState))
         {
-            dirgraphText += style.FormatOneCluster((SuperState)state).Replace("\n", System.Environment.NewLine);
+            dirgraphText += style.FormatOneCluster((SuperState)state).Replace("\n", Environment.NewLine);
         }
 
         // Next process all non-cluster states
@@ -71,27 +72,27 @@ public class StateGraph
         {
             if ((state is SuperState) || (state is Decision) || state.SuperState is { })
                 continue;
-            dirgraphText += style.FormatOneState(state).Replace("\n", System.Environment.NewLine);
+            dirgraphText += style.FormatOneState(state).Replace("\n", Environment.NewLine);
         }
 
         // Finally, add decision nodes
         foreach (var dec in Decisions)
         {
             dirgraphText += style.FormatOneDecisionNode(dec.NodeName, dec.Method.Description)
-                                 .Replace("\n", System.Environment.NewLine);
+                                 .Replace("\n", Environment.NewLine);
         }
 
         // now build behaviours
         var transits = style.FormatAllTransitions(Transitions);
         foreach (var transit in transits)
-            dirgraphText += System.Environment.NewLine + transit;
+            dirgraphText += Environment.NewLine + transit;
 
         // Add initial transition if present
         var initialStateName = _initialState.UnderlyingState.ToString();
-        dirgraphText += $"{System.Environment.NewLine} init [label=\"\", shape=point];";
-        dirgraphText += $"{System.Environment.NewLine} init -> \"{initialStateName}\"[style = \"solid\"]";
+        dirgraphText += $"{Environment.NewLine} init [label=\"\", shape=point];";
+        dirgraphText += $"{Environment.NewLine} init -> \"{initialStateName}\"[style = \"solid\"]";
 
-        dirgraphText += $"{System.Environment.NewLine}}}";
+        dirgraphText += $"{Environment.NewLine}}}";
 
         return dirgraphText;
     }

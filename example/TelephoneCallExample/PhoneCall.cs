@@ -30,7 +30,7 @@ public class PhoneCall
 
     private State _state = State.OffHook;
 
-    private readonly StateMachine<State, Trigger>                            _machine;
+    private readonly StateMachine<State, Trigger>                  _machine;
     private readonly StateMachine<State, Trigger>.TriggerWithParameters<int> _setVolumeTrigger;
 
     private readonly StateMachine<State, Trigger>.TriggerWithParameters<string> _setCalleeTrigger;
@@ -59,7 +59,7 @@ public class PhoneCall
                 .OnExit(_ => StopCallTimer())
                 .InternalTransition(Trigger.MuteMicrophone, _ => OnMute())
                 .InternalTransition(Trigger.UnmuteMicrophone, _ => OnUnmute())
-                .InternalTransition<int>(_setVolumeTrigger, (volume, _) => OnSetVolume(volume))
+                .InternalTransition(_setVolumeTrigger, (volume, _) => OnSetVolume(volume))
                 .Permit(Trigger.LeftMessage, State.OffHook)
                 .Permit(Trigger.PlacedOnHold, State.OnHold);
 

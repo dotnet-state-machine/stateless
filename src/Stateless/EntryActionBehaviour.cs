@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Stateless.Reflection;
 
 namespace Stateless; 
 
@@ -7,12 +8,12 @@ public partial class StateMachine<TState, TTrigger>
 {
     internal abstract class EntryActionBehavior
     {
-        protected EntryActionBehavior(Reflection.InvocationInfo description)
+        protected EntryActionBehavior(InvocationInfo description)
         {
             Description = description;
         }
 
-        public Reflection.InvocationInfo Description { get; }
+        public InvocationInfo Description { get; }
 
         public abstract void Execute(Transition      transition, object[] args);
         public abstract Task ExecuteAsync(Transition transition, object[] args);
@@ -21,7 +22,7 @@ public partial class StateMachine<TState, TTrigger>
         {
             private readonly Action<Transition, object[]> _action;
 
-            public Sync(Action<Transition, object[]> action, Reflection.InvocationInfo description) : base(description)
+            public Sync(Action<Transition, object[]> action, InvocationInfo description) : base(description)
             {
                 _action = action;
             }
@@ -42,7 +43,7 @@ public partial class StateMachine<TState, TTrigger>
         {
             internal TTriggerType Trigger { get; }
 
-            public SyncFrom(TTriggerType trigger, Action<Transition, object[]> action, Reflection.InvocationInfo description)
+            public SyncFrom(TTriggerType trigger, Action<Transition, object[]> action, InvocationInfo description)
                 : base(action, description)
             {
                 Trigger = trigger;
@@ -65,7 +66,7 @@ public partial class StateMachine<TState, TTrigger>
         {
             private readonly Func<Transition, object[], Task> _action;
 
-            public Async(Func<Transition, object[], Task> action, Reflection.InvocationInfo description) : base(description)
+            public Async(Func<Transition, object[], Task> action, InvocationInfo description) : base(description)
             {
                 _action = action;
             }

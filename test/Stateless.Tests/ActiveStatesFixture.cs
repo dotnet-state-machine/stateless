@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-
 using Xunit;
 
 namespace Stateless.Tests; 

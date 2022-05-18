@@ -2,9 +2,9 @@
 
 using System;
 using System.Collections.Generic;
-using Xunit;
-using Stateless.Reflection;
 using Stateless.Graph;
+using Stateless.Reflection;
+using Xunit;
 
 namespace Stateless.Tests; 
 

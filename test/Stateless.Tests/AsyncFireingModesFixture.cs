@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 
-
 namespace Stateless.Tests
 {
     /// <summary>
@@ -52,7 +51,7 @@ namespace Stateless.Tests
         public void ImmediateEntryAProcessedBeforeEterB()
         {
             var record = new List<string>();
-            var sm = new StateMachine<State, Trigger>(State.A, FiringMode.Queued);
+            var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
                 .OnEntry(() => record.Add("EnterA"))
@@ -127,7 +126,7 @@ namespace Stateless.Tests
             var record = new List<State>();
             var sm = new StateMachine<State, Trigger>(State.A, FiringMode.Immediate);
 
-            sm.OnTransitioned((t) =>
+            sm.OnTransitioned(t =>
             {
                 record.Add(t.Destination);
             });
@@ -151,7 +150,7 @@ namespace Stateless.Tests
 
             await sm.FireAsync(Trigger.X);
 
-            Assert.Equal(new List<State>() { 
+            Assert.Equal(new List<State> { 
                 State.B,
                 State.C,
                 State.A

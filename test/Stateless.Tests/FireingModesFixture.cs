@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Xunit;
 
-
 namespace Stateless.Tests; 
 
 /// <summary>
@@ -49,7 +48,7 @@ public class FireingModesFixture
     public void ImmediateEntryAProcessedBeforeEterB()
     {
         var record = new List<string>();
-        var sm = new StateMachine<State, Trigger>(State.A, FiringMode.Queued);
+        var sm = new StateMachine<State, Trigger>(State.A);
 
         sm.Configure(State.A)
           .OnEntry(() => record.Add("EnterA"))

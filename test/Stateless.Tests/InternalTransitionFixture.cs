@@ -192,13 +192,13 @@ public class InternalTransitionFixture
         var callbackInvoked = false;
 
         sm.Configure(State.B)
-          .InternalTransitionIf(trigger, (i) =>
+          .InternalTransitionIf(trigger, i =>
                                 {
                                     predicateInvoked = true;
                                     Assert.Equal(intParam, i);
                                     return true;
                                 },
-                                (i) =>
+                                i =>
                                 {
                                     callbackInvoked = true;
                                     Assert.Equal(intParam, i);

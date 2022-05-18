@@ -1,9 +1,8 @@
 #if TASKS
 
 using System;
-using System.Threading.Tasks;
 using System.Collections.Generic;
-
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Stateless.Tests
@@ -16,7 +15,7 @@ namespace Stateless.Tests
         {
             var state = State.B;
             var count = 0;
-            var sm = new StateMachine<State, Trigger>(() => state, (s) => { state = s; count++; });
+            var sm = new StateMachine<State, Trigger>(() => state, s => { state = s; count++; });
             sm.Configure(State.B).Permit(Trigger.X, State.C);
             sm.FireAsync(Trigger.X);
             Assert.Equal(1, count);

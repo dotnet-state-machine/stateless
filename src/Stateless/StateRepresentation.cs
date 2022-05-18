@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Stateless.Reflection;
 
 namespace Stateless; 
 
@@ -114,35 +115,34 @@ public partial class StateMachine<TState, TTrigger>
             return result;
         }
 
-        public void AddActivateAction(Action action, Reflection.InvocationInfo activateActionDescription)
+        public void AddActivateAction(Action action, InvocationInfo activateActionDescription)
         {
             ActivateActions.Add(new ActivateActionBehaviour.Sync(_state, action, activateActionDescription));
         }
 
-        public void AddDeactivateAction(Action action, Reflection.InvocationInfo deactivateActionDescription)
+        public void AddDeactivateAction(Action action, InvocationInfo deactivateActionDescription)
         {
             DeactivateActions.Add(new DeactivateActionBehaviour.Sync(_state, action, deactivateActionDescription));
         }
 
-        public void AddEntryAction(TTrigger trigger, Action<Transition, object[]> action, Reflection.InvocationInfo entryActionDescription)
+        public void AddEntryAction(TTrigger trigger, Action<Transition, object[]> action, InvocationInfo entryActionDescription)
         {
             EntryActions.Add(new EntryActionBehavior.SyncFrom<TTrigger>(trigger, action, entryActionDescription));
         }
 
-        public void AddEntryAction(Action<Transition, object[]> action, Reflection.InvocationInfo entryActionDescription)
+        public void AddEntryAction(Action<Transition, object[]> action, InvocationInfo entryActionDescription)
         {
             EntryActions.Add(new EntryActionBehavior.Sync(action, entryActionDescription));
         }
 
-        public void AddExitAction(Action<Transition> action, Reflection.InvocationInfo exitActionDescription)
+        public void AddExitAction(Action<Transition> action, InvocationInfo exitActionDescription)
         {
             ExitActions.Add(new ExitActionBehavior.Sync(action, exitActionDescription));
         }
 
         public void Activate()
         {
-            if (Superstate is { })
-                Superstate.Activate();
+            Superstate?.Activate();
 
             ExecuteActivationActions();
         }
@@ -151,8 +151,7 @@ public partial class StateMachine<TState, TTrigger>
         {
             ExecuteDeactivationActions();
 
-            if (Superstate is { })
-                Superstate.Deactivate();
+            Superstate?.Deactivate();
         }
 
         private void ExecuteActivationActions()
