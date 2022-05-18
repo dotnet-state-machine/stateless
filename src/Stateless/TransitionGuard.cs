@@ -15,7 +15,7 @@ public partial class StateMachine<TState, TTrigger>
 
         #region Generic TArg0, ... to object[] converters
 
-        public static Func<object[], bool> ToPackedGuard<TArg0>(Func<TArg0, bool> guard)
+        public static Func<object[], bool> ToPackedGuard<TArg0>(Func<TArg0?, bool> guard)
         {
             return args =>
             {
@@ -30,7 +30,7 @@ public partial class StateMachine<TState, TTrigger>
             };
         }
 
-        public static Func<object[], bool> ToPackedGuard<TArg0, TArg1>(Func<TArg0, TArg1, bool> guard)
+        public static Func<object[], bool> ToPackedGuard<TArg0, TArg1>(Func<TArg0?, TArg1?, bool> guard)
         {
             return args =>
             {
@@ -47,7 +47,7 @@ public partial class StateMachine<TState, TTrigger>
             };
         }
 
-        public static Func<object[], bool> ToPackedGuard<TArg0, TArg1, TArg2>(Func<TArg0, TArg1, TArg2, bool> guard)
+        public static Func<object[], bool> ToPackedGuard<TArg0, TArg1, TArg2>(Func<TArg0?, TArg1?, TArg2?, bool> guard)
         {
             return args =>
             {
@@ -65,21 +65,21 @@ public partial class StateMachine<TState, TTrigger>
             };
         }
 
-        public static Tuple<Func<object[], bool>, string>[] ToPackedGuards<TArg0>(IEnumerable<Tuple<Func<TArg0, bool>, string>> guards)
+        public static Tuple<Func<object[], bool>, string>[] ToPackedGuards<TArg0>(IEnumerable<Tuple<Func<TArg0?, bool>, string>> guards)
         {
             return guards.Select(guard => new Tuple<Func<object[], bool>, string>(
                                   ToPackedGuard(guard.Item1), guard.Item2))
                          .ToArray();
         }
 
-        public static Tuple<Func<object[], bool>, string>[] ToPackedGuards<TArg0, TArg1>(IEnumerable<Tuple<Func<TArg0, TArg1, bool>, string>> guards)
+        public static Tuple<Func<object[], bool>, string>[] ToPackedGuards<TArg0, TArg1>(IEnumerable<Tuple<Func<TArg0?, TArg1?, bool>, string>> guards)
         {
             return guards.Select(guard => new Tuple<Func<object[], bool>, string>(
                                   ToPackedGuard(guard.Item1), guard.Item2))
                          .ToArray();
         }
 
-        public static Tuple<Func<object[], bool>, string>[] ToPackedGuards<TArg0, TArg1, TArg2>(IEnumerable<Tuple<Func<TArg0, TArg1, TArg2, bool>, string>> guards)
+        public static Tuple<Func<object[], bool>, string>[] ToPackedGuards<TArg0, TArg1, TArg2>(IEnumerable<Tuple<Func<TArg0?, TArg1?, TArg2?, bool>, string>> guards)
         {
             return guards.Select(guard => new Tuple<Func<object[], bool>, string>(
                                   ToPackedGuard(guard.Item1), guard.Item2))
@@ -95,7 +95,7 @@ public partial class StateMachine<TState, TTrigger>
                         .ToList();
         }
 
-        internal TransitionGuard(Func<bool> guard, string description = null)
+        internal TransitionGuard(Func<bool> guard, string? description = null)
         {
             Conditions = new List<GuardCondition>
             {
@@ -110,7 +110,7 @@ public partial class StateMachine<TState, TTrigger>
                         .ToList();
         }
 
-        internal TransitionGuard(Func<object[], bool> guard, string description = null)
+        internal TransitionGuard(Func<object[], bool> guard, string? description = null)
         {
             Conditions = new List<GuardCondition>
             {

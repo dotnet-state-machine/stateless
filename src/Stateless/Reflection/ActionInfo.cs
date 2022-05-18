@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-namespace Stateless.Reflection; 
+﻿namespace Stateless.Reflection; 
 
 /// <summary>
 /// Information on entry and exit actions

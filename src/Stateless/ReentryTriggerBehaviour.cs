@@ -1,4 +1,6 @@
-﻿namespace Stateless; 
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Stateless; 
 
 public partial class StateMachine<TState, TTrigger>
 {
@@ -7,13 +9,13 @@ public partial class StateMachine<TState, TTrigger>
         internal TState Destination { get; }
 
         // transitionGuard can be null if there is no guard function on the transition
-        public ReentryTriggerBehaviour(TTrigger trigger, TState destination, TransitionGuard transitionGuard)
+        public ReentryTriggerBehaviour(TTrigger trigger, TState destination, TransitionGuard? transitionGuard)
             : base(trigger, transitionGuard)
         {
             Destination = destination;
         }
 
-        public override bool ResultsInTransitionFrom(TState source, object[] args, out TState destination)
+        public override bool ResultsInTransitionFrom(TState source, object[] args, [NotNullWhen(true)]out TState? destination)
         {
             destination = Destination;
             return true;

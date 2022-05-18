@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Stateless.Reflection;
 
@@ -18,7 +19,7 @@ public partial class StateMachine<TState, TTrigger>
         internal ICollection<DeactivateActionBehaviour> DeactivateActions { get; } = new List<DeactivateActionBehaviour>();
 
         private readonly ICollection<StateRepresentation> _substates = new List<StateRepresentation>();
-        public   TState                           InitialTransitionTarget { get; private set; }
+        public           TState?                          InitialTransitionTarget { get; private set; }
 
         public StateRepresentation(TState state)
         {
@@ -35,16 +36,16 @@ public partial class StateMachine<TState, TTrigger>
             return TryFindHandler(trigger, args, out var _);
         }
 
-        public bool CanHandle(TTrigger trigger, object[] args, out ICollection<string> unmetGuards)
+        public bool CanHandle(TTrigger trigger, object[] args, [NotNullWhen(true)]out ICollection<string>? unmetGuards)
         {
             var handlerFound = TryFindHandler(trigger, args, out var result);
             unmetGuards = result?.UnmetGuardConditions;
             return handlerFound;
         }
 
-        public bool TryFindHandler(TTrigger trigger, object[] args, out TriggerBehaviourResult handler)
+        public bool TryFindHandler(TTrigger trigger, object[] args, [NotNullWhen(true)]out TriggerBehaviourResult? handler)
         {
-            TriggerBehaviourResult superStateHandler = null;
+            TriggerBehaviourResult? superStateHandler = null;
 
             var handlerFound = (TryFindLocalHandler(trigger, args, out var localHandler) ||
                                 (Superstate is { } && Superstate.TryFindHandler(trigger, args, out superStateHandler)));
@@ -55,7 +56,7 @@ public partial class StateMachine<TState, TTrigger>
             return handlerFound;
         }
 
-        private bool TryFindLocalHandler(TTrigger trigger, object[] args, out TriggerBehaviourResult handlerResult)
+        private bool TryFindLocalHandler(TTrigger trigger, object[] args, [NotNullWhen(true)]out TriggerBehaviourResult? handlerResult)
         {
             // Get list of candidate trigger handlers
             if (!TriggerBehaviours.TryGetValue(trigger, out var possible))
@@ -79,7 +80,7 @@ public partial class StateMachine<TState, TTrigger>
             return !handlerResult.UnmetGuardConditions.Any();
         }
 
-        private TriggerBehaviourResult TryFindLocalHandlerResult(TTrigger trigger, IEnumerable<TriggerBehaviourResult> results)
+        private TriggerBehaviourResult? TryFindLocalHandlerResult(TTrigger trigger, IEnumerable<TriggerBehaviourResult> results)
         {
             var actual = results
                         .Where(r => !r.UnmetGuardConditions.Any())
@@ -92,7 +93,7 @@ public partial class StateMachine<TState, TTrigger>
             throw new InvalidOperationException(message);
         }
 
-        private static TriggerBehaviourResult TryFindLocalHandlerResultWithUnmetGuardConditions(IEnumerable<TriggerBehaviourResult> results)
+        private static TriggerBehaviourResult? TryFindLocalHandlerResultWithUnmetGuardConditions(IEnumerable<TriggerBehaviourResult> results)
         {
             var triggerBehaviourResults = results as TriggerBehaviourResult[] ?? results.ToArray();
             var result = triggerBehaviourResults.FirstOrDefault(r => r.UnmetGuardConditions.Any());
@@ -226,7 +227,7 @@ public partial class StateMachine<TState, TTrigger>
         }
         internal void InternalAction(Transition transition, object[] args)
         {
-            InternalTriggerBehaviour.Sync internalTransition = null;
+            InternalTriggerBehaviour.Sync? internalTransition = null;
 
             // Look for actions in superstate(s) recursively until we hit the topmost superstate, or we actually find some trigger handlers.
             var aStateRep = this;
@@ -260,7 +261,7 @@ public partial class StateMachine<TState, TTrigger>
             allowed.Add(triggerBehaviour);
         }
 
-        public StateRepresentation Superstate { get; set; }
+        public StateRepresentation? Superstate { get; set; }
 
         public TState UnderlyingState => _state;
 

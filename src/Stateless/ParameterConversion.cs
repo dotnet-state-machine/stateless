@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Stateless;
 
 internal static class ParameterConversion
 {
-    public static object Unpack(object[] args, Type argType, int index)
+    public static object? Unpack(object[] args, Type argType, int index)
     {
         if (args == null) throw new ArgumentNullException(nameof(args));
             
@@ -28,9 +29,9 @@ internal static class ParameterConversion
         return arg;
     }
 
-    public static bool TryUnpack(object[] args, Type argType, int index, out object result)
+    public static bool TryUnpack(object[] args, Type argType, int index, [NotNullWhen(true)]out object? result)
     {
-        if (args == null || args.Length <= index)
+        if (args is null || args.Length <= index)
         {
             result = null;
             return false;
@@ -39,9 +40,9 @@ internal static class ParameterConversion
         var arg = args[index];
         
 #if NETSTANDARD1_0
-        if (arg is { } && !argType.IsAssignableFrom(arg.GetType()))
+        if (!argType.IsAssignableFrom(arg.GetType()))
 #else
-        if (arg is { } && !argType.IsInstanceOfType(arg))
+        if (!argType.IsInstanceOfType(arg))
 #endif
         {
             result = null;
@@ -52,14 +53,14 @@ internal static class ParameterConversion
         return true;
     }
 
-    public static TArg Unpack<TArg>(object[] args, int index)
+    public static TArg? Unpack<TArg>(object[] args, int index)
     {
         if (args.Length == 0) return default;
 
-        return (TArg)Unpack(args, typeof(TArg), index);
+        return (TArg?)Unpack(args, typeof(TArg), index);
     }
 
-    public static bool TryUnpack<TArg>(object[] args, int index, out TArg result)
+    public static bool TryUnpack<TArg>(object[] args, int index, out TArg? result)
     {
         if (args.Length == 0)
         {

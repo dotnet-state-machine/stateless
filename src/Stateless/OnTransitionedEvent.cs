@@ -8,7 +8,7 @@ public partial class StateMachine<TState, TTrigger>
 {
     private class OnTransitionedEvent
     {
-        private event Action<Transition>              OnTransitioned;
+        private event Action<Transition>?             OnTransitioned;
         private readonly List<Func<Transition, Task>> _onTransitionedAsync = new();
 
         public void Invoke(Transition transition)

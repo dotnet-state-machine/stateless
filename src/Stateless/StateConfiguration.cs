@@ -64,7 +64,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="entryAction"></param>
         /// <param name="guardDescription">A description of the guard condition</param>
         /// <returns></returns>
-        public StateConfiguration InternalTransitionIf(TTrigger trigger, Func<bool> guard, Action<Transition> entryAction, string guardDescription = null)
+        public StateConfiguration InternalTransitionIf(TTrigger trigger, Func<bool> guard, Action<Transition> entryAction, string? guardDescription = null)
         {
             if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
 
@@ -80,7 +80,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="entryAction"></param>
         /// <param name="guardDescription">A description of the guard condition</param>
         /// <returns></returns>
-        public StateConfiguration InternalTransitionIf(TTrigger trigger, Func<bool> guard, Action entryAction, string guardDescription = null)
+        public StateConfiguration InternalTransitionIf(TTrigger trigger, Func<bool> guard, Action entryAction, string? guardDescription = null)
         {
             if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
 
@@ -107,7 +107,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="internalAction">The action performed by the internal transition</param>
         /// <param name="guardDescription">A description of the guard condition</param>
         /// <returns></returns>
-        public StateConfiguration InternalTransitionIf(TTrigger trigger, Func<object[], bool> guard, Action internalAction, string guardDescription = null)
+        public StateConfiguration InternalTransitionIf(TTrigger trigger, Func<object[], bool> guard, Action internalAction, string? guardDescription = null)
         {
             if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
@@ -123,7 +123,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="internalAction">The action performed by the internal transition</param>
         /// <param name="guardDescription">A description of the guard condition</param>
         /// <returns></returns>
-        public StateConfiguration InternalTransitionIf(TTrigger trigger, Func<object[], bool> guard, Action<Transition> internalAction, string guardDescription = null)
+        public StateConfiguration InternalTransitionIf(TTrigger trigger, Func<object[], bool> guard, Action<Transition> internalAction, string? guardDescription = null)
         {
             if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
@@ -138,7 +138,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="trigger">The accepted trigger</param>
         /// <param name="internalAction">The action performed by the internal transition</param>
         /// <returns></returns>
-        public StateConfiguration InternalTransition<TArg0>(TriggerWithParameters<TArg0> trigger, Action<TArg0, Transition> internalAction)
+        public StateConfiguration InternalTransition<TArg0>(TriggerWithParameters<TArg0> trigger, Action<TArg0?, Transition> internalAction)
         {
             return InternalTransitionIf(trigger, _ => true, internalAction);
         }
@@ -152,7 +152,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="internalAction">The action performed by the internal transition</param>
         /// <param name="guardDescription">A description of the guard condition</param>
         /// <returns></returns>
-        public StateConfiguration InternalTransitionIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, bool> guard, Action<TArg0> internalAction, string guardDescription = null)
+        public StateConfiguration InternalTransitionIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0?, bool> guard, Action<TArg0?> internalAction, string? guardDescription = null)
         {
             if (trigger        == null) throw new ArgumentNullException(nameof(trigger));
             if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
@@ -170,7 +170,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="internalAction">The action performed by the internal transition</param>
         /// <param name="guardDescription">A description of the guard condition</param>
         /// <returns></returns>
-        public StateConfiguration InternalTransitionIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, bool> guard, Action<TArg0, Transition> internalAction, string guardDescription = null)
+        public StateConfiguration InternalTransitionIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0?, bool> guard, Action<TArg0?, Transition> internalAction, string? guardDescription = null)
         {
             if (trigger        == null) throw new ArgumentNullException(nameof(trigger));
             if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
@@ -188,7 +188,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="internalAction">The action performed by the internal transition</param>
         /// <returns></returns>
         public StateConfiguration InternalTransition<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger,
-                                                                   Action<TArg0, TArg1, Transition>    internalAction)
+                                                                   Action<TArg0?, TArg1?, Transition>  internalAction)
         {
             return InternalTransitionIf(trigger, _ => true, internalAction);
         }
@@ -203,7 +203,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="internalAction">The action performed by the internal transition</param>
         /// <param name="guardDescription">A description of the guard condition</param>
         /// <returns></returns>
-        public StateConfiguration InternalTransitionIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<object[], bool> guard, Action<TArg0, TArg1, Transition> internalAction, string guardDescription = null)
+        public StateConfiguration InternalTransitionIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<object[], bool> guard, Action<TArg0?, TArg1?, Transition> internalAction, string? guardDescription = null)
         {
             if (trigger        == null) throw new ArgumentNullException(nameof(trigger));
             if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
@@ -222,7 +222,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="internalAction">The action performed by the internal transition</param>
         /// <param name="guardDescription">A description of the guard condition</param>
         /// <returns></returns>
-        public StateConfiguration InternalTransitionIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, bool> guard, Action<TArg0, TArg1, Transition> internalAction, string guardDescription = null)
+        public StateConfiguration InternalTransitionIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0?, TArg1?, bool> guard, Action<TArg0?, TArg1?, Transition> internalAction, string? guardDescription = null)
         {
             if (trigger        == null) throw new ArgumentNullException(nameof(trigger));
             if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
@@ -248,7 +248,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="internalAction">The action performed by the internal transition</param>
         /// <param name="guardDescription">A description of the guard condition</param>
         /// <returns></returns>
-        public StateConfiguration InternalTransitionIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<object[], bool> guard, Action<TArg0, TArg1, TArg2, Transition> internalAction, string guardDescription = null)
+        public StateConfiguration InternalTransitionIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<object[], bool> guard, Action<TArg0?, TArg1?, TArg2?, Transition> internalAction, string? guardDescription = null)
         {
             if (trigger        == null) throw new ArgumentNullException(nameof(trigger));
             if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
@@ -272,7 +272,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="internalAction">The action performed by the internal transition</param>
         /// <param name="guardDescription">A description of the guard condition</param>
         /// <returns></returns>
-        public StateConfiguration InternalTransitionIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, bool> guard, Action<TArg0, TArg1, TArg2, Transition> internalAction, string guardDescription = null)
+        public StateConfiguration InternalTransitionIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0?, TArg1?, TArg2?, bool> guard, Action<TArg0?, TArg1?, TArg2?, Transition> internalAction, string? guardDescription = null)
         {
             if (trigger        == null) throw new ArgumentNullException(nameof(trigger));
             if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
@@ -294,7 +294,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="trigger">The accepted trigger</param>
         /// <param name="internalAction">The action performed by the internal transition</param>
         /// <returns></returns>
-        public StateConfiguration InternalTransition<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Action<TArg0, TArg1, TArg2, Transition> internalAction)
+        public StateConfiguration InternalTransition<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Action<TArg0?, TArg1?, TArg2?, Transition> internalAction)
         {
             return InternalTransitionIf(trigger, _ => true, internalAction);
         }
@@ -309,7 +309,7 @@ public partial class StateMachine<TState, TTrigger>
         /// trigger to be accepted.</param>
         /// <param name="guardDescription">Guard description</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration PermitIf(TTrigger trigger, TState destinationState, Func<bool> guard, string guardDescription = null)
+        public StateConfiguration PermitIf(TTrigger trigger, TState destinationState, Func<bool> guard, string? guardDescription = null)
         {
             EnforceNotIdentityTransition(destinationState);
 
@@ -348,7 +348,7 @@ public partial class StateMachine<TState, TTrigger>
         /// trigger to be accepted. Takes a single argument of type TArg0</param>
         /// <param name="guardDescription">Guard description</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration PermitIf<TArg0>(TriggerWithParameters<TArg0> trigger, TState destinationState, Func<TArg0, bool> guard, string guardDescription = null)
+        public StateConfiguration PermitIf<TArg0>(TriggerWithParameters<TArg0> trigger, TState destinationState, Func<TArg0?, bool> guard, string? guardDescription = null)
         {
             if (trigger == null) throw new ArgumentNullException(nameof(trigger));
             EnforceNotIdentityTransition(destinationState);
@@ -369,7 +369,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="destinationState">State of the destination.</param>
         /// <returns>The receiver.</returns>
         /// <returns></returns>
-        public StateConfiguration PermitIf<TArg0>(TriggerWithParameters<TArg0> trigger, TState destinationState, params Tuple<Func<TArg0, bool>, string>[] guards)
+        public StateConfiguration PermitIf<TArg0>(TriggerWithParameters<TArg0> trigger, TState destinationState, params Tuple<Func<TArg0?, bool>, string>[] guards)
         {
             if (trigger == null) throw new ArgumentNullException(nameof(trigger));
             EnforceNotIdentityTransition(destinationState);
@@ -393,7 +393,7 @@ public partial class StateMachine<TState, TTrigger>
         /// trigger to be accepted. Takes a single argument of type TArg0</param>
         /// <param name="guardDescription">Guard description</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration PermitIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, TState destinationState, Func<TArg0, TArg1, bool> guard, string guardDescription = null)
+        public StateConfiguration PermitIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, TState destinationState, Func<TArg0?, TArg1?, bool> guard, string? guardDescription = null)
         {
             if (trigger == null) throw new ArgumentNullException(nameof(trigger));
             EnforceNotIdentityTransition(destinationState);
@@ -416,7 +416,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <returns>The receiver.</returns>
         /// <returns></returns>
         /// <returns>The receiver.</returns>
-        public StateConfiguration PermitIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, TState destinationState, params Tuple<Func<TArg0, TArg1, bool>, string>[] guards)
+        public StateConfiguration PermitIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, TState destinationState, params Tuple<Func<TArg0?, TArg1?, bool>, string>[] guards)
         {
             if (trigger == null) throw new ArgumentNullException(nameof(trigger));
             EnforceNotIdentityTransition(destinationState);
@@ -441,7 +441,7 @@ public partial class StateMachine<TState, TTrigger>
         /// trigger to be accepted. Takes a single argument of type TArg0</param>
         /// <param name="guardDescription">Guard description</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration PermitIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, TState destinationState, Func<TArg0, TArg1, TArg2, bool> guard, string guardDescription = null)
+        public StateConfiguration PermitIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, TState destinationState, Func<TArg0?, TArg1?, TArg2?, bool> guard, string? guardDescription = null)
         {
             if (trigger == null) throw new ArgumentNullException(nameof(trigger));
             EnforceNotIdentityTransition(destinationState);
@@ -465,7 +465,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <returns>The receiver.</returns>
         /// <returns></returns>
         /// <returns>The receiver.</returns>
-        public StateConfiguration PermitIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, TState destinationState, params Tuple<Func<TArg0, TArg1, TArg2, bool>, string>[] guards)
+        public StateConfiguration PermitIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, TState destinationState, params Tuple<Func<TArg0?, TArg1?, TArg2?, bool>, string>[] guards)
         {
             if (trigger == null) throw new ArgumentNullException(nameof(trigger));
             EnforceNotIdentityTransition(destinationState);
@@ -505,7 +505,7 @@ public partial class StateMachine<TState, TTrigger>
         /// Applies to the current state only. Will not re-execute superstate actions, or
         /// cause actions to execute transitioning between super- and sub-states.
         /// </remarks>
-        public StateConfiguration PermitReentryIf(TTrigger trigger, Func<bool> guard, string guardDescription = null)
+        public StateConfiguration PermitReentryIf(TTrigger trigger, Func<bool> guard, string? guardDescription = null)
         {
             return InternalPermitReentryIf(
                                            trigger,
@@ -542,7 +542,7 @@ public partial class StateMachine<TState, TTrigger>
         /// trigger to be accepted. Takes a single argument of type TArg0</param>
         /// <param name="guardDescription">Guard description</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration PermitReentryIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, bool> guard, string guardDescription = null)
+        public StateConfiguration PermitReentryIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0?, bool> guard, string? guardDescription = null)
         {
             if (trigger == null) throw new ArgumentNullException(nameof(trigger));
 
@@ -562,7 +562,7 @@ public partial class StateMachine<TState, TTrigger>
         /// trigger to be accepted. Functions take a single argument of type TArg0.</param>
         /// <returns>The receiver.</returns>
         /// <returns></returns>
-        public StateConfiguration PermitReentryIf<TArg0>(TriggerWithParameters<TArg0> trigger, params Tuple<Func<TArg0, bool>, string>[] guards)
+        public StateConfiguration PermitReentryIf<TArg0>(TriggerWithParameters<TArg0> trigger, params Tuple<Func<TArg0?, bool>, string>[] guards)
         {
             if (trigger == null) throw new ArgumentNullException(nameof(trigger));
 
@@ -583,7 +583,7 @@ public partial class StateMachine<TState, TTrigger>
         /// trigger to be accepted. Takes a single argument of type TArg0</param>
         /// <param name="guardDescription">Guard description</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration PermitReentryIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, bool> guard, string guardDescription = null)
+        public StateConfiguration PermitReentryIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0?, TArg1?, bool> guard, string? guardDescription = null)
         {
             if (trigger == null) throw new ArgumentNullException(nameof(trigger));
 
@@ -605,7 +605,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <returns>The receiver.</returns>
         /// <returns></returns>
         /// <returns>The receiver.</returns>
-        public StateConfiguration PermitReentryIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, params Tuple<Func<TArg0, TArg1, bool>, string>[] guards)
+        public StateConfiguration PermitReentryIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, params Tuple<Func<TArg0?, TArg1?, bool>, string>[] guards)
         {
             if (trigger == null) throw new ArgumentNullException(nameof(trigger));
 
@@ -627,7 +627,7 @@ public partial class StateMachine<TState, TTrigger>
         /// trigger to be accepted. Takes a single argument of type TArg0</param>
         /// <param name="guardDescription">Guard description</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration PermitReentryIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, bool> guard, string guardDescription = null)
+        public StateConfiguration PermitReentryIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0?, TArg1?, TArg2?, bool> guard, string? guardDescription = null)
         {
             if (trigger == null) throw new ArgumentNullException(nameof(trigger));
 
@@ -650,7 +650,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <returns>The receiver.</returns>
         /// <returns></returns>
         /// <returns>The receiver.</returns>
-        public StateConfiguration PermitReentryIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, params Tuple<Func<TArg0, TArg1, TArg2, bool>, string>[] guards)
+        public StateConfiguration PermitReentryIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, params Tuple<Func<TArg0?, TArg1?, TArg2?, bool>, string>[] guards)
         {
             if (trigger == null) throw new ArgumentNullException(nameof(trigger));
 
@@ -686,7 +686,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="guard">Function that must return true in order for the
         /// trigger to be ignored.</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration IgnoreIf(TTrigger trigger, Func<bool> guard, string guardDescription = null)
+        public StateConfiguration IgnoreIf(TTrigger trigger, Func<bool> guard, string? guardDescription = null)
         {
             _representation.AddTriggerBehaviour(
                                                 new IgnoredTriggerBehaviour(
@@ -722,7 +722,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="guard">Function that must return true in order for the
         /// trigger to be ignored.</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration IgnoreIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, bool> guard, string guardDescription = null)
+        public StateConfiguration IgnoreIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0?, bool> guard, string? guardDescription = null)
         {
             if (trigger == null) throw new ArgumentNullException(nameof(trigger));
 
@@ -742,7 +742,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="guards">Functions and their descriptions that must return true in order for the
         /// trigger to be ignored.</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration IgnoreIf<TArg0>(TriggerWithParameters<TArg0> trigger, params Tuple<Func<TArg0, bool>, string>[] guards)
+        public StateConfiguration IgnoreIf<TArg0>(TriggerWithParameters<TArg0> trigger, params Tuple<Func<TArg0?, bool>, string>[] guards)
         {
             if (trigger == null) throw new ArgumentNullException(nameof(trigger));
 
@@ -762,7 +762,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="guard">Function that must return true in order for the
         /// trigger to be ignored.</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration IgnoreIf<TArg0, TArgo1>(TriggerWithParameters<TArg0, TArgo1> trigger, Func<TArg0, TArgo1, bool> guard, string guardDescription = null)
+        public StateConfiguration IgnoreIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0?, TArg1?, bool> guard, string? guardDescription = null)
         {
             if (trigger == null) throw new ArgumentNullException(nameof(trigger));
 
@@ -782,7 +782,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="guards">Functions and their descriptions that must return true in order for the
         /// trigger to be ignored.</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration IgnoreIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, params Tuple<Func<TArg0, TArg1, bool>, string>[] guards)
+        public StateConfiguration IgnoreIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, params Tuple<Func<TArg0?, TArg1?, bool>, string>[] guards)
         {
             if (trigger == null) throw new ArgumentNullException(nameof(trigger));
 
@@ -802,7 +802,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="guard">Function that must return true in order for the
         /// trigger to be ignored.</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration IgnoreIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, bool> guard, string guardDescription = null)
+        public StateConfiguration IgnoreIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0?, TArg1?, TArg2?, bool> guard, string? guardDescription = null)
         {
             if (trigger == null) throw new ArgumentNullException(nameof(trigger));
 
@@ -822,7 +822,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="guards">Functions and their descriptions that must return true in order for the
         /// trigger to be ignored.</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration IgnoreIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, params Tuple<Func<TArg0, TArg1, TArg2, bool>, string>[] guards)
+        public StateConfiguration IgnoreIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, params Tuple<Func<TArg0?, TArg1?, TArg2?, bool>, string>[] guards)
         {
             if (trigger == null) throw new ArgumentNullException(nameof(trigger));
 
@@ -840,7 +840,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="activateAction">Action to execute.</param>
         /// <param name="activateActionDescription">Action description.</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration OnActivate(Action activateAction, string activateActionDescription = null)
+        public StateConfiguration OnActivate(Action activateAction, string? activateActionDescription = null)
         {
             _representation.AddActivateAction(
                                               activateAction,
@@ -855,7 +855,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="deactivateAction">Action to execute.</param>
         /// <param name="deactivateActionDescription">Action description.</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration OnDeactivate(Action deactivateAction, string deactivateActionDescription = null)
+        public StateConfiguration OnDeactivate(Action deactivateAction, string? deactivateActionDescription = null)
         {
             _representation.AddDeactivateAction(
                                                 deactivateAction,
@@ -870,7 +870,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="entryAction">Action to execute.</param>
         /// <param name="entryActionDescription">Action description.</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration OnEntry(Action entryAction, string entryActionDescription = null)
+        public StateConfiguration OnEntry(Action entryAction, string? entryActionDescription = null)
         {
             if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
 
@@ -888,7 +888,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="entryAction">Action to execute, providing details of the transition.</param>
         /// <param name="entryActionDescription">Action description.</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration OnEntry(Action<Transition> entryAction, string entryActionDescription = null)
+        public StateConfiguration OnEntry(Action<Transition> entryAction, string? entryActionDescription = null)
         {
             if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
 
@@ -906,7 +906,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
         /// <param name="entryActionDescription">Action description.</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration OnEntryFrom(TTrigger trigger, Action entryAction, string entryActionDescription = null)
+        public StateConfiguration OnEntryFrom(TTrigger trigger, Action entryAction, string? entryActionDescription = null)
         {
             if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
 
@@ -926,7 +926,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
         /// <param name="entryActionDescription">Action description.</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration OnEntryFrom(TTrigger trigger, Action<Transition> entryAction, string entryActionDescription = null)
+        public StateConfiguration OnEntryFrom(TTrigger trigger, Action<Transition> entryAction, string? entryActionDescription = null)
         {
             if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
 
@@ -945,7 +945,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
         /// <param name="entryActionDescription">Action description.</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration OnEntryFrom(TriggerWithParameters trigger, Action<Transition> entryAction, string entryActionDescription = null)
+        public StateConfiguration OnEntryFrom(TriggerWithParameters trigger, Action<Transition> entryAction, string? entryActionDescription = null)
         {
             if (trigger     == null) throw new ArgumentNullException(nameof(trigger));
             if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
@@ -967,7 +967,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
         /// <param name="entryActionDescription">Action description.</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration OnEntryFrom<TArg0>(TriggerWithParameters<TArg0> trigger, Action<TArg0> entryAction, string entryActionDescription = null)
+        public StateConfiguration OnEntryFrom<TArg0>(TriggerWithParameters<TArg0> trigger, Action<TArg0?> entryAction, string? entryActionDescription = null)
         {
             if (trigger     == null) throw new ArgumentNullException(nameof(trigger));
             if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
@@ -990,7 +990,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
         /// <param name="entryActionDescription">Action description.</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration OnEntryFrom<TArg0>(TriggerWithParameters<TArg0> trigger, Action<TArg0, Transition> entryAction, string entryActionDescription = null)
+        public StateConfiguration OnEntryFrom<TArg0>(TriggerWithParameters<TArg0> trigger, Action<TArg0?, Transition> entryAction, string? entryActionDescription = null)
         {
             if (trigger     == null) throw new ArgumentNullException(nameof(trigger));
             if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
@@ -1013,7 +1013,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
         /// <param name="entryActionDescription">Action description.</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration OnEntryFrom<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Action<TArg0, TArg1> entryAction, string entryActionDescription = null)
+        public StateConfiguration OnEntryFrom<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Action<TArg0?, TArg1?> entryAction, string? entryActionDescription = null)
         {
             if (trigger     == null) throw new ArgumentNullException(nameof(trigger));
             if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
@@ -1037,7 +1037,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
         /// <param name="entryActionDescription">Action description.</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration OnEntryFrom<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Action<TArg0, TArg1, Transition> entryAction, string entryActionDescription = null)
+        public StateConfiguration OnEntryFrom<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Action<TArg0?, TArg1?, Transition> entryAction, string? entryActionDescription = null)
         {
             if (trigger     == null) throw new ArgumentNullException(nameof(trigger));
             if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
@@ -1060,7 +1060,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
         /// <param name="entryActionDescription">Action description.</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration OnEntryFrom<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Action<TArg0, TArg1, TArg2> entryAction, string entryActionDescription = null)
+        public StateConfiguration OnEntryFrom<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Action<TArg0?, TArg1?, TArg2?> entryAction, string? entryActionDescription = null)
         {
             if (trigger     == null) throw new ArgumentNullException(nameof(trigger));
             if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
@@ -1085,7 +1085,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
         /// <param name="entryActionDescription">Action description.</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration OnEntryFrom<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Action<TArg0, TArg1, TArg2, Transition> entryAction, string entryActionDescription = null)
+        public StateConfiguration OnEntryFrom<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Action<TArg0?, TArg1?, TArg2?, Transition> entryAction, string? entryActionDescription = null)
         {
             if (trigger     == null) throw new ArgumentNullException(nameof(trigger));
             if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
@@ -1105,7 +1105,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="exitAction">Action to execute.</param>
         /// <param name="exitActionDescription">Action description.</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration OnExit(Action exitAction, string exitActionDescription = null)
+        public StateConfiguration OnExit(Action exitAction, string? exitActionDescription = null)
         {
             if (exitAction == null) throw new ArgumentNullException(nameof(exitAction));
 
@@ -1122,7 +1122,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="exitAction">Action to execute, providing details of the transition.</param>
         /// <param name="exitActionDescription">Action description.</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration OnExit(Action<Transition> exitAction, string exitActionDescription = null)
+        public StateConfiguration OnExit(Action<Transition> exitAction, string? exitActionDescription = null)
         {
             _representation.AddExitAction(
                                           exitAction,
@@ -1185,7 +1185,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="possibleDestinationStates">Optional array of possible destination states (used by output formatters) </param>
         /// <returns>The receiver.</returns>
         public StateConfiguration PermitDynamic(TTrigger trigger, Func<TState> destinationStateSelector,
-                                                string destinationStateSelectorDescription = null, DynamicStateInfos possibleDestinationStates = null)
+                                                string? destinationStateSelectorDescription = null, DynamicStateInfos? possibleDestinationStates = null)
         {
             if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
 
@@ -1213,8 +1213,8 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="possibleDestinationStates">Optional list of possible target states.</param>
         /// <returns>The receiver.</returns>
         /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
-        public StateConfiguration PermitDynamic<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, TState> destinationStateSelector,
-                                                       string destinationStateSelectorDescription = null, DynamicStateInfos possibleDestinationStates = null)
+        public StateConfiguration PermitDynamic<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0?, TState> destinationStateSelector,
+                                                       string? destinationStateSelectorDescription = null, DynamicStateInfos? possibleDestinationStates = null)
         {
             if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
 
@@ -1247,7 +1247,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
         /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
         public StateConfiguration PermitDynamic<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger,
-                                                              Func<TArg0, TArg1, TState> destinationStateSelector, string destinationStateSelectorDescription = null, DynamicStateInfos possibleDestinationStates = null)
+                                                              Func<TArg0?, TArg1?, TState> destinationStateSelector, string? destinationStateSelectorDescription = null, DynamicStateInfos? possibleDestinationStates = null)
         {
             if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
 
@@ -1280,7 +1280,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
         /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
         public StateConfiguration PermitDynamic<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger,
-                                                                     Func<TArg0, TArg1, TArg2, TState> destinationStateSelector, string destinationStateSelectorDescription = null, DynamicStateInfos possibleDestinationStates = null)
+                                                                     Func<TArg0?, TArg1?, TArg2?, TState> destinationStateSelector, string? destinationStateSelectorDescription = null, DynamicStateInfos? possibleDestinationStates = null)
         {
             if (trigger                  == null) throw new ArgumentNullException(nameof(trigger));
             if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
@@ -1313,7 +1313,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="possibleDestinationStates">Optional list of possible target states.</param>
         /// <returns>The receiver.</returns>
         public StateConfiguration PermitDynamicIf(TTrigger trigger, Func<TState> destinationStateSelector,
-                                                  Func<bool> guard, string guardDescription = null, DynamicStateInfos possibleDestinationStates = null)
+                                                  Func<bool> guard, string? guardDescription = null, DynamicStateInfos? possibleDestinationStates = null)
         {
             return PermitDynamicIf(trigger, destinationStateSelector, null, guard, guardDescription, possibleDestinationStates);
         }
@@ -1332,7 +1332,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="possibleDestinationStates">Optional list of possible target states.</param>
         /// <returns>The receiver.</returns>
         public StateConfiguration PermitDynamicIf(TTrigger trigger, Func<TState> destinationStateSelector,
-                                                  string destinationStateSelectorDescription, Func<bool> guard, string guardDescription = null, DynamicStateInfos possibleDestinationStates = null)
+                                                  string? destinationStateSelectorDescription, Func<bool> guard, string? guardDescription = null, DynamicStateInfos? possibleDestinationStates = null)
         {
             if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
 
@@ -1355,7 +1355,7 @@ public partial class StateMachine<TState, TTrigger>
         /// trigger to be accepted.</param>
         /// <param name="possibleDestinationStates">Optional list of possible target states.</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration PermitDynamicIf(TTrigger trigger, Func<TState> destinationStateSelector, DynamicStateInfos possibleDestinationStates = null, params Tuple<Func<bool>, string>[] guards)
+        public StateConfiguration PermitDynamicIf(TTrigger trigger, Func<TState> destinationStateSelector, DynamicStateInfos? possibleDestinationStates = null, params Tuple<Func<bool>, string>[] guards)
         {
             return PermitDynamicIf(trigger, destinationStateSelector, null, possibleDestinationStates, guards);
         }
@@ -1373,7 +1373,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="possibleDestinationStates">Optional list of possible target states.</param>
         /// <returns>The receiver.</returns>
         public StateConfiguration PermitDynamicIf(TTrigger trigger, Func<TState> destinationStateSelector,
-                                                  string destinationStateSelectorDescription, DynamicStateInfos possibleDestinationStates = null, params Tuple<Func<bool>, string>[] guards)
+                                                  string? destinationStateSelectorDescription, DynamicStateInfos? possibleDestinationStates = null, params Tuple<Func<bool>, string>[] guards)
         {
             if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
 
@@ -1398,7 +1398,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="possibleDestinationStates">Optional list of possible target states.</param>
         /// <returns>The receiver.</returns>
         /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
-        public StateConfiguration PermitDynamicIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, TState> destinationStateSelector, Func<bool> guard, string guardDescription = null, DynamicStateInfos possibleDestinationStates = null)
+        public StateConfiguration PermitDynamicIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0?, TState> destinationStateSelector, Func<bool> guard, string? guardDescription = null, DynamicStateInfos? possibleDestinationStates = null)
         {
             if (trigger                  == null) throw new ArgumentNullException(nameof(trigger));
             if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
@@ -1421,7 +1421,7 @@ public partial class StateMachine<TState, TTrigger>
         /// that the trigger will cause a transition to.</param>            
         /// <returns>The receiver.</returns>
         /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
-        public StateConfiguration PermitDynamicIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, TState> destinationStateSelector)
+        public StateConfiguration PermitDynamicIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0?, TState> destinationStateSelector)
         {
             return PermitDynamicIf(trigger, destinationStateSelector, null, ArrayHelper.Empty<Tuple<Func<bool>, string>>());
         }
@@ -1438,7 +1438,7 @@ public partial class StateMachine<TState, TTrigger>
         /// trigger to be accepted.</param>
         /// <returns>The receiver.</returns>
         /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
-        public StateConfiguration PermitDynamicIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, TState> destinationStateSelector, DynamicStateInfos possibleDestinationStates = null, params Tuple<Func<bool>, string>[] guards)
+        public StateConfiguration PermitDynamicIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0?, TState> destinationStateSelector, DynamicStateInfos? possibleDestinationStates = null, params Tuple<Func<bool>, string>[] guards)
         {
             if (trigger                  == null) throw new ArgumentNullException(nameof(trigger));
             if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
@@ -1466,7 +1466,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <returns>The receiver.</returns>
         /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
         /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
-        public StateConfiguration PermitDynamicIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, TState> destinationStateSelector, Func<bool> guard, string guardDescription = null, DynamicStateInfos possibleDestinationStates = null)
+        public StateConfiguration PermitDynamicIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0?, TArg1?, TState> destinationStateSelector, Func<bool> guard, string? guardDescription = null, DynamicStateInfos? possibleDestinationStates = null)
         {
             if (trigger                  == null) throw new ArgumentNullException(nameof(trigger));
             if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
@@ -1494,7 +1494,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <returns>The receiver.</returns>
         /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
         /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
-        public StateConfiguration PermitDynamicIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, TState> destinationStateSelector, DynamicStateInfos possibleDestinationStates = null, params Tuple<Func<bool>, string>[] guards)
+        public StateConfiguration PermitDynamicIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0?, TArg1?, TState> destinationStateSelector, DynamicStateInfos? possibleDestinationStates = null, params Tuple<Func<bool>, string>[] guards)
         {
             if (trigger                  == null) throw new ArgumentNullException(nameof(trigger));
             if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
@@ -1524,7 +1524,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
         /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
         /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
-        public StateConfiguration PermitDynamicIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, TState> destinationStateSelector, Func<bool> guard, string guardDescription = null, DynamicStateInfos possibleDestinationStates = null)
+        public StateConfiguration PermitDynamicIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0?, TArg1?, TArg2?, TState> destinationStateSelector, Func<bool> guard, string? guardDescription = null, DynamicStateInfos? possibleDestinationStates = null)
         {
             if (trigger                  == null) throw new ArgumentNullException(nameof(trigger));
             if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
@@ -1554,7 +1554,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
         /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
         /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
-        public StateConfiguration PermitDynamicIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, TState> destinationStateSelector, DynamicStateInfos possibleDestinationStates = null, params Tuple<Func<bool>, string>[] guards)
+        public StateConfiguration PermitDynamicIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0?, TArg1?, TArg2?, TState> destinationStateSelector, DynamicStateInfos? possibleDestinationStates = null, params Tuple<Func<bool>, string>[] guards)
         {
             if (trigger                  == null) throw new ArgumentNullException(nameof(trigger));
             if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
@@ -1583,7 +1583,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="possibleDestinationStates">Optional list of possible target states.</param>
         /// <returns>The receiver.</returns>
         /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
-        public StateConfiguration PermitDynamicIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, TState> destinationStateSelector, Func<TArg0, bool> guard, string guardDescription = null, DynamicStateInfos possibleDestinationStates = null)
+        public StateConfiguration PermitDynamicIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0?, TState> destinationStateSelector, Func<TArg0?, bool> guard, string? guardDescription = null, DynamicStateInfos? possibleDestinationStates = null)
         {
             if (trigger                  == null) throw new ArgumentNullException(nameof(trigger));
             if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
@@ -1609,7 +1609,7 @@ public partial class StateMachine<TState, TTrigger>
         /// trigger to be accepted.</param>
         /// <returns>The receiver.</returns>
         /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
-        public StateConfiguration PermitDynamicIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, TState> destinationStateSelector, DynamicStateInfos possibleDestinationStates = null, params Tuple<Func<TArg0, bool>, string>[] guards)
+        public StateConfiguration PermitDynamicIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0?, TState> destinationStateSelector, DynamicStateInfos? possibleDestinationStates = null, params Tuple<Func<TArg0?, bool>, string>[] guards)
         {
             if (trigger                  == null) throw new ArgumentNullException(nameof(trigger));
             if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
@@ -1637,7 +1637,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <returns>The receiver.</returns>
         /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
         /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
-        public StateConfiguration PermitDynamicIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, TState> destinationStateSelector, Func<TArg0, TArg1, bool> guard, string guardDescription = null, DynamicStateInfos possibleDestinationStates = null)
+        public StateConfiguration PermitDynamicIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0?, TArg1?, TState> destinationStateSelector, Func<TArg0?, TArg1?, bool> guard, string? guardDescription = null, DynamicStateInfos? possibleDestinationStates = null)
         {
             if (trigger                  == null) throw new ArgumentNullException(nameof(trigger));
             if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
@@ -1665,7 +1665,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <returns>The receiver.</returns>
         /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
         /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
-        public StateConfiguration PermitDynamicIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, TState> destinationStateSelector, Tuple<Func<TArg0, TArg1, bool>, string>[] guards, DynamicStateInfos possibleDestinationStates = null)
+        public StateConfiguration PermitDynamicIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0?, TArg1?, TState> destinationStateSelector, Tuple<Func<TArg0?, TArg1?, bool>, string>[] guards, DynamicStateInfos? possibleDestinationStates = null)
         {
             if (trigger                  == null) throw new ArgumentNullException(nameof(trigger));
             if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
@@ -1695,7 +1695,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
         /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
         /// <typeparam name="TArg2"></typeparam>
-        public StateConfiguration PermitDynamicIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, TState> destinationStateSelector, Func<TArg0, TArg1, TArg2, bool> guard, string guardDescription = null, DynamicStateInfos possibleDestinationStates = null)
+        public StateConfiguration PermitDynamicIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0?, TArg1?, TArg2?, TState> destinationStateSelector, Func<TArg0?, TArg1?, TArg2?, bool> guard, string? guardDescription = null, DynamicStateInfos? possibleDestinationStates = null)
         {
             if (trigger                  == null) throw new ArgumentNullException(nameof(trigger));
             if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
@@ -1725,7 +1725,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
         /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
         /// <typeparam name="TArg2"></typeparam>
-        public StateConfiguration PermitDynamicIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, TState> destinationStateSelector, Tuple<Func<TArg0, TArg1, TArg2, bool>, string>[] guards, DynamicStateInfos possibleDestinationStates = null)
+        public StateConfiguration PermitDynamicIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0?, TArg1?, TArg2?, TState> destinationStateSelector, Tuple<Func<TArg0?, TArg1?, TArg2?, bool>, string>[] guards, DynamicStateInfos? possibleDestinationStates = null)
         {
             if (trigger                  == null) throw new ArgumentNullException(nameof(trigger));
             if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
@@ -1761,14 +1761,14 @@ public partial class StateMachine<TState, TTrigger>
             return this;
         }
 
-        private StateConfiguration InternalPermitReentryIf(TTrigger trigger, TState destinationState, TransitionGuard transitionGuard)
+        private StateConfiguration InternalPermitReentryIf(TTrigger trigger, TState destinationState, TransitionGuard? transitionGuard)
         {
             _representation.AddTriggerBehaviour(new ReentryTriggerBehaviour(trigger, destinationState, transitionGuard));
             return this;
         }
 
         private StateConfiguration InternalPermitDynamicIf(TTrigger trigger,                             Func<object[], TState> destinationStateSelector,
-                                                           string   destinationStateSelectorDescription, TransitionGuard        transitionGuard, DynamicStateInfos possibleDestinationStates)
+                                                           string?   destinationStateSelectorDescription, TransitionGuard        transitionGuard, DynamicStateInfos? possibleDestinationStates = null)
         {
             if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
             if (transitionGuard          == null) throw new ArgumentNullException(nameof(transitionGuard));

@@ -34,8 +34,13 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
 
     private class QueuedTrigger
     {
-        public TTrigger Trigger { get; set; }
-        public object[] Args    { get; set; }
+        public TTrigger Trigger { get; }
+        public object[] Args    { get; }
+
+        public QueuedTrigger(TTrigger trigger, object[] args) {
+            Trigger = trigger;
+            Args    = args;
+        }
     }
 
     private readonly Queue<QueuedTrigger> _eventQueue = new();
@@ -62,7 +67,7 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
     /// <param name="firingMode">Optional specification of firing mode.</param>
     public StateMachine(TState initialState, FiringMode firingMode = FiringMode.Queued) : this()
     {
-        var reference = new StateReference { State = initialState };
+        var reference = new StateReference(initialState);
         _stateAccessor = () => reference.State;
         _stateMutator  = s => reference.State = s;
 
@@ -78,6 +83,8 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
         _unhandledTriggerAction     = new UnhandledTriggerAction.Sync(DefaultUnhandledTriggerAction);
         _onTransitionedEvent        = new OnTransitionedEvent();
         _onTransitionCompletedEvent = new OnTransitionedEvent();
+        _stateAccessor              = default!; // Set in other ctor
+        _stateMutator               = default!; // Set in other ctor
     }
 
     /// <summary>
@@ -213,6 +220,7 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
     public void Fire<TArg0>(TriggerWithParameters<TArg0> trigger, TArg0 arg0)
     {
         if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+        if (arg0    == null) throw new ArgumentNullException(nameof(arg0));
         InternalFire(trigger.Trigger, arg0);
     }
 
@@ -232,6 +240,8 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
     public void Fire<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, TArg0 arg0, TArg1 arg1)
     {
         if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+        if (arg0    == null) throw new ArgumentNullException(nameof(arg0));
+        if (arg1    == null) throw new ArgumentNullException(nameof(arg1));
         InternalFire(trigger.Trigger, arg0, arg1);
     }
 
@@ -253,6 +263,9 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
     public void Fire<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, TArg0 arg0, TArg1 arg1, TArg2 arg2)
     {
         if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+        if (arg0    == null) throw new ArgumentNullException(nameof(arg0));
+        if (arg1    == null) throw new ArgumentNullException(nameof(arg1));
+        if (arg2    == null) throw new ArgumentNullException(nameof(arg2));
         InternalFire(trigger.Trigger, arg0, arg1, arg2);
     }
 
@@ -308,7 +321,7 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
     private void InternalFireQueued(TTrigger trigger, params object[] args)
     {
         // Add trigger to queue
-        _eventQueue.Enqueue(new QueuedTrigger { Trigger = trigger, Args = args });
+        _eventQueue.Enqueue(new QueuedTrigger(trigger, args));
 
         // If a trigger is already being handled then the trigger will be queued (FIFO) and processed later.
         if (_firing)
@@ -460,8 +473,9 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
                 throw new InvalidOperationException($"The target ({representation.InitialTransitionTarget}) for the initial transition is not a substate.");
             }
 
-            var initialTransition = new InitialTransition(transition.Source, representation.InitialTransitionTarget, transition.Trigger, args);
-            representation = GetRepresentation(representation.InitialTransitionTarget);
+            System.Diagnostics.Debug.Assert(representation.InitialTransitionTarget != null);
+            var initialTransition = new InitialTransition(transition.Source, representation.InitialTransitionTarget!, transition.Trigger, args);
+            representation = GetRepresentation(representation.InitialTransitionTarget!);
 
             // Alert all listeners of initial state transition
             _onTransitionedEvent.Invoke(new Transition(transition.Destination, initialTransition.Destination, transition.Trigger, transition.Parameters));
@@ -487,7 +501,7 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
     /// is fired.
     /// </summary>
     /// <param name="unhandledTriggerAction">An action to call when an unhandled trigger is fired.</param>
-    public void OnUnhandledTrigger(Action<TState, TTrigger, ICollection<string>> unhandledTriggerAction)
+    public void OnUnhandledTrigger(Action<TState, TTrigger, ICollection<string>?> unhandledTriggerAction)
     {
         if (unhandledTriggerAction == null) throw new ArgumentNullException(nameof(unhandledTriggerAction));
         _unhandledTriggerAction = new UnhandledTriggerAction.Sync(unhandledTriggerAction);
@@ -535,7 +549,7 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
     /// <param name="trigger">Trigger to test.</param>
     /// <param name="unmetGuards">Guard descriptions of unmet guards. If given trigger is not configured for current state, this will be null.</param>
     /// <returns>True if the trigger can be fired, false otherwise.</returns>
-    public bool CanFire(TTrigger trigger, out ICollection<string> unmetGuards)
+    public bool CanFire(TTrigger trigger, out ICollection<string>? unmetGuards)
     {
         return CurrentRepresentation.CanHandle(trigger, ArrayHelper.Empty<object>(), out unmetGuards);
     }
@@ -606,7 +620,7 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
         _triggerConfiguration.Add(trigger.Trigger, trigger);
     }
 
-    private void DefaultUnhandledTriggerAction(TState state, TTrigger trigger, ICollection<string> unmetGuardConditions)
+    private void DefaultUnhandledTriggerAction(TState state, TTrigger trigger, ICollection<string>? unmetGuardConditions)
     {
         if (unmetGuardConditions?.Any() ?? false)
             throw new InvalidOperationException(

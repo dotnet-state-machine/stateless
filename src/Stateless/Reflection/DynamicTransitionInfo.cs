@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Stateless.Reflection; 
 
@@ -68,7 +66,7 @@ public class DynamicTransitionInfo : TransitionInfo
     /// <summary>
     /// Gets the possible destination states.
     /// </summary>
-    public DynamicStateInfos PossibleDestinationStates { get; }
+    public DynamicStateInfos? PossibleDestinationStates { get; }
 
     /// <summary>
     /// Creates a new instance of <see cref="DynamicTransitionInfo"/>.
@@ -80,7 +78,7 @@ public class DynamicTransitionInfo : TransitionInfo
     /// <param name="possibleStates">The possible destination states.</param>
     /// <returns></returns>
     public static DynamicTransitionInfo Create<TTrigger>(TTrigger       trigger,  IEnumerable<InvocationInfo>? guards,
-                                                         InvocationInfo selector, DynamicStateInfos possibleStates)
+                                                         InvocationInfo selector, DynamicStateInfos? possibleStates)
     {
         return new DynamicTransitionInfo(guards ?? new List<InvocationInfo>(), new TriggerInfo(trigger), selector, possibleStates);
     }
@@ -88,7 +86,7 @@ public class DynamicTransitionInfo : TransitionInfo
     /// <inheritdoc />
     private DynamicTransitionInfo(IEnumerable<InvocationInfo> guardConditionsMethodDescriptions, TriggerInfo trigger,
                                   InvocationInfo destinationStateSelectorDescription,
-                                  DynamicStateInfos possibleDestinationStates) : base(guardConditionsMethodDescriptions,
+                                  DynamicStateInfos? possibleDestinationStates) : base(guardConditionsMethodDescriptions,
      trigger) {
         DestinationStateSelectorDescription = destinationStateSelectorDescription;
         PossibleDestinationStates           = possibleDestinationStates;

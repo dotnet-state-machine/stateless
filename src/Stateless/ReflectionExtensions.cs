@@ -30,7 +30,7 @@ internal static class ReflectionExtensions
     /// </summary>
     /// <param name="del">Delegate whose method info is desired</param>
     /// <returns>Null if <paramref name="del" /> is null, otherwise <see cref="MemberInfo.Name" />.</returns>
-    private static MethodInfo TryGetMethodInfo(this Delegate del)
+    private static MethodInfo? TryGetMethodInfo(this Delegate del)
     {
 #if PORTABLE_REFLECTION
         return del?.GetMethodInfo();
@@ -44,7 +44,7 @@ internal static class ReflectionExtensions
     /// </summary>
     /// <param name="del">Delegate whose method name is desired</param>
     /// <returns>Null if <paramref name="del" /> is null, otherwise <see cref="MemberInfo.Name" />.</returns>
-    public static string TryGetMethodName(this Delegate del)
+    public static string? TryGetMethodName(this Delegate del)
     {
         return TryGetMethodInfo(del)?.Name;
     }

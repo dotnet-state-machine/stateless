@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-namespace Stateless.Reflection; 
+﻿namespace Stateless.Reflection; 
 
 /// <summary>
 /// Represents a trigger in a StateMachine.
