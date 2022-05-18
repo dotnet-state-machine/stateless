@@ -554,6 +554,19 @@ namespace Stateless
         /// Returns true if <paramref name="trigger"/> can be fired
         /// in the current state.
         /// </summary>
+        /// <param name="trigger">The trigger to fire.</param>
+        /// <param name="args">A variable-length parameters list containing arguments. </param>
+        /// <returns>True if the trigger can be fired, false otherwise.</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public bool CanFire(TriggerWithParameters trigger, params object[] args) {
+            if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+            return CurrentRepresentation.CanHandle(trigger.Trigger, args);
+        }
+
+        /// <summary>
+        /// Returns true if <paramref name="trigger"/> can be fired
+        /// in the current state.
+        /// </summary>
         /// <param name="trigger">Trigger to test.</param>
         /// <param name="unmetGuards">Guard descriptions of unmet guards. If given trigger is not configured for current state, this will be null.</param>
         /// <returns>True if the trigger can be fired, false otherwise.</returns>
