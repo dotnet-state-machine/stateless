@@ -269,7 +269,7 @@ public class InternalTransitionFixture
     [Fact]
     public void InternalTriggerHandledOnlyOnceInSuper()
     {
-        State handledIn = State.C;
+        var handledIn = State.C;
 
         var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -288,7 +288,7 @@ public class InternalTransitionFixture
     [Fact]
     public void InternalTriggerHandledOnlyOnceInSub()
     {
-        State handledIn = State.C;
+        var handledIn = State.C;
 
         var sm = new StateMachine<State, Trigger>(State.B);
 

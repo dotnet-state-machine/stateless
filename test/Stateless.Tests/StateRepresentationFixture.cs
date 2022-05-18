@@ -118,7 +118,7 @@ public class StateRepresentationFixture
     [Fact]
     public void WhenTransitioningFromSubToSuperstate_SubstateEntryActionsExecuted()
     {
-        CreateSuperSubstatePair(out StateMachine<State, Trigger>.StateRepresentation super, out StateMachine<State, Trigger>.StateRepresentation sub);
+        CreateSuperSubstatePair(out var super, out var sub);
 
         var executed = false;
         sub.AddEntryAction((_, _) => executed = true, Reflection.InvocationInfo.Create(null, "entryActionDescription"));
@@ -130,7 +130,7 @@ public class StateRepresentationFixture
     [Fact]
     public void WhenTransitioningFromSubToSuperstate_SubstateExitActionsExecuted()
     {
-        CreateSuperSubstatePair(out StateMachine<State, Trigger>.StateRepresentation super, out StateMachine<State, Trigger>.StateRepresentation sub);
+        CreateSuperSubstatePair(out var super, out var sub);
 
         var executed = false;
         sub.AddExitAction(_ => executed = true, Reflection.InvocationInfo.Create(null, "exitActionDescription"));
@@ -142,7 +142,7 @@ public class StateRepresentationFixture
     [Fact]
     public void WhenTransitioningToSuperFromSubstate_SuperEntryActionsNotExecuted()
     {
-        CreateSuperSubstatePair(out StateMachine<State, Trigger>.StateRepresentation super, out StateMachine<State, Trigger>.StateRepresentation sub);
+        CreateSuperSubstatePair(out var super, out var sub);
 
         var executed = false;
         super.AddEntryAction((_, _) => executed = true, Reflection.InvocationInfo.Create(null, "entryActionDescription"));
@@ -154,7 +154,7 @@ public class StateRepresentationFixture
     [Fact]
     public void WhenTransitioningFromSuperToSubstate_SuperExitActionsNotExecuted()
     {
-        CreateSuperSubstatePair(out StateMachine<State, Trigger>.StateRepresentation super, out StateMachine<State, Trigger>.StateRepresentation sub);
+        CreateSuperSubstatePair(out var super, out var sub);
 
         var executed = false;
         super.AddExitAction(_ => executed = true, Reflection.InvocationInfo.Create(null, "exitActionDescription"));
@@ -166,7 +166,7 @@ public class StateRepresentationFixture
     [Fact]
     public void WhenEnteringSubstate_SuperEntryActionsExecuted()
     {
-        CreateSuperSubstatePair(out StateMachine<State, Trigger>.StateRepresentation super, out StateMachine<State, Trigger>.StateRepresentation sub);
+        CreateSuperSubstatePair(out var super, out var sub);
 
         var executed = false;
         super.AddEntryAction((_, _) => executed = true, Reflection.InvocationInfo.Create(null, "entryActionDescription"));
@@ -178,7 +178,7 @@ public class StateRepresentationFixture
     [Fact]
     public void WhenLeavingSubstate_SuperExitActionsExecuted()
     {
-        CreateSuperSubstatePair(out StateMachine<State, Trigger>.StateRepresentation super, out StateMachine<State, Trigger>.StateRepresentation sub);
+        CreateSuperSubstatePair(out var super, out var sub);
 
         var executed = false;
         super.AddExitAction(_ => executed = true, Reflection.InvocationInfo.Create(null, "exitActionDescription"));
@@ -248,7 +248,7 @@ public class StateRepresentationFixture
     [Fact]
     public void WhenEnteringSubstate_SuperstateEntryActionsExecuteBeforeSubstate()
     {
-        CreateSuperSubstatePair(out StateMachine<State, Trigger>.StateRepresentation super, out StateMachine<State, Trigger>.StateRepresentation sub);
+        CreateSuperSubstatePair(out var super, out var sub);
 
         int order = 0, subOrder = 0, superOrder = 0;
         super.AddEntryAction((_, _) => superOrder = order++, Reflection.InvocationInfo.Create(null, "entryActionDescription"));
@@ -261,7 +261,7 @@ public class StateRepresentationFixture
     [Fact]
     public void WhenExitingSubstate_SubstateEntryActionsExecuteBeforeSuperstate()
     {
-        CreateSuperSubstatePair(out StateMachine<State, Trigger>.StateRepresentation super, out StateMachine<State, Trigger>.StateRepresentation sub);
+        CreateSuperSubstatePair(out var super, out var sub);
 
         int order = 0, subOrder = 0, superOrder = 0;
         super.AddExitAction(_ => superOrder = order++, Reflection.InvocationInfo.Create(null, "entryActionDescription"));
@@ -308,7 +308,7 @@ public class StateRepresentationFixture
     [Fact]
     public void WhenTransitionExistAndSuperstateUnmetGuardConditions_FireNotPossible()
     {
-        CreateSuperSubstatePair(out StateMachine<State, Trigger>.StateRepresentation super, out StateMachine<State, Trigger>.StateRepresentation sub);
+        CreateSuperSubstatePair(out var super, out var sub);
 
         var falseConditions = new[] {
             new Tuple<Func<object[], bool>, string>(_ => true, "1"),
@@ -318,7 +318,7 @@ public class StateRepresentationFixture
         var transition = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(Trigger.X, State.C, transitionGuard);
         super.AddTriggerBehaviour(transition);
 
-        var reslt= sub.TryFindHandler(Trigger.X, Array.Empty<object>(), out StateMachine<State, Trigger>.TriggerBehaviourResult result);
+        var reslt= sub.TryFindHandler(Trigger.X, Array.Empty<object>(), out var result);
 
         Assert.False(reslt);
         Assert.False(sub.CanHandle(Trigger.X));
@@ -328,7 +328,7 @@ public class StateRepresentationFixture
     [Fact]
     public void WhenTransitionExistSuperstateMetGuardConditions_CanBeFired()
     {
-        CreateSuperSubstatePair(out StateMachine<State, Trigger>.StateRepresentation super, out StateMachine<State, Trigger>.StateRepresentation sub);
+        CreateSuperSubstatePair(out var super, out var sub);
 
         var trueConditions = new[] {
             new Tuple<Func<object[], bool>, string>(_ => true, "1"),
@@ -338,7 +338,7 @@ public class StateRepresentationFixture
         var transition = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(Trigger.X, State.C, transitionGuard);
 
         super.AddTriggerBehaviour(transition);
-        sub.TryFindHandler(Trigger.X, Array.Empty<object>(), out StateMachine<State, Trigger>.TriggerBehaviourResult result);
+        sub.TryFindHandler(Trigger.X, Array.Empty<object>(), out var result);
 
         Assert.True(sub.CanHandle(Trigger.X));
         Assert.True(super.CanHandle(Trigger.X));

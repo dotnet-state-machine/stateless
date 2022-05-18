@@ -28,7 +28,7 @@ public class ActiveStatesFixture
         sm.Activate();
 
         Assert.Equal(expectedOrdering.Count, actualOrdering.Count);
-        for (int i = 0; i < expectedOrdering.Count; i++)
+        for (var i = 0; i < expectedOrdering.Count; i++)
             Assert.Equal(expectedOrdering[i], actualOrdering[i]);
     }
 
@@ -74,7 +74,7 @@ public class ActiveStatesFixture
         sm.Deactivate();
 
         Assert.Equal(expectedOrdering.Count, actualOrdering.Count);
-        for (int i = 0; i < expectedOrdering.Count; i++)
+        for (var i = 0; i < expectedOrdering.Count; i++)
             Assert.Equal(expectedOrdering[i], actualOrdering[i]);
     }
 
@@ -145,7 +145,7 @@ public class ActiveStatesFixture
         sm.Fire(Trigger.Y);
 
         Assert.Equal(expectedOrdering.Count, actualOrdering.Count);
-        for (int i = 0; i < expectedOrdering.Count; i++)
+        for (var i = 0; i < expectedOrdering.Count; i++)
             Assert.Equal(expectedOrdering[i], actualOrdering[i]);
     }
 
@@ -183,7 +183,7 @@ public class ActiveStatesFixture
         sm.Fire(Trigger.Y);
 
         Assert.Equal(expectedOrdering.Count, actualOrdering.Count);
-        for (int i = 0; i < expectedOrdering.Count; i++)
+        for (var i = 0; i < expectedOrdering.Count; i++)
             Assert.Equal(expectedOrdering[i], actualOrdering[i]);
     }
 }

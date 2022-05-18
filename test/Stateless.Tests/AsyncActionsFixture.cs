@@ -380,9 +380,9 @@ namespace Stateless.Tests
         {
             var sm = new StateMachine<State, Trigger>(State.A);
 
-            bool onEntryStateBfired = false;
-            bool onExitStateBfired = false;
-            bool onExitStateAfired = false;
+            var onEntryStateBfired = false;
+            var onExitStateBfired = false;
+            var onExitStateAfired = false;
 
             sm.Configure(State.B)
                 .OnEntryAsync(_ => Task.Run(() => onEntryStateBfired = true))
@@ -404,11 +404,11 @@ namespace Stateless.Tests
         [Fact]
         public async void TransitionToSuperstateDoesNotExitSuperstate()
         {
-            StateMachine<State, Trigger> sm = new StateMachine<State, Trigger>(State.B);
+            var sm = new StateMachine<State, Trigger>(State.B);
 
-            bool superExit = false;
-            bool superEntry = false;
-            bool subExit = false;
+            var superExit = false;
+            var superEntry = false;
+            var subExit = false;
 
             sm.Configure(State.A)
                 .OnEntryAsync(_ => Task.Run(() => superEntry = true))
@@ -429,7 +429,7 @@ namespace Stateless.Tests
         [Fact]
         public async void IgnoredTriggerMustBeIgnoredAsync()
         {
-            bool nullRefExcThrown = false;
+            var nullRefExcThrown = false;
             var stateMachine = new StateMachine<State, Trigger>(State.B);
             stateMachine.Configure(State.A)
                 .Permit(Trigger.X, State.C);

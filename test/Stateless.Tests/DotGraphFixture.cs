@@ -51,15 +51,15 @@ public class DotGraphFixture
     {
         string b;
 
-        List<string> es = new List<string>();
+        var es = new List<string>();
         if (entries is { })
         {
-            foreach (string entry in entries)
+            foreach (var entry in entries)
                 es.Add($"entry / {entry}");
         }
         if (exits is { })
         {
-            foreach (string exit in exits)
+            foreach (var exit in exits)
                 es.Add($"exit / {exit}");
         }
 
@@ -82,7 +82,7 @@ public class DotGraphFixture
 
     private static string Line(string from, string to, string label)
     {
-        string s = $"\n\"{from}\" -> \"{to}\" [style=\"solid\"";
+        var s = $"\n\"{from}\" -> \"{to}\" [style=\"solid\"";
 
         if (label is { })
             s += $", label=\"{label}\"";
@@ -97,7 +97,7 @@ public class DotGraphFixture
         if (style != Style.Uml)
             throw new Exception("WRITE MORE CODE");
 
-        string s = $"\nsubgraph \"cluster{graphName}\"\n\t{{\n\tlabel = \"{label}\"\n";
+        var s = $"\nsubgraph \"cluster{graphName}\"\n\t{{\n\tlabel = \"{label}\"\n";
 
         s = $"{s.Replace("\n", Environment.NewLine)}{contents}}}{Environment.NewLine}";
 
@@ -114,7 +114,7 @@ public class DotGraphFixture
         sm.Configure(State.A)
           .Permit(Trigger.X, State.B);
 
-        string dotGraph = UmlDotGraph.Format(sm.GetInfo());
+        var dotGraph = UmlDotGraph.Format(sm.GetInfo());
 
 #if WRITE_DOTS_TO_FOLDER
             System.IO.File.WriteAllText(DestinationFolder + "SimpleTransition.dot", dotGraph);
@@ -133,7 +133,7 @@ public class DotGraphFixture
         sm.Configure(State.A)
           .Permit(Trigger.X, State.B);
 
-        string dotGraph = UmlDotGraph.Format(sm.GetInfo());
+        var dotGraph = UmlDotGraph.Format(sm.GetInfo());
 
 #if WRITE_DOTS_TO_FOLDER
             System.IO.File.WriteAllText(DestinationFolder + "SimpleTransitionUML.dot", dotGraph);
@@ -191,7 +191,7 @@ public class DotGraphFixture
         sm.Configure(State.A)
           .PermitIf(Trigger.X, State.B, AnonymousGuard, "description");
 
-        string dotGraph = UmlDotGraph.Format(sm.GetInfo());
+        var dotGraph = UmlDotGraph.Format(sm.GetInfo());
 
 #if WRITE_DOTS_TO_FOLDER
             System.IO.File.WriteAllText(DestinationFolder + "WhenDiscriminatedByAnonymousGuardWithDescription.dot", dotGraph);
@@ -244,7 +244,7 @@ public class DotGraphFixture
         sm.Configure(State.A)
           .PermitDynamic(Trigger.X, () => State.B);
 
-        string dotGraph = UmlDotGraph.Format(sm.GetInfo());
+        var dotGraph = UmlDotGraph.Format(sm.GetInfo());
 
 #if WRITE_DOTS_TO_FOLDER
             System.IO.File.WriteAllText(DestinationFolder + "DestinationStateIsDynamic.dot", dotGraph);
@@ -266,7 +266,7 @@ public class DotGraphFixture
         sm.Configure(State.A)
           .PermitDynamic(trigger, i => i == 1 ? State.B : State.C);
 
-        string dotGraph = UmlDotGraph.Format(sm.GetInfo());
+        var dotGraph = UmlDotGraph.Format(sm.GetInfo());
 
 #if WRITE_DOTS_TO_FOLDER
             System.IO.File.WriteAllText(DestinationFolder + "DestinationStateIsCalculatedBasedOnTriggerParameters.dot", dotGraph);
@@ -284,7 +284,7 @@ public class DotGraphFixture
         sm.Configure(State.A)
           .OnEntry(() => { }, "enteredA");
 
-        string dotGraph = UmlDotGraph.Format(sm.GetInfo());
+        var dotGraph = UmlDotGraph.Format(sm.GetInfo());
 
 #if WRITE_DOTS_TO_FOLDER
             System.IO.File.WriteAllText(DestinationFolder + "OnEntryWithAnonymousActionAndDescription.dot", dotGraph);
@@ -379,7 +379,7 @@ public class DotGraphFixture
         sm.Configure(State.C)
           .OnEntryFrom(parmTrig, TestEntryActionString);
 
-        string dotGraph = UmlDotGraph.Format(sm.GetInfo());
+        var dotGraph = UmlDotGraph.Format(sm.GetInfo());
 #if WRITE_DOTS_TO_FOLDER
             System.IO.File.WriteAllText(DestinationFolder + "OnEntryWithTriggerParameter.dot", dotGraph);
 #endif
@@ -390,12 +390,12 @@ public class DotGraphFixture
     [Fact]
     public void SpacedUmlWithSubstate()
     {
-        string stateA = "State A";
-        string stateB = "State B";
-        string stateC = "State C";
-        string stateD = "State D";
-        string triggerX = "Trigger X";
-        string triggerY = "Trigger Y";
+        var stateA = "State A";
+        var stateB = "State B";
+        var stateC = "State C";
+        var stateD = "State D";
+        var triggerX = "Trigger X";
+        var triggerY = "Trigger Y";
             
         var expected =
             $"{Prefix()}{Subgraph(Style.Uml, stateD, $"{stateD}\\n----------\\nentry / Enter D", Box(stateB) + Box(stateC))}{Box(stateA, new List<string> { "Enter A" }, new List<string> { "Exit A" })}{Line(stateA, stateB, triggerX)}{Line(stateA, stateC, triggerY)}{Environment.NewLine} init [label=\"\", shape=point];{Environment.NewLine} init -> \"{stateA}\"[style = \"solid\"]{Environment.NewLine}}}";
@@ -415,7 +415,7 @@ public class DotGraphFixture
         sm.Configure(stateD)
           .OnEntry(TestEntryAction, "Enter D");
 
-        string dotGraph = UmlDotGraph.Format(sm.GetInfo());
+        var dotGraph = UmlDotGraph.Format(sm.GetInfo());
 #if WRITE_DOTS_TO_FOLDER
             System.IO.File.WriteAllText(DestinationFolder + "UmlWithSubstate.dot", dotGraph);
 #endif
@@ -449,7 +449,7 @@ public class DotGraphFixture
         sm.Configure(State.D)
           .OnEntry(TestEntryAction, "EnterD");
 
-        string dotGraph = UmlDotGraph.Format(sm.GetInfo());
+        var dotGraph = UmlDotGraph.Format(sm.GetInfo());
 #if WRITE_DOTS_TO_FOLDER
             System.IO.File.WriteAllText(DestinationFolder + "UmlWithSubstate.dot", dotGraph);
 #endif
@@ -478,7 +478,7 @@ public class DotGraphFixture
         sm.Configure(State.B);
         sm.Configure(State.C);
 
-        string dotGraph = UmlDotGraph.Format(sm.GetInfo());
+        var dotGraph = UmlDotGraph.Format(sm.GetInfo());
 #if WRITE_DOTS_TO_FOLDER
             System.IO.File.WriteAllText(DestinationFolder + "UmlWithDynamic.dot", dotGraph);
 #endif
@@ -508,7 +508,7 @@ public class DotGraphFixture
           .OnEntry(TestEntryAction, "DoThisEntry")
           .PermitReentry(Trigger.Z);
 
-        string dotGraph = UmlDotGraph.Format(sm.GetInfo());
+        var dotGraph = UmlDotGraph.Format(sm.GetInfo());
 
 #if WRITE_DOTS_TO_FOLDER
             System.IO.File.WriteAllText(DestinationFolder + "TransitionWithIgnoreAndEntry.dot", dotGraph);

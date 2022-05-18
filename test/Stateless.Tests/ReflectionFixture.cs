@@ -105,7 +105,7 @@ public class ReflectionFixture
         sm.Configure(State.A)
           .Permit(Trigger.X, State.B);
 
-        StateMachineInfo inf = sm.GetInfo();
+        var inf = sm.GetInfo();
 
         Assert.Equal(inf.TriggerType, typeof(Trigger));
         Assert.Equal(inf.States.Count(), 2);
@@ -120,7 +120,7 @@ public class ReflectionFixture
         Assert.Equal(0, binding.ExitActions.Count());
         //
         Assert.Equal(1, binding.FixedTransitions.Count());
-        foreach (FixedTransitionInfo trans in binding.FixedTransitions)
+        foreach (var trans in binding.FixedTransitions)
         {
             Assert.True(trans.Trigger.UnderlyingTrigger is Trigger);
             Assert.Equal(Trigger.X, (Trigger)trans.Trigger.UnderlyingTrigger);
@@ -142,7 +142,7 @@ public class ReflectionFixture
           .Permit(Trigger.X, State.B)
           .Permit(Trigger.Y, State.C);
 
-        StateMachineInfo inf = sm.GetInfo();
+        var inf = sm.GetInfo();
 
         Assert.True(inf.StateType == typeof(State));
         Assert.Equal(inf.TriggerType, typeof(Trigger));
@@ -159,9 +159,9 @@ public class ReflectionFixture
         //
         Assert.Equal(2, binding.FixedTransitions.Count()); // Transition count mismatch
         //
-        bool haveXb = false;
-        bool haveYc = false;
-        foreach (FixedTransitionInfo trans in binding.FixedTransitions)
+        var haveXb = false;
+        var haveYc = false;
+        foreach (var trans in binding.FixedTransitions)
         {
             Assert.True(trans.Trigger.UnderlyingTrigger is Trigger);
             //
@@ -200,7 +200,7 @@ public class ReflectionFixture
         sm.Configure(State.A)
           .PermitIf(Trigger.X, State.B, AnonymousGuard);
 
-        StateMachineInfo inf = sm.GetInfo();
+        var inf = sm.GetInfo();
 
         Assert.True(inf.StateType == typeof(State));
         Assert.Equal(inf.TriggerType, typeof(Trigger));
@@ -216,7 +216,7 @@ public class ReflectionFixture
         Assert.Equal(0, binding.ExitActions.Count());
         //
         Assert.Equal(1, binding.FixedTransitions.Count());
-        foreach (FixedTransitionInfo trans in binding.FixedTransitions)
+        foreach (var trans in binding.FixedTransitions)
         {
             Assert.True(trans.Trigger.UnderlyingTrigger is Trigger);
             Assert.Equal(Trigger.X, (Trigger)trans.Trigger.UnderlyingTrigger);
@@ -240,7 +240,7 @@ public class ReflectionFixture
         sm.Configure(State.A)
           .PermitIf(Trigger.X, State.B, AnonymousGuard, "description");
 
-        StateMachineInfo inf = sm.GetInfo();
+        var inf = sm.GetInfo();
 
         Assert.True(inf.StateType == typeof(State));
         Assert.Equal(inf.TriggerType, typeof(Trigger));
@@ -256,7 +256,7 @@ public class ReflectionFixture
         Assert.Equal(0, binding.ExitActions.Count());
         //
         Assert.Equal(1, binding.FixedTransitions.Count());
-        foreach (FixedTransitionInfo trans in binding.FixedTransitions)
+        foreach (var trans in binding.FixedTransitions)
         {
             Assert.True(trans.Trigger.UnderlyingTrigger is Trigger);
             Assert.Equal(Trigger.X, (Trigger)trans.Trigger.UnderlyingTrigger);
@@ -279,7 +279,7 @@ public class ReflectionFixture
         sm.Configure(State.A)
           .PermitIf(Trigger.X, State.B, IsTrue);
 
-        StateMachineInfo inf = sm.GetInfo();
+        var inf = sm.GetInfo();
 
         Assert.True(inf.StateType == typeof(State));
         Assert.Equal(inf.TriggerType, typeof(Trigger));
@@ -295,7 +295,7 @@ public class ReflectionFixture
         Assert.Equal(0, binding.ExitActions.Count());
         //
         Assert.Equal(1, binding.FixedTransitions.Count());
-        foreach (FixedTransitionInfo trans in binding.FixedTransitions)
+        foreach (var trans in binding.FixedTransitions)
         {
             Assert.True(trans.Trigger.UnderlyingTrigger is Trigger);
             Assert.Equal(Trigger.X, (Trigger)trans.Trigger.UnderlyingTrigger);
@@ -318,7 +318,7 @@ public class ReflectionFixture
         sm.Configure(State.A)
           .PermitIf(Trigger.X, State.B, IsTrue, "description");
 
-        StateMachineInfo inf = sm.GetInfo();
+        var inf = sm.GetInfo();
 
         Assert.True(inf.StateType == typeof(State));
         Assert.Equal(inf.TriggerType, typeof(Trigger));
@@ -334,7 +334,7 @@ public class ReflectionFixture
         Assert.Equal(0, binding.ExitActions.Count());
         //
         Assert.Equal(1, binding.FixedTransitions.Count());
-        foreach (FixedTransitionInfo trans in binding.FixedTransitions)
+        foreach (var trans in binding.FixedTransitions)
         {
             Assert.True(trans.Trigger.UnderlyingTrigger is Trigger);
             Assert.Equal(Trigger.X, (Trigger)trans.Trigger.UnderlyingTrigger);
@@ -356,7 +356,7 @@ public class ReflectionFixture
         sm.Configure(State.A)
           .PermitDynamic(Trigger.X, () => State.B);
 
-        StateMachineInfo inf = sm.GetInfo();
+        var inf = sm.GetInfo();
 
         Assert.True(inf.StateType == typeof(State));
         Assert.Equal(inf.TriggerType, typeof(Trigger));
@@ -374,7 +374,7 @@ public class ReflectionFixture
         Assert.Equal(0, binding.FixedTransitions.Count()); // Binding transition count mismatch
         Assert.Equal(0, binding.IgnoredTriggers.Count());
         Assert.Equal(1, binding.DynamicTransitions.Count()); // Dynamic transition count mismatch
-        foreach (DynamicTransitionInfo trans in binding.DynamicTransitions)
+        foreach (var trans in binding.DynamicTransitions)
         {
             Assert.True(trans.Trigger.UnderlyingTrigger is Trigger);
             Assert.Equal(Trigger.X, (Trigger)trans.Trigger.UnderlyingTrigger);
@@ -390,7 +390,7 @@ public class ReflectionFixture
         sm.Configure(State.A)
           .PermitDynamic(trigger, i => i == 1 ? State.B : State.C);
 
-        StateMachineInfo inf = sm.GetInfo();
+        var inf = sm.GetInfo();
 
         Assert.True(inf.StateType == typeof(State));
         Assert.Equal(inf.TriggerType, typeof(Trigger));
@@ -408,7 +408,7 @@ public class ReflectionFixture
         Assert.Equal(0, binding.FixedTransitions.Count()); // Binding transition count mismatch"
         Assert.Equal(0, binding.IgnoredTriggers.Count());
         Assert.Equal(1, binding.DynamicTransitions.Count()); // Dynamic transition count mismatch
-        foreach (DynamicTransitionInfo trans in binding.DynamicTransitions)
+        foreach (var trans in binding.DynamicTransitions)
         {
             Assert.True(trans.Trigger.UnderlyingTrigger is Trigger);
             Assert.Equal(Trigger.X, (Trigger)trans.Trigger.UnderlyingTrigger);
@@ -424,7 +424,7 @@ public class ReflectionFixture
         sm.Configure(State.A)
           .OnEntry(() => { }, "enteredA");
 
-        StateMachineInfo inf = sm.GetInfo();
+        var inf = sm.GetInfo();
 
         Assert.True(inf.StateType == typeof(State));
         Assert.Equal(inf.States.Count(), 1);
@@ -436,7 +436,7 @@ public class ReflectionFixture
         Assert.Equal(0, binding.Substates.Count());
         Assert.Equal(null, binding.Superstate);
         Assert.Equal(1, binding.EntryActions.Count());
-        foreach (ActionInfo entryAction in binding.EntryActions)
+        foreach (var entryAction in binding.EntryActions)
         {
             Assert.Equal("enteredA", entryAction.Method.Description);
         }
@@ -455,7 +455,7 @@ public class ReflectionFixture
         sm.Configure(State.A)
           .OnEntry(OnEntry, "enteredA");
 
-        StateMachineInfo inf = sm.GetInfo();
+        var inf = sm.GetInfo();
 
         Assert.True(inf.StateType == typeof(State));
         Assert.Equal(inf.States.Count(), 1);
@@ -468,7 +468,7 @@ public class ReflectionFixture
         Assert.Equal(null, binding.Superstate);
         //
         Assert.Equal(1, binding.EntryActions.Count());
-        foreach (ActionInfo entryAction in binding.EntryActions)
+        foreach (var entryAction in binding.EntryActions)
             Assert.Equal("enteredA", entryAction.Method.Description);
         Assert.Equal(0, binding.ExitActions.Count());
         //
@@ -485,7 +485,7 @@ public class ReflectionFixture
         sm.Configure(State.A)
           .OnExit(() => { }, "exitA");
 
-        StateMachineInfo inf = sm.GetInfo();
+        var inf = sm.GetInfo();
 
         Assert.True(inf.StateType == typeof(State));
         Assert.Equal(inf.States.Count(), 1);
@@ -499,7 +499,7 @@ public class ReflectionFixture
         //
         Assert.Equal(0, binding.EntryActions.Count());
         Assert.Equal(1, binding.ExitActions.Count());
-        foreach (InvocationInfo exitAction in binding.ExitActions)
+        foreach (var exitAction in binding.ExitActions)
             Assert.Equal("exitA", exitAction.Description);
         //
         Assert.Equal(0, binding.FixedTransitions.Count()); // Binding count mismatch
@@ -515,7 +515,7 @@ public class ReflectionFixture
         sm.Configure(State.A)
           .OnExit(OnExit, "exitA");
 
-        StateMachineInfo inf = sm.GetInfo();
+        var inf = sm.GetInfo();
 
         Assert.True(inf.StateType == typeof(State));
         Assert.Equal(inf.States.Count(), 1);
@@ -529,7 +529,7 @@ public class ReflectionFixture
         //
         Assert.Equal(0, binding.EntryActions.Count());
         Assert.Equal(1, binding.ExitActions.Count());
-        foreach (InvocationInfo entryAction in binding.ExitActions)
+        foreach (var entryAction in binding.ExitActions)
             Assert.Equal("exitA", entryAction.Description);
         //
         Assert.Equal(0, binding.FixedTransitions.Count()); // Binding count mismatch
@@ -546,7 +546,7 @@ public class ReflectionFixture
           .Ignore(Trigger.Y)
           .Permit(Trigger.X, State.B);
 
-        StateMachineInfo inf = sm.GetInfo();
+        var inf = sm.GetInfo();
 
         Assert.True(inf.StateType == typeof(State));
         Assert.Equal(inf.TriggerType, typeof(Trigger));
@@ -557,7 +557,7 @@ public class ReflectionFixture
         Assert.Equal(State.A, (State)binding.UnderlyingState);
         //
         Assert.Equal(1, binding.FixedTransitions.Count()); // Transition count mismatch"
-        foreach (FixedTransitionInfo trans in binding.FixedTransitions)
+        foreach (var trans in binding.FixedTransitions)
         {
             Assert.True(trans.Trigger.UnderlyingTrigger is Trigger);
             Assert.Equal(Trigger.X, (Trigger)trans.Trigger.UnderlyingTrigger);
@@ -568,7 +568,7 @@ public class ReflectionFixture
         }
         //
         Assert.Equal(1, binding.IgnoredTriggers.Count()); //  Ignored triggers count mismatch
-        foreach (IgnoredTransitionInfo ignore in binding.IgnoredTriggers)
+        foreach (var ignore in binding.IgnoredTriggers)
         {
             Assert.True(ignore.Trigger.UnderlyingTrigger is Trigger);
             Assert.Equal(Trigger.Y, (Trigger)ignore.Trigger.UnderlyingTrigger); // Ignored trigger value mismatch
@@ -584,7 +584,7 @@ public class ReflectionFixture
     private static void VerifyMethodNames(IEnumerable<InvocationInfo> methods, string prefix, string body, State state, InvocationInfo.Timing timing)
     {
         Assert.Equal(1, methods.Count());
-        InvocationInfo method = methods.First();
+        var method = methods.First();
 
         if (state == State.A)
             Assert.Equal(prefix + body + ((timing == InvocationInfo.Timing.Asynchronous) ? "Async" : ""), method.Description);
@@ -603,12 +603,12 @@ public class ReflectionFixture
     {
         Assert.Equal(suffixes.Count, methods.Count());
 
-        foreach (InvocationInfo method in methods)
+        foreach (var method in methods)
         {
             Debug.WriteLine($"Method description is \"{method.Description}\"");
             //
-            bool matches = false;
-            foreach (string suffix in suffixes)
+            var matches = false;
+            foreach (var suffix in suffixes)
             {
                 if (state == State.A)
                 {
@@ -662,9 +662,9 @@ public class ReflectionFixture
           .OnExit(() => OnExit(), $"{UserDescription}D-Exit")
           .OnDeactivate(() => OnDeactivate(), $"{UserDescription}D-Deactivate");
 
-        StateMachineInfo inf = sm.GetInfo();
+        var inf = sm.GetInfo();
 
-        foreach (StateInfo stateInfo in inf.States)
+        foreach (var stateInfo in inf.States)
         {
             VerifyMethodNames(stateInfo.ActivateActions, "On", "Activate", (State)stateInfo.UnderlyingState, InvocationInfo.Timing.Synchronous);
             VerifyMethodNames(stateInfo.EntryActions.Select(x => x.Method), "On", "Entry", (State)stateInfo.UnderlyingState, InvocationInfo.Timing.Synchronous);
@@ -692,7 +692,7 @@ public class ReflectionFixture
 
         inf = sm.GetInfo();
 
-        foreach (StateInfo stateInfo in inf.States)
+        foreach (var stateInfo in inf.States)
         {
             VerifyMethodNames(stateInfo.EntryActions.Select(x => x.Method), "On", "EntryTrans", (State)stateInfo.UnderlyingState, InvocationInfo.Timing.Synchronous);
             VerifyMethodNames(stateInfo.ExitActions, "On", "ExitTrans", (State)stateInfo.UnderlyingState, InvocationInfo.Timing.Synchronous);
@@ -737,7 +737,7 @@ public class ReflectionFixture
 
         inf = sm.GetInfo();
 
-        foreach (StateInfo stateInfo in inf.States)
+        foreach (var stateInfo in inf.States)
         {
             VerifyMethodNameses(stateInfo.EntryActions.Select(x => x.Method), "On", "Entry", (State)stateInfo.UnderlyingState,
                                 InvocationInfo.Timing.Synchronous,
@@ -776,9 +776,9 @@ public class ReflectionFixture
           .OnExitAsync(() => OnExitAsync(), $"{UserDescription}D-Exit")
           .OnDeactivateAsync(() => OnDeactivateAsync(), $"{UserDescription}D-Deactivate");
 
-        StateMachineInfo inf = sm.GetInfo();
+        var inf = sm.GetInfo();
 
-        foreach (StateInfo stateInfo in inf.States)
+        foreach (var stateInfo in inf.States)
         {
             VerifyMethodNames(stateInfo.ActivateActions, "On", "Activate", (State)stateInfo.UnderlyingState, InvocationInfo.Timing.Asynchronous);
             VerifyMethodNames(stateInfo.EntryActions.Select(x => x.Method), "On", "Entry", (State)stateInfo.UnderlyingState, InvocationInfo.Timing.Asynchronous);
@@ -804,7 +804,7 @@ public class ReflectionFixture
 
         inf = sm.GetInfo();
 
-        foreach (StateInfo stateInfo in inf.States)
+        foreach (var stateInfo in inf.States)
         {
             VerifyMethodNames(stateInfo.EntryActions.Select(x => x.Method), "On", "EntryTrans", (State)stateInfo.UnderlyingState, InvocationInfo.Timing.Asynchronous);
             VerifyMethodNames(stateInfo.ExitActions, "On", "ExitTrans", (State)stateInfo.UnderlyingState, InvocationInfo.Timing.Asynchronous);
@@ -840,12 +840,12 @@ public class ReflectionFixture
         sm.Configure(State.D)
           .PermitIf(Trigger.X, State.C, () => Permit(), $"{UserDescription}D-Permit");
 
-        StateMachineInfo inf = sm.GetInfo();
+        var inf = sm.GetInfo();
 
-        foreach (StateInfo stateInfo in inf.States)
+        foreach (var stateInfo in inf.States)
         {
             Assert.Equal(1, stateInfo.Transitions.Count());
-            TransitionInfo transInfo = stateInfo.Transitions.First();
+            var transInfo = stateInfo.Transitions.First();
             Assert.Equal(1, transInfo.GuardConditionsMethodDescriptions.Count());
             VerifyMethodNames(transInfo.GuardConditionsMethodDescriptions, "", "Permit", (State)stateInfo.UnderlyingState, InvocationInfo.Timing.Synchronous);
         }
@@ -866,10 +866,10 @@ public class ReflectionFixture
 
         inf = sm.GetInfo();
 
-        foreach (StateInfo stateInfo in inf.States)
+        foreach (var stateInfo in inf.States)
         {
             Assert.Equal(1, stateInfo.Transitions.Count());
-            TransitionInfo transInfo = stateInfo.Transitions.First();
+            var transInfo = stateInfo.Transitions.First();
             Assert.Equal(1, transInfo.GuardConditionsMethodDescriptions.Count());
             VerifyMethodNames(transInfo.GuardConditionsMethodDescriptions, "", "Permit", (State)stateInfo.UnderlyingState, InvocationInfo.Timing.Synchronous);
         }

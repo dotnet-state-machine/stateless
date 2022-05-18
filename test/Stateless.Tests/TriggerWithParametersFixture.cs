@@ -56,7 +56,7 @@ public class TriggerWithParametersFixture
     public void StateParameterIsNotAmbiguous()
     {
         var fsm = new StateMachine<State, Trigger>(State.A);
-        StateMachine<State, Trigger>.TriggerWithParameters<State> pressTrigger = fsm.SetTriggerParameters<State>(Trigger.X);
+        var pressTrigger = fsm.SetTriggerParameters<State>(Trigger.X);
 
         fsm.Configure(State.A)
            .PermitDynamicIf(pressTrigger, state => state);

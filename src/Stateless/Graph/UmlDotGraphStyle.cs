@@ -29,7 +29,7 @@ public class UmlDotGraphStyle : GraphStyleBase
     {
         var sourceName = stateInfo.StateName;
 
-        StringBuilder label = new StringBuilder($"{sourceName}");
+        var label = new StringBuilder($"{sourceName}");
 
         if ((stateInfo.EntryActions.Count > 0) || (stateInfo.ExitActions.Count > 0))
         {
@@ -60,9 +60,9 @@ public class UmlDotGraphStyle : GraphStyleBase
         if ((state.EntryActions.Count == 0) && (state.ExitActions.Count == 0))
             return $"\"{state.StateName}\" [label=\"{state.StateName}\"];\n";
 
-        string f = $"\"{state.StateName}\" [label=\"{state.StateName}|";
+        var f = $"\"{state.StateName}\" [label=\"{state.StateName}|";
 
-        List<string> es = new List<string>();
+        var es = new List<string>();
         es.AddRange(state.EntryActions.Select(act => $"entry / {act}"));
         es.AddRange(state.ExitActions.Select(act => $"exit / {act}"));
 
@@ -84,7 +84,7 @@ public class UmlDotGraphStyle : GraphStyleBase
     /// <returns></returns>
     public override string FormatOneTransition(string sourceNodeName, string trigger, IEnumerable<string> actions, string destinationNodeName, IEnumerable<string> guards)
     {
-        string label = trigger ?? "";
+        var label = trigger ?? "";
 
         var actionsString = string.Join(", ", actions ?? Enumerable.Empty<string>());
         if (!string.IsNullOrEmpty(actionsString))

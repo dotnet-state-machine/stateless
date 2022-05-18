@@ -37,7 +37,7 @@ internal static class ParameterConversion
             throw new ArgumentException(
                                         string.Format(ParameterConversionResources.TooManyParameters, expected.Length, args.Length));
 
-        for (int i = 0; i < expected.Length; ++i)
+        for (var i = 0; i < expected.Length; ++i)
             Unpack(args, expected[i], i);
     }
 }

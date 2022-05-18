@@ -58,7 +58,7 @@ public class StateGraph
     /// <returns></returns>
     public string ToGraph(GraphStyleBase style)
     {
-        string dirgraphText = style.GetPrefix().Replace("\n", System.Environment.NewLine);
+        var dirgraphText = style.GetPrefix().Replace("\n", System.Environment.NewLine);
 
         // Start with the clusters
         foreach (var state in States.Values.Where(x => x is SuperState))
@@ -82,7 +82,7 @@ public class StateGraph
         }
 
         // now build behaviours
-        List<string> transits = style.FormatAllTransitions(Transitions);
+        var transits = style.FormatAllTransitions(Transitions);
         foreach (var transit in transits)
             dirgraphText += System.Environment.NewLine + transit;
 
@@ -106,7 +106,7 @@ public class StateGraph
     {
         foreach (var stateInfo in machineInfo.States)
         {
-            State state = States[stateInfo.UnderlyingState.ToString()];
+            var state = States[stateInfo.UnderlyingState.ToString()];
             foreach (var entryAction in stateInfo.EntryActions)
             {
                 if (entryAction.FromTrigger is { })
@@ -135,20 +135,20 @@ public class StateGraph
     {
         foreach (var stateInfo in machineInfo.States)
         {
-            State fromState = States[stateInfo.UnderlyingState.ToString()];
+            var fromState = States[stateInfo.UnderlyingState.ToString()];
             foreach (var fix in stateInfo.FixedTransitions)
             {
-                State toState = States[fix.DestinationState.UnderlyingState.ToString()];
+                var toState = States[fix.DestinationState.UnderlyingState.ToString()];
                 if (fromState == toState)
                 {
-                    StayTransition stay = new StayTransition(fromState, fix.Trigger, fix.GuardConditionsMethodDescriptions, true);
+                    var stay = new StayTransition(fromState, fix.Trigger, fix.GuardConditionsMethodDescriptions, true);
                     Transitions.Add(stay);
                     fromState.Leaving.Add(stay);
                     fromState.Arriving.Add(stay);
                 }
                 else
                 {
-                    FixedTransition trans = new FixedTransition(fromState, toState, fix.Trigger, fix.GuardConditionsMethodDescriptions);
+                    var trans = new FixedTransition(fromState, toState, fix.Trigger, fix.GuardConditionsMethodDescriptions);
                     Transitions.Add(trans);
                     fromState.Leaving.Add(trans);
                     toState.Arriving.Add(trans);
@@ -156,10 +156,10 @@ public class StateGraph
             }
             foreach (var dyno in stateInfo.DynamicTransitions)
             {
-                Decision decide = new Decision(dyno.DestinationStateSelectorDescription, Decisions.Count + 1);
+                var decide = new Decision(dyno.DestinationStateSelectorDescription, Decisions.Count + 1);
                 Decisions.Add(decide);
-                FixedTransition trans = new FixedTransition(fromState, decide, dyno.Trigger,
-                                                            dyno.GuardConditionsMethodDescriptions);
+                var trans = new FixedTransition(fromState, decide, dyno.Trigger,
+                                                dyno.GuardConditionsMethodDescriptions);
                 Transitions.Add(trans);
                 fromState.Leaving.Add(trans);
                 decide.Arriving.Add(trans);
@@ -167,10 +167,10 @@ public class StateGraph
                 {
                     foreach (var dynamicStateInfo in dyno.PossibleDestinationStates)
                     {
-                        States.TryGetValue(dynamicStateInfo.DestinationState, out State toState);
+                        States.TryGetValue(dynamicStateInfo.DestinationState, out var toState);
                         if (toState is { })
                         {
-                            DynamicTransition dtrans = new DynamicTransition(decide, toState, dyno.Trigger, dynamicStateInfo.Criterion);
+                            var dtrans = new DynamicTransition(decide, toState, dyno.Trigger, dynamicStateInfo.Criterion);
                             Transitions.Add(dtrans);
                             decide.Leaving.Add(dtrans);
                             toState.Arriving.Add(dtrans);
@@ -180,7 +180,7 @@ public class StateGraph
             }
             foreach (var igno in stateInfo.IgnoredTriggers)
             {
-                StayTransition stay = new StayTransition(fromState, igno.Trigger, igno.GuardConditionsMethodDescriptions, false);
+                var stay = new StayTransition(fromState, igno.Trigger, igno.GuardConditionsMethodDescriptions, false);
                 Transitions.Add(stay);
                 fromState.Leaving.Add(stay);
                 fromState.Arriving.Add(stay);
@@ -210,7 +210,7 @@ public class StateGraph
     {
         foreach (var stateInfo in machineInfo.States.Where(sc => (sc.Substates?.Count() > 0) && (sc.Superstate == null)))
         {
-            SuperState state = new SuperState(stateInfo);
+            var state = new SuperState(stateInfo);
             States[stateInfo.UnderlyingState.ToString()] = state;
             AddSubstates(state, stateInfo.Substates);
         }
@@ -226,7 +226,7 @@ public class StateGraph
             }
             else if (subState.Substates.Any())
             {
-                SuperState sub = new SuperState(subState);
+                var sub = new SuperState(subState);
                 States[subState.UnderlyingState.ToString()] = sub;
                 superState.SubStates.Add(sub);
                 sub.SuperState = superState;
@@ -234,7 +234,7 @@ public class StateGraph
             }
             else
             {
-                State sub = new State(subState);
+                var sub = new State(subState);
                 States[subState.UnderlyingState.ToString()] = sub;
                 superState.SubStates.Add(sub);
                 sub.SuperState = superState;

@@ -208,7 +208,7 @@ public class StateMachineFixture
     {
         var sm = new StateMachine<State, Trigger>(State.B);
 
-        bool fired = false;
+        var fired = false;
 
         sm.Configure(State.B)
           .OnEntry(_ => fired = true)
@@ -224,7 +224,7 @@ public class StateMachineFixture
     {
         var sm = new StateMachine<State, Trigger>(State.B);
 
-        bool fired = false;
+        var fired = false;
 
         sm.Configure(State.B)
           .OnEntry(_ => fired = true)
@@ -296,7 +296,7 @@ public class StateMachineFixture
           .Permit(Trigger.X, State.C);
 
         string entryArgS = null;
-        int entryArgI = 0;
+        var entryArgI = 0;
 
         sm.Configure(State.C)
           .OnEntryFrom(x, (s, i) =>
@@ -396,7 +396,7 @@ public class StateMachineFixture
         sm.Fire(Trigger.X);
 
         Assert.Equal(expectedOrdering.Count, actualOrdering.Count);
-        for (int i = 0; i < expectedOrdering.Count; i++)
+        for (var i = 0; i < expectedOrdering.Count; i++)
         {
             Assert.Equal(expectedOrdering[i], actualOrdering[i]);
         }
@@ -414,7 +414,7 @@ public class StateMachineFixture
         StateMachine<State, Trigger>.Transition transition = null;
         sm.OnTransitioned(t => transition = t);
 
-        string parameter = "the parameter";
+        var parameter = "the parameter";
         sm.Fire(triggerX, parameter);
 
         Assert.NotNull(transition);
@@ -437,7 +437,7 @@ public class StateMachineFixture
         StateMachine<State, Trigger>.Transition transition = null;
         sm.OnTransitionCompleted(t => transition = t);
 
-        string parameter = "the parameter";
+        var parameter = "the parameter";
         sm.Fire(triggerX, parameter);
 
         Assert.NotNull(transition);
@@ -460,9 +460,9 @@ public class StateMachineFixture
         StateMachine<State, Trigger>.Transition transition = null;
         sm.OnTransitioned(t => transition = t);
 
-        string firstParameter = "the parameter";
-        int secondParameter = 99;
-        bool thirdParameter = true;
+        var firstParameter = "the parameter";
+        var secondParameter = 99;
+        var thirdParameter = true;
         sm.Fire(triggerX, firstParameter, secondParameter, thirdParameter);
 
         Assert.NotNull(transition);
@@ -487,9 +487,9 @@ public class StateMachineFixture
         StateMachine<State, Trigger>.Transition transition = null;
         sm.OnTransitionCompleted(t => transition = t);
 
-        string firstParameter = "the parameter";
-        int secondParameter = 99;
-        bool thirdParameter = true;
+        var firstParameter = "the parameter";
+        var secondParameter = 99;
+        var thirdParameter = true;
         sm.Fire(triggerX, firstParameter, secondParameter, thirdParameter);
 
         Assert.NotNull(transition);
@@ -584,9 +584,9 @@ public class StateMachineFixture
     {
         var sm = new StateMachine<State, Trigger>(State.A);
 
-        bool onEntryStateBfired = false;
-        bool onExitStateBfired = false;
-        bool onExitStateAfired = false;
+        var onEntryStateBfired = false;
+        var onExitStateBfired = false;
+        var onExitStateAfired = false;
 
         sm.Configure(State.B)
           .OnEntry(_ => onEntryStateBfired = true)
@@ -797,7 +797,7 @@ public class StateMachineFixture
     public void GuardClauseCalledOnlyOnce()
     {
         var sm = new StateMachine<State, Trigger>(State.A);
-        int i = 0;
+        var i = 0;
 
         sm.Configure(State.A).PermitIf(Trigger.X, State.B, () =>
         {
@@ -813,9 +813,9 @@ public class StateMachineFixture
     public void NoExceptionWhenPermitIfHasMultipleExclusiveGuardsBothFalse()
     {
         var sm = new StateMachine<State, Trigger>(State.A);
-        bool onUnhandledTriggerWasCalled = false;
+        var onUnhandledTriggerWasCalled = false;
         sm.OnUnhandledTrigger((_, _) => { onUnhandledTriggerWasCalled = true; }); // NEVER CALLED
-        int i = 0;
+        var i = 0;
         sm.Configure(State.A)
           .PermitIf(Trigger.X, State.B, () => i == 2)
           .PermitIf(Trigger.X, State.C, () => i == 1);
@@ -829,11 +829,11 @@ public class StateMachineFixture
     [Fact]
     public void TransitionToSuperstateDoesNotExitSuperstate()
     {
-        StateMachine<State, Trigger> sm = new StateMachine<State, Trigger>(State.B);
+        var sm = new StateMachine<State, Trigger>(State.B);
 
-        bool superExit = false;
-        bool superEntry = false;
-        bool subExit = false;
+        var superExit = false;
+        var superEntry = false;
+        var subExit = false;
 
         sm.Configure(State.A)
           .OnEntry(() => superEntry = true)
@@ -856,10 +856,10 @@ public class StateMachineFixture
     {
         var sm = new StateMachine<State, Trigger>(State.A);
 
-        int exitB = 0;
-        int exitA = 0;
-        int entryB = 0;
-        int entryA = 0;
+        var exitB = 0;
+        var exitA = 0;
+        var entryB = 0;
+        var entryA = 0;
 
         sm.Configure(State.A)
           .SubstateOf(State.B)
@@ -1036,7 +1036,7 @@ public class StateMachineFixture
         sm.Configure(State.A)
           .PermitIf(Trigger.X, State.B, ()=> false, guardDescription);
 
-        bool result = sm.CanFire(Trigger.X, out ICollection<string> unmetGuards);
+        var result = sm.CanFire(Trigger.X, out var unmetGuards);
 
         Assert.False(result);
         Assert.True(unmetGuards?.Count == 1);
@@ -1047,7 +1047,7 @@ public class StateMachineFixture
     public void CanFire_GetNullUnmetGuardDescriptionsIfInvalidTrigger()
     {
         var sm = new StateMachine<State, Trigger>(State.A);
-        bool result = sm.CanFire(Trigger.X, out ICollection<string> unmetGuards);
+        var result = sm.CanFire(Trigger.X, out var unmetGuards);
 
         Assert.False(result);
         Assert.Null(unmetGuards);
@@ -1058,7 +1058,7 @@ public class StateMachineFixture
     {
         var sm = new StateMachine<State, Trigger>(State.A);
         sm.Configure(State.A).Permit(Trigger.X, State.B);
-        bool result = sm.CanFire(Trigger.X, out ICollection<string> unmetGuards);
+        var result = sm.CanFire(Trigger.X, out var unmetGuards);
 
         Assert.True(result);
         Assert.True(unmetGuards?.Count == 0);
@@ -1069,7 +1069,7 @@ public class StateMachineFixture
     {
         var sm = new StateMachine<State, Trigger>(State.A);
         sm.Configure(State.A).PermitIf(Trigger.X, State.B, () => true, "Guard passed");
-        bool result = sm.CanFire(Trigger.X, out ICollection<string> unmetGuards);
+        var result = sm.CanFire(Trigger.X, out var unmetGuards);
 
         Assert.True(result);
         Assert.True(unmetGuards?.Count == 0);

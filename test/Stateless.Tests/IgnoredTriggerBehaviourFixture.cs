@@ -51,7 +51,7 @@ public class IgnoredTriggerBehaviourFixture
     [Fact]
     public void IgnoredTriggerMustBeIgnoredSync()
     {
-        bool internalActionExecuted = false;
+        var internalActionExecuted = false;
         var stateMachine = new StateMachine<State, Trigger>(State.B);
         stateMachine.Configure(State.A)
                     .Permit(Trigger.X, State.C);

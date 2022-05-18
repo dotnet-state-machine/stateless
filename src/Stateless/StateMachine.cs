@@ -135,7 +135,7 @@ public partial class StateMachine<TState, TTrigger>
 
     private StateRepresentation GetRepresentation(TState state)
     {
-        if (!_stateConfiguration.TryGetValue(state, out StateRepresentation result))
+        if (!_stateConfiguration.TryGetValue(state, out var result))
         {
             result = new StateRepresentation(state);
             _stateConfiguration.Add(state, result);
@@ -342,14 +342,14 @@ public partial class StateMachine<TState, TTrigger>
     private void InternalFireOne(TTrigger trigger, params object[] args)
     {
         // If this is a trigger with parameters, we must validate the parameter(s)
-        if (_triggerConfiguration.TryGetValue(trigger, out TriggerWithParameters configuration))
+        if (_triggerConfiguration.TryGetValue(trigger, out var configuration))
             configuration.ValidateParameters(args);
 
         var source = State;
         var representativeState = GetRepresentation(source);
 
         // Try to find a trigger handler, either in the current state or a super state.
-        if (!representativeState.TryFindHandler(trigger, args, out TriggerBehaviourResult result))
+        if (!representativeState.TryFindHandler(trigger, args, out var result))
         {
             _unhandledTriggerAction.Execute(representativeState.UnderlyingState, trigger, result?.UnmetGuardConditions);
             return;

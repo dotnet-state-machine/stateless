@@ -57,7 +57,7 @@ public abstract class GraphStyleBase
     /// <returns>Description of all transitions, in the desired format</returns>
     public virtual List<string> FormatAllTransitions(List<Transition> transitions)
     {
-        List<string> lines = new List<string>();
+        var lines = new List<string>();
         if (transitions == null) return lines;
 
         foreach (var transit in transitions)

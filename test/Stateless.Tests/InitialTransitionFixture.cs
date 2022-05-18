@@ -192,12 +192,12 @@ public class InitialTransitionFixture
 
         var sm = new StateMachine<State, Trigger>(State.A); //never triggers any action!
 
-        int order = 0;
+        var order = 0;
 
-        int onEntryStateAfired = 0;
-        int onEntryStateBfired = 0;
-        int onExitStateAfired = 0;
-        int onExitStateBfired = 0;
+        var onEntryStateAfired = 0;
+        var onEntryStateBfired = 0;
+        var onExitStateAfired = 0;
+        var onExitStateBfired = 0;
 
         sm.Configure(State.A)
           .InitialTransition(State.B)
@@ -296,7 +296,7 @@ public class InitialTransitionFixture
         Assert.Equal(State.C, sm.State);
 
         Assert.Equal(expectedOrdering.Count, actualOrdering.Count);
-        for (int i = 0; i < expectedOrdering.Count; i++)
+        for (var i = 0; i < expectedOrdering.Count; i++)
         {
             Assert.Equal(expectedOrdering[i], actualOrdering[i]);
         }
@@ -330,7 +330,7 @@ public class InitialTransitionFixture
         Assert.Equal(State.C, sm.State);
 
         Assert.Equal(expectedOrdering.Count, actualOrdering.Count);
-        for (int i = 0; i < expectedOrdering.Count; i++)
+        for (var i = 0; i < expectedOrdering.Count; i++)
         {
             Assert.Equal(expectedOrdering[i], actualOrdering[i]);
         }

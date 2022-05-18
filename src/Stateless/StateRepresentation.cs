@@ -31,12 +31,12 @@ public partial class StateMachine<TState, TTrigger>
 
         public bool CanHandle(TTrigger trigger, params object[] args)
         {
-            return TryFindHandler(trigger, args, out TriggerBehaviourResult _);
+            return TryFindHandler(trigger, args, out var _);
         }
 
         public bool CanHandle(TTrigger trigger, object[] args, out ICollection<string> unmetGuards)
         {
-            bool handlerFound = TryFindHandler(trigger, args, out TriggerBehaviourResult result);
+            var handlerFound = TryFindHandler(trigger, args, out var result);
             unmetGuards = result?.UnmetGuardConditions;
             return handlerFound;
         }
@@ -45,8 +45,8 @@ public partial class StateMachine<TState, TTrigger>
         {
             TriggerBehaviourResult superStateHandler = null;
 
-            bool handlerFound = (TryFindLocalHandler(trigger, args, out TriggerBehaviourResult localHandler) ||
-                                 (Superstate is { } && Superstate.TryFindHandler(trigger, args, out superStateHandler)));
+            var handlerFound = (TryFindLocalHandler(trigger, args, out var localHandler) ||
+                                (Superstate is { } && Superstate.TryFindHandler(trigger, args, out superStateHandler)));
 
             // If no handler for super state, replace by local handler (see issue #398)
             handler = superStateHandler ?? localHandler;
@@ -57,7 +57,7 @@ public partial class StateMachine<TState, TTrigger>
         private bool TryFindLocalHandler(TTrigger trigger, object[] args, out TriggerBehaviourResult handlerResult)
         {
             // Get list of candidate trigger handlers
-            if (!TriggerBehaviours.TryGetValue(trigger, out ICollection<TriggerBehaviour> possible))
+            if (!TriggerBehaviours.TryGetValue(trigger, out var possible))
             {
                 handlerResult = null;
                 return false;
@@ -230,10 +230,10 @@ public partial class StateMachine<TState, TTrigger>
             InternalTriggerBehaviour.Sync internalTransition = null;
 
             // Look for actions in superstate(s) recursivly until we hit the topmost superstate, or we actually find some trigger handlers.
-            StateRepresentation aStateRep = this;
+            var aStateRep = this;
             while (aStateRep is { })
             {
-                if (aStateRep.TryFindLocalHandler(transition.Trigger, args, out TriggerBehaviourResult result))
+                if (aStateRep.TryFindLocalHandler(transition.Trigger, args, out var result))
                 {
                     // Trigger handler found in this state
                     if (result.Handler is InternalTriggerBehaviour.Async)
@@ -253,7 +253,7 @@ public partial class StateMachine<TState, TTrigger>
         }
         public void AddTriggerBehaviour(TriggerBehaviour triggerBehaviour)
         {
-            if (!TriggerBehaviours.TryGetValue(triggerBehaviour.Trigger, out ICollection<TriggerBehaviour> allowed))
+            if (!TriggerBehaviours.TryGetValue(triggerBehaviour.Trigger, out var allowed))
             {
                 allowed = new List<TriggerBehaviour>();
                 TriggerBehaviours.Add(triggerBehaviour.Trigger, allowed);
