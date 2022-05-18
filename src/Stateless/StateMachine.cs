@@ -46,7 +46,7 @@ public partial class StateMachine<TState, TTrigger>
     /// </summary>
     /// <param name="stateAccessor">A function that will be called to read the current state value.</param>
     /// <param name="stateMutator">An action that will be called to write new state values.</param>
-    /// <param name="firingMode">Optional specification of fireing mode.</param>
+    /// <param name="firingMode">Optional specification of firing mode.</param>
     public StateMachine(Func<TState> stateAccessor, Action<TState> stateMutator, FiringMode firingMode = FiringMode.Queued) : this()
     {
         _stateAccessor = stateAccessor ?? throw new ArgumentNullException(nameof(stateAccessor));
@@ -59,7 +59,7 @@ public partial class StateMachine<TState, TTrigger>
     /// Construct a state machine.
     /// </summary>
     /// <param name="initialState">The initial state.</param>
-    /// <param name="firingMode">Optional specification of fireing mode.</param>
+    /// <param name="firingMode">Optional specification of firing mode.</param>
     public StateMachine(TState initialState, FiringMode firingMode = FiringMode.Queued) : this()
     {
         var reference = new StateReference { State = initialState };
@@ -191,7 +191,7 @@ public partial class StateMachine<TState, TTrigger>
     /// <param name="trigger">The underlying trigger value.</param>
     /// <param name="argumentTypes">The argument types expected by the trigger.</param>
     /// <returns>An object that can be passed to the Fire() method in order to
-    /// fire the parameterised trigger.</returns>
+    /// fire the parameterized trigger.</returns>
     public TriggerWithParameters SetTriggerParameters(TTrigger trigger, params Type[] argumentTypes)
     {
         var configuration = new TriggerWithParameters(trigger, argumentTypes);
@@ -427,7 +427,7 @@ public partial class StateMachine<TState, TTrigger>
         _onTransitionedEvent.Invoke(transition);
         var representation = EnterState(newRepresentation, transition, args);
 
-        // Check if state has changed by entering new state (by fireing triggers in OnEntry or such)
+        // Check if state has changed by entering new state (by firing triggers in OnEntry or such)
         if (!representation.UnderlyingState.Equals(State))
         {
             // The state has been changed after entering the state, must update current state to new one
@@ -558,7 +558,7 @@ public partial class StateMachine<TState, TTrigger>
     /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
     /// <param name="trigger">The underlying trigger value.</param>
     /// <returns>An object that can be passed to the Fire() method in order to
-    /// fire the parameterised trigger.</returns>
+    /// fire the parameterized trigger.</returns>
     public TriggerWithParameters<TArg0> SetTriggerParameters<TArg0>(TTrigger trigger)
     {
         var configuration = new TriggerWithParameters<TArg0>(trigger);
@@ -573,7 +573,7 @@ public partial class StateMachine<TState, TTrigger>
     /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
     /// <param name="trigger">The underlying trigger value.</param>
     /// <returns>An object that can be passed to the Fire() method in order to
-    /// fire the parameterised trigger.</returns>
+    /// fire the parameterized trigger.</returns>
     public TriggerWithParameters<TArg0, TArg1> SetTriggerParameters<TArg0, TArg1>(TTrigger trigger)
     {
         var configuration = new TriggerWithParameters<TArg0, TArg1>(trigger);
@@ -589,7 +589,7 @@ public partial class StateMachine<TState, TTrigger>
     /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
     /// <param name="trigger">The underlying trigger value.</param>
     /// <returns>An object that can be passed to the Fire() method in order to
-    /// fire the parameterised trigger.</returns>
+    /// fire the parameterized trigger.</returns>
     public TriggerWithParameters<TArg0, TArg1, TArg2> SetTriggerParameters<TArg0, TArg1, TArg2>(TTrigger trigger)
     {
         var configuration = new TriggerWithParameters<TArg0, TArg1, TArg2>(trigger);
@@ -633,7 +633,7 @@ public partial class StateMachine<TState, TTrigger>
     }
 
     /// <summary>
-    /// Registers a callback that will be invoked every time the statemachine
+    /// Registers a callback that will be invoked every time the StateMachine
     /// transitions from one state into another and all the OnEntryFrom etc methods
     /// have been invoked
     /// </summary>

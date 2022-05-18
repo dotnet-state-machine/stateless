@@ -59,12 +59,12 @@ public class StateGraph
     /// <returns></returns>
     public string ToGraph(GraphStyleBase style)
     {
-        var dirgraphText = style.GetPrefix().Replace("\n", Environment.NewLine);
+        var dirGraphText = style.GetPrefix().Replace("\n", Environment.NewLine);
 
         // Start with the clusters
         foreach (var state in States.Values.Where(x => x is SuperState))
         {
-            dirgraphText += style.FormatOneCluster((SuperState)state).Replace("\n", Environment.NewLine);
+            dirGraphText += style.FormatOneCluster((SuperState)state).Replace("\n", Environment.NewLine);
         }
 
         // Next process all non-cluster states
@@ -72,29 +72,29 @@ public class StateGraph
         {
             if ((state is SuperState) || (state is Decision) || state.SuperState is { })
                 continue;
-            dirgraphText += style.FormatOneState(state).Replace("\n", Environment.NewLine);
+            dirGraphText += style.FormatOneState(state).Replace("\n", Environment.NewLine);
         }
 
         // Finally, add decision nodes
         foreach (var dec in Decisions)
         {
-            dirgraphText += style.FormatOneDecisionNode(dec.NodeName, dec.Method.Description)
+            dirGraphText += style.FormatOneDecisionNode(dec.NodeName, dec.Method.Description)
                                  .Replace("\n", Environment.NewLine);
         }
 
         // now build behaviours
         var transits = style.FormatAllTransitions(Transitions);
         foreach (var transit in transits)
-            dirgraphText += Environment.NewLine + transit;
+            dirGraphText += Environment.NewLine + transit;
 
         // Add initial transition if present
         var initialStateName = _initialState.UnderlyingState.ToString();
-        dirgraphText += $"{Environment.NewLine} init [label=\"\", shape=point];";
-        dirgraphText += $"{Environment.NewLine} init -> \"{initialStateName}\"[style = \"solid\"]";
+        dirGraphText += $"{Environment.NewLine} init [label=\"\", shape=point];";
+        dirGraphText += $"{Environment.NewLine} init -> \"{initialStateName}\"[style = \"solid\"]";
 
-        dirgraphText += $"{Environment.NewLine}}}";
+        dirGraphText += $"{Environment.NewLine}}}";
 
-        return dirgraphText;
+        return dirGraphText;
     }
 
     /// <summary>
@@ -171,17 +171,17 @@ public class StateGraph
                         States.TryGetValue(dynamicStateInfo.DestinationState, out var toState);
                         if (toState is { })
                         {
-                            var dtrans = new DynamicTransition(decide, toState, dyno.Trigger, dynamicStateInfo.Criterion);
-                            Transitions.Add(dtrans);
-                            decide.Leaving.Add(dtrans);
-                            toState.Arriving.Add(dtrans);
+                            var dTrans = new DynamicTransition(decide, toState, dyno.Trigger, dynamicStateInfo.Criterion);
+                            Transitions.Add(dTrans);
+                            decide.Leaving.Add(dTrans);
+                            toState.Arriving.Add(dTrans);
                         }
                     }
                 }
             }
-            foreach (var igno in stateInfo.IgnoredTriggers)
+            foreach (var ignored in stateInfo.IgnoredTriggers)
             {
-                var stay = new StayTransition(fromState, igno.Trigger, igno.GuardConditionsMethodDescriptions, false);
+                var stay = new StayTransition(fromState, ignored.Trigger, ignored.GuardConditionsMethodDescriptions, false);
                 Transitions.Add(stay);
                 fromState.Leaving.Add(stay);
                 fromState.Arriving.Add(stay);

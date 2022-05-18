@@ -63,7 +63,7 @@ public partial class StateMachine<TState, TTrigger>
         /// The trigger parameters
         /// </summary>
         /// <remarks>
-        /// Never null. For a parameterless trigger the value will be an empty array.
+        /// Never null. For a parameter-less trigger the value will be an empty array.
         /// </remarks>
         public object[] Parameters { get; }
     }

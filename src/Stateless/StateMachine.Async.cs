@@ -10,7 +10,7 @@ namespace Stateless
     public partial class StateMachine<TState, TTrigger>
     {
         /// <summary>
-        /// Activates current state in asynchronous fashion. Actions associated with activating the currrent state
+        /// Activates current state in asynchronous fashion. Actions associated with activating the current state
         /// will be invoked. The activation is idempotent and subsequent activation of the same current state 
         /// will not lead to re-execution of activation callbacks.
         /// </summary>
@@ -21,7 +21,7 @@ namespace Stateless
         }
 
         /// <summary>
-        /// Deactivates current state in asynchronous fashion. Actions associated with deactivating the currrent state
+        /// Deactivates current state in asynchronous fashion. Actions associated with deactivating the current state
         /// will be invoked. The deactivation is idempotent and subsequent deactivation of the same current state 
         /// will not lead to re-execution of deactivation callbacks.
         /// </summary>
@@ -249,7 +249,7 @@ namespace Stateless
             await _onTransitionedEvent.InvokeAsync(transition);
             var representation =await EnterStateAsync(newRepresentation, transition, args);
 
-            // Check if state has changed by entering new state (by fireing triggers in OnEntry or such)
+            // Check if state has changed by entering new state (by firing triggers in OnEntry or such)
             if (!representation.UnderlyingState.Equals(State))
             {
                 // The state has been changed after entering the state, must update current state to new one
@@ -317,7 +317,7 @@ namespace Stateless
         }
 
         /// <summary>
-        /// Registers an asynchronous callback that will be invoked every time the statemachine
+        /// Registers an asynchronous callback that will be invoked every time the StateMachine
         /// transitions from one state into another.
         /// </summary>
         /// <param name="onTransitionAction">The asynchronous action to execute, accepting the details
@@ -329,7 +329,7 @@ namespace Stateless
         }
 
         /// <summary>
-        /// Registers a callback that will be invoked every time the statemachine
+        /// Registers a callback that will be invoked every time the StateMachine
         /// transitions from one state into another and all the OnEntryFrom etc methods
         /// have been invoked
         /// </summary>

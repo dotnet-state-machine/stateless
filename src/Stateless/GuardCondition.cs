@@ -9,7 +9,7 @@ public partial class StateMachine<TState, TTrigger>
     {
         /// <summary>
         /// Constructor that takes in a guard with no argument.
-        /// This is needed because we wrap the no-arg guard with a lamba and therefore method description won't match what was origianlly passed in.
+        /// This is needed because we wrap the no-arg guard with a lambda and therefore method description won't match what was originally passed in.
         /// We need to preserve the method description before wrapping so Reflection methods will work.
         /// </summary>
         /// <param name="guard">No Argument Guard Condition</param>

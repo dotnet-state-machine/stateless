@@ -1,7 +1,7 @@
 ﻿namespace Stateless.Reflection; 
 
 /// <summary>
-/// Represents a trigger in a statemachine.
+/// Represents a trigger in a StateMachine.
 /// </summary>
 public class TriggerInfo
 {
