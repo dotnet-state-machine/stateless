@@ -18,6 +18,7 @@
     <PackageProjectUrl>https://github.com/dotnet-state-machine/stateless</PackageProjectUrl>
     <license>http://www.apache.org/licenses/LICENSE-2.0</license>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' OR '$(TargetFramework)' == 'netstandard2.0' ">
