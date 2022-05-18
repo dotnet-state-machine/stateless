@@ -160,6 +160,56 @@ namespace Stateless.Tests
         }
 
         [Fact]
+        public void ConditionalTriggerWithoutParameters()
+        {
+            var sm = new StateMachine<State, Trigger>(State.B);
+            var predicateInvoked = false;
+            var callbackInvoked = false;
+
+            sm.Configure(State.B)
+              .InternalTransitionIf(Trigger.X, () =>
+                                    {
+                                        predicateInvoked = true;
+                                        return true;
+                                    },
+                                    () =>
+                                    {
+                                        callbackInvoked = true;
+                                    });
+
+            sm.Fire(Trigger.X);
+            Assert.True(predicateInvoked);
+            Assert.True(callbackInvoked);
+        }
+
+        [Fact]
+        public void ConditionalTriggerWithParameter()
+        {
+            var sm = new StateMachine<State, Trigger>(State.B);
+            var trigger = sm.SetTriggerParameters<int>(Trigger.X);
+            const int intParam = 5;
+            var predicateInvoked = false;
+            var callbackInvoked = false;
+
+            sm.Configure(State.B)
+              .InternalTransitionIf(trigger, (i) =>
+                                    {
+                                        predicateInvoked = true;
+                                        Assert.Equal(intParam, i);
+                                        return true;
+                                    },
+                                    (i) =>
+                                    {
+                                        callbackInvoked = true;
+                                        Assert.Equal(intParam, i);
+                                    });
+
+            sm.Fire(trigger, intParam);
+            Assert.True(predicateInvoked);
+            Assert.True(callbackInvoked);
+        }
+
+        [Fact]
         public void AllowTriggerWithTwoParameters()
         {
             var sm = new StateMachine<State, Trigger>(State.B);
@@ -209,7 +259,7 @@ namespace Stateless.Tests
             var isPermitted = true;
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A)
-                .InternalTransitionIf(Trigger.X, _ => isPermitted, _ => { });
+                .InternalTransitionIf(Trigger.X, () => isPermitted, _ => { });
 
             Assert.Equal(1, sm.GetPermittedTriggers().ToArray().Length);
             isPermitted = false;
