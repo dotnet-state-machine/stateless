@@ -16,18 +16,18 @@ namespace Stateless.Graph
         /// <summary>
         /// List of all states in the graph, indexed by the string representation of the underlying State object.
         /// </summary>
-        public Dictionary<string, State> States { get; private set; } = new Dictionary<string, State>();
+        public Dictionary<string, State> States { get; private set; } = new();
 
         /// <summary>
         /// List of all transitions in the graph
         /// </summary>
-        public List<Transition> Transitions { get; private set; } = new List<Transition>();
+        public List<Transition> Transitions { get; private set; } = new();
 
         /// <summary>
         /// List of all decision nodes in the graph.  A decision node is generated each time there
         /// is a PermitDynamic() transition.
         /// </summary>
-        public List<Decision> Decisions { get; private set; } = new List<Decision>();
+        public List<Decision> Decisions { get; private set; } = new();
 
         /// <summary>
         /// Creates a new instance of <see cref="StateGraph"/>.

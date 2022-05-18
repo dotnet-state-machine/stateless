@@ -9,7 +9,7 @@ namespace Stateless
         class OnTransitionedEvent
         {
             event Action<Transition> _onTransitioned;
-            readonly List<Func<Transition, Task>> _onTransitionedAsync = new List<Func<Transition, Task>>();
+            readonly List<Func<Transition, Task>> _onTransitionedAsync = new();
 
             public void Invoke(Transition transition)
             {

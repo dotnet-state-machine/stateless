@@ -10,7 +10,7 @@ namespace Stateless
         {
             internal IList<GuardCondition> Conditions { get; }
 
-            public static readonly TransitionGuard Empty = new TransitionGuard(new Tuple<Func<object[],bool>, string>[0]);
+            public static readonly TransitionGuard Empty = new(new Tuple<Func<object[],bool>, string>[0]);
 
             #region Generic TArg0, ... to object[] converters
 
@@ -68,7 +68,7 @@ namespace Stateless
             {
                 Conditions = new List<GuardCondition>
                 {
-                    new GuardCondition(guard, Reflection.InvocationInfo.Create(guard, description))
+                    new(guard, Reflection.InvocationInfo.Create(guard, description))
                 };
             }
 
@@ -83,7 +83,7 @@ namespace Stateless
             {
                 Conditions = new List<GuardCondition>
                 {
-                    new GuardCondition(guard, Reflection.InvocationInfo.Create(guard, description))
+                    new(guard, Reflection.InvocationInfo.Create(guard, description))
                 };
             }
             

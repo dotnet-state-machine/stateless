@@ -17,12 +17,12 @@ namespace Stateless.Graph
         /// <summary>
         /// List of all transitions that leave this state (never null)
         /// </summary>
-        public List<Transition> Leaving { get; } = new List<Transition>();
+        public List<Transition> Leaving { get; } = new();
 
         /// <summary>
         /// List of all transitions that enter this state (never null)
         /// </summary>
-        public List<Transition> Arriving { get; } = new List<Transition>();
+        public List<Transition> Arriving { get; } = new();
 
         /// <summary>
         /// Unique name of this object
@@ -37,12 +37,12 @@ namespace Stateless.Graph
         /// <summary>
         /// Actions that are executed when you enter this state from any trigger
         /// </summary>
-        public List<string> EntryActions { get; private set; } = new List<string>();
+        public List<string> EntryActions { get; private set; } = new();
 
         /// <summary>
         /// Actions that are executed when you exit this state
         /// </summary>
-        public List<string> ExitActions { get; private set; } = new List<string>();
+        public List<string> ExitActions { get; private set; } = new();
 
         /// <summary>
         /// Constructs a new instance of State.

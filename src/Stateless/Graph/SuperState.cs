@@ -10,7 +10,7 @@ namespace Stateless.Graph
         /// <summary>
         /// List of states that are a substate of this state
         /// </summary>
-        public List<State> SubStates { get; } = new List<State>();
+        public List<State> SubStates { get; } = new();
 
         /// <summary>
         /// Constructs a new instance of SuperState.

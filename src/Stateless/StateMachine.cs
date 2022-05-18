@@ -38,7 +38,7 @@ namespace Stateless
             public object[] Args { get; set; }
         }
 
-        private readonly Queue<QueuedTrigger> _eventQueue = new Queue<QueuedTrigger>();
+        private readonly Queue<QueuedTrigger> _eventQueue = new();
         private bool _firing;
 
         /// <summary>

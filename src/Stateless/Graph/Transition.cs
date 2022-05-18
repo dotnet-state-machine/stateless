@@ -17,7 +17,7 @@ namespace Stateless.Graph
         /// <summary>
         /// List of actions to be performed by the destination state (the one being entered)
         /// </summary>
-        public List<ActionInfo> DestinationEntryActions = new List<ActionInfo>();
+        public List<ActionInfo> DestinationEntryActions = new();
 
         /// <summary>
         /// Should the entry and exit actions be executed when this transition takes place

@@ -13,7 +13,7 @@ namespace Stateless.Tests
         {
             var stateRepresentation = CreateRepresentation(State.B);
             StateMachine<State, Trigger>.Transition
-                transition = new StateMachine<State, Trigger>.Transition(State.A, State.B, Trigger.X),
+                transition = new(State.A, State.B, Trigger.X),
                 actualTransition = null;
             stateRepresentation.AddEntryAction((t, a) => actualTransition = t, Reflection.InvocationInfo.Create(null, "entryActionDescription"));
             stateRepresentation.Enter(transition);
@@ -25,7 +25,7 @@ namespace Stateless.Tests
         {
             var stateRepresentation = CreateRepresentation(State.B);
             StateMachine<State, Trigger>.Transition
-                transition = new StateMachine<State, Trigger>.Transition(State.A, State.B, Trigger.X),
+                transition = new(State.A, State.B, Trigger.X),
                 actualTransition = null;
             stateRepresentation.AddEntryAction((t, a) => actualTransition = t, Reflection.InvocationInfo.Create(null, "entryActionDescription"));
             stateRepresentation.Exit(transition);
@@ -37,7 +37,7 @@ namespace Stateless.Tests
         {
             var stateRepresentation = CreateRepresentation(State.A);
             StateMachine<State, Trigger>.Transition
-                transition = new StateMachine<State, Trigger>.Transition(State.A, State.B, Trigger.X),
+                transition = new(State.A, State.B, Trigger.X),
                 actualTransition = null;
             stateRepresentation.AddExitAction(t => actualTransition = t, Reflection.InvocationInfo.Create(null, "entryActionDescription"));
             stateRepresentation.Exit(transition);
@@ -49,7 +49,7 @@ namespace Stateless.Tests
         {
             var stateRepresentation = CreateRepresentation(State.A);
             StateMachine<State, Trigger>.Transition
-                transition = new StateMachine<State, Trigger>.Transition(State.A, State.B, Trigger.X),
+                transition = new(State.A, State.B, Trigger.X),
                 actualTransition = null;
             stateRepresentation.AddExitAction(t => actualTransition = t, Reflection.InvocationInfo.Create(null, "exitActionDescription"));
             stateRepresentation.Enter(transition);
