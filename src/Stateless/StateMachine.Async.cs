@@ -42,7 +42,7 @@ namespace Stateless
         /// not allow the trigger to be fired.</exception>
         public Task FireAsync(TTrigger trigger)
         {
-            return InternalFireAsync(trigger, new object[0]);
+            return InternalFireAsync(trigger, ArrayHelper.Empty<object>());
         }
 
         /// <summary>

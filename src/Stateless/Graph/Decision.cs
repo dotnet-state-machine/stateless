@@ -10,7 +10,7 @@ namespace Stateless.Graph
         /// <summary>
         /// Gets the underlying method description of the invoked method.
         /// </summary>
-        public InvocationInfo Method { get; private set; }
+        public InvocationInfo Method { get; }
 
         /// <summary>
         /// Creates a new instance of <see cref="Decision"/>.

@@ -40,7 +40,7 @@ namespace Stateless
 
             public class SyncFrom<TTriggerType> : Sync
             {
-                internal TTriggerType Trigger { get; private set; }
+                internal TTriggerType Trigger { get; }
 
                 public SyncFrom(TTriggerType trigger, Action<Transition, object[]> action, Reflection.InvocationInfo description)
                     : base(action, description)

@@ -43,11 +43,11 @@ namespace Stateless
 
             public class Async : InternalTriggerBehaviour
             {
-                readonly Func<Transition, object[], Task> InternalAction;
+                readonly Func<Transition, object[], Task> _internalAction;
 
                 public Async(TTrigger trigger, Func<bool> guard,Func<Transition, object[], Task> internalAction, string guardDescription = null) : base(trigger, new TransitionGuard(guard, guardDescription))
                 {
-                    InternalAction = internalAction;
+                    _internalAction = internalAction;
                 }
 
                 public override void Execute(Transition transition, object[] args)
@@ -59,7 +59,7 @@ namespace Stateless
 
                 public override Task ExecuteAsync(Transition transition, object[] args)
                 {
-                    return InternalAction(transition, args);
+                    return _internalAction(transition, args);
                 }
 
             }

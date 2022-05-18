@@ -123,22 +123,22 @@ namespace Stateless.Reflection
         /// <summary>
         /// Actions that are defined to be executed on state-entry.
         /// </summary>
-        public IEnumerable<ActionInfo> EntryActions { get; private set; }
+        public IEnumerable<ActionInfo> EntryActions { get; }
 
         /// <summary>
         /// Actions that are defined to be executed on activation.
         /// </summary>
-        public IEnumerable<InvocationInfo> ActivateActions { get; private set; }
+        public IEnumerable<InvocationInfo> ActivateActions { get; }
 
         /// <summary>
         /// Actions that are defined to be executed on deactivation.
         /// </summary>
-        public IEnumerable<InvocationInfo> DeactivateActions { get; private set; }
+        public IEnumerable<InvocationInfo> DeactivateActions { get; }
 
         /// <summary>
         /// Actions that are defined to be exectuted on state-exit.
         /// </summary>
-        public IEnumerable<InvocationInfo> ExitActions { get; private set; }
+        public IEnumerable<InvocationInfo> ExitActions { get; }
 
         /// <summary> 
         /// Transitions defined for this state.
@@ -158,7 +158,7 @@ namespace Stateless.Reflection
         /// <summary>
         /// Triggers ignored for this state.
         /// </summary>
-        public IEnumerable<IgnoredTransitionInfo> IgnoredTriggers { get; private set; }
+        public IEnumerable<IgnoredTransitionInfo> IgnoredTriggers { get; }
 
         /// <summary>
         /// Passes through to the value's ToString.

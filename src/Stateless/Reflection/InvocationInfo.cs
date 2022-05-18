@@ -44,7 +44,7 @@ namespace Stateless.Reflection
         /// The name of the invoked method.  If the method is a lambda or delegate, the name will be a compiler-generated
         /// name that is often not human-friendly (e.g. "(.ctor)b__2_0" except with angle brackets instead of parentheses)
         /// </summary>
-        public string MethodName { get; private set; }
+        public string MethodName { get; }
 
         /// <summary>
         /// Text returned for compiler-generated functions where the caller has not specified a description

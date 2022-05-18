@@ -27,22 +27,22 @@ namespace Stateless.Graph
         /// <summary>
         /// Unique name of this object
         /// </summary>
-        public string NodeName { get; private set; }
+        public string NodeName { get; }
 
         /// <summary>
         /// Name of the state represented by this object
         /// </summary>
-        public string StateName { get; private set; }
+        public string StateName { get; }
 
         /// <summary>
         /// Actions that are executed when you enter this state from any trigger
         /// </summary>
-        public List<string> EntryActions { get; private set; } = new();
+        public List<string> EntryActions { get; } = new();
 
         /// <summary>
         /// Actions that are executed when you exit this state
         /// </summary>
-        public List<string> ExitActions { get; private set; } = new();
+        public List<string> ExitActions { get; } = new();
 
         /// <summary>
         /// Constructs a new instance of State.

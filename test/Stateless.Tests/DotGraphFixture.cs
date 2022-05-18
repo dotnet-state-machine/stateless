@@ -31,10 +31,10 @@ namespace Stateless.Tests
 
         enum Style
         {
-            UML
+            Uml
         }
 
-        static readonly string suffix = Environment.NewLine
+        static readonly string Suffix = Environment.NewLine
             + $" init [label=\"\", shape=point];" + Environment.NewLine
             + $" init -> \"A\"[style = \"solid\"]" + Environment.NewLine
             + "}";
@@ -97,7 +97,7 @@ namespace Stateless.Tests
 
         static string Subgraph(Style style, string graphName, string label, string contents)
         {
-            if (style != Style.UML)
+            if (style != Style.Uml)
                 throw new Exception("WRITE MORE CODE");
 
             string s = "\n"
@@ -115,7 +115,7 @@ namespace Stateless.Tests
         [Fact]
         public void SimpleTransition()
         {
-            var expected = Prefix() + Box("A") + Box("B") + Line("A", "B", "X") + suffix;
+            var expected = Prefix() + Box("A") + Box("B") + Line("A", "B", "X") + Suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -132,9 +132,9 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        public void SimpleTransitionUML()
+        public void SimpleTransitionUml()
         {
-            var expected = Prefix() + Box("A") + Box("B") + Line("A", "B", "X") + suffix;
+            var expected = Prefix() + Box("A") + Box("B") + Line("A", "B", "X") + Suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -156,7 +156,7 @@ namespace Stateless.Tests
             var expected = Prefix() + Box("A") + Box("B") + Box("C")
                 + Line("A", "B", "X")
                 + Line("A", "C", "Y")
-                + suffix;
+                + Suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -170,15 +170,15 @@ namespace Stateless.Tests
         [Fact]
         public void WhenDiscriminatedByAnonymousGuard()
         {
-            static bool anonymousGuard() => true;
+            static bool AnonymousGuard() => true;
 
             var expected = Prefix() + Box("A") + Box("B")
                 + Line("A", "B", "X [" + InvocationInfo.DefaultFunctionDescription + "]")
-                + suffix;
+                + Suffix;
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .PermitIf(Trigger.X, State.B, anonymousGuard);
+                .PermitIf(Trigger.X, State.B, AnonymousGuard);
             sm.Configure(State.B);
 
             Assert.Equal(expected, UmlDotGraph.Format(sm.GetInfo()));
@@ -187,17 +187,17 @@ namespace Stateless.Tests
         [Fact]
         public void WhenDiscriminatedByAnonymousGuardWithDescription()
         {
-            static bool anonymousGuard() => true;
+            static bool AnonymousGuard() => true;
 
             var expected = Prefix()
                 + Box("A") + Box("B")
                 + Line("A", "B", "X [description]")
-                +  suffix;
+                +  Suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .PermitIf(Trigger.X, State.B, anonymousGuard, "description");
+                .PermitIf(Trigger.X, State.B, AnonymousGuard, "description");
 
             string dotGraph = UmlDotGraph.Format(sm.GetInfo());
 
@@ -214,7 +214,7 @@ namespace Stateless.Tests
             var expected = Prefix()
                 + Box("A") + Box("B")
                 + Line("A", "B", "X [IsTrue]")
-                + suffix;
+                + Suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -230,7 +230,7 @@ namespace Stateless.Tests
             var expected = Prefix()
                 + Box("A") + Box("B")
                 + Line("A", "B", "X [description]")
-                + suffix;
+                + Suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -246,7 +246,7 @@ namespace Stateless.Tests
             var expected = Prefix()
                 + Box("A")
                 + Decision("Decision1", "Function")
-                + Line("A", "Decision1", "X") + suffix;
+                + Line("A", "Decision1", "X") + Suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A)
@@ -267,7 +267,7 @@ namespace Stateless.Tests
             var expected = Prefix()
                 + Box("A")
                 + Decision("Decision1", "Function")
-                + Line("A", "Decision1", "X") + suffix;
+                + Line("A", "Decision1", "X") + Suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
             var trigger = sm.SetTriggerParameters<int>(Trigger.X);
@@ -285,7 +285,7 @@ namespace Stateless.Tests
         [Fact]
         public void OnEntryWithAnonymousActionAndDescription()
         {
-            var expected = Prefix() + Box("A", new List<string> { "enteredA" }) + suffix;
+            var expected = Prefix() + Box("A", new List<string> { "enteredA" }) + Suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -304,7 +304,7 @@ namespace Stateless.Tests
         [Fact]
         public void OnEntryWithNamedDelegateActionAndDescription()
         {
-            var expected = Prefix() + Box("A", new List<string> { "enteredA" }) + suffix;
+            var expected = Prefix() + Box("A", new List<string> { "enteredA" }) + Suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -317,7 +317,7 @@ namespace Stateless.Tests
         [Fact]
         public void OnExitWithAnonymousActionAndDescription()
         {
-            var expected = Prefix() + Box("A", null, new List<string> { "exitA" }) + suffix;
+            var expected = Prefix() + Box("A", null, new List<string> { "exitA" }) + Suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -336,9 +336,9 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .OnExit(OnExit, "exitA");
 
-            var expected = Prefix() + Box("A", null, new List<string> { "exitA" }) + suffix;
+            var expected = Prefix() + Box("A", null, new List<string> { "exitA" }) + Suffix;
             Assert.Equal(expected, UmlDotGraph.Format(sm.GetInfo()));
-            expected = Prefix() + Box("A", null, new List<string> { "exitA" }) + suffix;
+            expected = Prefix() + Box("A", null, new List<string> { "exitA" }) + Suffix;
             Assert.Equal(expected, UmlDotGraph.Format(sm.GetInfo()));
         }
 
@@ -350,7 +350,7 @@ namespace Stateless.Tests
                 + Box("A") + Box("B")
                 + Line("A", "B", "X")
                 + Line("A", "A", "Y")
-                + suffix;
+                + Suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -369,17 +369,17 @@ namespace Stateless.Tests
                                     + Line("A", "B", "X / BX")
                                     + Line("A", "C", "Y / TestEntryActionString [IsTriggerY]")
                                     + Line("A", "B", "Z [IsTriggerZ]")
-                                    + suffix;
+                                    + Suffix;
 
-            static bool anonymousGuard() => true;
+            static bool AnonymousGuard() => true;
             var sm = new StateMachine<State, Trigger>(State.A);
             var parmTrig = sm.SetTriggerParameters<string>(Trigger.Y);
 
             sm.Configure(State.A)
                 .OnEntry(() => { }, "OnEntry")
                 .Permit(Trigger.X, State.B)
-                .PermitIf(Trigger.Y, State.C, anonymousGuard, "IsTriggerY")
-                .PermitIf(Trigger.Z, State.B, anonymousGuard, "IsTriggerZ");
+                .PermitIf(Trigger.Y, State.C, AnonymousGuard, "IsTriggerY")
+                .PermitIf(Trigger.Z, State.B, AnonymousGuard, "IsTriggerZ");
 
             sm.Configure(State.B)
                 .OnEntryFrom(Trigger.X, TestEntryAction, "BX");
@@ -398,37 +398,37 @@ namespace Stateless.Tests
         [Fact]
         public void SpacedUmlWithSubstate()
         {
-            string StateA = "State A";
-            string StateB = "State B";
-            string StateC = "State C";
-            string StateD = "State D";
-            string TriggerX = "Trigger X";
-            string TriggerY = "Trigger Y";
+            string stateA = "State A";
+            string stateB = "State B";
+            string stateC = "State C";
+            string stateD = "State D";
+            string triggerX = "Trigger X";
+            string triggerY = "Trigger Y";
             
             var expected = Prefix()
-                           + Subgraph(Style.UML, StateD, $"{StateD}\\n----------\\nentry / Enter D",
-                                      Box(StateB)
-                                    + Box(StateC))
-                           + Box(StateA, new List<string> { "Enter A" }, new List<string> { "Exit A" })
-                           + Line(StateA, StateB, TriggerX) + Line(StateA, StateC, TriggerY)
+                           + Subgraph(Style.Uml, stateD, $"{stateD}\\n----------\\nentry / Enter D",
+                                      Box(stateB)
+                                    + Box(stateC))
+                           + Box(stateA, new List<string> { "Enter A" }, new List<string> { "Exit A" })
+                           + Line(stateA, stateB, triggerX) + Line(stateA, stateC, triggerY)
                            +  Environment.NewLine
                            + $" init [label=\"\", shape=point];" + Environment.NewLine
-                           + $" init -> \"{StateA}\"[style = \"solid\"]" + Environment.NewLine
+                           + $" init -> \"{stateA}\"[style = \"solid\"]" + Environment.NewLine
                            + "}";
 
             var sm = new StateMachine<string, string>("State A");
 
-            sm.Configure(StateA)
-                .Permit(TriggerX, StateB)
-                .Permit(TriggerY, StateC)
+            sm.Configure(stateA)
+                .Permit(triggerX, stateB)
+                .Permit(triggerY, stateC)
                 .OnEntry(TestEntryAction, "Enter A")
                 .OnExit(TestEntryAction, "Exit A");
 
-            sm.Configure(StateB)
-                .SubstateOf(StateD);
-            sm.Configure(StateC)
-                .SubstateOf(StateD);
-            sm.Configure(StateD)
+            sm.Configure(stateB)
+                .SubstateOf(stateD);
+            sm.Configure(stateC)
+                .SubstateOf(stateD);
+            sm.Configure(stateD)
                 .OnEntry(TestEntryAction, "Enter D");
 
             string dotGraph = UmlDotGraph.Format(sm.GetInfo());
@@ -443,12 +443,12 @@ namespace Stateless.Tests
         public void UmlWithSubstate()
         {
             var expected = Prefix()
-                + Subgraph(Style.UML, "D", "D\\n----------\\nentry / EnterD",
+                + Subgraph(Style.Uml, "D", "D\\n----------\\nentry / EnterD",
                            Box("B")
                          + Box("C"))
                 + Box("A", new List<string> { "EnterA" }, new List<string> { "ExitA" })
                 + Line("A", "B", "X") + Line("A", "C", "Y")
-                + suffix;
+                + Suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -484,7 +484,7 @@ namespace Stateless.Tests
                 + Line("A", "Decision1", "X")
                 + Line("Decision1", "B", "X [ChoseB]")
                 + Line("Decision1", "C", "X [ChoseC]")
-                + suffix;
+                + Suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -511,7 +511,7 @@ namespace Stateless.Tests
                 + Line("A", "B", "X")
                 + Line("A", "A", "Y") 
                 + Line("B", "B", "Z / DoThisEntry")
-                + suffix;
+                + Suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 

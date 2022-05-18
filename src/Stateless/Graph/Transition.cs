@@ -12,7 +12,7 @@ namespace Stateless.Graph
         /// <summary>
         /// The trigger that causes this transition
         /// </summary>
-        public TriggerInfo Trigger { get; private set; }
+        public TriggerInfo Trigger { get; }
 
         /// <summary>
         /// List of actions to be performed by the destination state (the one being entered)
@@ -27,7 +27,7 @@ namespace Stateless.Graph
         /// <summary>
         /// The state where this transition starts
         /// </summary>
-        public State SourceState { get; private set; }
+        public State SourceState { get; }
 
         /// <summary>
         /// Base class of transitions
@@ -49,12 +49,12 @@ namespace Stateless.Graph
         /// <summary>
         /// The state where this transition finishes
         /// </summary>
-        public State DestinationState { get; private set; }
+        public State DestinationState { get; }
 
         /// <summary>
         /// Guard functions for this transition (null if none)
         /// </summary>
-        public IEnumerable<InvocationInfo> Guards { get; private set; }
+        public IEnumerable<InvocationInfo> Guards { get; }
 
         /// <summary>
         /// Creates a new instance of <see cref="FixedTransition"/>.
@@ -79,12 +79,12 @@ namespace Stateless.Graph
         /// <summary>
         /// The state where this transition finishes
         /// </summary>
-        public State DestinationState { get; private set; }
+        public State DestinationState { get; }
 
         /// <summary>
         /// When is this transition followed
         /// </summary>
-        public string Criterion { get; private set; }
+        public string Criterion { get; }
 
         /// <summary>
         /// Creates a new instance of <see cref="DynamicTransition"/>.
@@ -109,7 +109,7 @@ namespace Stateless.Graph
         /// <summary>
         /// The guard conditions associated with this transition.
         /// </summary>
-        public IEnumerable<InvocationInfo> Guards { get; private set; }
+        public IEnumerable<InvocationInfo> Guards { get; }
 
         /// <summary>
         /// Creates a new instance of <see cref="StayTransition"/>.

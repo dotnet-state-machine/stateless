@@ -11,23 +11,23 @@ namespace Stateless.Graph
     /// </summary>
     public class StateGraph
     {
-        private readonly StateInfo initialState;
+        private readonly StateInfo _initialState;
 
         /// <summary>
         /// List of all states in the graph, indexed by the string representation of the underlying State object.
         /// </summary>
-        public Dictionary<string, State> States { get; private set; } = new();
+        public Dictionary<string, State> States { get; } = new();
 
         /// <summary>
         /// List of all transitions in the graph
         /// </summary>
-        public List<Transition> Transitions { get; private set; } = new();
+        public List<Transition> Transitions { get; } = new();
 
         /// <summary>
         /// List of all decision nodes in the graph.  A decision node is generated each time there
         /// is a PermitDynamic() transition.
         /// </summary>
-        public List<Decision> Decisions { get; private set; } = new();
+        public List<Decision> Decisions { get; } = new();
 
         /// <summary>
         /// Creates a new instance of <see cref="StateGraph"/>.
@@ -36,7 +36,7 @@ namespace Stateless.Graph
         public StateGraph(StateMachineInfo machineInfo)
         {
             // Add initial state
-            initialState = machineInfo.InitialState;
+            _initialState = machineInfo.InitialState;
 
             // Start with top-level superstates
             AddSuperstates(machineInfo);
@@ -87,7 +87,7 @@ namespace Stateless.Graph
                 dirgraphText += System.Environment.NewLine + transit;
 
             // Add initial transition if present
-            var initialStateName = initialState.UnderlyingState.ToString();
+            var initialStateName = _initialState.UnderlyingState.ToString();
             dirgraphText += System.Environment.NewLine + $" init [label=\"\", shape=point];";
             dirgraphText += System.Environment.NewLine + $" init -> \"{initialStateName}\"[style = \"solid\"]";
 

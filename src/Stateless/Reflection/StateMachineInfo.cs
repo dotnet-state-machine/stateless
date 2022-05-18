@@ -32,13 +32,13 @@ namespace Stateless.Reflection
         /// The type of the underlying state.
         /// </summary>
         /// <returns></returns>
-        public Type StateType { get; private set; }
+        public Type StateType { get; }
 
         /// <summary>
         /// The type of the underlying trigger.
         /// </summary>
         /// <returns></returns>
-        public Type TriggerType { get; private set; }
+        public Type TriggerType { get; }
 
     }
 }

@@ -36,7 +36,7 @@
                 Source = source;
                 Destination = destination;
                 Trigger = trigger;
-                Parameters = parameters ?? new object[0];
+                Parameters = parameters ?? ArrayHelper.Empty<object>();
             }
 
             /// <summary>

@@ -159,8 +159,8 @@ namespace Stateless.Tests
             //
             Assert.Equal(2, binding.FixedTransitions.Count()); // Transition count mismatch
             //
-            bool haveXB = false;
-            bool haveYC = false;
+            bool haveXb = false;
+            bool haveYc = false;
             foreach (FixedTransitionInfo trans in binding.FixedTransitions)
             {
                 Assert.True(trans.Trigger.UnderlyingTrigger is Trigger);
@@ -172,19 +172,19 @@ namespace Stateless.Tests
                 if ((Trigger)trans.Trigger.UnderlyingTrigger == Trigger.X)
                 {
                     Assert.Equal(State.B, (State)trans.DestinationState.UnderlyingState);
-                    Assert.False(haveXB);
-                    haveXB = true;
+                    Assert.False(haveXb);
+                    haveXb = true;
                 }
                 else if ((Trigger)trans.Trigger.UnderlyingTrigger == Trigger.Y)
                 {
                     Assert.Equal(State.C, (State)trans.DestinationState.UnderlyingState);
-                    Assert.False(haveYC);
-                    haveYC = true;
+                    Assert.False(haveYc);
+                    haveYc = true;
                 }
                 else
                     throw new XunitException("Failed.");
             }
-            Assert.True(haveXB && haveYC);
+            Assert.True(haveXb && haveYc);
             //
             Assert.Equal(0, binding.IgnoredTriggers.Count());
             Assert.Equal(0, binding.DynamicTransitions.Count());
@@ -193,12 +193,12 @@ namespace Stateless.Tests
         [Fact]
         public void WhenDiscriminatedByAnonymousGuard_Binding()
         {
-            static bool anonymousGuard() => true;
+            static bool AnonymousGuard() => true;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .PermitIf(Trigger.X, State.B, anonymousGuard);
+                .PermitIf(Trigger.X, State.B, AnonymousGuard);
 
             StateMachineInfo inf = sm.GetInfo();
 
@@ -233,12 +233,12 @@ namespace Stateless.Tests
         [Fact]
         public void WhenDiscriminatedByAnonymousGuardWithDescription_Binding()
         {
-            static bool anonymousGuard() => true;
+            static bool AnonymousGuard() => true;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .PermitIf(Trigger.X, State.B, anonymousGuard, "description");
+                .PermitIf(Trigger.X, State.B, AnonymousGuard, "description");
 
             StateMachineInfo inf = sm.GetInfo();
 

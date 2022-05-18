@@ -201,7 +201,7 @@ namespace Stateless
         /// not allow the trigger to be fired.</exception>
         public void Fire(TTrigger trigger)
         {
-            InternalFire(trigger, new object[0]);
+            InternalFire(trigger, ArrayHelper.Empty<object>());
         }
 
         /// <summary>
@@ -559,7 +559,7 @@ namespace Stateless
         /// <returns>True if the trigger can be fired, false otherwise.</returns>
         public bool CanFire(TTrigger trigger, out ICollection<string> unmetGuards)
         {
-            return CurrentRepresentation.CanHandle(trigger, new object[] { }, out unmetGuards);
+            return CurrentRepresentation.CanHandle(trigger, ArrayHelper.Empty<object>(), out unmetGuards);
         }
 
         /// <summary>

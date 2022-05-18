@@ -10,7 +10,7 @@ namespace Stateless
         {
             internal IList<GuardCondition> Conditions { get; }
 
-            public static readonly TransitionGuard Empty = new(new Tuple<Func<object[],bool>, string>[0]);
+            public static readonly TransitionGuard Empty = new(ArrayHelper.Empty<Tuple<Func<object[], bool>, string>>());
 
             #region Generic TArg0, ... to object[] converters
 

@@ -1127,16 +1127,16 @@ namespace Stateless
             /// <returns>The receiver.</returns>
             public StateConfiguration SubstateOf(TState superstate)
             {
-                var State = _representation.UnderlyingState;
+                var state = _representation.UnderlyingState;
 
                 // Check for accidental identical cyclic configuration
-                if (State.Equals(superstate))
+                if (state.Equals(superstate))
                 {
-                    throw new ArgumentException($"Configuring {State} as a substate of {superstate} creates an illegal cyclic configuration.");
+                    throw new ArgumentException($"Configuring {state} as a substate of {superstate} creates an illegal cyclic configuration.");
                 }
 
                 // Check for accidental identical nested cyclic configuration
-                var superstates = new HashSet<TState> { State };
+                var superstates = new HashSet<TState> { state };
 
                 // Build list of super states and check for
                 var activeRepresentation = _lookup(superstate);
@@ -1144,7 +1144,7 @@ namespace Stateless
                 {
                     // Check if superstate is already added to hashset
                     if (superstates.Contains(activeRepresentation.Superstate.UnderlyingState))
-                        throw new ArgumentException($"Configuring {State} as a substate of {superstate} creates an illegal nested cyclic configuration.");
+                        throw new ArgumentException($"Configuring {state} as a substate of {superstate} creates an illegal nested cyclic configuration.");
 
                     superstates.Add(activeRepresentation.Superstate.UnderlyingState);
                     activeRepresentation = _lookup(activeRepresentation.Superstate.UnderlyingState);
@@ -1406,7 +1406,7 @@ namespace Stateless
             /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
             public StateConfiguration PermitDynamicIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, TState> destinationStateSelector)
             {
-                return PermitDynamicIf<TArg0>(trigger, destinationStateSelector, null, new Tuple<Func<bool>, string>[0]);
+                return PermitDynamicIf<TArg0>(trigger, destinationStateSelector, null, ArrayHelper.Empty<Tuple<Func<bool>, string>>());
             }
 
             /// <summary>

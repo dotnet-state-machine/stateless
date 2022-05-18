@@ -999,7 +999,7 @@ namespace Stateless.Tests
             Trigger superStateTrigger = Trigger.X,
                     subStateTrigger = Trigger.Y;
 
-            StateMachine<State, Trigger> hsm(State initialState)
+            StateMachine<State, Trigger> Hsm(State initialState)
                 => new StateMachine<State, Trigger>(initialState)
                         .Configure(superState)
                         .Permit(superStateTrigger, otherState)
@@ -1009,8 +1009,8 @@ namespace Stateless.Tests
                         .Permit(subStateTrigger, otherState)
                     .Machine;
 
-            var hsmInSuperstate = hsm(superState);
-            var hsmInSubstate = hsm(subState);
+            var hsmInSuperstate = Hsm(superState);
+            var hsmInSubstate = Hsm(subState);
 
             Assert.All(hsmInSuperstate.PermittedTriggers, trigger => Assert.Contains(trigger, hsmInSubstate.PermittedTriggers));
             Assert.Contains(superStateTrigger, hsmInSubstate.PermittedTriggers);
