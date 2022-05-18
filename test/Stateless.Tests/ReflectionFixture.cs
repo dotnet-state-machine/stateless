@@ -589,11 +589,11 @@ namespace Stateless.Tests
             if (state == State.A)
                 Assert.Equal(prefix + body + ((timing == InvocationInfo.Timing.Asynchronous) ? "Async" : ""), method.Description);
             else if (state == State.B)
-                Assert.Equal(UserDescription + "B-" + body, method.Description);
+                Assert.Equal($"{UserDescription}B-{body}", method.Description);
             else if (state == State.C)
                 Assert.Equal(InvocationInfo.DefaultFunctionDescription, method.Description);
             else if (state == State.D)
-                Assert.Equal(UserDescription + "D-" + body, method.Description);
+                Assert.Equal($"{UserDescription}D-{body}", method.Description);
 
             Assert.Equal(timing == InvocationInfo.Timing.Asynchronous, method.IsAsync);
         }
@@ -605,7 +605,7 @@ namespace Stateless.Tests
 
             foreach (InvocationInfo method in methods)
             {
-                Debug.WriteLine("Method description is \"" + method.Description + "\"");
+                Debug.WriteLine($"Method description is \"{method.Description}\"");
                 //
                 bool matches = false;
                 foreach (string suffix in suffixes)
@@ -613,14 +613,14 @@ namespace Stateless.Tests
                     if (state == State.A)
                     {
                         matches = (method.Description == (prefix + body
-                            + ((timing == InvocationInfo.Timing.Asynchronous) ? "Async" : "" + suffix)));
+                            + ((timing == InvocationInfo.Timing.Asynchronous) ? "Async" : $"{suffix}")));
                     }
                     else if (state == State.B)
-                        matches = (UserDescription + "B-" + body + suffix == method.Description);
+                        matches = ($"{UserDescription}B-{body}{suffix}" == method.Description);
                     else if (state == State.C)
                         matches = (InvocationInfo.DefaultFunctionDescription == method.Description);
                     else if (state == State.D)
-                        matches = (UserDescription + "D-" + body + suffix == method.Description);
+                        matches = ($"{UserDescription}D-{body}{suffix}" == method.Description);
                     //
                     if (matches)
                     {
@@ -629,7 +629,7 @@ namespace Stateless.Tests
                     }
                 }
                 if (!matches)
-                    Debug.WriteLine("No match for \"" + method.Description + "\"");
+                    Debug.WriteLine($"No match for \"{method.Description}\"");
                 Assert.True(matches);
                 //
                 Assert.Equal(timing == InvocationInfo.Timing.Asynchronous, method.IsAsync);
@@ -647,20 +647,20 @@ namespace Stateless.Tests
                 .OnExit(OnExit)
                 .OnDeactivate(OnDeactivate);
             sm.Configure(State.B)
-                .OnActivate(OnActivate, UserDescription + "B-Activate")
-                .OnEntry(OnEntry, UserDescription + "B-Entry")
-                .OnExit(OnExit, UserDescription + "B-Exit")
-                .OnDeactivate(OnDeactivate, UserDescription + "B-Deactivate");
+                .OnActivate(OnActivate, $"{UserDescription}B-Activate")
+                .OnEntry(OnEntry, $"{UserDescription}B-Entry")
+                .OnExit(OnExit, $"{UserDescription}B-Exit")
+                .OnDeactivate(OnDeactivate, $"{UserDescription}B-Deactivate");
             sm.Configure(State.C)
                 .OnActivate(() => OnActivate())
                 .OnEntry(() => OnEntry())
                 .OnExit(() => OnExit())
                 .OnDeactivate(() => OnDeactivate());
             sm.Configure(State.D)
-                .OnActivate(() => OnActivate(), UserDescription + "D-Activate")
-                .OnEntry(() => OnEntry(), UserDescription + "D-Entry")
-                .OnExit(() => OnExit(), UserDescription + "D-Exit")
-                .OnDeactivate(() => OnDeactivate(), UserDescription + "D-Deactivate");
+                .OnActivate(() => OnActivate(), $"{UserDescription}D-Activate")
+                .OnEntry(() => OnEntry(), $"{UserDescription}D-Entry")
+                .OnExit(() => OnExit(), $"{UserDescription}D-Exit")
+                .OnDeactivate(() => OnDeactivate(), $"{UserDescription}D-Deactivate");
 
             StateMachineInfo inf = sm.GetInfo();
 
@@ -681,14 +681,14 @@ namespace Stateless.Tests
                 .OnEntry(OnEntryTrans)
                 .OnExit(OnExitTrans);
             sm.Configure(State.B)
-                .OnEntry(OnEntryTrans, UserDescription + "B-EntryTrans")
-                .OnExit(OnExitTrans, UserDescription + "B-ExitTrans");
+                .OnEntry(OnEntryTrans, $"{UserDescription}B-EntryTrans")
+                .OnExit(OnExitTrans, $"{UserDescription}B-ExitTrans");
             sm.Configure(State.C)
                 .OnEntry(t => OnEntryTrans(t))
                 .OnExit(t => OnExitTrans(t));
             sm.Configure(State.D)
-                .OnEntry(t => OnEntryTrans(t), UserDescription + "D-EntryTrans")
-                .OnExit(t => OnExitTrans(t), UserDescription + "D-ExitTrans");
+                .OnEntry(t => OnEntryTrans(t), $"{UserDescription}D-EntryTrans")
+                .OnExit(t => OnExitTrans(t), $"{UserDescription}D-ExitTrans");
 
             inf = sm.GetInfo();
 
@@ -714,12 +714,12 @@ namespace Stateless.Tests
                 .OnEntryFrom(triggerY, OnEntryIntInt)
                 .OnEntryFrom(triggerZ, OnEntryIntIntInt);
             sm.Configure(State.B)
-                .OnEntryFrom(Trigger.X, OnEntry, UserDescription + "B-Entry")
-                .OnEntryFrom(Trigger.Y, OnEntryTrans, UserDescription + "B-EntryTrans")
-                .OnEntryFrom(triggerX, OnEntryInt, UserDescription + "B-EntryInt")
-                .OnEntryFrom(triggerX, OnEntryIntTrans, UserDescription + "B-EntryIntTrans")
-                .OnEntryFrom(triggerY, OnEntryIntInt, UserDescription + "B-EntryIntInt")
-                .OnEntryFrom(triggerZ, OnEntryIntIntInt, UserDescription + "B-EntryIntIntInt");
+                .OnEntryFrom(Trigger.X, OnEntry, $"{UserDescription}B-Entry")
+                .OnEntryFrom(Trigger.Y, OnEntryTrans, $"{UserDescription}B-EntryTrans")
+                .OnEntryFrom(triggerX, OnEntryInt, $"{UserDescription}B-EntryInt")
+                .OnEntryFrom(triggerX, OnEntryIntTrans, $"{UserDescription}B-EntryIntTrans")
+                .OnEntryFrom(triggerY, OnEntryIntInt, $"{UserDescription}B-EntryIntInt")
+                .OnEntryFrom(triggerZ, OnEntryIntIntInt, $"{UserDescription}B-EntryIntIntInt");
             sm.Configure(State.C)
                 .OnEntryFrom(Trigger.X, () => OnEntry())
                 .OnEntryFrom(Trigger.Y, trans => OnEntryTrans(trans))
@@ -728,12 +728,12 @@ namespace Stateless.Tests
                 .OnEntryFrom(triggerY, (i, j) => OnEntryIntInt(i, j))
                 .OnEntryFrom(triggerZ, (i, j, k) => OnEntryIntIntInt(i, j, k));
             sm.Configure(State.D)
-                .OnEntryFrom(Trigger.X, () => OnEntry(), UserDescription + "D-Entry")
-                .OnEntryFrom(Trigger.Y, trans => OnEntryTrans(trans), UserDescription + "D-EntryTrans")
-                .OnEntryFrom(triggerX, i => OnEntryInt(i), UserDescription + "D-EntryInt")
-                .OnEntryFrom(triggerX, (i, trans) => OnEntryIntTrans(i, trans), UserDescription + "D-EntryIntTrans")
-                .OnEntryFrom(triggerY, (i, j) => OnEntryIntInt(i, j), UserDescription + "D-EntryIntInt")
-                .OnEntryFrom(triggerZ, (i, j, k) => OnEntryIntIntInt(i, j, k), UserDescription + "D-EntryIntIntInt");
+                .OnEntryFrom(Trigger.X, () => OnEntry(), $"{UserDescription}D-Entry")
+                .OnEntryFrom(Trigger.Y, trans => OnEntryTrans(trans), $"{UserDescription}D-EntryTrans")
+                .OnEntryFrom(triggerX, i => OnEntryInt(i), $"{UserDescription}D-EntryInt")
+                .OnEntryFrom(triggerX, (i, trans) => OnEntryIntTrans(i, trans), $"{UserDescription}D-EntryIntTrans")
+                .OnEntryFrom(triggerY, (i, j) => OnEntryIntInt(i, j), $"{UserDescription}D-EntryIntInt")
+                .OnEntryFrom(triggerZ, (i, j, k) => OnEntryIntIntInt(i, j, k), $"{UserDescription}D-EntryIntIntInt");
 
             inf = sm.GetInfo();
 
@@ -761,20 +761,20 @@ namespace Stateless.Tests
                 .OnExitAsync(OnExitAsync)
                 .OnDeactivateAsync(OnDeactivateAsync);
             sm.Configure(State.B)
-                .OnActivateAsync(OnActivateAsync, UserDescription + "B-Activate")
-                .OnEntryAsync(OnEntryAsync, UserDescription + "B-Entry")
-                .OnExitAsync(OnExitAsync, UserDescription + "B-Exit")
-                .OnDeactivateAsync(OnDeactivateAsync, UserDescription + "B-Deactivate");
+                .OnActivateAsync(OnActivateAsync, $"{UserDescription}B-Activate")
+                .OnEntryAsync(OnEntryAsync, $"{UserDescription}B-Entry")
+                .OnExitAsync(OnExitAsync, $"{UserDescription}B-Exit")
+                .OnDeactivateAsync(OnDeactivateAsync, $"{UserDescription}B-Deactivate");
             sm.Configure(State.C)
                 .OnActivateAsync(() => OnActivateAsync())
                 .OnEntryAsync(() => OnEntryAsync())
                 .OnExitAsync(() => OnExitAsync())
                 .OnDeactivateAsync(() => OnDeactivateAsync());
             sm.Configure(State.D)
-                .OnActivateAsync(() => OnActivateAsync(), UserDescription + "D-Activate")
-                .OnEntryAsync(() => OnEntryAsync(), UserDescription + "D-Entry")
-                .OnExitAsync(() => OnExitAsync(), UserDescription + "D-Exit")
-                .OnDeactivateAsync(() => OnDeactivateAsync(), UserDescription + "D-Deactivate");
+                .OnActivateAsync(() => OnActivateAsync(), $"{UserDescription}D-Activate")
+                .OnEntryAsync(() => OnEntryAsync(), $"{UserDescription}D-Entry")
+                .OnExitAsync(() => OnExitAsync(), $"{UserDescription}D-Exit")
+                .OnDeactivateAsync(() => OnDeactivateAsync(), $"{UserDescription}D-Deactivate");
 
             StateMachineInfo inf = sm.GetInfo();
 
@@ -793,14 +793,14 @@ namespace Stateless.Tests
                 .OnEntryAsync(OnEntryTransAsync)
                 .OnExitAsync(OnExitTransAsync);
             sm.Configure(State.B)
-                .OnEntryAsync(OnEntryTransAsync, UserDescription + "B-EntryTrans")
-                .OnExitAsync(OnExitTransAsync, UserDescription + "B-ExitTrans");
+                .OnEntryAsync(OnEntryTransAsync, $"{UserDescription}B-EntryTrans")
+                .OnExitAsync(OnExitTransAsync, $"{UserDescription}B-ExitTrans");
             sm.Configure(State.C)
                 .OnEntryAsync(t => OnEntryTransAsync(t))
                 .OnExitAsync(t => OnExitTransAsync(t));
             sm.Configure(State.D)
-                .OnEntryAsync(t => OnEntryTransAsync(t), UserDescription + "D-EntryTrans")
-                .OnExitAsync(t => OnExitTransAsync(t), UserDescription + "D-ExitTrans");
+                .OnEntryAsync(t => OnEntryTransAsync(t), $"{UserDescription}D-EntryTrans")
+                .OnExitAsync(t => OnExitTransAsync(t), $"{UserDescription}D-ExitTrans");
 
             inf = sm.GetInfo();
 
@@ -834,11 +834,11 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .PermitIf(Trigger.X, State.B, Permit);
             sm.Configure(State.B)
-                .PermitIf(Trigger.X, State.C, Permit, UserDescription + "B-Permit");
+                .PermitIf(Trigger.X, State.C, Permit, $"{UserDescription}B-Permit");
             sm.Configure(State.C)
                 .PermitIf(Trigger.X, State.B, () => Permit());
             sm.Configure(State.D)
-                .PermitIf(Trigger.X, State.C, () => Permit(), UserDescription + "D-Permit");
+                .PermitIf(Trigger.X, State.C, () => Permit(), $"{UserDescription}D-Permit");
 
             StateMachineInfo inf = sm.GetInfo();
 
@@ -858,11 +858,11 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .PermitDynamicIf(Trigger.X, NextState, Permit);
             sm.Configure(State.B)
-                .PermitDynamicIf(Trigger.X, NextState, Permit, UserDescription + "B-Permit");
+                .PermitDynamicIf(Trigger.X, NextState, Permit, $"{UserDescription}B-Permit");
             sm.Configure(State.C)
                 .PermitDynamicIf(Trigger.X, NextState, () => Permit());
             sm.Configure(State.D)
-                .PermitDynamicIf(Trigger.X, NextState, () => Permit(), UserDescription + "D-Permit");
+                .PermitDynamicIf(Trigger.X, NextState, () => Permit(), $"{UserDescription}D-Permit");
 
             inf = sm.GetInfo();
 

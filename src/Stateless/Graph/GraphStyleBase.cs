@@ -62,7 +62,7 @@ namespace Stateless.Graph
 
             foreach (var transit in transitions)
             {
-                string line = null;
+                string line;
                 if (transit is StayTransition stay)
                 {
                     if (!stay.ExecuteEntryExitActions)
@@ -103,7 +103,7 @@ namespace Stateless.Graph
                             throw new ArgumentException("Unexpected transition type");
                     }
                 }
-                if (line != null)
+                if (line is { })
                     lines.Add(line);
             }
 

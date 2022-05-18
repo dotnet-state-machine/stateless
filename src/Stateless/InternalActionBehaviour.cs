@@ -43,8 +43,7 @@ namespace Stateless
                 public override void Execute(Transition transition, object[] args)
                 {
                     throw new InvalidOperationException(
-                        $"Cannot execute asynchronous action specified in OnEntry event for '{transition.Destination}' state. " +
-                         "Use asynchronous version of Fire [FireAsync]");
+                                                        $"Cannot execute asynchronous action specified in OnEntry event for '{transition.Destination}' state. Use asynchronous version of Fire [FireAsync]");
                 }
 
                 public override Task ExecuteAsync(Transition transition, object[] args)

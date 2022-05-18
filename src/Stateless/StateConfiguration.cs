@@ -11,13 +11,12 @@ namespace Stateless
         /// </summary>
         public partial class StateConfiguration
         {
-            private readonly StateMachine<TState, TTrigger> _machine;
             readonly StateRepresentation _representation;
             readonly Func<TState, StateRepresentation> _lookup;
 
             internal StateConfiguration(StateMachine<TState, TTrigger> machine, StateRepresentation representation, Func<TState, StateRepresentation> lookup)
             {
-                _machine = machine;
+                Machine = machine;
                 _representation = representation;
                 _lookup = lookup;
             }
@@ -25,12 +24,12 @@ namespace Stateless
             /// <summary>
             /// The state that is configured with this configuration.
             /// </summary>
-            public TState State { get { return _representation.UnderlyingState; } }
+            public TState State => _representation.UnderlyingState;
 
             /// <summary>
             /// The machine that is configured with this configuration.
             /// </summary>
-            public StateMachine<TState, TTrigger> Machine { get { return _machine; } }
+            public StateMachine<TState, TTrigger> Machine { get; }
 
             /// <summary>
             /// Accept the specified trigger and transition to the destination state.
@@ -118,17 +117,16 @@ namespace Stateless
             /// <summary>
             /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
             /// </summary>
-            /// <typeparam name="TArg0"></typeparam>
             /// <param name="trigger">The accepted trigger</param>
             /// <param name="guard">Function that must return true in order for the trigger to be accepted.</param>
             /// <param name="internalAction">The action performed by the internal transition</param>
             /// <param name="guardDescription">A description of the guard condition</param>
             /// <returns></returns>
-            public StateConfiguration InternalTransitionIf<TArg0>(TTrigger trigger, Func<object[], bool> guard, Action<Transition> internalAction, string guardDescription = null)
+            public StateConfiguration InternalTransitionIf(TTrigger trigger, Func<object[], bool> guard, Action<Transition> internalAction, string guardDescription = null)
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger, new TransitionGuard(guard, guardDescription), (t, args) => internalAction(t)));
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger, new TransitionGuard(guard, guardDescription), (t, _) => internalAction(t)));
                 return this;
             }
 
@@ -158,7 +156,7 @@ namespace Stateless
                 if (trigger        == null) throw new ArgumentNullException(nameof(trigger));
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger.Trigger, new TransitionGuard(TransitionGuard.ToPackedGuard(guard), guardDescription), (t, args) => internalAction(ParameterConversion.Unpack<TArg0>(args, 0))));
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger.Trigger, new TransitionGuard(TransitionGuard.ToPackedGuard(guard), guardDescription), (_, args) => internalAction(ParameterConversion.Unpack<TArg0>(args, 0))));
                 return this;
             }
 
@@ -1158,7 +1156,7 @@ namespace Stateless
 
                 // Build list of super states and check for
                 var activeRepresentation = _lookup(superstate);
-                while (activeRepresentation.Superstate != null)
+                while (activeRepresentation.Superstate is { })
                 {
                     // Check if superstate is already added to hashset
                     if (superstates.Contains(activeRepresentation.Superstate.UnderlyingState))
@@ -1424,7 +1422,7 @@ namespace Stateless
             /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
             public StateConfiguration PermitDynamicIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, TState> destinationStateSelector)
             {
-                return PermitDynamicIf<TArg0>(trigger, destinationStateSelector, null, ArrayHelper.Empty<Tuple<Func<bool>, string>>());
+                return PermitDynamicIf(trigger, destinationStateSelector, null, ArrayHelper.Empty<Tuple<Func<bool>, string>>());
             }
 
             /// <summary>

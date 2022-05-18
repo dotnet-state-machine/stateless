@@ -102,26 +102,14 @@ namespace Stateless
         /// </summary>
         public TState State
         {
-            get
-            {
-                return _stateAccessor();
-            }
-            private set
-            {
-                _stateMutator(value);
-            }
+            get => _stateAccessor();
+            private set => _stateMutator(value);
         }
 
         /// <summary>
         /// The currently-permissible trigger values.
         /// </summary>
-        public IEnumerable<TTrigger> PermittedTriggers
-        {
-            get
-            {
-                return GetPermittedTriggers();
-            }
-        }
+        public IEnumerable<TTrigger> PermittedTriggers => GetPermittedTriggers();
 
         /// <summary>
         /// The currently-permissible trigger values.
@@ -131,13 +119,7 @@ namespace Stateless
             return CurrentRepresentation.GetPermittedTriggers(args);
         }
 
-        StateRepresentation CurrentRepresentation
-        {
-            get
-            {
-                return GetRepresentation(State);
-            }
-        }
+        StateRepresentation CurrentRepresentation => GetRepresentation(State);
 
         /// <summary>
         /// Provides an info object which exposes the states, transitions, and actions of this machine.
@@ -393,7 +375,7 @@ namespace Stateless
             switch (result.Handler)
             {
                 // Check if this trigger should be ignored
-                case IgnoredTriggerBehaviour _:
+                case IgnoredTriggerBehaviour:
                     return;
                 // Handle special case, re-entry in superstate
                 // Check if it is an internal transition, or a transition from one state to another.
@@ -404,8 +386,8 @@ namespace Stateless
                     HandleReentryTrigger(args, representativeState, transition);
                     break;
                 }
-                case DynamicTriggerBehaviour _ when (result.Handler.ResultsInTransitionFrom(source, args, out var destination)):
-                case TransitioningTriggerBehaviour _ when (result.Handler.ResultsInTransitionFrom(source, args, out destination)):
+                case DynamicTriggerBehaviour when (result.Handler.ResultsInTransitionFrom(source, args, out var destination)):
+                case TransitioningTriggerBehaviour when (result.Handler.ResultsInTransitionFrom(source, args, out destination)):
                 {
                     // Handle transition, and set new state
                     var transition = new Transition(source, destination, trigger, args);
@@ -413,7 +395,7 @@ namespace Stateless
 
                     break;
                 }
-                case InternalTriggerBehaviour _:
+                case InternalTriggerBehaviour:
                 {
                     // Internal transitions does not update the current state, but must execute the associated action.
                     var transition = new Transition(source, source, trigger, args);

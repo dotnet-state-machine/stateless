@@ -73,7 +73,7 @@ namespace TelephoneCallExample
 
         static void OnSetVolume(int volume)
         {
-            Console.WriteLine("Volume set to " + volume + "!");
+            Console.WriteLine($"Volume set to {volume}!");
         }
 
         static void OnUnmute()

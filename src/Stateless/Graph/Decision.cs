@@ -18,7 +18,7 @@ namespace Stateless.Graph
         /// <param name="method">The name of the invoked method.</param>
         /// <param name="num">The decision count.</param>
         public Decision(InvocationInfo method, int num)
-            : base("Decision" + num.ToString())
+            : base($"Decision{num}")
         {
             Method = method;
         }

@@ -50,8 +50,7 @@ namespace Stateless
                 public override void Execute(Transition transition)
                 {
                     throw new InvalidOperationException(
-                        $"Cannot execute asynchronous action specified in OnExit event for '{transition.Source}' state. " +
-                         "Use asynchronous version of Fire [FireAsync]");
+                                                        $"Cannot execute asynchronous action specified in OnExit event for '{transition.Source}' state. Use asynchronous version of Fire [FireAsync]");
                 }
 
                 public override Task ExecuteAsync(Transition transition)

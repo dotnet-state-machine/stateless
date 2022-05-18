@@ -69,7 +69,7 @@ namespace Stateless.Graph
             // Next process all non-cluster states
             foreach (var state in States.Values)
             {
-                if ((state is SuperState) || (state is Decision) || (state.SuperState != null))
+                if ((state is SuperState) || (state is Decision) || state.SuperState is { })
                     continue;
                 dirgraphText += style.FormatOneState(state).Replace("\n", System.Environment.NewLine);
             }
@@ -88,10 +88,10 @@ namespace Stateless.Graph
 
             // Add initial transition if present
             var initialStateName = _initialState.UnderlyingState.ToString();
-            dirgraphText += System.Environment.NewLine + $" init [label=\"\", shape=point];";
-            dirgraphText += System.Environment.NewLine + $" init -> \"{initialStateName}\"[style = \"solid\"]";
+            dirgraphText += $"{System.Environment.NewLine} init [label=\"\", shape=point];";
+            dirgraphText += $"{System.Environment.NewLine} init -> \"{initialStateName}\"[style = \"solid\"]";
 
-            dirgraphText += System.Environment.NewLine + "}";
+            dirgraphText += $"{System.Environment.NewLine}}}";
 
             return dirgraphText;
         }
@@ -109,7 +109,7 @@ namespace Stateless.Graph
                 State state = States[stateInfo.UnderlyingState.ToString()];
                 foreach (var entryAction in stateInfo.EntryActions)
                 {
-                    if (entryAction.FromTrigger != null)
+                    if (entryAction.FromTrigger is { })
                     {
                         // This 'state' has an 'entryAction' that only fires when it gets the trigger 'entryAction.FromTrigger'
                         // Does it have any incoming transitions that specify that trigger?
@@ -163,12 +163,12 @@ namespace Stateless.Graph
                     Transitions.Add(trans);
                     fromState.Leaving.Add(trans);
                     decide.Arriving.Add(trans);
-                    if (dyno.PossibleDestinationStates != null)
+                    if (dyno.PossibleDestinationStates is { })
                     {
                         foreach (var dynamicStateInfo in dyno.PossibleDestinationStates)
                         {
                             States.TryGetValue(dynamicStateInfo.DestinationState, out State toState);
-                            if (toState != null)
+                            if (toState is { })
                             {
                                 DynamicTransition dtrans = new DynamicTransition(decide, toState, dyno.Trigger, dynamicStateInfo.Criterion);
                                 Transitions.Add(dtrans);

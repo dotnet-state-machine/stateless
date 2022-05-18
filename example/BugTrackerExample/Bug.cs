@@ -74,7 +74,7 @@ namespace BugTrackerExample
         /// <param name="assignee"></param>
         private void OnAssigned(string assignee)
         {
-            if (_assignee != null && assignee != _assignee)
+            if (_assignee is { } && assignee != _assignee)
                 SendEmailToAssignee("Don't forget to help the new employee!");
 
             _assignee = assignee;

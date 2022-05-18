@@ -29,7 +29,7 @@ namespace Stateless.Reflection
             }
 
             return new StateInfo(stateRepresentation.UnderlyingState, ignoredTriggers,
-                stateRepresentation.EntryActions.Select(e => ActionInfo.Create(e)).ToList(),
+                stateRepresentation.EntryActions.Select(ActionInfo.Create).ToList(),
                 stateRepresentation.ActivateActions.Select(e => e.Description).ToList(),
                 stateRepresentation.DeactivateActions.Select(e => e.Description).ToList(),
                 stateRepresentation.ExitActions.Select(e => e.Description).ToList());
@@ -42,7 +42,7 @@ namespace Stateless.Reflection
             var substates = stateRepresentation.GetSubstates().Select(s => lookupState(s.UnderlyingState)).ToList();
 
             StateInfo superstate = null;
-            if (stateRepresentation.Superstate != null)
+            if (stateRepresentation.Superstate is { })
                 superstate = lookupState(stateRepresentation.Superstate.UnderlyingState);
 
             var fixedTransitions = new List<FixedTransitionInfo>();
@@ -143,7 +143,7 @@ namespace Stateless.Reflection
         /// <summary> 
         /// Transitions defined for this state.
         /// </summary>
-        public IEnumerable<TransitionInfo> Transitions { get { return FixedTransitions.Concat<TransitionInfo>(DynamicTransitions); } }
+        public IEnumerable<TransitionInfo> Transitions => FixedTransitions.Concat<TransitionInfo>(DynamicTransitions);
 
         /// <summary>
         /// Transitions defined for this state.

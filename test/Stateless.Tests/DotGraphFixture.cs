@@ -34,10 +34,8 @@ namespace Stateless.Tests
             Uml
         }
 
-        static readonly string Suffix = Environment.NewLine
-            + $" init [label=\"\", shape=point];" + Environment.NewLine
-            + $" init -> \"A\"[style = \"solid\"]" + Environment.NewLine
-            + "}";
+        static readonly string Suffix =
+            $"{Environment.NewLine} init [label=\"\", shape=point];{Environment.NewLine} init -> \"A\"[style = \"solid\"]{Environment.NewLine}}}";
 
         static string Prefix()
         {
@@ -54,22 +52,22 @@ namespace Stateless.Tests
             string b;
 
             List<string> es = new List<string>();
-            if (entries != null)
+            if (entries is { })
             {
                 foreach (string entry in entries)
-                    es.Add("entry / " + entry);
+                    es.Add($"entry / {entry}");
             }
-            if (exits != null)
+            if (exits is { })
             {
                 foreach (string exit in exits)
-                    es.Add("exit / " + exit);
+                    es.Add($"exit / {exit}");
             }
 
             if (es.Count == 0)
                 b = $"\"{label}\" [label=\"{label}\"];\n";
             else
             {
-                b = $"\"{label}\"" + " [label=\"" + label + "|" + string.Join("\\n", es) + "\"];\n";
+                b = $"\"{label}\" [label=\"{label}|{string.Join("\\n", es)}\"];\n";
             }
 
             return b.Replace("\n", Environment.NewLine);
@@ -77,18 +75,17 @@ namespace Stateless.Tests
 
         static string Decision(string nodeName, string label)
         {
-            var b = $"\"{nodeName}\"" + " [shape = \"diamond\", label = \"" + label + "\"];\n";
+            var b = $"\"{nodeName}\" [shape = \"diamond\", label = \"{label}\"];\n";
 
             return b.Replace("\n", Environment.NewLine);
         }
 
         static string Line(string from, string to, string label)
         {
-            string s = "\n\"" + from + "\" -> \"" + to
-                + "\" [style=\"solid\"";
+            string s = $"\n\"{from}\" -> \"{to}\" [style=\"solid\"";
 
-            if (label != null)
-                s += ", label=\"" + label + "\"";
+            if (label is { })
+                s += $", label=\"{label}\"";
 
             s += "];";
 
@@ -100,14 +97,9 @@ namespace Stateless.Tests
             if (style != Style.Uml)
                 throw new Exception("WRITE MORE CODE");
 
-            string s = "\n"
-                + "subgraph \"cluster" + graphName + "\"\n"
-                + "\t{\n"
-                + "\tlabel = \"" + label + "\"\n";
+            string s = $"\nsubgraph \"cluster{graphName}\"\n\t{{\n\tlabel = \"{label}\"\n";
 
-            s = s.Replace("\n", Environment.NewLine)
-                + contents          // \n already replaced with NewLine
-                + "}" + Environment.NewLine;
+            s = $"{s.Replace("\n", Environment.NewLine)}{contents}}}{Environment.NewLine}";
 
             return s;
         }
@@ -173,7 +165,7 @@ namespace Stateless.Tests
             static bool AnonymousGuard() => true;
 
             var expected = Prefix() + Box("A") + Box("B")
-                + Line("A", "B", "X [" + InvocationInfo.DefaultFunctionDescription + "]")
+                + Line("A", "B", $"X [{InvocationInfo.DefaultFunctionDescription}]")
                 + Suffix;
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -405,16 +397,8 @@ namespace Stateless.Tests
             string triggerX = "Trigger X";
             string triggerY = "Trigger Y";
             
-            var expected = Prefix()
-                           + Subgraph(Style.Uml, stateD, $"{stateD}\\n----------\\nentry / Enter D",
-                                      Box(stateB)
-                                    + Box(stateC))
-                           + Box(stateA, new List<string> { "Enter A" }, new List<string> { "Exit A" })
-                           + Line(stateA, stateB, triggerX) + Line(stateA, stateC, triggerY)
-                           +  Environment.NewLine
-                           + $" init [label=\"\", shape=point];" + Environment.NewLine
-                           + $" init -> \"{stateA}\"[style = \"solid\"]" + Environment.NewLine
-                           + "}";
+            var expected =
+                $"{Prefix()}{Subgraph(Style.Uml, stateD, $"{stateD}\\n----------\\nentry / Enter D", Box(stateB) + Box(stateC))}{Box(stateA, new List<string> { "Enter A" }, new List<string> { "Exit A" })}{Line(stateA, stateB, triggerX)}{Line(stateA, stateC, triggerY)}{Environment.NewLine} init [label=\"\", shape=point];{Environment.NewLine} init -> \"{stateA}\"[style = \"solid\"]{Environment.NewLine}}}";
 
             var sm = new StateMachine<string, string>("State A");
 

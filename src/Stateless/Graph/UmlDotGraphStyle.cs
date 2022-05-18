@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -28,7 +27,6 @@ namespace Stateless.Graph
         /// <returns>Description of the superstate, and all its substates, in the desired format</returns>
         public override string FormatOneCluster(SuperState stateInfo)
         {
-            string stateRepresentationString = "";
             var sourceName = stateInfo.StateName;
 
             StringBuilder label = new StringBuilder($"{sourceName}");
@@ -36,14 +34,11 @@ namespace Stateless.Graph
             if ((stateInfo.EntryActions.Count > 0) || (stateInfo.ExitActions.Count > 0))
             {
                 label.Append("\\n----------");
-                label.Append(string.Concat(stateInfo.EntryActions.Select(act => "\\nentry / " + act)));
-                label.Append(string.Concat(stateInfo.ExitActions.Select(act => "\\nexit / " + act)));
+                label.Append(string.Concat(stateInfo.EntryActions.Select(act => $"\\nentry / {act}")));
+                label.Append(string.Concat(stateInfo.ExitActions.Select(act => $"\\nexit / {act}")));
             }
 
-            stateRepresentationString = "\n"
-                + $"subgraph \"cluster{stateInfo.NodeName}\"" + "\n"
-                + "\t{" + "\n"
-                + $"\tlabel = \"{label}\"" + "\n";
+            var stateRepresentationString = $"\nsubgraph \"cluster{stateInfo.NodeName}\"\n\t{{\n\tlabel = \"{label}\"\n";
 
             foreach (var subState in stateInfo.SubStates)
             {
@@ -68,8 +63,8 @@ namespace Stateless.Graph
             string f = $"\"{state.StateName}\" [label=\"{state.StateName}|";
 
             List<string> es = new List<string>();
-            es.AddRange(state.EntryActions.Select(act => "entry / " + act));
-            es.AddRange(state.ExitActions.Select(act => "exit / " + act));
+            es.AddRange(state.EntryActions.Select(act => $"entry / {act}"));
+            es.AddRange(state.ExitActions.Select(act => $"exit / {act}"));
 
             f += string.Join("\\n", es);
 
@@ -91,17 +86,15 @@ namespace Stateless.Graph
         {
             string label = trigger ?? "";
 
-            if (actions?.Count() > 0)
-                label += " / " + string.Join(", ", actions);
-
-            if (guards.Any())
+            var actionsString = string.Join(", ", actions ?? Enumerable.Empty<string>());
+            if (!string.IsNullOrEmpty(actionsString))
+                label += $" / {actionsString}";
+            
+            foreach (var info in guards)
             {
-                foreach (var info in guards)
-                {
-                    if (label.Length > 0)
-                        label += " ";
-                    label += "[" + info + "]";
-                }
+                if (label.Length > 0)
+                    label += " ";
+                label += $"[{info}]";
             }
 
             return FormatOneLine(sourceNodeName, destinationNodeName, label);

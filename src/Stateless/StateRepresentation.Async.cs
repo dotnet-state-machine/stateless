@@ -49,8 +49,8 @@ namespace Stateless
 
             public async Task ActivateAsync()
             {
-                if (_superstate != null)
-                    await _superstate.ActivateAsync().ConfigureAwait(false);
+                if (Superstate is { })
+                    await Superstate.ActivateAsync().ConfigureAwait(false);
 
                 await ExecuteActivationActionsAsync().ConfigureAwait(false);
             }
@@ -59,8 +59,8 @@ namespace Stateless
             {
                 await ExecuteDeactivationActionsAsync().ConfigureAwait(false);
 
-                if (_superstate != null)
-                    await _superstate.DeactivateAsync().ConfigureAwait(false);
+                if (Superstate is { })
+                    await Superstate.DeactivateAsync().ConfigureAwait(false);
             }
 
             async Task ExecuteActivationActionsAsync()
@@ -84,8 +84,8 @@ namespace Stateless
                 }
                 else if (!Includes(transition.Source))
                 {
-                    if (_superstate != null && transition is not InitialTransition)
-                        await _superstate.EnterAsync(transition, entryArgs).ConfigureAwait(false);
+                    if (Superstate is { } && transition is not InitialTransition)
+                        await Superstate.EnterAsync(transition, entryArgs).ConfigureAwait(false);
 
                     await ExecuteEntryActionsAsync(transition, entryArgs).ConfigureAwait(false);
                 }
@@ -102,21 +102,21 @@ namespace Stateless
                     await ExecuteExitActionsAsync(transition).ConfigureAwait(false);
 
                     // Must check if there is a superstate, and if we are leaving that superstate
-                    if (_superstate != null)
+                    if (Superstate is { })
                     {
                         // Check if destination is within the state list
                         if (IsIncludedIn(transition.Destination))
                         {
                             // Destination state is within the list, exit first superstate only if it is NOT the first
-                            if (!_superstate.UnderlyingState.Equals(transition.Destination))
+                            if (!Superstate.UnderlyingState.Equals(transition.Destination))
                             {
-                                return await _superstate.ExitAsync(transition).ConfigureAwait(false);
+                                return await Superstate.ExitAsync(transition).ConfigureAwait(false);
                             }
                         }
                         else
                         {
                             // Exit the superstate as well
-                            return await _superstate.ExitAsync(transition).ConfigureAwait(false);
+                            return await Superstate.ExitAsync(transition).ConfigureAwait(false);
                         }
                     }
                 }

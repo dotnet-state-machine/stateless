@@ -16,10 +16,8 @@ namespace Stateless
             internal ICollection<ActivateActionBehaviour> ActivateActions { get; } = new List<ActivateActionBehaviour>();
             internal ICollection<DeactivateActionBehaviour> DeactivateActions { get; } = new List<DeactivateActionBehaviour>();
 
-            StateRepresentation _superstate; // null
-
             readonly ICollection<StateRepresentation> _substates = new List<StateRepresentation>();
-            public TState InitialTransitionTarget { get; private set; } = default;
+            public TState InitialTransitionTarget { get; private set; }
 
             public StateRepresentation(TState state)
             {
@@ -48,7 +46,7 @@ namespace Stateless
                 TriggerBehaviourResult superStateHandler = null;
 
                 bool handlerFound = (TryFindLocalHandler(trigger, args, out TriggerBehaviourResult localHandler) ||
-                                    (Superstate != null && Superstate.TryFindHandler(trigger, args, out superStateHandler)));
+                                    (Superstate is { } && Superstate.TryFindHandler(trigger, args, out superStateHandler)));
 
                 // If no handler for super state, replace by local handler (see issue #398)
                 handler = superStateHandler ?? localHandler;
@@ -95,12 +93,13 @@ namespace Stateless
 
             private static TriggerBehaviourResult TryFindLocalHandlerResultWithUnmetGuardConditions(IEnumerable<TriggerBehaviourResult> results)
             {
-                var result = results.FirstOrDefault(r => r.UnmetGuardConditions.Any());
+                var triggerBehaviourResults = results as TriggerBehaviourResult[] ?? results.ToArray();
+                var result = triggerBehaviourResults.FirstOrDefault(r => r.UnmetGuardConditions.Any());
 
-                if (result != null)
+                if (result is { })
                 {
-                    var unmetConditions = results.Where(r => r.UnmetGuardConditions.Any())
-                                                 .SelectMany(r => r.UnmetGuardConditions);
+                    var unmetConditions = triggerBehaviourResults.Where(r => r.UnmetGuardConditions.Any())
+                                                                 .SelectMany(r => r.UnmetGuardConditions);
 
                     // Add other unmet conditions to first result
                     foreach (var condition in unmetConditions)
@@ -142,8 +141,8 @@ namespace Stateless
 
             public void Activate()
             {
-                if (_superstate != null)
-                    _superstate.Activate();
+                if (Superstate is { })
+                    Superstate.Activate();
 
                 ExecuteActivationActions();
             }
@@ -152,8 +151,8 @@ namespace Stateless
             {
                 ExecuteDeactivationActions();
 
-                if (_superstate != null)
-                    _superstate.Deactivate();
+                if (Superstate is { })
+                    Superstate.Deactivate();
             }
 
             void ExecuteActivationActions()
@@ -176,8 +175,8 @@ namespace Stateless
                 }
                 else if (!Includes(transition.Source))
                 {
-                    if (_superstate != null && transition is not InitialTransition)
-                        _superstate.Enter(transition, entryArgs);
+                    if (Superstate is { } && transition is not InitialTransition)
+                        Superstate.Enter(transition, entryArgs);
 
                     ExecuteEntryActions(transition, entryArgs);
                 }
@@ -194,21 +193,21 @@ namespace Stateless
                     ExecuteExitActions(transition);
 
                     // Must check if there is a superstate, and if we are leaving that superstate
-                    if (_superstate != null)
+                    if (Superstate is { })
                     {
                         // Check if destination is within the state list
                         if (IsIncludedIn(transition.Destination))
                         {
                             // Destination state is within the list, exit first superstate only if it is NOT the the first
-                            if (!_superstate.UnderlyingState.Equals(transition.Destination))
+                            if (!Superstate.UnderlyingState.Equals(transition.Destination))
                             {
-                                return _superstate.Exit(transition);
+                                return Superstate.Exit(transition);
                             }
                         }
                         else
                         {
                             // Exit the superstate as well
-                            return _superstate.Exit(transition);
+                            return Superstate.Exit(transition);
                         }
                     }
                 }
@@ -232,7 +231,7 @@ namespace Stateless
 
                 // Look for actions in superstate(s) recursivly until we hit the topmost superstate, or we actually find some trigger handlers.
                 StateRepresentation aStateRep = this;
-                while (aStateRep != null)
+                while (aStateRep is { })
                 {
                     if (aStateRep.TryFindLocalHandler(transition.Trigger, args, out TriggerBehaviourResult result))
                     {
@@ -244,7 +243,7 @@ namespace Stateless
                         break;
                     }
                     // Try to look for trigger handlers in superstate (if it exists)
-                    aStateRep = aStateRep._superstate;
+                    aStateRep = aStateRep.Superstate;
                 }
 
                 // Execute internal transition event handler
@@ -262,25 +261,9 @@ namespace Stateless
                 allowed.Add(triggerBehaviour);
             }
 
-            public StateRepresentation Superstate
-            {
-                get
-                {
-                    return _superstate;
-                }
-                set
-                {
-                    _superstate = value;
-                }
-            }
+            public StateRepresentation Superstate { get; set; }
 
-            public TState UnderlyingState
-            {
-                get
-                {
-                    return _state;
-                }
-            }
+            public TState UnderlyingState => _state;
 
             public void AddSubstate(StateRepresentation substate)
             {
@@ -306,16 +289,10 @@ namespace Stateless
             {
                 return
                     _state.Equals(state) ||
-                    (_superstate != null && _superstate.IsIncludedIn(state));
+                    (Superstate is { } && Superstate.IsIncludedIn(state));
             }
 
-			public IEnumerable<TTrigger> PermittedTriggers
-			{
-				get
-				{
-					return GetPermittedTriggers();
-				}
-			}
+			public IEnumerable<TTrigger> PermittedTriggers => GetPermittedTriggers();
 
             public IEnumerable<TTrigger> GetPermittedTriggers(params object[] args)
             {
@@ -323,7 +300,7 @@ namespace Stateless
                     .Where(t => t.Value.Any(a => !a.UnmetGuardConditions(args).Any()))
                     .Select(t => t.Key);
 
-                if (Superstate != null)
+                if (Superstate is { })
                     result = result.Union(Superstate.GetPermittedTriggers(args));
 
                 return result;

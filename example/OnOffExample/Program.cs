@@ -26,7 +26,7 @@ namespace OnOffExample
 
             while (true)
             {
-                Console.WriteLine("Switch is in state: " + onOffSwitch.State);
+                Console.WriteLine($"Switch is in state: {onOffSwitch.State}");
                 var pressed = Console.ReadKey(true).KeyChar;
                 
                 // Check if user wants to exit

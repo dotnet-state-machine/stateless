@@ -61,9 +61,9 @@ namespace Stateless.Reflection
         {
             get
             {
-                if (_description != null)
+                if (_description is { })
                     return _description;
-                if (MethodName.IndexOfAny(new char[] { '<', '>', '`' }) >= 0)
+                if (MethodName.IndexOfAny(new [] { '<', '>', '`' }) >= 0)
                     return DefaultFunctionDescription;
                 return MethodName ?? "<null>";
             }

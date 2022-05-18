@@ -177,7 +177,7 @@ namespace Stateless
             switch (result.Handler)
             {
                 // Check if this trigger should be ignored
-                case IgnoredTriggerBehaviour _:
+                case IgnoredTriggerBehaviour:
                     return;
                 // Handle special case, re-entry in superstate
                 // Check if it is an internal transition, or a transition from one state to another.
@@ -188,8 +188,8 @@ namespace Stateless
                         await HandleReentryTriggerAsync(args, representativeState, transition);
                         break;
                     }
-                case DynamicTriggerBehaviour _ when (result.Handler.ResultsInTransitionFrom(source, args, out var destination)):
-                case TransitioningTriggerBehaviour _ when (result.Handler.ResultsInTransitionFrom(source, args, out destination)):
+                case DynamicTriggerBehaviour when (result.Handler.ResultsInTransitionFrom(source, args, out var destination)):
+                case TransitioningTriggerBehaviour when (result.Handler.ResultsInTransitionFrom(source, args, out destination)):
                     {
                         // Handle transition, and set new state
                         var transition = new Transition(source, destination, trigger, args);
@@ -256,7 +256,7 @@ namespace Stateless
                 State = representation.UnderlyingState;
             }
 
-           await _onTransitionCompletedEvent.InvokeAsync(new Transition(transition.Source, State, transition.Trigger, transition.Parameters));
+            await _onTransitionCompletedEvent.InvokeAsync(new Transition(transition.Source, State, transition.Trigger, transition.Parameters));
         }
 
 

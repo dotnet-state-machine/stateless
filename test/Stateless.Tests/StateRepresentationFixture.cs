@@ -377,7 +377,7 @@ namespace Stateless.Tests
             fsm.Fire(Trigger.X);
 
             Assert.Equal(fsm.State, State.B);
-            Assert.True(guardDescriptions != null);
+            Assert.True(guardDescriptions is { });
             Assert.Equal(guardDescriptions.Count, 1);
             Assert.Equal(guardDescriptions.First(), expectedGuardDescription);
         }
@@ -399,7 +399,7 @@ namespace Stateless.Tests
             fsm.Fire(Trigger.X);
 
             Assert.Equal(fsm.State, State.A);
-            Assert.True(guardDescriptions != null);
+            Assert.True(guardDescriptions is { });
             Assert.Equal(2, guardDescriptions.Count);
             foreach(var description in guardDescriptions)
             {

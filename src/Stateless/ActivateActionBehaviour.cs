@@ -55,8 +55,7 @@ namespace Stateless
                 public override void Execute()
                 {
                     throw new InvalidOperationException(
-                        $"Cannot execute asynchronous action specified in OnActivateAsync for '{_state}' state. " +
-                         "Use asynchronous version of Activate [ActivateAsync]");
+                                                        $"Cannot execute asynchronous action specified in OnActivateAsync for '{_state}' state. Use asynchronous version of Activate [ActivateAsync]");
                 }
 
                 public override Task ExecuteAsync()
