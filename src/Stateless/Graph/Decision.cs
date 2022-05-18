@@ -1,4 +1,6 @@
-﻿using Stateless.Reflection;
+﻿#nullable enable
+
+using Stateless.Reflection;
 
 namespace Stateless.Graph; 
 

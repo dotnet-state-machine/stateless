@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -82,7 +84,7 @@ public class UmlDotGraphStyle : GraphStyleBase
     /// <param name="destinationNodeName"></param>
     /// <param name="guards"></param>
     /// <returns></returns>
-    public override string FormatOneTransition(string sourceNodeName, string trigger, IEnumerable<string> actions, string destinationNodeName, IEnumerable<string> guards)
+    public override string FormatOneTransition(string? sourceNodeName, string? trigger, IEnumerable<string>? actions, string? destinationNodeName, IEnumerable<string> guards)
     {
         var label = trigger ?? "";
 
@@ -106,12 +108,12 @@ public class UmlDotGraphStyle : GraphStyleBase
     /// <param name="nodeName">Name of the node</param>
     /// <param name="label">Label for the node</param>
     /// <returns></returns>
-    public override string FormatOneDecisionNode(string nodeName, string label)
+    public override string FormatOneDecisionNode(string? nodeName, string label)
     {
         return $"\"{nodeName}\" [shape = \"diamond\", label = \"{label}\"];\n";
     }
 
-    private static string FormatOneLine(string fromNodeName, string toNodeName, string label)
+    private static string FormatOneLine(string? fromNodeName, string? toNodeName, string label)
     {
         return $"\"{fromNodeName}\" -> \"{toNodeName}\" [style=\"solid\", label=\"{label}\"];";
     }

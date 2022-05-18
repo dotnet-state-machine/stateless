@@ -80,7 +80,7 @@ public class StateInfo
     }
 
     private StateInfo(
-        object?                            underlyingState,
+        object                             underlyingState,
         IEnumerable<IgnoredTransitionInfo> ignoredTriggers,
         IEnumerable<ActionInfo>            entryActions,
         IEnumerable<InvocationInfo>        activateActions,
@@ -110,12 +110,17 @@ public class StateInfo
     /// <summary>
     /// The instance or value this state represents.
     /// </summary>
-    public object? UnderlyingState { get; }
+    public object UnderlyingState { get; }
+
+    private IEnumerable<StateInfo>? _substates;
 
     /// <summary>
     /// Substates defined for this StateResource.
     /// </summary>
-    public IEnumerable<StateInfo>? Substates { get; private set; }
+    public IEnumerable<StateInfo> Substates {
+        get => _substates ?? Enumerable.Empty<StateInfo>();
+        private set => _substates = value;
+    }
 
     /// <summary>
     /// Superstate defined, if any, for this StateResource.
@@ -145,17 +150,27 @@ public class StateInfo
     /// <summary> 
     /// Transitions defined for this state.
     /// </summary>
-    public IEnumerable<TransitionInfo> Transitions => FixedTransitions?.Concat(DynamicTransitions ?? Enumerable.Empty<TransitionInfo>()) ?? Enumerable.Empty<TransitionInfo>();
+    public IEnumerable<TransitionInfo> Transitions => FixedTransitions.Concat<TransitionInfo>(DynamicTransitions);
+
+    private IEnumerable<FixedTransitionInfo>? _fixedTransitions;
 
     /// <summary>
     /// Transitions defined for this state.
     /// </summary>
-    public IEnumerable<FixedTransitionInfo>? FixedTransitions { get; private set; }
+    public IEnumerable<FixedTransitionInfo> FixedTransitions {
+        get => _fixedTransitions ?? Enumerable.Empty<FixedTransitionInfo>();
+        private set => _fixedTransitions = value;
+    }
+
+    private IEnumerable<DynamicTransitionInfo>? _dynamicTransitions;
 
     /// <summary>
     /// Dynamic Transitions defined for this state internally.
     /// </summary>
-    public IEnumerable<DynamicTransitionInfo>? DynamicTransitions { get; private set; }
+    public IEnumerable<DynamicTransitionInfo> DynamicTransitions {
+        get => _dynamicTransitions ?? Enumerable.Empty<DynamicTransitionInfo>();
+        private set => _dynamicTransitions = value;
+    }
 
     /// <summary>
     /// Triggers ignored for this state.
@@ -167,6 +182,6 @@ public class StateInfo
     /// </summary>
     public override string ToString()
     {
-        return UnderlyingState?.ToString() ?? "<null>";
+        return UnderlyingState.ToString() ?? "<null>";
     }
 }

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+
+using System.Collections.Generic;
 using Stateless.Reflection;
 
 namespace Stateless.Graph; 
@@ -11,7 +13,7 @@ public class State
     /// <summary>
     /// The superstate of this state (null if none)
     /// </summary>
-    public SuperState SuperState { get; set; }
+    public SuperState? SuperState { get; set; }
 
     /// <summary>
     /// List of all transitions that leave this state (never null)
@@ -26,12 +28,12 @@ public class State
     /// <summary>
     /// Unique name of this object
     /// </summary>
-    public string NodeName { get; }
+    public string? NodeName { get; }
 
     /// <summary>
     /// Name of the state represented by this object
     /// </summary>
-    public string StateName { get; }
+    public string? StateName { get; }
 
     /// <summary>
     /// Actions that are executed when you enter this state from any trigger
@@ -49,8 +51,8 @@ public class State
     /// <param name="stateInfo">The state to be represented.</param>
     public State(StateInfo stateInfo)
     {
-        NodeName  = stateInfo.UnderlyingState.ToString();
-        StateName = stateInfo.UnderlyingState.ToString();
+        NodeName  = stateInfo.UnderlyingState?.ToString();
+        StateName = stateInfo.UnderlyingState?.ToString();
 
         // Only include entry actions that aren't specific to a trigger
         foreach (var entryAction in stateInfo.EntryActions)
@@ -67,7 +69,7 @@ public class State
     /// Constructs a new instance of State.
     /// </summary>
     /// <param name="nodeName">The node name.</param>
-    public State(string nodeName)
+    protected State(string nodeName)
     {
         NodeName  = nodeName;
         StateName = null;

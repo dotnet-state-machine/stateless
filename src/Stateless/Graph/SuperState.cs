@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+
+using System.Collections.Generic;
 using Stateless.Reflection;
 
 namespace Stateless.Graph; 
