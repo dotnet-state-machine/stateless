@@ -12,7 +12,7 @@ public class StateMachineInfo
     internal StateMachineInfo(IEnumerable<StateInfo> states, Type stateType, Type triggerType, StateInfo initialState)
     {
         InitialState = initialState;
-        States       = states?.ToList() ?? throw new ArgumentNullException(nameof(states));
+        States       = states.ToList() ?? throw new ArgumentNullException(nameof(states));
         StateType    = stateType;
         TriggerType  = triggerType;
     }

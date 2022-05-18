@@ -29,7 +29,7 @@ internal static class ParameterConversion
         return arg;
     }
 
-    public static bool TryUnpack(object[] args, Type argType, int index, [NotNullWhen(true)]out object? result)
+    public static bool TryUnpack(object[]? args, Type argType, int index, [NotNullWhen(true)]out object? result)
     {
         if (args is null || args.Length <= index)
         {
@@ -60,9 +60,9 @@ internal static class ParameterConversion
         return (TArg?)Unpack(args, typeof(TArg), index);
     }
 
-    public static bool TryUnpack<TArg>(object[] args, int index, out TArg? result)
+    public static bool TryUnpack<TArg>(object[]? args, int index, out TArg? result)
     {
-        if (args.Length == 0)
+        if (args is null || args.Length == 0)
         {
             result = default;
             return true;

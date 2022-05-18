@@ -49,8 +49,8 @@ public class State
     /// <param name="stateInfo">The state to be represented.</param>
     public State(StateInfo stateInfo)
     {
-        NodeName  = stateInfo.UnderlyingState?.ToString();
-        StateName = stateInfo.UnderlyingState?.ToString();
+        NodeName  = stateInfo.UnderlyingState.ToString();
+        StateName = stateInfo.UnderlyingState.ToString();
 
         // Only include entry actions that aren't specific to a trigger
         foreach (var entryAction in stateInfo.EntryActions)

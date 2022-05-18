@@ -10,7 +10,7 @@ public class IgnoredTransitionInfo : TransitionInfo
 {
     internal static IgnoredTransitionInfo Create<TState, TTrigger>(StateMachine<TState, TTrigger>.IgnoredTriggerBehaviour behaviour) where TState : notnull where TTrigger : notnull
     {
-        return new IgnoredTransitionInfo(behaviour.Guard?.Conditions.Select(c => c.MethodDescription) ?? new List<InvocationInfo>(), new TriggerInfo(behaviour.Trigger));
+        return new IgnoredTransitionInfo(behaviour.Guard.Conditions.Select(c => c.MethodDescription), new TriggerInfo(behaviour.Trigger));
     }
 
     /// <inheritdoc />

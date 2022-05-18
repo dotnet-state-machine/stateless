@@ -103,8 +103,7 @@ public abstract class GraphStyleBase
                         throw new ArgumentException("Unexpected transition type");
                 }
             }
-            if (line is { })
-                lines.Add(line);
+            lines.Add(line);
         }
 
         return lines;

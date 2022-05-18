@@ -10,7 +10,7 @@ public class FixedTransitionInfo : TransitionInfo
 {
     internal static FixedTransitionInfo Create<TState, TTrigger>(StateMachine<TState, TTrigger>.TriggerBehaviour behaviour, StateInfo destinationStateInfo)  where TState : notnull where TTrigger : notnull
     {
-        return new FixedTransitionInfo(behaviour.Guard?.Conditions.Select(c => c.MethodDescription) ?? new List<InvocationInfo>(), new TriggerInfo(behaviour.Trigger), destinationStateInfo);
+        return new FixedTransitionInfo(behaviour.Guard.Conditions.Select(c => c.MethodDescription), new TriggerInfo(behaviour.Trigger), destinationStateInfo);
     }
 
     /// <inheritdoc />

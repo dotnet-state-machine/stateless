@@ -129,7 +129,7 @@ public partial class StateMachine<TState, TTrigger>
         /// </summary>
         public bool GuardConditionsMet(object[] args)
         {
-            return Conditions.All(c => c.Guard == null || c.Guard(args));
+            return Conditions.All(c => c.Guard(args));
         }
 
         /// <summary>

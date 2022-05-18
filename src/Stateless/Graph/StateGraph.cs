@@ -88,7 +88,7 @@ public class StateGraph
             dirGraphText += Environment.NewLine + transit;
 
         // Add initial transition if present
-        var initialStateName = _initialState.UnderlyingState?.ToString();
+        var initialStateName = _initialState.UnderlyingState.ToString();
         dirGraphText += $"{Environment.NewLine} init [label=\"\", shape=point];";
         dirGraphText += $"{Environment.NewLine} init -> \"{initialStateName}\"[style = \"solid\"]";
 
@@ -209,7 +209,7 @@ public class StateGraph
     /// <param name="machineInfo"></param>
     private void AddSuperstates(StateMachineInfo machineInfo)
     {
-        foreach (var stateInfo in machineInfo.States.Where(sc => (sc.Substates?.Count() > 0) && (sc.Superstate == null)))
+        foreach (var stateInfo in machineInfo.States.Where(sc => (sc.Substates.Any()) && (sc.Superstate == null)))
         {
             var state = new SuperState(stateInfo);
             States[stateInfo.ToString()] = state;
