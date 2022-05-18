@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <AssemblyName>Stateless</AssemblyName>
     <AssemblyTitle>Stateless</AssemblyTitle>
     <Product>Stateless</Product>
     <TargetFrameworks>netstandard2.0;netstandard1.0;net462;net472;net5.0;net6.0;net7.0</TargetFrameworks>
