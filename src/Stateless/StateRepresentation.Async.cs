@@ -18,7 +18,7 @@ namespace Stateless
                 DeactivateActions.Add(new DeactivateActionBehaviour.Async(_state, action, deactivateActionDescription));
             }
 
-            public void AddEntryAction(TTrigger trigger, Func<Transition, object[], Task> action, InvocationInfo entryActionDescription)
+            public void AddEntryAction(TTrigger trigger, Func<Transition, object?[], Task> action, InvocationInfo entryActionDescription)
             {
                 if (action == null) throw new ArgumentNullException(nameof(action));
 
@@ -33,7 +33,7 @@ namespace Stateless
                                                   entryActionDescription));
             }
 
-            public void AddEntryAction(Func<Transition, object[], Task> action, InvocationInfo entryActionDescription)
+            public void AddEntryAction(Func<Transition, object?[], Task> action, InvocationInfo entryActionDescription)
             {
                 EntryActions.Add(
                     new EntryActionBehavior.Async(
@@ -75,7 +75,7 @@ namespace Stateless
             }
 
 
-            public async Task EnterAsync(Transition transition, params object[] entryArgs)
+            public async Task EnterAsync(Transition transition, params object?[] entryArgs)
             {
                 if (transition.IsReentry)
                 {
@@ -122,7 +122,7 @@ namespace Stateless
                 return transition;
             }
 
-            private async Task ExecuteEntryActionsAsync(Transition transition, object[] entryArgs)
+            private async Task ExecuteEntryActionsAsync(Transition transition, object?[] entryArgs)
             {
                 foreach (var action in EntryActions)
                     await action.ExecuteAsync(transition, entryArgs).ConfigureAwait(false);

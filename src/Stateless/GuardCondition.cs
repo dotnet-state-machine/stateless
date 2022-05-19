@@ -19,13 +19,13 @@ public partial class StateMachine<TState, TTrigger>
         {
         }
 
-        internal GuardCondition(Func<object[], bool> guard, InvocationInfo description)
+        internal GuardCondition(Func<object?[], bool> guard, InvocationInfo description)
         {
             Guard             = guard       ?? throw new ArgumentNullException(nameof(guard));
             MethodDescription = description ?? throw new ArgumentNullException(nameof(description));
         }
 
-        internal Func<object[], bool> Guard { get; }
+        internal Func<object?[], bool> Guard { get; }
 
         // Return the description of the guard method: the caller-defined description if one
         // was provided, else the name of the method itself

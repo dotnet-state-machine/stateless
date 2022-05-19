@@ -5,7 +5,7 @@ namespace Stateless;
 
 internal static class ParameterConversion
 {
-    public static object? Unpack(object[] args, Type argType, int index)
+    public static object? Unpack(object?[] args, Type argType, int index)
     {
         if (args == null) throw new ArgumentNullException(nameof(args));
             
@@ -29,7 +29,7 @@ internal static class ParameterConversion
         return arg;
     }
 
-    public static bool TryUnpack(object[]? args, Type argType, int index, [NotNullWhen(true)]out object? result)
+    public static bool TryUnpack(object?[]? args, Type argType, int index, [NotNullWhen(true)]out object? result)
     {
         if (args is null || args.Length <= index)
         {
@@ -40,9 +40,9 @@ internal static class ParameterConversion
         var arg = args[index];
         
 #if NETSTANDARD1_0
-        if (!argType.IsAssignableFrom(arg.GetType()))
+        if (arg is null || !argType.IsAssignableFrom(arg.GetType()))
 #else
-        if (!argType.IsInstanceOfType(arg))
+        if (arg is null || !argType.IsInstanceOfType(arg))
 #endif
         {
             result = null;
@@ -53,14 +53,14 @@ internal static class ParameterConversion
         return true;
     }
 
-    public static TArg? Unpack<TArg>(object[] args, int index)
+    public static TArg? Unpack<TArg>(object?[] args, int index)
     {
         if (args.Length == 0) return default;
 
         return (TArg?)Unpack(args, typeof(TArg), index);
     }
 
-    public static bool TryUnpack<TArg>(object[]? args, int index, out TArg? result)
+    public static bool TryUnpack<TArg>(object?[]? args, int index, out TArg? result)
     {
         if (args is null || args.Length == 0)
         {
@@ -78,7 +78,7 @@ internal static class ParameterConversion
         return true;
     }
 
-    public static void Validate(object[] args, Type[] expected)
+    public static void Validate(object?[] args, Type[] expected)
     {
         if (args.Length > expected.Length)
             throw new ArgumentException(

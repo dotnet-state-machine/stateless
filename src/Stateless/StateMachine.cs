@@ -34,10 +34,10 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
 
     private class QueuedTrigger
     {
-        public TTrigger Trigger { get; }
-        public object[] Args    { get; }
+        public TTrigger  Trigger { get; }
+        public object?[] Args    { get; }
 
-        public QueuedTrigger(TTrigger trigger, object[] args) {
+        public QueuedTrigger(TTrigger trigger, object?[] args) {
             Trigger = trigger;
             Args    = args;
         }
@@ -352,7 +352,7 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
     /// </summary>
     /// <param name="trigger"></param>
     /// <param name="args"></param>
-    private void InternalFireOne(TTrigger trigger, params object[] args)
+    private void InternalFireOne(TTrigger trigger, params object?[] args)
     {
         // If this is a trigger with parameters, we must validate the parameter(s)
         if (_triggerConfiguration.TryGetValue(trigger, out var configuration))
@@ -403,7 +403,7 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
         }
     }
 
-    private void HandleReentryTrigger(object[] args, StateRepresentation representativeState, Transition transition)
+    private void HandleReentryTrigger(object?[] args, StateRepresentation representativeState, Transition transition)
     {
         StateRepresentation representation;
         transition = representativeState.Exit(transition);
@@ -429,7 +429,7 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
         State = representation.UnderlyingState;
     }
 
-    private void HandleTransitioningTrigger( object[] args, StateRepresentation representativeState, Transition transition)
+    private void HandleTransitioningTrigger( object?[] args, StateRepresentation representativeState, Transition transition)
     {
         transition = representativeState.Exit(transition);
 
@@ -450,7 +450,7 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
         _onTransitionCompletedEvent.Invoke(new Transition(transition.Source, State, transition.Trigger, transition.Parameters));
     }
 
-    private StateRepresentation EnterState(StateRepresentation representation, Transition transition, object [] args)
+    private StateRepresentation EnterState(StateRepresentation representation, Transition transition, object? [] args)
     {
         // Enter the new state
         representation.Enter(transition, args);

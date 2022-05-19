@@ -32,7 +32,7 @@ partial class StateMachine<TState, TTrigger>
         /// trigger.
         /// </summary>
         /// <param name="args"></param>
-        public void ValidateParameters(object[] args)
+        public void ValidateParameters(object?[] args)
         {
             if (args == null) throw new ArgumentNullException(nameof(args));
 

@@ -54,10 +54,9 @@ namespace Stateless
         /// <param name="arg0">The first argument.</param>
         /// <exception cref="System.InvalidOperationException">The current state does
         /// not allow the trigger to be fired.</exception>
-        public Task FireAsync<TArg0>(TriggerWithParameters<TArg0> trigger, TArg0 arg0)
+        public Task FireAsync<TArg0>(TriggerWithParameters<TArg0> trigger, TArg0? arg0)
         {
             if (trigger == null) throw new ArgumentNullException(nameof(trigger));
-            if (arg0    == null) throw new ArgumentNullException(nameof(arg0));
 
             return InternalFireAsync(trigger.Trigger, arg0);
         }
@@ -75,11 +74,9 @@ namespace Stateless
         /// <param name="trigger">The trigger to fire.</param>
         /// <exception cref="System.InvalidOperationException">The current state does
         /// not allow the trigger to be fired.</exception>
-        public Task FireAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, TArg0 arg0, TArg1 arg1)
+        public Task FireAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, TArg0? arg0, TArg1? arg1)
         {
             if (trigger == null) throw new ArgumentNullException(nameof(trigger));
-            if (arg0    == null) throw new ArgumentNullException(nameof(arg0));
-            if (arg1    == null) throw new ArgumentNullException(nameof(arg1));
 
             return InternalFireAsync(trigger.Trigger, arg0, arg1);
         }
@@ -99,12 +96,9 @@ namespace Stateless
         /// <param name="trigger">The trigger to fire.</param>
         /// <exception cref="System.InvalidOperationException">The current state does
         /// not allow the trigger to be fired.</exception>
-        public Task FireAsync<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, TArg0 arg0, TArg1 arg1, TArg2 arg2)
+        public Task FireAsync<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, TArg0? arg0, TArg1? arg1, TArg2? arg2)
         {
             if (trigger == null) throw new ArgumentNullException(nameof(trigger));
-            if (arg0    == null) throw new ArgumentNullException(nameof(arg0));
-            if (arg1    == null) throw new ArgumentNullException(nameof(arg1));
-            if (arg2    == null) throw new ArgumentNullException(nameof(arg2));
 
             return InternalFireAsync(trigger.Trigger, arg0, arg1, arg2);
         }
@@ -114,7 +108,7 @@ namespace Stateless
         /// </summary>
         /// <param name="trigger">The trigger. </param>
         /// <param name="args">A variable-length parameters list containing arguments. </param>
-        private async Task InternalFireAsync(TTrigger trigger, params object[] args)
+        private async Task InternalFireAsync(TTrigger trigger, params object?[] args)
         {
             switch (_firingMode)
             {
@@ -136,7 +130,7 @@ namespace Stateless
         /// </summary>
         /// <param name="trigger">  The trigger. </param>
         /// <param name="args">     A variable-length parameters list containing arguments. </param>
-        private async Task InternalFireQueuedAsync(TTrigger trigger, params object[] args)
+        private async Task InternalFireQueuedAsync(TTrigger trigger, params object?[] args)
         {
             if (_firing)
             {
@@ -162,7 +156,7 @@ namespace Stateless
             }
         }
 
-        private async Task InternalFireOneAsync(TTrigger trigger, params object[] args)
+        private async Task InternalFireOneAsync(TTrigger trigger, params object?[] args)
         {
             // If this is a trigger with parameters, we must validate the parameter(s)
             if (_triggerConfiguration.TryGetValue(trigger, out var configuration))
@@ -217,7 +211,7 @@ namespace Stateless
             }
         }
 
-        private async Task HandleReentryTriggerAsync(object[] args, StateRepresentation representativeState, Transition transition)
+        private async Task HandleReentryTriggerAsync(object?[] args, StateRepresentation representativeState, Transition transition)
         {
             StateRepresentation representation;
             transition = await representativeState.ExitAsync(transition);
@@ -242,7 +236,7 @@ namespace Stateless
             State = representation.UnderlyingState;
         }
 
-        private async Task HandleTransitioningTriggerAsync(object[] args, StateRepresentation representativeState, Transition transition)
+        private async Task HandleTransitioningTriggerAsync(object?[] args, StateRepresentation representativeState, Transition transition)
         {
             transition = await representativeState.ExitAsync(transition);
 
@@ -264,7 +258,7 @@ namespace Stateless
         }
 
 
-        private async Task<StateRepresentation> EnterStateAsync(StateRepresentation representation, Transition transition, object[] args)
+        private async Task<StateRepresentation> EnterStateAsync(StateRepresentation representation, Transition transition, object?[] args)
         {
             // Enter the new state
             await representation.EnterAsync(transition, args);

@@ -107,7 +107,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="internalAction">The action performed by the internal transition</param>
         /// <param name="guardDescription">A description of the guard condition</param>
         /// <returns></returns>
-        public StateConfiguration InternalTransitionIf(TTrigger trigger, Func<object[], bool> guard, Action internalAction, string? guardDescription = null)
+        public StateConfiguration InternalTransitionIf(TTrigger trigger, Func<object?[], bool> guard, Action internalAction, string? guardDescription = null)
         {
             if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
@@ -123,7 +123,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="internalAction">The action performed by the internal transition</param>
         /// <param name="guardDescription">A description of the guard condition</param>
         /// <returns></returns>
-        public StateConfiguration InternalTransitionIf(TTrigger trigger, Func<object[], bool> guard, Action<Transition> internalAction, string? guardDescription = null)
+        public StateConfiguration InternalTransitionIf(TTrigger trigger, Func<object?[], bool> guard, Action<Transition> internalAction, string? guardDescription = null)
         {
             if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
@@ -203,7 +203,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="internalAction">The action performed by the internal transition</param>
         /// <param name="guardDescription">A description of the guard condition</param>
         /// <returns></returns>
-        public StateConfiguration InternalTransitionIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<object[], bool> guard, Action<TArg0?, TArg1?, Transition> internalAction, string? guardDescription = null)
+        public StateConfiguration InternalTransitionIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<object?[], bool> guard, Action<TArg0?, TArg1?, Transition> internalAction, string? guardDescription = null)
         {
             if (trigger        == null) throw new ArgumentNullException(nameof(trigger));
             if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
@@ -248,7 +248,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="internalAction">The action performed by the internal transition</param>
         /// <param name="guardDescription">A description of the guard condition</param>
         /// <returns></returns>
-        public StateConfiguration InternalTransitionIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<object[], bool> guard, Action<TArg0?, TArg1?, TArg2?, Transition> internalAction, string? guardDescription = null)
+        public StateConfiguration InternalTransitionIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<object?[], bool> guard, Action<TArg0?, TArg1?, TArg2?, Transition> internalAction, string? guardDescription = null)
         {
             if (trigger        == null) throw new ArgumentNullException(nameof(trigger));
             if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
@@ -1767,7 +1767,7 @@ public partial class StateMachine<TState, TTrigger>
             return this;
         }
 
-        private StateConfiguration InternalPermitDynamicIf(TTrigger trigger,                             Func<object[], TState> destinationStateSelector,
+        private StateConfiguration InternalPermitDynamicIf(TTrigger trigger,                             Func<object?[], TState> destinationStateSelector,
                                                            string?   destinationStateSelectorDescription, TransitionGuard        transitionGuard, DynamicStateInfos? possibleDestinationStates = null)
         {
             if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));

@@ -31,7 +31,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <summary>
         /// Guards is the list of guard functions for the transition guard for this trigger
         /// </summary>
-        internal ICollection<Func<object[], bool>> Guards =>Guard.Guards;
+        internal ICollection<Func<object?[], bool>> Guards =>Guard.Guards;
 
         /// <summary>
         /// GuardConditionsMet is true if all of the guard functions return true
@@ -43,8 +43,8 @@ public partial class StateMachine<TState, TTrigger>
         /// UnmetGuardConditions is a list of the descriptions of all guard conditions
         /// whose guard function returns false
         /// </summary>
-        public ICollection<string> UnmetGuardConditions(object[] args) => Guard.UnmetGuardConditions(args);
+        public ICollection<string> UnmetGuardConditions(object?[] args) => Guard.UnmetGuardConditions(args);
 
-        public abstract bool ResultsInTransitionFrom(TState source, object[] args, [NotNullWhen(true)]out TState? destination);
+        public abstract bool ResultsInTransitionFrom(TState source, object?[] args, [NotNullWhen(true)]out TState? destination);
     }
 }

@@ -14,7 +14,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="destination">The state transitioned to.</param>
         /// <param name="trigger">The trigger that caused the transition.</param>
         /// <param name="parameters">The optional trigger parameters</param>
-        public InitialTransition(TState source, TState destination, TTrigger trigger, object[]? parameters = null) : base(source, destination, trigger, parameters)
+        public InitialTransition(TState source, TState destination, TTrigger trigger, object?[]? parameters = null) : base(source, destination, trigger, parameters)
         {
         }
     }
@@ -31,12 +31,12 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="destination">The state transitioned to.</param>
         /// <param name="trigger">The trigger that caused the transition.</param>
         /// <param name="parameters">The optional trigger parameters</param>
-        public Transition(TState source, TState destination, TTrigger trigger, object[]? parameters = null)
+        public Transition(TState source, TState destination, TTrigger trigger, object?[]? parameters = null)
         {
             Source      = source;
             Destination = destination;
             Trigger     = trigger;
-            Parameters  = parameters ?? ArrayHelper.Empty<object>();
+            Parameters  = parameters ?? ArrayHelper.Empty<object?>();
         }
 
         /// <summary>
@@ -65,6 +65,6 @@ public partial class StateMachine<TState, TTrigger>
         /// <remarks>
         /// Never null. For a parameter-less trigger the value will be an empty array.
         /// </remarks>
-        public object[] Parameters { get; }
+        public object?[] Parameters { get; }
     }
 }

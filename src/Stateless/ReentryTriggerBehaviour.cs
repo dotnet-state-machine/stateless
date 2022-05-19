@@ -15,7 +15,7 @@ public partial class StateMachine<TState, TTrigger>
             Destination = destination;
         }
 
-        public override bool ResultsInTransitionFrom(TState source, object[] args, [NotNullWhen(true)]out TState? destination)
+        public override bool ResultsInTransitionFrom(TState source, object?[] args, [NotNullWhen(true)]out TState? destination)
         {
             destination = Destination;
             return true;

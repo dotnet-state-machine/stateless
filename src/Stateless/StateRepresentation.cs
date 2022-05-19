@@ -43,7 +43,7 @@ public partial class StateMachine<TState, TTrigger>
             return handlerFound;
         }
 
-        public bool TryFindHandler(TTrigger trigger, object[] args, [NotNullWhen(true)]out TriggerBehaviourResult? handler)
+        public bool TryFindHandler(TTrigger trigger, object?[] args, [NotNullWhen(true)]out TriggerBehaviourResult? handler)
         {
             TriggerBehaviourResult? superStateHandler = null;
 
@@ -56,7 +56,7 @@ public partial class StateMachine<TState, TTrigger>
             return handlerFound;
         }
 
-        private bool TryFindLocalHandler(TTrigger trigger, object[] args, [NotNullWhen(true)]out TriggerBehaviourResult? handlerResult)
+        private bool TryFindLocalHandler(TTrigger trigger, object?[] args, [NotNullWhen(true)]out TriggerBehaviourResult? handlerResult)
         {
             // Get list of candidate trigger handlers
             if (!TriggerBehaviours.TryGetValue(trigger, out var possible))
@@ -126,12 +126,12 @@ public partial class StateMachine<TState, TTrigger>
             DeactivateActions.Add(new DeactivateActionBehaviour.Sync(_state, action, deactivateActionDescription));
         }
 
-        public void AddEntryAction(TTrigger trigger, Action<Transition, object[]> action, InvocationInfo entryActionDescription)
+        public void AddEntryAction(TTrigger trigger, Action<Transition, object?[]> action, InvocationInfo entryActionDescription)
         {
             EntryActions.Add(new EntryActionBehavior.SyncFrom<TTrigger>(trigger, action, entryActionDescription));
         }
 
-        public void AddEntryAction(Action<Transition, object[]> action, InvocationInfo entryActionDescription)
+        public void AddEntryAction(Action<Transition, object?[]> action, InvocationInfo entryActionDescription)
         {
             EntryActions.Add(new EntryActionBehavior.Sync(action, entryActionDescription));
         }
@@ -167,7 +167,7 @@ public partial class StateMachine<TState, TTrigger>
                 action.Execute();
         }
 
-        public void Enter(Transition transition, params object[] entryArgs)
+        public void Enter(Transition transition, params object?[] entryArgs)
         {
             if (transition.IsReentry)
             {
@@ -214,7 +214,7 @@ public partial class StateMachine<TState, TTrigger>
             return transition;
         }
 
-        private void ExecuteEntryActions(Transition transition, object[] entryArgs)
+        private void ExecuteEntryActions(Transition transition, object?[] entryArgs)
         {
             foreach (var action in EntryActions)
                 action.Execute(transition, entryArgs);
@@ -225,7 +225,7 @@ public partial class StateMachine<TState, TTrigger>
             foreach (var action in ExitActions)
                 action.Execute(transition);
         }
-        internal void InternalAction(Transition transition, object[] args)
+        internal void InternalAction(Transition transition, object?[] args)
         {
             InternalTriggerBehaviour.Sync? internalTransition = null;
 
