@@ -57,7 +57,7 @@ internal class EventCallback
     }
 }
 
-internal class EventCallback<T> : EventCallback
+internal sealed class EventCallback<T> : EventCallback
 {
     public EventCallback(MulticastDelegate @delegate) : base(@delegate)
     {
@@ -80,7 +80,7 @@ internal class EventCallback<T> : EventCallback
     }
 }
 
-internal class EventCallback<T1, T2> : EventCallback
+internal sealed class EventCallback<T1, T2> : EventCallback
 {
     public EventCallback(MulticastDelegate @delegate) : base(@delegate)
     {
@@ -103,7 +103,7 @@ internal class EventCallback<T1, T2> : EventCallback
     }
 }
 
-internal class EventCallback<T1, T2, T3> : EventCallback
+internal sealed class EventCallback<T1, T2, T3> : EventCallback
 {
     public EventCallback(MulticastDelegate @delegate) : base(@delegate)
     {
@@ -126,7 +126,7 @@ internal class EventCallback<T1, T2, T3> : EventCallback
     }
 }
 
-internal class EventCallback<T1, T2, T3, T4> : EventCallback
+internal sealed class EventCallback<T1, T2, T3, T4> : EventCallback
 {
     public EventCallback(MulticastDelegate @delegate) : base(@delegate)
     {

@@ -4,32 +4,29 @@ namespace Stateless;
 
 public partial class StateMachine<TState, TTrigger>
 {
-    internal class ActivateActionBehaviour
+    internal sealed class ActivationChangeActionBehaviour
     {
-        private readonly TState        _state;
-
         private readonly EventCallback _callback = EventCallbackFactory.Empty;
 
         internal InvocationInfo Description { get; }
 
-        public ActivateActionBehaviour(TState state, Action action, InvocationInfo actionDescription)
-            : this(state, actionDescription) {
+        public ActivationChangeActionBehaviour(Action action, InvocationInfo actionDescription)
+            : this(actionDescription) {
             _callback   = EventCallbackFactory.Create(action);
         }
 
-        public ActivateActionBehaviour(TState state, Func<Task> action, InvocationInfo actionDescription)
-            : this(state, actionDescription)
+        public ActivationChangeActionBehaviour(Func<Task> action, InvocationInfo actionDescription)
+            : this(actionDescription)
         {
             _callback = EventCallbackFactory.Create(action);
         }
 
-        protected ActivateActionBehaviour(TState state, InvocationInfo actionDescription)
+        private ActivationChangeActionBehaviour(InvocationInfo actionDescription)
         {
-            _state      = state;
             Description = actionDescription ?? throw new ArgumentNullException(nameof(actionDescription));
         }
 
-        public virtual Task ExecuteAsync()
+        public Task ExecuteAsync()
         {
             return _callback.InvokeAsync();
         }

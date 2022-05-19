@@ -32,7 +32,7 @@ public partial class StateMachine<TState, TTrigger>
             return _callback.InvokeAsync(transition, args);
         }
 
-        public class From<TTriggerType> : EntryActionBehavior
+        public sealed class From<TTriggerType> : EntryActionBehavior
         {
             internal TTriggerType Trigger { get; }
 

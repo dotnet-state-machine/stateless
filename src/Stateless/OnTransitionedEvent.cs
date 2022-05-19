@@ -2,7 +2,7 @@ namespace Stateless;
 
 public partial class StateMachine<TState, TTrigger>
 {
-    private class OnTransitionedEvent
+    private sealed class OnTransitionedEvent
     {
         private readonly ICollection<EventCallback<Transition>> _callbacks;
 

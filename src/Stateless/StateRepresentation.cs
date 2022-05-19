@@ -12,8 +12,8 @@ public partial class StateMachine<TState, TTrigger>
         internal IDictionary<TTrigger, ICollection<TriggerBehaviour>> TriggerBehaviours { get; } = new Dictionary<TTrigger, ICollection<TriggerBehaviour>>();
         internal ICollection<EntryActionBehavior> EntryActions { get; } = new List<EntryActionBehavior>();
         internal ICollection<ExitActionBehavior> ExitActions { get; } = new List<ExitActionBehavior>();
-        internal ICollection<ActivateActionBehaviour> ActivateActions { get; } = new List<ActivateActionBehaviour>();
-        internal ICollection<DeactivateActionBehaviour> DeactivateActions { get; } = new List<DeactivateActionBehaviour>();
+        internal ICollection<ActivationChangeActionBehaviour> ActivateActions { get; } = new List<ActivationChangeActionBehaviour>();
+        internal ICollection<ActivationChangeActionBehaviour> DeactivateActions { get; } = new List<ActivationChangeActionBehaviour>();
 
         private readonly ICollection<StateRepresentation> _substates = new List<StateRepresentation>();
         public           TState?                          InitialTransitionTarget { get; private set; }
@@ -115,12 +115,12 @@ public partial class StateMachine<TState, TTrigger>
 
         public void AddActivateAction(Action action, InvocationInfo activateActionDescription)
         {
-            ActivateActions.Add(new ActivateActionBehaviour(_state, action, activateActionDescription));
+            ActivateActions.Add(new ActivationChangeActionBehaviour(action, activateActionDescription));
         }
 
         public void AddDeactivateAction(Action action, InvocationInfo deactivateActionDescription)
         {
-            DeactivateActions.Add(new DeactivateActionBehaviour(_state, action, deactivateActionDescription));
+            DeactivateActions.Add(new ActivationChangeActionBehaviour(action, deactivateActionDescription));
         }
 
         public void AddEntryAction(TTrigger trigger, Action<Transition, object?[]> action, InvocationInfo entryActionDescription)

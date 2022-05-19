@@ -8,12 +8,12 @@ namespace Stateless
         {
             public void AddActivateAction(Func<Task> action, InvocationInfo activateActionDescription)
             {
-                ActivateActions.Add(new ActivateActionBehaviour(_state, action, activateActionDescription));
+                ActivateActions.Add(new ActivationChangeActionBehaviour(action, activateActionDescription));
             }
 
             public void AddDeactivateAction(Func<Task> action, InvocationInfo deactivateActionDescription)
             {
-                DeactivateActions.Add(new DeactivateActionBehaviour(_state, action, deactivateActionDescription));
+                DeactivateActions.Add(new ActivationChangeActionBehaviour(action, deactivateActionDescription));
             }
 
             public void AddEntryAction(TTrigger trigger, Func<Transition, object?[], Task> action, InvocationInfo entryActionDescription)

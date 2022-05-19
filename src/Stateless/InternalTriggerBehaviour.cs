@@ -5,7 +5,7 @@ namespace Stateless;
 
 public partial class StateMachine<TState, TTrigger>
 {
-    internal class InternalTriggerBehaviour : TriggerBehaviour
+    internal sealed class InternalTriggerBehaviour : TriggerBehaviour
     {
         private readonly EventCallback<Transition, object?[]> _callback = EventCallbackFactory.Create(new Action<Transition, object?[]>(delegate { }));
         
@@ -38,7 +38,7 @@ public partial class StateMachine<TState, TTrigger>
             return false;
         }
 
-        public virtual Task ExecuteAsync(Transition transition, object?[] args)
+        public Task ExecuteAsync(Transition transition, object?[] args)
         {
             return _callback.InvokeAsync(transition, args);
         }
