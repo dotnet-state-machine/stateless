@@ -65,7 +65,7 @@ public partial class StateMachine<TState, TTrigger>
         {
             if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
 
-            _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger, new TransitionGuard(guard, guardDescription), (t, _) => entryAction(t)));
+            _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, new TransitionGuard(guard, guardDescription), (t, _) => entryAction(t)));
             return this;
         }
 
@@ -81,7 +81,7 @@ public partial class StateMachine<TState, TTrigger>
         {
             if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
 
-            _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger, new TransitionGuard(guard, guardDescription), (_, _) => entryAction()));
+            _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, new TransitionGuard(guard, guardDescription), (_, _) => entryAction()));
             return this;
         }
 
@@ -108,7 +108,7 @@ public partial class StateMachine<TState, TTrigger>
         {
             if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-            _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger, new TransitionGuard(guard, guardDescription), (_, _) => internalAction()));
+            _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, new TransitionGuard(guard, guardDescription), (_, _) => internalAction()));
             return this;
         }
 
@@ -124,7 +124,7 @@ public partial class StateMachine<TState, TTrigger>
         {
             if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-            _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger, new TransitionGuard(guard, guardDescription), (t, _) => internalAction(t)));
+            _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, new TransitionGuard(guard, guardDescription), (t, _) => internalAction(t)));
             return this;
         }
 
@@ -154,7 +154,7 @@ public partial class StateMachine<TState, TTrigger>
             if (trigger        == null) throw new ArgumentNullException(nameof(trigger));
             if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-            _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger.Trigger, new TransitionGuard(TransitionGuard.ToPackedGuard(guard), guardDescription), (_, args) => internalAction(ParameterConversion.Unpack<TArg0>(args, 0))));
+            _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, new TransitionGuard(TransitionGuard.ToPackedGuard(guard), guardDescription), (_, args) => internalAction(ParameterConversion.Unpack<TArg0>(args, 0))));
             return this;
         }
 
@@ -172,7 +172,7 @@ public partial class StateMachine<TState, TTrigger>
             if (trigger        == null) throw new ArgumentNullException(nameof(trigger));
             if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-            _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger.Trigger, new TransitionGuard(TransitionGuard.ToPackedGuard(guard), guardDescription), (t, args) => internalAction(ParameterConversion.Unpack<TArg0>(args, 0), t)));
+            _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, new TransitionGuard(TransitionGuard.ToPackedGuard(guard), guardDescription), (t, args) => internalAction(ParameterConversion.Unpack<TArg0>(args, 0), t)));
             return this;
         }
 
@@ -205,7 +205,7 @@ public partial class StateMachine<TState, TTrigger>
             if (trigger        == null) throw new ArgumentNullException(nameof(trigger));
             if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-            _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger.Trigger, new TransitionGuard(guard, guardDescription), (t, args) => internalAction(ParameterConversion.Unpack<TArg0>(args, 0), ParameterConversion.Unpack<TArg1>(args, 1), t)));
+            _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, new TransitionGuard(guard, guardDescription), (t, args) => internalAction(ParameterConversion.Unpack<TArg0>(args, 0), ParameterConversion.Unpack<TArg1>(args, 1), t)));
             return this;
         }
 
@@ -224,7 +224,7 @@ public partial class StateMachine<TState, TTrigger>
             if (trigger        == null) throw new ArgumentNullException(nameof(trigger));
             if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-            _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(
+            _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(
                                                          trigger.Trigger,
                                                          new TransitionGuard(TransitionGuard.ToPackedGuard(guard), guardDescription),
                                                          (t, args) => internalAction(
@@ -250,7 +250,7 @@ public partial class StateMachine<TState, TTrigger>
             if (trigger        == null) throw new ArgumentNullException(nameof(trigger));
             if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-            _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger.Trigger, new TransitionGuard(guard, guardDescription), (t, args) => internalAction(
+            _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, new TransitionGuard(guard, guardDescription), (t, args) => internalAction(
                                                           ParameterConversion.Unpack<TArg0>(args, 0),
                                                           ParameterConversion.Unpack<TArg1>(args, 1),
                                                           ParameterConversion.Unpack<TArg2>(args, 2), t)
@@ -274,7 +274,7 @@ public partial class StateMachine<TState, TTrigger>
             if (trigger        == null) throw new ArgumentNullException(nameof(trigger));
             if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-            _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger.Trigger, new TransitionGuard(TransitionGuard.ToPackedGuard(guard), guardDescription), (t, args) => internalAction(
+            _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, new TransitionGuard(TransitionGuard.ToPackedGuard(guard), guardDescription), (t, args) => internalAction(
                                                           ParameterConversion.Unpack<TArg0>(args, 0),
                                                           ParameterConversion.Unpack<TArg1>(args, 1),
                                                           ParameterConversion.Unpack<TArg2>(args, 2), t)

@@ -2,52 +2,28 @@
 
 public partial class StateMachine<TState, TTrigger>
 {
-    private abstract class UnhandledTriggerAction
+    internal class UnhandledTriggerAction
     {
-        public abstract void Execute(TState      state, TTrigger trigger, ICollection<string>? unmetGuards);
-        public abstract Task ExecuteAsync(TState state, TTrigger trigger, ICollection<string>? unmetGuards);
+        private readonly EventCallback<TState, TTrigger, ICollection<string>?> _callback;
 
-        internal class Sync : UnhandledTriggerAction
-        {
-            private readonly Action<TState, TTrigger, ICollection<string>?> _action;
-
-            internal Sync(Action<TState, TTrigger, ICollection<string>?> action)
-            {
-                _action = action;
-            }
-
-            public override void Execute(TState state, TTrigger trigger, ICollection<string>? unmetGuards)
-            {
-                _action(state, trigger, unmetGuards);
-            }
-
-            public override Task ExecuteAsync(TState state, TTrigger trigger, ICollection<string>? unmetGuards)
-            {
-                Execute(state, trigger, unmetGuards);
-                return TaskResult.Done;
-            }
+        public UnhandledTriggerAction(Action<TState, TTrigger, ICollection<string>?>? action = null) {
+            if (action is null)
+                _callback = EventCallbackFactory.Create(new Action<TState, TTrigger, ICollection<string>?>(delegate { }));
+            else
+                _callback = EventCallbackFactory.Create(action);
         }
 
-        internal class Async : UnhandledTriggerAction
+        public UnhandledTriggerAction(Func<TState, TTrigger, ICollection<string>?, Task>? action = null)
         {
-            private readonly Func<TState, TTrigger, ICollection<string>?, Task> _action;
+            if (action is null)
+                _callback = EventCallbackFactory.Create(new Func<TState, TTrigger, ICollection<string>?, Task>(delegate { return TaskResult.Done; }));
+            else
+                _callback = EventCallbackFactory.Create(action);
+        }
 
-            internal Async(Func<TState, TTrigger, ICollection<string>?, Task> action)
-            {
-                _action = action;
-            }
-
-            public override void Execute(TState state, TTrigger trigger, ICollection<string>? unmetGuards)
-            {
-                throw new InvalidOperationException(
-                                                    "Cannot execute asynchronous action specified in OnUnhandledTrigger. " +
-                                                    "Use asynchronous version of Fire [FireAsync]");
-            }
-
-            public override Task ExecuteAsync(TState state, TTrigger trigger, ICollection<string>? unmetGuards)
-            {
-                return _action(state, trigger, unmetGuards);
-            }
+        public virtual Task ExecuteAsync(TState state, TTrigger trigger, ICollection<string>? unmetGuards)
+        {
+            return _callback.InvokeAsync(state, trigger, unmetGuards);
         }
     }
 }

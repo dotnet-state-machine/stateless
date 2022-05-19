@@ -4,35 +4,27 @@ public partial class StateMachine<TState, TTrigger>
 {
     private class OnTransitionedEvent
     {
-        private event Action<Transition>?             OnTransitioned;
-        private readonly List<Func<Transition, Task>> _onTransitionedAsync = new();
+        private readonly ICollection<EventCallback<Transition>> _callbacks;
 
-        public void Invoke(Transition transition)
+        public OnTransitionedEvent()
         {
-            if (_onTransitionedAsync.Count != 0)
-                throw new InvalidOperationException(
-                                                    "Cannot execute asynchronous action specified as OnTransitioned callback. " +
-                                                    "Use asynchronous version of Fire [FireAsync]");
-
-            OnTransitioned?.Invoke(transition);
+            _callbacks = new List<EventCallback<Transition>>();
         }
 
         public async Task InvokeAsync(Transition transition)
         {
-            OnTransitioned?.Invoke(transition);
-
-            foreach (var callback in _onTransitionedAsync)
-                await callback(transition).ConfigureAwait(false);
+            foreach (var callback in _callbacks)
+                await callback.InvokeAsync(transition).ConfigureAwait(false);
         }
 
         public void Register(Action<Transition> action)
         {
-            OnTransitioned += action;
+            _callbacks.Add(EventCallbackFactory.Create(action));
         }
 
         public void Register(Func<Transition, Task> action)
         {
-            _onTransitionedAsync.Add(action);
+            _callbacks.Add(EventCallbackFactory.Create(action));
         }
     }
 }

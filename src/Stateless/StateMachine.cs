@@ -77,7 +77,7 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
     /// </summary>
     private StateMachine()
     {
-        _unhandledTriggerAction     = new UnhandledTriggerAction.Sync(DefaultUnhandledTriggerAction);
+        _unhandledTriggerAction     = new UnhandledTriggerAction(DefaultUnhandledTriggerAction);
         _onTransitionedEvent        = new OnTransitionedEvent();
         _onTransitionCompletedEvent = new OnTransitionedEvent();
         _stateAccessor              = default!; // Set in other ctor
@@ -170,7 +170,7 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
     /// not allow the trigger to be fired.</exception>
     public void Fire(TTrigger trigger)
     {
-        InternalFire(trigger, ArrayHelper.Empty<object>());
+        FireAsync(trigger).GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -183,10 +183,9 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
     /// <param name="args">A variable-length parameters list containing arguments. </param>
     /// <exception cref="System.InvalidOperationException">The current state does
     /// not allow the trigger to be fired.</exception>
-    public void Fire(TriggerWithParameters trigger, params object[] args)
+    public void Fire(TriggerWithParameters trigger, params object?[] args)
     {
-        if (trigger == null) throw new ArgumentNullException(nameof(trigger));
-        InternalFire(trigger.Trigger, args);
+        FireAsync(trigger, args).GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -216,9 +215,7 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
     /// not allow the trigger to be fired.</exception>
     public void Fire<TArg0>(TriggerWithParameters<TArg0> trigger, TArg0 arg0)
     {
-        if (trigger == null) throw new ArgumentNullException(nameof(trigger));
-        if (arg0    == null) throw new ArgumentNullException(nameof(arg0));
-        InternalFire(trigger.Trigger, arg0);
+        FireAsync(trigger, arg0).GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -236,10 +233,7 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
     /// not allow the trigger to be fired.</exception>
     public void Fire<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, TArg0 arg0, TArg1 arg1)
     {
-        if (trigger == null) throw new ArgumentNullException(nameof(trigger));
-        if (arg0    == null) throw new ArgumentNullException(nameof(arg0));
-        if (arg1    == null) throw new ArgumentNullException(nameof(arg1));
-        InternalFire(trigger.Trigger, arg0, arg1);
+        FireAsync(trigger, arg0, arg1).GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -259,11 +253,7 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
     /// not allow the trigger to be fired.</exception>
     public void Fire<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, TArg0 arg0, TArg1 arg1, TArg2 arg2)
     {
-        if (trigger == null) throw new ArgumentNullException(nameof(trigger));
-        if (arg0    == null) throw new ArgumentNullException(nameof(arg0));
-        if (arg1    == null) throw new ArgumentNullException(nameof(arg1));
-        if (arg2    == null) throw new ArgumentNullException(nameof(arg2));
-        InternalFire(trigger.Trigger, arg0, arg1, arg2);
+        FireAsync(trigger, arg0, arg1, arg2).GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -273,8 +263,7 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
     /// </summary>
     public void Activate()
     {
-        var representativeState = GetRepresentation(State);
-        representativeState.Activate();
+        ActivateAsync().GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -284,202 +273,7 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
     /// </summary>
     public void Deactivate()
     {
-        var representativeState = GetRepresentation(State);
-        representativeState.Deactivate();
-    }
-
-    /// <summary>
-    /// Determine how to Fire the trigger
-    /// </summary>
-    /// <param name="trigger">The trigger. </param>
-    /// <param name="args">A variable-length parameters list containing arguments. </param>
-    private void InternalFire(TTrigger trigger, params object[] args)
-    {
-        switch (_firingMode)
-        {
-            case FiringMode.Immediate:
-                InternalFireOne(trigger, args);
-                break;
-            case FiringMode.Queued:
-                InternalFireQueued(trigger, args);
-                break;
-            default:
-                // If something is completely messed up we let the user know ;-)
-                throw new InvalidOperationException("The firing mode has not been configured!");
-        }
-    }
-
-    /// <summary>
-    /// Queue events and then fire in order.
-    /// If only one event is queued, this behaves identically to the non-queued version.
-    /// </summary>
-    /// <param name="trigger">  The trigger. </param>
-    /// <param name="args">     A variable-length parameters list containing arguments. </param>
-    private void InternalFireQueued(TTrigger trigger, params object[] args)
-    {
-        // Add trigger to queue
-        _eventQueue.Enqueue(new QueuedTrigger(trigger, args));
-
-        // If a trigger is already being handled then the trigger will be queued (FIFO) and processed later.
-        if (_firing)
-        {
-            return;
-        }
-
-        try
-        {
-            _firing = true;
-
-            // Empty queue for triggers
-            while (_eventQueue.Any())
-            {
-                var queuedEvent = _eventQueue.Dequeue();
-                InternalFireOne(queuedEvent.Trigger, queuedEvent.Args);
-            }
-        }
-        finally
-        {
-            _firing = false;
-        }
-    }
-
-    /// <summary>
-    /// This method handles the execution of a trigger handler. It finds a
-    /// handle, then updates the current state information.
-    /// </summary>
-    /// <param name="trigger"></param>
-    /// <param name="args"></param>
-    private void InternalFireOne(TTrigger trigger, params object?[] args)
-    {
-        // If this is a trigger with parameters, we must validate the parameter(s)
-        if (_triggerConfiguration.TryGetValue(trigger, out var configuration))
-            configuration.ValidateParameters(args);
-
-        var source = State;
-        var representativeState = GetRepresentation(source);
-
-        // Try to find a trigger handler, either in the current state or a super state.
-        if (!representativeState.TryFindHandler(trigger, args, out var result))
-        {
-            _unhandledTriggerAction.Execute(representativeState.UnderlyingState, trigger, result?.UnmetGuardConditions);
-            return;
-        }
-
-        switch (result.Handler)
-        {
-            // Check if this trigger should be ignored
-            case IgnoredTriggerBehaviour:
-                return;
-            // Handle special case, re-entry in superstate
-            // Check if it is an internal transition, or a transition from one state to another.
-            case ReentryTriggerBehaviour handler:
-            {
-                // Handle transition, and set new state
-                var transition = new Transition(source, handler.Destination, trigger, args);
-                HandleReentryTrigger(args, representativeState, transition);
-                break;
-            }
-            case DynamicTriggerBehaviour when (result.Handler.ResultsInTransitionFrom(source, args, out var destination)):
-            case TransitioningTriggerBehaviour when (result.Handler.ResultsInTransitionFrom(source, args, out destination)):
-            {
-                // Handle transition, and set new state
-                var transition = new Transition(source, destination, trigger, args);
-                HandleTransitioningTrigger(args, representativeState, transition);
-
-                break;
-            }
-            case InternalTriggerBehaviour:
-            {
-                // Internal transitions does not update the current state, but must execute the associated action.
-                var transition = new Transition(source, source, trigger, args);
-                CurrentRepresentation.InternalAction(transition, args);
-                break;
-            }
-            default:
-                throw new InvalidOperationException("State machine configuration incorrect, no handler for trigger.");
-        }
-    }
-
-    private void HandleReentryTrigger(object?[] args, StateRepresentation representativeState, Transition transition)
-    {
-        StateRepresentation representation;
-        transition = representativeState.Exit(transition);
-        var newRepresentation = GetRepresentation(transition.Destination);
-
-        if (!transition.Source.Equals(transition.Destination))
-        {
-            // Then Exit the final superstate
-            transition = new Transition(transition.Destination, transition.Destination, transition.Trigger, args);
-            newRepresentation.Exit(transition);
-
-            _onTransitionedEvent.Invoke(transition);
-            representation = EnterState(newRepresentation, transition, args);
-            _onTransitionCompletedEvent.Invoke(transition);
-
-        }
-        else
-        {
-            _onTransitionedEvent.Invoke(transition);
-            representation = EnterState(newRepresentation, transition, args);
-            _onTransitionCompletedEvent.Invoke(transition);
-        }
-        State = representation.UnderlyingState;
-    }
-
-    private void HandleTransitioningTrigger( object?[] args, StateRepresentation representativeState, Transition transition)
-    {
-        transition = representativeState.Exit(transition);
-
-        State = transition.Destination;
-        var newRepresentation = GetRepresentation(transition.Destination);
-
-        //Alert all listeners of state transition
-        _onTransitionedEvent.Invoke(transition);
-        var representation = EnterState(newRepresentation, transition, args);
-
-        // Check if state has changed by entering new state (by firing triggers in OnEntry or such)
-        if (!representation.UnderlyingState.Equals(State))
-        {
-            // The state has been changed after entering the state, must update current state to new one
-            State = representation.UnderlyingState;
-        }
-
-        _onTransitionCompletedEvent.Invoke(new Transition(transition.Source, State, transition.Trigger, transition.Parameters));
-    }
-
-    private StateRepresentation EnterState(StateRepresentation representation, Transition transition, object? [] args)
-    {
-        // Enter the new state
-        representation.Enter(transition, args);
-
-        if (FiringMode.Immediate.Equals(_firingMode) && !State.Equals(transition.Destination))
-        {
-            // This can happen if triggers are fired in OnEntry
-            // Must update current representation with updated State
-            representation = GetRepresentation(State);
-            transition     = new Transition(transition.Source, State, transition.Trigger, args);
-        }
-
-        // Recursively enter substates that have an initial transition
-        if (representation.HasInitialTransition)
-        {
-            // Verify that the target state is a substate
-            // Check if state has substate(s), and if an initial transition(s) has been set up.
-            if (!representation.GetSubstates().Any(s => s.UnderlyingState.Equals(representation.InitialTransitionTarget)))
-            {
-                throw new InvalidOperationException($"The target ({representation.InitialTransitionTarget}) for the initial transition is not a substate.");
-            }
-
-            System.Diagnostics.Debug.Assert(representation.InitialTransitionTarget != null);
-            var initialTransition = new InitialTransition(transition.Source, representation.InitialTransitionTarget!, transition.Trigger, args);
-            representation = GetRepresentation(representation.InitialTransitionTarget!);
-
-            // Alert all listeners of initial state transition
-            _onTransitionedEvent.Invoke(new Transition(transition.Destination, initialTransition.Destination, transition.Trigger, transition.Parameters));
-            representation = EnterState(representation, initialTransition, args);
-        }
-
-        return representation;
+        DeactivateAsync().GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -490,7 +284,7 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
     public void OnUnhandledTrigger(Action<TState, TTrigger> unhandledTriggerAction)
     {
         if (unhandledTriggerAction == null) throw new ArgumentNullException(nameof(unhandledTriggerAction));
-        _unhandledTriggerAction = new UnhandledTriggerAction.Sync((s, t, _) => unhandledTriggerAction(s, t));
+        _unhandledTriggerAction = new UnhandledTriggerAction((s, t, _) => unhandledTriggerAction(s, t));
     }
 
     /// <summary>
@@ -501,7 +295,7 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
     public void OnUnhandledTrigger(Action<TState, TTrigger, ICollection<string>?> unhandledTriggerAction)
     {
         if (unhandledTriggerAction == null) throw new ArgumentNullException(nameof(unhandledTriggerAction));
-        _unhandledTriggerAction = new UnhandledTriggerAction.Sync(unhandledTriggerAction);
+        _unhandledTriggerAction = new UnhandledTriggerAction(unhandledTriggerAction);
     }
 
     /// <summary>
