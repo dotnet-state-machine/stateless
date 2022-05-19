@@ -7,23 +7,19 @@ internal static class ReflectionExtensions
 {
     public static Assembly GetAssembly(this Type type)
     {
-#if PORTABLE_REFLECTION
+#if NETSTANDARD1_0
         return type.GetTypeInfo().Assembly;
 #else
         return type.Assembly;
 #endif
     }
 
-    #if NETSTANDARD1_0
+#if NETSTANDARD1_0
     public static bool IsAssignableFrom(this Type type, Type otherType)
     {
-#if PORTABLE_REFLECTION
         return type.GetTypeInfo().IsAssignableFrom(otherType.GetTypeInfo());
-#else
-        return type.IsAssignableFrom(otherType);
-#endif
     }
-    #endif
+#endif
 
     /// <summary>
     ///     Convenience method to get <see cref="MethodInfo" /> for different PCL profiles.
@@ -32,7 +28,7 @@ internal static class ReflectionExtensions
     /// <returns>Null if <paramref name="del" /> is null, otherwise <see cref="MemberInfo.Name" />.</returns>
     private static MethodInfo TryGetMethodInfo(this Delegate del)
     {
-#if PORTABLE_REFLECTION
+#if NETSTANDARD1_0
         return del.GetMethodInfo();
 #else
         return del.Method;

@@ -1,5 +1,3 @@
-#if TASKS
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -349,5 +347,3 @@ namespace Stateless
         }
     }
 }
-
-#endif

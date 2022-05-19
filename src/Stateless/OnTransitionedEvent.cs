@@ -21,7 +21,6 @@ public partial class StateMachine<TState, TTrigger>
             OnTransitioned?.Invoke(transition);
         }
 
-#if TASKS
         public async Task InvokeAsync(Transition transition)
         {
             OnTransitioned?.Invoke(transition);
@@ -29,7 +28,6 @@ public partial class StateMachine<TState, TTrigger>
             foreach (var callback in _onTransitionedAsync)
                 await callback(transition).ConfigureAwait(false);
         }
-#endif
 
         public void Register(Action<Transition> action)
         {
