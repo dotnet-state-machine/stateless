@@ -1,29 +1,30 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace TelephoneCallExample; 
 
 internal static class Program
 {
-    private static void Main()
+    private static async Task Main()
     {
         var phoneCall = new PhoneCall("Lokesh");            
 
         phoneCall.Print();
-        phoneCall.Dialed("Prameela");
+        await phoneCall.DialedAsync("Prameela");
         phoneCall.Print();
-        phoneCall.Connected();
+        await phoneCall.ConnectedAsync();
         phoneCall.Print();
-        phoneCall.SetVolume(2);
+        await phoneCall.SetVolumeAsync(2);
         phoneCall.Print();
-        phoneCall.Hold();
+        await phoneCall.HoldAsync();
         phoneCall.Print();
-        phoneCall.Mute();
+        await phoneCall.MuteAsync();
         phoneCall.Print();
-        phoneCall.Unmute();
+        await phoneCall.UnmuteAsync();
         phoneCall.Print();
-        phoneCall.Resume();
+        await phoneCall.ResumeAsync();
         phoneCall.Print();
-        phoneCall.SetVolume(11);
+        await phoneCall.SetVolumeAsync(11);
         phoneCall.Print();
 
 

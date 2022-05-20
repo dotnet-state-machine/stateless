@@ -1,4 +1,8 @@
-﻿namespace Stateless.Tests; 
+﻿using System;
+using System.Threading.Tasks;
+using Xunit;
+
+namespace Stateless.Tests; 
 
 public class IgnoredTriggerBehaviourFixture
 {
@@ -46,7 +50,7 @@ public class IgnoredTriggerBehaviourFixture
         Assert.True(ignored.GuardConditionsMet());
     }
     [Fact]
-    public void IgnoredTriggerMustBeIgnoredSync()
+    public async Task IgnoredTriggerMustBeIgnoredSync()
     {
         var internalActionExecuted = false;
         var stateMachine = new StateMachine<State, Trigger>(State.B);
@@ -60,7 +64,7 @@ public class IgnoredTriggerBehaviourFixture
         try
         {
             // >>> The following statement should not execute the internal action
-            stateMachine.Fire(Trigger.X);
+            await stateMachine.FireAsync(Trigger.X);
         }
         catch (NullReferenceException)
         {
@@ -71,7 +75,7 @@ public class IgnoredTriggerBehaviourFixture
     }
 
     [Fact]
-    public void IgnoreIfTrueTriggerMustBeIgnored()
+    public async Task IgnoreIfTrueTriggerMustBeIgnored()
     {
         var stateMachine = new StateMachine<State, Trigger>(State.B);
         stateMachine.Configure(State.A)
@@ -81,12 +85,12 @@ public class IgnoredTriggerBehaviourFixture
                     .SubstateOf(State.A)
                     .IgnoreIf(Trigger.X, () => true);
 
-        stateMachine.Fire(Trigger.X);
+        await stateMachine.FireAsync(Trigger.X);
 
         Assert.Equal(State.B, stateMachine.State);
     }
     [Fact]
-    public void IgnoreIfFalseTriggerMustNotBeIgnored()
+    public async Task IgnoreIfFalseTriggerMustNotBeIgnored()
     {
         var stateMachine = new StateMachine<State, Trigger>(State.B);
         stateMachine.Configure(State.A)
@@ -96,7 +100,7 @@ public class IgnoredTriggerBehaviourFixture
                     .SubstateOf(State.A)
                     .IgnoreIf(Trigger.X, () => false);
 
-        stateMachine.Fire(Trigger.X);
+        await stateMachine.FireAsync(Trigger.X);
 
         Assert.Equal(State.C, stateMachine.State);
     }

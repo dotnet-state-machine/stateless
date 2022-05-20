@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Stateless;
 using Stateless.Graph;
 
@@ -51,22 +52,22 @@ public class Bug
                 .Permit(Trigger.Assign, State.Assigned);
     }
 
-    public void Close()
+    public async Task CloseAsync()
     {
-        _machine.Fire(Trigger.Close);
+        await _machine.FireAsync(Trigger.Close);
     }
 
-    public void Assign(string assignee)
+    public async Task AssignAsync(string assignee)
     {
         // This is how a trigger with parameter is used, the parameter is supplied to the state machine as a parameter to the Fire method.
-        _machine.Fire(_assignTrigger, assignee);
+        await _machine.FireAsync(_assignTrigger, assignee);
     }
 
     public bool CanAssign => _machine.CanFire(Trigger.Assign);
 
-    public void Defer()
+    public async Task DeferAsync()
     {
-        _machine.Fire(Trigger.Defer);
+        await _machine.FireAsync(Trigger.Defer);
     }
     /// <summary>
     /// This method is called automatically when the Assigned state is entered, but only when the trigger is _assignTrigger.

@@ -61,7 +61,7 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        public void SuperStateShouldNotExitOnSubStateTransition_WhenUsingSyncTriggers()
+        public async Task SuperStateShouldNotExitOnSubStateTransition_WhenUsingSyncTriggers()
         {
             // Arrange.
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -89,8 +89,8 @@ namespace Stateless.Tests
 
             
             // Act.
-            sm.Fire(Trigger.X);
-            sm.Fire(Trigger.Y);
+            await sm.FireAsync(Trigger.X);
+            await sm.FireAsync(Trigger.Y);
             
             // Assert.
             Assert.Equal("Exited state A", record[0]);
@@ -406,7 +406,7 @@ namespace Stateless.Tests
 
             sm.Configure(State.B)
                 .InitialTransition(State.C)
-                .OnEntry(() => sm.Fire(Trigger.Y))
+                .OnEntryAsync(() => sm.FireAsync(Trigger.Y))
                 .Permit(Trigger.Y, State.D);
 
             sm.Configure(State.C)

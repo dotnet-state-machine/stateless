@@ -1,9 +1,13 @@
-﻿namespace Stateless.Tests; 
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Xunit;
+
+namespace Stateless.Tests; 
 
 public class ActiveStatesFixture
 {
     [Fact]
-    public void WhenActivate()
+    public async Task WhenActivate()
     {
         var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -21,7 +25,7 @@ public class ActiveStatesFixture
         sm.OnTransitioned(_ => actualOrdering.Add("OnTransitioned"));
         sm.OnTransitionCompleted(_ => actualOrdering.Add("OnTransitionCompleted"));
 
-        sm.Activate();
+        await sm.ActivateAsync();
 
         Assert.Equal(expectedOrdering.Count, actualOrdering.Count);
         for (var i = 0; i < expectedOrdering.Count; i++)
@@ -29,7 +33,7 @@ public class ActiveStatesFixture
     }
 
     [Fact]
-    public void WhenActivateIsIdempotent()
+    public async Task WhenActivateIsIdempotent()
     {
         var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -42,13 +46,13 @@ public class ActiveStatesFixture
         sm.Configure(State.C)
           .OnActivate(() => actualOrdering.Add("ActivatedC"));
 
-        sm.Activate();
+        await sm.ActivateAsync();
 
         Assert.Equal(2, actualOrdering.Count);
     }
 
     [Fact]
-    public void WhenDeactivate()
+    public async Task WhenDeactivate()
     {
         var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -66,8 +70,8 @@ public class ActiveStatesFixture
         sm.OnTransitioned(_ => actualOrdering.Add("OnTransitioned"));
         sm.OnTransitionCompleted(_ => actualOrdering.Add("OnTransitionCompleted"));
 
-        sm.Activate();
-        sm.Deactivate();
+        await sm.ActivateAsync();
+        await sm.DeactivateAsync();
 
         Assert.Equal(expectedOrdering.Count, actualOrdering.Count);
         for (var i = 0; i < expectedOrdering.Count; i++)
@@ -75,7 +79,7 @@ public class ActiveStatesFixture
     }
 
     [Fact]
-    public void WhenDeactivateIsIdempotent()
+    public async Task WhenDeactivateIsIdempotent()
     {
         var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -88,17 +92,17 @@ public class ActiveStatesFixture
         sm.Configure(State.C)
           .OnDeactivate(() => actualOrdering.Add("DeactivatedC"));
 
-        sm.Activate();
-        sm.Deactivate();
+        await sm.ActivateAsync();
+        await sm.DeactivateAsync();
 
         actualOrdering.Clear();
-        sm.Activate();
+        await sm.ActivateAsync();
 
         Assert.Equal(0, actualOrdering.Count);
     }
 
     [Fact]
-    public void WhenTransitioning()
+    public async Task WhenTransitioning()
     {
         var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -136,9 +140,9 @@ public class ActiveStatesFixture
         sm.OnTransitioned(_ => actualOrdering.Add("OnTransitioned"));
         sm.OnTransitionCompleted(_ => actualOrdering.Add("OnTransitionCompleted"));
 
-        sm.Activate();
-        sm.Fire(Trigger.X);
-        sm.Fire(Trigger.Y);
+        await sm.ActivateAsync();
+        await sm.FireAsync(Trigger.X);
+        await sm.FireAsync(Trigger.Y);
 
         Assert.Equal(expectedOrdering.Count, actualOrdering.Count);
         for (var i = 0; i < expectedOrdering.Count; i++)
@@ -146,7 +150,7 @@ public class ActiveStatesFixture
     }
 
     [Fact]
-    public void WhenTransitioningWithinSameSuperstate()
+    public async Task WhenTransitioningWithinSameSuperstate()
     {
         var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -174,9 +178,9 @@ public class ActiveStatesFixture
           .OnActivate(() => actualOrdering.Add("ActivatedC"))
           .OnDeactivate(() => actualOrdering.Add("DeactivatedC"));
 
-        sm.Activate();
-        sm.Fire(Trigger.X);
-        sm.Fire(Trigger.Y);
+        await sm.ActivateAsync();
+        await sm.FireAsync(Trigger.X);
+        await sm.FireAsync(Trigger.Y);
 
         Assert.Equal(expectedOrdering.Count, actualOrdering.Count);
         for (var i = 0; i < expectedOrdering.Count; i++)

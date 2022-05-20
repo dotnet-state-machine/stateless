@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Stateless;
 
@@ -54,19 +55,19 @@ public class Member
                      .Permit(MemberTriggers.Reactivate, MembershipState.Active);
     }
 
-    public void Terminate()
+    public async Task TerminateAsync()
     {
-        _stateMachine.Fire(MemberTriggers.Terminate);
+        await _stateMachine.FireAsync(MemberTriggers.Terminate);
     }
 
-    public void Suspend()
+    public async Task SuspendAsync()
     {
-        _stateMachine.Fire(MemberTriggers.Suspend);
+        await _stateMachine.FireAsync(MemberTriggers.Suspend);
     }
 
-    public void Reactivate()
+    public async Task ReactivateAsync()
     {
-        _stateMachine.Fire(MemberTriggers.Reactivate);
+        await _stateMachine.FireAsync(MemberTriggers.Reactivate);
     }
 
     public string ToJson()

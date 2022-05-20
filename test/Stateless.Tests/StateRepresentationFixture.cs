@@ -365,7 +365,7 @@ public class StateRepresentationFixture
 
     // Issue #398 - Set guard description if substate transition fails
     [Fact]
-    public void SetGuardDescriptionWhenSubstateGuardFails()
+    public async Task SetGuardDescriptionWhenSubstateGuardFails()
     {
         const string expectedGuardDescription = "Guard failed";
         ICollection<string> guardDescriptions = null;
@@ -375,7 +375,7 @@ public class StateRepresentationFixture
 
         fsm.Configure(State.B).SubstateOf(State.A).PermitIf(Trigger.X, State.C, () => false, expectedGuardDescription);
 
-        fsm.Fire(Trigger.X);
+        await fsm.FireAsync(Trigger.X);
 
         Assert.Equal(fsm.State, State.B);
         Assert.True(guardDescriptions is { });
@@ -385,7 +385,7 @@ public class StateRepresentationFixture
 
     // Issue #422 - Add all guard descriptions to result if multiple guards fail for same trigger
     [Fact]
-    public void AddAllGuardDescriptionsWhenMultipleGuardsFailForSameTrigger()
+    public async Task AddAllGuardDescriptionsWhenMultipleGuardsFailForSameTrigger()
     {
         ICollection<string> expectedGuardDescriptions = new List<string> { "PermitReentryIf guard failed", "PermitIf guard failed" };
         ICollection<string> guardDescriptions = null;
@@ -397,7 +397,7 @@ public class StateRepresentationFixture
            .PermitReentryIf(Trigger.X, () => false, "PermitReentryIf guard failed")
            .PermitIf(Trigger.X, State.C, () => false, "PermitIf guard failed");
 
-        fsm.Fire(Trigger.X);
+        await fsm.FireAsync(Trigger.X);
 
         Assert.Equal(fsm.State, State.A);
         Assert.True(guardDescriptions is { });

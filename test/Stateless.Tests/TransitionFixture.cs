@@ -1,4 +1,7 @@
-﻿namespace Stateless.Tests; 
+﻿using System.Threading.Tasks;
+using Xunit;
+
+namespace Stateless.Tests; 
 
 public class TransitionFixture
 {
@@ -17,7 +20,7 @@ public class TransitionFixture
     }
 
     [Fact]
-    public void TestInternalIf()
+    public async Task TestInternalIf()
     {
         // Verifies that only one internal action is executed
         var machine = new StateMachine<int, int>(1);
@@ -38,6 +41,6 @@ public class TransitionFixture
                                          Assert.True(false);
                                      });
 
-        machine.Fire(1);
+        await machine.FireAsync(1);
     }
 }

@@ -87,11 +87,11 @@
                 .OnExit(() => record.Add("ExitA"));
 
             sm.Configure(State.B)
-                .OnEntry(() =>
+                .OnEntryAsync(() =>
                 {
                     record.Add("EnterB");
                     // Fire this before finishing processing the entry action
-                    sm.Fire(Trigger.X);
+                    return sm.FireAsync(Trigger.X);
                 })
                 .Permit(Trigger.X, State.C)
                 .OnExit(() => record.Add("ExitB"));

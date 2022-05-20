@@ -1,19 +1,20 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace JsonExample; 
 
 internal static class Program
 {
-    private static void Main()
+    private static async Task Main()
     {
         Console.WriteLine("Creating member from JSON");
         var aMember = Member.FromJson("{ \"State\":\"1\",\"Name\":\"Jay\"}");
 
         Console.WriteLine($"Member {aMember.Name} created, membership state is {aMember.State}");
 
-        aMember.Suspend();
-        aMember.Reactivate();
-        aMember.Terminate();
+        await aMember.SuspendAsync();
+        await aMember.ReactivateAsync();
+        await aMember.TerminateAsync();
 
         Console.WriteLine("Member JSON:");
 

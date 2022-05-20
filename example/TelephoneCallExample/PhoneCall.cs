@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Stateless;
 using Stateless.Graph;
 
@@ -102,19 +103,19 @@ public class PhoneCall
         Console.WriteLine("[Timer:] Call ended at {0}", DateTime.Now);
     }
 
-    public void Mute()
+    public async Task MuteAsync()
     {
-        _machine.Fire(Trigger.MuteMicrophone);
+        await _machine.FireAsync(Trigger.MuteMicrophone);
     }
 
-    public void Unmute()
+    public async Task UnmuteAsync()
     {
-        _machine.Fire(Trigger.UnmuteMicrophone);
+        await _machine.FireAsync(Trigger.UnmuteMicrophone);
     }
 
-    public void SetVolume(int volume)
+    public async Task SetVolumeAsync(int volume)
     {
-        _machine.Fire(_setVolumeTrigger, volume);
+        await _machine.FireAsync(_setVolumeTrigger, volume);
     }
 
     public void Print()
@@ -122,24 +123,24 @@ public class PhoneCall
         Console.WriteLine("[{1}] placed call and [Status:] {0}", _machine.State, _caller);
     }
 
-    public void Dialed(string callee)
+    public async Task DialedAsync(string callee)
     {           
-        _machine.Fire(_setCalleeTrigger, callee);
+        await _machine.FireAsync(_setCalleeTrigger, callee);
     }
 
-    public void Connected()
+    public async Task ConnectedAsync()
     {
-        _machine.Fire(Trigger.CallConnected);
+        await _machine.FireAsync(Trigger.CallConnected);
     }
 
-    public void Hold()
+    public async Task HoldAsync()
     {
-        _machine.Fire(Trigger.PlacedOnHold);
+        await _machine.FireAsync(Trigger.PlacedOnHold);
     }
 
-    public void Resume()
+    public async Task ResumeAsync()
     {
-        _machine.Fire(Trigger.TakenOffHold);
+        await _machine.FireAsync(Trigger.TakenOffHold);
     }
 
     public string ToDotGraph()

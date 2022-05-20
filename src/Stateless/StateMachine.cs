@@ -160,35 +160,6 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
     }
 
     /// <summary>
-    /// Transition from the current state via the specified trigger.
-    /// The target state is determined by the configuration of the current state.
-    /// Actions associated with leaving the current state and entering the new one
-    /// will be invoked.
-    /// </summary>
-    /// <param name="trigger">The trigger to fire.</param>
-    /// <exception cref="System.InvalidOperationException">The current state does
-    /// not allow the trigger to be fired.</exception>
-    public void Fire(TTrigger trigger)
-    {
-        FireAsync(trigger).GetAwaiter().GetResult();
-    }
-
-    /// <summary>
-    /// Transition from the current state via the specified trigger.
-    /// The target state is determined by the configuration of the current state.
-    /// Actions associated with leaving the current state and entering the new one
-    /// will be invoked.
-    /// </summary>
-    /// <param name="trigger">The trigger to fire.</param>
-    /// <param name="args">A variable-length parameters list containing arguments. </param>
-    /// <exception cref="System.InvalidOperationException">The current state does
-    /// not allow the trigger to be fired.</exception>
-    public void Fire(TriggerWithParameters trigger, params object?[] args)
-    {
-        FireAsync(trigger, args).GetAwaiter().GetResult();
-    }
-
-    /// <summary>
     /// Specify the arguments that must be supplied when a specific trigger is fired.
     /// </summary>
     /// <param name="trigger">The underlying trigger value.</param>
@@ -200,80 +171,6 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
         var configuration = new TriggerWithParameters(trigger, argumentTypes);
         SaveTriggerConfiguration(configuration);
         return configuration;
-    }
-
-    /// <summary>
-    /// Transition from the current state via the specified trigger.
-    /// The target state is determined by the configuration of the current state.
-    /// Actions associated with leaving the current state and entering the new one
-    /// will be invoked.
-    /// </summary>
-    /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
-    /// <param name="trigger">The trigger to fire.</param>
-    /// <param name="arg0">The first argument.</param>
-    /// <exception cref="System.InvalidOperationException">The current state does
-    /// not allow the trigger to be fired.</exception>
-    public void Fire<TArg0>(TriggerWithParameters<TArg0> trigger, TArg0 arg0)
-    {
-        FireAsync(trigger, arg0).GetAwaiter().GetResult();
-    }
-
-    /// <summary>
-    /// Transition from the current state via the specified trigger.
-    /// The target state is determined by the configuration of the current state.
-    /// Actions associated with leaving the current state and entering the new one
-    /// will be invoked.
-    /// </summary>
-    /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
-    /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
-    /// <param name="arg0">The first argument.</param>
-    /// <param name="arg1">The second argument.</param>
-    /// <param name="trigger">The trigger to fire.</param>
-    /// <exception cref="System.InvalidOperationException">The current state does
-    /// not allow the trigger to be fired.</exception>
-    public void Fire<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, TArg0 arg0, TArg1 arg1)
-    {
-        FireAsync(trigger, arg0, arg1).GetAwaiter().GetResult();
-    }
-
-    /// <summary>
-    /// Transition from the current state via the specified trigger.
-    /// The target state is determined by the configuration of the current state.
-    /// Actions associated with leaving the current state and entering the new one
-    /// will be invoked.
-    /// </summary>
-    /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
-    /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
-    /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
-    /// <param name="arg0">The first argument.</param>
-    /// <param name="arg1">The second argument.</param>
-    /// <param name="arg2">The third argument.</param>
-    /// <param name="trigger">The trigger to fire.</param>
-    /// <exception cref="System.InvalidOperationException">The current state does
-    /// not allow the trigger to be fired.</exception>
-    public void Fire<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, TArg0 arg0, TArg1 arg1, TArg2 arg2)
-    {
-        FireAsync(trigger, arg0, arg1, arg2).GetAwaiter().GetResult();
-    }
-
-    /// <summary>
-    /// Activates current state. Actions associated with activating the current state
-    /// will be invoked. The activation is idempotent and subsequent activation of the same current state
-    /// will not lead to re-execution of activation callbacks.
-    /// </summary>
-    public void Activate()
-    {
-        ActivateAsync().GetAwaiter().GetResult();
-    }
-
-    /// <summary>
-    /// Deactivates current state. Actions associated with deactivating the current state
-    /// will be invoked. The deactivation is idempotent and subsequent deactivation of the same current state
-    /// will not lead to re-execution of deactivation callbacks.
-    /// </summary>
-    public void Deactivate()
-    {
-        DeactivateAsync().GetAwaiter().GetResult();
     }
 
     /// <summary>

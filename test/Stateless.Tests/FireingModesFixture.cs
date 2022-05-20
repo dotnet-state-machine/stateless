@@ -1,4 +1,8 @@
-﻿namespace Stateless.Tests; 
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Xunit;
+
+namespace Stateless.Tests; 
 
 /// <summary>
 /// This test class verifies that the firing modes are working as expected
@@ -9,7 +13,7 @@ public class FireingModesFixture
     /// Check that the immediate fireing modes executes entry/exit out of order.
     /// </summary>
     [Fact]
-    public void ImmediateEntryAProcessedBeforeEnterB()
+    public async Task ImmediateEntryAProcessedBeforeEnterB()
     {
         var record = new List<string>();
         var sm = new StateMachine<State, Trigger>(State.A, FiringMode.Immediate);
@@ -20,16 +24,16 @@ public class FireingModesFixture
           .OnExit(() => record.Add("ExitA"));
 
         sm.Configure(State.B)
-          .OnEntry(() =>
+          .OnEntryAsync(async () =>
            {
                // Fire this before finishing processing the entry action
-               sm.Fire(Trigger.Y);
+               await sm.FireAsync(Trigger.Y);
                record.Add("EnterB");
            })
           .Permit(Trigger.Y, State.A)
           .OnExit(() => record.Add("ExitB"));
 
-        sm.Fire(Trigger.X);
+        await sm.FireAsync(Trigger.X);
 
         // Expected sequence of events: Exit A -> Exit B -> Enter A -> Enter B
         Assert.Equal("ExitA", record[0]);
@@ -42,7 +46,7 @@ public class FireingModesFixture
     /// Checks that queued fireing mode executes triggers in order
     /// </summary>
     [Fact]
-    public void ImmediateEntryAProcessedBeforeEterB()
+    public async Task ImmediateEntryAProcessedBeforeEterB()
     {
         var record = new List<string>();
         var sm = new StateMachine<State, Trigger>(State.A);
@@ -53,16 +57,16 @@ public class FireingModesFixture
           .OnExit(() => record.Add("ExitA"));
 
         sm.Configure(State.B)
-          .OnEntry(() =>
+          .OnEntryAsync(async () =>
            {
                // Fire this before finishing processing the entry action
-               sm.Fire(Trigger.Y);
+               await sm.FireAsync(Trigger.Y);
                record.Add("EnterB");
            })
           .Permit(Trigger.Y, State.A)
           .OnExit(() => record.Add("ExitB"));
 
-        sm.Fire(Trigger.X);
+        await sm.FireAsync(Trigger.X);
 
         // Expected sequence of events: Exit A -> Enter B -> Exit B -> Enter A
         Assert.Equal("ExitA", record[0]);
@@ -75,7 +79,7 @@ public class FireingModesFixture
     /// Check that the immediate fireing modes executes entry/exit out of order.
     /// </summary>
     [Fact]
-    public void ImmediateFireingOnEntryEndsUpInCorrectState()
+    public async Task ImmediateFireingOnEntryEndsUpInCorrectState()
     {
         var record = new List<string>();
         var sm = new StateMachine<State, Trigger>(State.A, FiringMode.Immediate);
@@ -86,11 +90,11 @@ public class FireingModesFixture
           .OnExit(() => record.Add("ExitA"));
 
         sm.Configure(State.B)
-          .OnEntry(() =>
+          .OnEntryAsync(() =>
            {
                record.Add("EnterB");
                // Fire this before finishing processing the entry action
-               sm.Fire(Trigger.X);
+               return sm.FireAsync(Trigger.X);
            })
           .Permit(Trigger.X, State.C)
           .OnExit(() => record.Add("ExitB"));
@@ -100,7 +104,7 @@ public class FireingModesFixture
           .Permit(Trigger.X, State.A)
           .OnExit(() => record.Add("ExitC"));
 
-        sm.Fire(Trigger.X);
+        await sm.FireAsync(Trigger.X);
 
         // Expected sequence of events: Exit A -> Exit B -> Enter A -> Enter B
         Assert.Equal("ExitA", record[0]);

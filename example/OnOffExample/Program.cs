@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Stateless;
 
 namespace OnOffExample; 
@@ -9,7 +10,7 @@ namespace OnOffExample;
 /// </summary>
 internal static class Program
 {
-    private static void Main()
+    private static async Task Main()
     {
         const string on = "On";
         const string off = "Off";
@@ -34,7 +35,7 @@ internal static class Program
 
             // Use the Fire method with the trigger as payload to supply the state machine with an event.
             // The state machine will react according to its configuration.
-            onOffSwitch.Fire(pressed);
+            await onOffSwitch.FireAsync(pressed);
         }
     }
 }
