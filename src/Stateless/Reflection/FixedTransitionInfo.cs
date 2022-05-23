@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace Stateless.Reflection; 
+﻿namespace Stateless.Reflection; 
 
 /// <summary>
 /// Describes a transition that can be initiated from a trigger.

@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Stateless; 
+﻿namespace Stateless; 
 
 internal static class TaskResult
 {

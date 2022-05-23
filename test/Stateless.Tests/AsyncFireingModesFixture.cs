@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Xunit;
-
-namespace Stateless.Tests
+﻿namespace Stateless.Tests
 {
     /// <summary>
     /// This test class verifies that the firing modes are working as expected

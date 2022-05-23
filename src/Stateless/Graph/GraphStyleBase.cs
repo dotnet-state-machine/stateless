@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Stateless.Graph; 
+﻿namespace Stateless.Graph; 
 
 /// <summary>
 /// Style definition for StateGraph.

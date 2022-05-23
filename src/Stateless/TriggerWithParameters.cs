@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Stateless; 
+﻿namespace Stateless; 
 
 partial class StateMachine<TState, TTrigger>
 {

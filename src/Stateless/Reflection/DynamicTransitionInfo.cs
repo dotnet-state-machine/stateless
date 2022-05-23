@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Stateless.Reflection; 
+﻿namespace Stateless.Reflection; 
 
 /// <summary>
 /// 

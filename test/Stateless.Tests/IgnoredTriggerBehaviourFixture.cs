@@ -1,7 +1,4 @@
-﻿using System;
-using Xunit;
-
-namespace Stateless.Tests; 
+﻿namespace Stateless.Tests; 
 
 public class IgnoredTriggerBehaviourFixture
 {

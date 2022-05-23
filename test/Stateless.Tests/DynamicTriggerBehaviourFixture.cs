@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using Xunit;
-
-namespace Stateless.Tests; 
+﻿namespace Stateless.Tests; 
 
 public class DynamicTriggerBehaviour
 {

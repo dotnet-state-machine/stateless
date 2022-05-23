@@ -1,8 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using Xunit;
-
-namespace Stateless.Tests; 
+﻿namespace Stateless.Tests; 
 
 public class InternalTransitionFixture
 {

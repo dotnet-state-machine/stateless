@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Stateless.Reflection; 
+﻿namespace Stateless.Reflection; 
 
 /// <summary>
 /// Describes a method - either an action (activate, deactivate, etc.) or a transition guard

@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using Xunit;
-
-namespace Stateless.Tests; 
+﻿namespace Stateless.Tests; 
 
 public class ActiveStatesFixture
 {

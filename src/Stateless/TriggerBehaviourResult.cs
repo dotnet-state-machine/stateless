@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Stateless; 
+﻿namespace Stateless; 
 
 public partial class StateMachine<TState, TTrigger>
 {

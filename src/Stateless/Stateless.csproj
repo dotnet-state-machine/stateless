@@ -20,7 +20,8 @@
     <license>http://www.apache.org/licenses/LICENSE-2.0</license>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <LangVersion>latest</LangVersion>
-    
+
+    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsTrimmable>true</IsTrimmable>
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
@@ -36,5 +37,6 @@
 
   <ItemGroup>
     <None Include="..\..\asset\Stateless.png" Pack="true" PackagePath="\"/>
+    <Using Remove="System.Net.Http" />
   </ItemGroup>
 </Project>
