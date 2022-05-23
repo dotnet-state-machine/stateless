@@ -251,9 +251,9 @@ public partial class StateMachine<TState, TTrigger>
             if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
             _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, new TransitionGuard(guard, guardDescription), (t, args) => internalAction(
-                                                          ParameterConversion.Unpack<TArg0>(args, 0),
-                                                          ParameterConversion.Unpack<TArg1>(args, 1),
-                                                          ParameterConversion.Unpack<TArg2>(args, 2), t)
+                                                                                                                                                                                  ParameterConversion.Unpack<TArg0>(args, 0),
+                                                                                                                                                                                  ParameterConversion.Unpack<TArg1>(args, 1),
+                                                                                                                                                                                  ParameterConversion.Unpack<TArg2>(args, 2), t)
                                                         ));
             return this;
         }
@@ -275,9 +275,9 @@ public partial class StateMachine<TState, TTrigger>
             if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
             _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, new TransitionGuard(TransitionGuard.ToPackedGuard(guard), guardDescription), (t, args) => internalAction(
-                                                          ParameterConversion.Unpack<TArg0>(args, 0),
-                                                          ParameterConversion.Unpack<TArg1>(args, 1),
-                                                          ParameterConversion.Unpack<TArg2>(args, 2), t)
+                                                                                                                                                                                                                           ParameterConversion.Unpack<TArg0>(args, 0),
+                                                                                                                                                                                                                           ParameterConversion.Unpack<TArg1>(args, 1),
+                                                                                                                                                                                                                           ParameterConversion.Unpack<TArg2>(args, 2), t)
                                                         ));
             return this;
         }
@@ -1764,8 +1764,8 @@ public partial class StateMachine<TState, TTrigger>
             return this;
         }
 
-        private StateConfiguration InternalPermitDynamicIf(TTrigger trigger,                             Func<object?[], TState> destinationStateSelector,
-                                                           string?   destinationStateSelectorDescription, TransitionGuard        transitionGuard, DynamicStateInfos? possibleDestinationStates = null)
+        private StateConfiguration InternalPermitDynamicIf(TTrigger trigger,                             Func<object?[], TState>   destinationStateSelector,
+                                                           string?  destinationStateSelectorDescription, TransitionGuard transitionGuard, DynamicStateInfos? possibleDestinationStates = null)
         {
             if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
             if (transitionGuard          == null) throw new ArgumentNullException(nameof(transitionGuard));

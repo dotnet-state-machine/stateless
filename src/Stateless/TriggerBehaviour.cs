@@ -13,7 +13,7 @@ public partial class StateMachine<TState, TTrigger>
         /// <param name="guard">TransitionGuard (null if no guard function)</param>
         protected TriggerBehaviour(TTrigger trigger, TransitionGuard? guard)
         {
-            Guard  = guard ?? TransitionGuard.Empty;
+            Guard   = guard ?? TransitionGuard.Empty;
             Trigger = trigger;
         }
 

@@ -9,7 +9,7 @@ public partial class StateMachine<TState, TTrigger>
         private readonly Func<object?[], TState> _destination;
         internal         DynamicTransitionInfo   TransitionInfo { get; }
 
-        public DynamicTriggerBehaviour(TTrigger         trigger,         Func<object?[], TState> destination, 
+        public DynamicTriggerBehaviour(TTrigger                   trigger,         Func<object?[], TState> destination, 
                                        TransitionGuard? transitionGuard, DynamicTransitionInfo   info)
             : base(trigger, transitionGuard)
         {

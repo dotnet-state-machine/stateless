@@ -31,7 +31,7 @@ public class IgnoredTriggerBehaviourFixture
     public void WhenGuardConditionFalse_IsGuardConditionMetIsFalse()
     {
         var ignored = new StateMachine<State, Trigger>.IgnoredTriggerBehaviour(
-                                                                               Trigger.X, new StateMachine<State, Trigger>.TransitionGuard(False));
+                                                                               Trigger.X, new TransitionGuard(False));
 
         Assert.False(ignored.GuardConditionsMet());
     }
@@ -45,7 +45,7 @@ public class IgnoredTriggerBehaviourFixture
     public void WhenGuardConditionTrue_IsGuardConditionMetIsTrue()
     {
         var ignored = new StateMachine<State, Trigger>.IgnoredTriggerBehaviour(
-                                                                               Trigger.X, new StateMachine<State, Trigger>.TransitionGuard(True));
+                                                                               Trigger.X, new TransitionGuard(True));
 
         Assert.True(ignored.GuardConditionsMet());
     }
