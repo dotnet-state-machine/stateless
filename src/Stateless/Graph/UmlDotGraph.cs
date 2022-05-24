@@ -5,6 +5,7 @@ namespace Stateless.Graph;
 /// <summary>
 ///     Class to generate a DOT graph in UML format
 /// </summary>
+[PublicAPI]
 public static class UmlDotGraph {
     /// <summary>
     ///     Generate a UML DOT graph from the state machine info

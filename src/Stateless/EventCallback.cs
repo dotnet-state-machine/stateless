@@ -92,21 +92,3 @@ internal sealed class EventCallback<T1, T2, T3> : EventCallback {
         }
     }
 }
-
-internal sealed class EventCallback<T1, T2, T3, T4> : EventCallback {
-    public EventCallback(MulticastDelegate @delegate) : base(@delegate) { }
-
-    public Task InvokeAsync(T1 arg1, T2 arg2, T3 arg3, T4 arg4) {
-        switch (Delegate) {
-            case Action<T1, T2, T3, T4> action:
-                action(arg1, arg2, arg3, arg4);
-                return TaskResult.Done;
-
-            case Func<T1, T2, T3, T4, Task> func:
-                return func(arg1, arg2, arg3, arg4);
-
-            default:
-                return DynamicInvokeAsync(arg1, arg2, arg3, arg4);
-        }
-    }
-}

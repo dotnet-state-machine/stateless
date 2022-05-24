@@ -15,7 +15,7 @@ public abstract class TransitionInfo {
     public TriggerInfo Trigger { get; }
 
     /// <summary>
-    ///     TODO
+    ///     Constructor
     /// </summary>
     /// <param name="guardConditionsMethodDescriptions"></param>
     /// <param name="trigger"></param>

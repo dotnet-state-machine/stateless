@@ -17,6 +17,7 @@ internal static class ParameterConversion {
         var arg = args[index];
 
 #if NETSTANDARD1_0
+        // ReSharper disable once UseMethodIsInstanceOfType
         if (arg is { } && !argType.IsAssignableFrom(arg.GetType()))
 #else
         if (arg is { } && !argType.IsInstanceOfType(arg))
@@ -37,6 +38,7 @@ internal static class ParameterConversion {
         var arg = args[index];
 
 #if NETSTANDARD1_0
+        // ReSharper disable once UseMethodIsInstanceOfType
         if (arg is null || !argType.IsAssignableFrom(arg.GetType()))
 #else
         if (arg is null || !argType.IsInstanceOfType(arg))

@@ -25,14 +25,6 @@ internal class TransitionGuard {
         Conditions = new List<GuardCondition> { new(guard, InvocationInfo.Create(guard, description)) };
 
     /// <summary>
-    ///     GuardConditionsMet is true if all of the guard functions return true
-    ///     or if there are no guard functions
-    /// </summary>
-    public bool GuardConditionsMet(object[] args) {
-        return Conditions.All(c => c.Guard(args));
-    }
-
-    /// <summary>
     ///     UnmetGuardConditions is a list of the descriptions of all guard conditions
     ///     whose guard function returns false
     /// </summary>

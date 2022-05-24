@@ -10,16 +10,6 @@ public class EventCallbackFixture {
     }
 
     [Fact]
-    public async Task CanInvokeAsyncDelegateFourArguments() {
-        var count = Array.Empty<int>();
-        await EventCallbackFactory
-             .Create((int first, int second, int third, int four) =>
-                         Task.Run(() => { count = new[] { first, second, third, four }; })).InvokeAsync(1, 2, 3, 4);
-
-        Assert.Equal(new[] { 1, 2, 3, 4 }, count);
-    }
-
-    [Fact]
     public async Task CanInvokeAsyncDelegateOneArgument() {
         var count = Array.Empty<int>();
         await EventCallbackFactory.Create((int first) => { count = new[] { first }; }).InvokeAsync(1);
@@ -52,16 +42,6 @@ public class EventCallbackFixture {
         await EventCallbackFactory.Create(() => count = 1).InvokeAsync();
 
         Assert.Equal(1, count);
-    }
-
-    [Fact]
-    public async Task CanInvokeDelegateFourArguments() {
-        var count = Array.Empty<int>();
-        await EventCallbackFactory.Create((int first, int second, int third, int four) => {
-            count = new[] { first, second, third, four };
-        }).InvokeAsync(1, 2, 3, 4);
-
-        Assert.Equal(new[] { 1, 2, 3, 4 }, count);
     }
 
     [Fact]

@@ -3,6 +3,7 @@
 /// <summary>
 ///     Describes an internal StateRepresentation through the reflection API.
 /// </summary>
+[PublicAPI]
 public class StateInfo {
     private IEnumerable<DynamicTransitionInfo>? _dynamicTransitions;
 

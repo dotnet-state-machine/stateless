@@ -16,7 +16,7 @@ public class InvocationInfo {
         Asynchronous
     }
 
-    private readonly string? _description; // _description can be null if user didn't specify a description
+    private readonly string? _description;
 
     private readonly Timing _timing;
 
@@ -60,9 +60,7 @@ public class InvocationInfo {
     /// <param name="methodName">The name of the invoked method.</param>
     /// <param name="description">A description of the invoked method.</param>
     /// <param name="timing">Sets a value indicating whether the method is invoked asynchronously.</param>
-    private InvocationInfo(string? methodName, string? description,
-                          Timing  timing) // description can be null if user didn't specify a description
-    {
+    private InvocationInfo(string? methodName, string? description, Timing  timing) {
         MethodName   = methodName;
         _description = description;
         _timing      = timing;

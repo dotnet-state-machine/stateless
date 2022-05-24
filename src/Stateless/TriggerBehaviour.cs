@@ -24,12 +24,6 @@ public partial class StateMachine<TState, TTrigger> {
         }
 
         /// <summary>
-        ///     GuardConditionsMet is true if all of the guard functions return true
-        ///     or if there are no guard functions
-        /// </summary>
-        public bool GuardConditionsMet(params object[] args) => Guard.GuardConditionsMet(args);
-
-        /// <summary>
         ///     UnmetGuardConditions is a list of the descriptions of all guard conditions
         ///     whose guard function returns false
         /// </summary>

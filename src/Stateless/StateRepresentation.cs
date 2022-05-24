@@ -147,7 +147,7 @@ public partial class StateMachine<TState, TTrigger> {
         /// </summary>
         /// <param name="state">The state to check</param>
         /// <returns>True if included</returns>
-        public bool Includes(TState state) {
+        private bool Includes(TState state) {
             return _state.Equals(state) || _substates.Any(s => s.Includes(state));
         }
 
