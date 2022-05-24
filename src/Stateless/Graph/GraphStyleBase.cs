@@ -4,6 +4,7 @@
 ///     Style definition for StateGraph.
 ///     Provides formatting of individual items in a state graph.
 /// </summary>
+[PublicAPI]
 public abstract class GraphStyleBase {
     /// <summary>
     ///     Get the text that must be present at the top of a state graph file.

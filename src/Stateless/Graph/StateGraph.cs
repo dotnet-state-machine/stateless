@@ -7,6 +7,7 @@ namespace Stateless.Graph;
 ///     graph structure, in preparation for feeding it to a diagram
 ///     generator
 /// </summary>
+[PublicAPI]
 public class StateGraph {
     private readonly StateInfo _initialState;
 

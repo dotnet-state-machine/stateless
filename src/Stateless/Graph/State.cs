@@ -5,6 +5,7 @@ namespace Stateless.Graph;
 /// <summary>
 ///     Used to keep track of a state that has substates
 /// </summary>
+[PublicAPI]
 public class State {
     /// <summary>
     ///     The superstate of this state (null if none)

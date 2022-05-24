@@ -21,6 +21,7 @@ public enum FiringMode {
 /// </summary>
 /// <typeparam name="TState">The type used to represent the states.</typeparam>
 /// <typeparam name="TTrigger">The type used to represent the triggers that cause state transitions.</typeparam>
+[PublicAPI]
 public partial class StateMachine<TState, TTrigger> where TState : notnull where TTrigger : notnull {
     private readonly Queue<QueuedTrigger> _eventQueue = new();
     private readonly FiringMode           _firingMode;

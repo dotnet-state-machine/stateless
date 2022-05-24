@@ -6,6 +6,7 @@ public partial class StateMachine<TState, TTrigger> {
     /// <summary>
     ///     The configuration for a single state value.
     /// </summary>
+    [PublicAPI]
     public partial class StateConfiguration {
         private readonly Func<TState, StateRepresentation> _lookup;
         private readonly StateRepresentation               _representation;

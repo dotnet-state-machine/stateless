@@ -3,6 +3,7 @@
 /// <summary>
 ///     Describes a method - either an action (activate, deactivate, etc.) or a transition guard
 /// </summary>
+[PublicAPI]
 public class InvocationInfo {
     /// <summary>
     ///     Is the method synchronous or asynchronous?

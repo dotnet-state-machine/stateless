@@ -5,6 +5,7 @@ namespace Stateless.Graph;
 /// <summary>
 ///     Used to keep track of transitions between states
 /// </summary>
+[PublicAPI]
 public abstract class Transition {
     /// <summary>
     ///     The trigger that causes this transition

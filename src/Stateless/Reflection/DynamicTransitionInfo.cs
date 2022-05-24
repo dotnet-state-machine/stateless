@@ -25,6 +25,7 @@ public class DynamicStateInfo {
 /// <summary>
 ///     List of DynamicStateInfo objects, with "add" function for ease of definition
 /// </summary>
+[PublicAPI]
 public class DynamicStateInfos : List<DynamicStateInfo> {
     /// <summary>
     ///     Add a DynamicStateInfo with less typing
@@ -48,6 +49,7 @@ public class DynamicStateInfos : List<DynamicStateInfo> {
 /// <summary>
 ///     Describes a transition that can be initiated from a trigger, but whose result is non-deterministic.
 /// </summary>
+[PublicAPI]
 public class DynamicTransitionInfo : TransitionInfo {
     /// <summary>
     ///     Gets method information for the destination state selector.

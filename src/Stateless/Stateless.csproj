@@ -33,10 +33,12 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="JetBrains.Annotations" Version="2022.1.0" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="..\..\asset\Stateless.png" Pack="true" PackagePath="\"/>
     <Using Remove="System.Net.Http" />
+    <Using Include="JetBrains.Annotations" />
   </ItemGroup>
 </Project>
