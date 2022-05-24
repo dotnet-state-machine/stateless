@@ -202,7 +202,7 @@ public class StateMachineFixture {
     }
 
     [Fact]
-    public async Task ExceptionWhenPermitDyanmicIfHasMultipleNonExclusiveGuards() {
+    public async Task ExceptionWhenPermitDynamicIfHasMultipleNonExclusiveGuards() {
         var sm = new StateMachine<State, Trigger>(State.A);
         var x = sm.SetTriggerParameters<int>(Trigger.X);
         sm.Configure(State.A).PermitDynamicIf(x, i => i == 4 ? State.B : State.C, i => i % 2 == 0)
@@ -258,25 +258,25 @@ public class StateMachineFixture {
     public async Task IfSelfTransitionPermited_ActionsFire_InSubstate() {
         var sm = new StateMachine<State, Trigger>(State.A);
 
-        var onEntryStateBfired = false;
-        var onExitStateBfired = false;
-        var onExitStateAfired = false;
+        var onEntryStateBFired = false;
+        var onExitStateBFired = false;
+        var onExitStateAFired = false;
 
         sm.Configure(State.B)
-          .OnEntry(_ => onEntryStateBfired = true)
+          .OnEntry(_ => onEntryStateBFired = true)
           .PermitReentry(Trigger.X)
-          .OnExit(_ => onExitStateBfired = true);
+          .OnExit(_ => onExitStateBFired = true);
 
         sm.Configure(State.A)
           .SubstateOf(State.B)
-          .OnExit(_ => onExitStateAfired = true);
+          .OnExit(_ => onExitStateAFired = true);
 
         await sm.FireAsync(Trigger.X);
 
         Assert.Equal(State.B, sm.State);
-        Assert.True(onEntryStateBfired);
-        Assert.True(onExitStateBfired);
-        Assert.True(onExitStateAfired);
+        Assert.True(onEntryStateBFired);
+        Assert.True(onExitStateBFired);
+        Assert.True(onExitStateAFired);
     }
 
     [Fact]
@@ -626,7 +626,7 @@ public class StateMachineFixture {
     }
 
     [Fact]
-    public async Task TransitionWhenPermitDyanmicIfHasMultipleExclusiveGuards() {
+    public async Task TransitionWhenPermitDynamicIfHasMultipleExclusiveGuards() {
         var sm = new StateMachine<State, Trigger>(State.A);
         var x = sm.SetTriggerParameters<int>(Trigger.X);
         sm.Configure(State.A)
@@ -808,10 +808,10 @@ public class StateMachineFixture {
 
         StateMachine<State, Trigger>.Transition transition = null;
         sm.OnTransitionCompleted(t => transition = t);
-
-        var firstParameter = "the parameter";
-        var secondParameter = 99;
-        var thirdParameter = true;
+        
+        const string firstParameter = "the parameter";
+        const int secondParameter = 99;
+        const bool thirdParameter = true;
         await sm.FireAsync(triggerX, firstParameter, secondParameter, thirdParameter);
 
         Assert.NotNull(transition);
@@ -836,9 +836,9 @@ public class StateMachineFixture {
         StateMachine<State, Trigger>.Transition transition = null;
         sm.OnTransitioned(t => transition = t);
 
-        var firstParameter = "the parameter";
-        var secondParameter = 99;
-        var thirdParameter = true;
+        const string firstParameter = "the parameter";
+        const int secondParameter = 99;
+        const bool thirdParameter = true;
         await sm.FireAsync(triggerX, firstParameter, secondParameter, thirdParameter);
 
         Assert.NotNull(transition);
@@ -854,7 +854,7 @@ public class StateMachineFixture {
     [Fact]
     public void
         WhenConfigureConditionallyPermittedTransitionOnTriggerWithParameters_ThenStateMachineCanEnumeratePermittedTriggers() {
-        var trigger = Trigger.X;
+        const Trigger trigger = Trigger.X;
         var sm = new StateMachine<State, Trigger>(State.A);
         sm.Configure(State.A).PermitIf(sm.SetTriggerParameters<string>(trigger), State.B, _ => true);
         Assert.Single(sm.PermittedTriggers, trigger);
@@ -862,7 +862,7 @@ public class StateMachineFixture {
 
     [Fact]
     public void WhenConfigureConditionallyPermittedTransitionOnTriggerWithParameters_ThenStateMachineCanFireTrigger() {
-        var trigger = Trigger.X;
+        const Trigger trigger = Trigger.X;
         var sm = new StateMachine<State, Trigger>(State.A);
         sm.Configure(State.A).PermitIf(sm.SetTriggerParameters<string>(trigger), State.B, _ => true);
         Assert.True(sm.CanFire(trigger));

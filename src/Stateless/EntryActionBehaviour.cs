@@ -17,7 +17,7 @@ public partial class StateMachine<TState, TTrigger> {
             : this(description) =>
             _callback = EventCallbackFactory.Create(action);
 
-        protected EntryActionBehavior(InvocationInfo description) => Description = description;
+        private EntryActionBehavior(InvocationInfo description) => Description = description;
 
         public virtual Task ExecuteAsync(Transition transition, object?[] args) =>
             _callback.InvokeAsync(transition, args);

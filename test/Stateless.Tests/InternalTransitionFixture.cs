@@ -7,7 +7,7 @@ public class InternalTransitionFixture {
         var trigger = sm.SetTriggerParameters<int, string, bool>(Trigger.X);
         const int intParam = 5;
         const string strParam = "Five";
-        var boolParam = true;
+        const bool boolParam = true;
         var callbackInvoked = false;
 
         sm.Configure(State.B)
@@ -42,7 +42,7 @@ public class InternalTransitionFixture {
     }
 
     [Fact]
-    public async Task AsyncHandlesNonAsyndActionAsync() {
+    public async Task AsyncHandlesNonAsyncActionAsync() {
         var handled = false;
 
         var sm = new StateMachine<State, Trigger>(State.A);
@@ -178,7 +178,7 @@ public class InternalTransitionFixture {
     }
 
     /// <summary>
-    ///     The expected behaviour of the internal transistion is that the state does not change.
+    ///     The expected behaviour of the internal transition is that the state does not change.
     ///     This will fail if the state changes after the trigger has fired.
     /// </summary>
     [Fact]

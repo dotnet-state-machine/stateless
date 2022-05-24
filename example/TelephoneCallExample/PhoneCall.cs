@@ -28,7 +28,7 @@ public class PhoneCall {
                 .Permit(Trigger.CallDialed, State.Ringing);
 
         _machine.Configure(State.Ringing)
-                .OnEntryFrom(_setCalleeTrigger, callee => OnDialed(callee), "Caller number to call")
+                .OnEntryFrom(_setCalleeTrigger, OnDialed, "Caller number to call")
                 .Permit(Trigger.CallConnected, State.Connected);
 
         _machine.Configure(State.Connected)

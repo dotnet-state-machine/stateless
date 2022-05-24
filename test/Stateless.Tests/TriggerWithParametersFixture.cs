@@ -75,17 +75,17 @@ public class TriggerWithParametersFixture {
     [Fact]
     public void ParametersArePolymorphic() {
         var twp = new TriggerWithParameters<Trigger, object>(Trigger.X);
-        twp.ValidateParameters(new[] { "arg" });
+        twp.ValidateParameters(new object[] { "arg" });
     }
 
     [Fact]
     public void ParametersOfCorrectTypeAreAccepted() {
         var twp = new TriggerWithParameters<Trigger, string>(Trigger.X);
-        twp.ValidateParameters(new[] { "arg" });
+        twp.ValidateParameters(new object[] { "arg" });
     }
 
     /// <summary>
-    ///     issue #380 - default params on PermitIfDynamic lead to ambiguity at compile time... explicits work properly.
+    ///     issue #380 - default params on PermitIfDynamic lead to ambiguity at compile time... explicit works properly.
     /// </summary>
     [Fact]
     public void StateParameterIsNotAmbiguous() {
@@ -99,12 +99,12 @@ public class TriggerWithParametersFixture {
     [Fact]
     public void TooFewParametersDetected() {
         var twp = new TriggerWithParameters<Trigger, string, string>(Trigger.X);
-        Assert.Throws<ArgumentException>(() => twp.ValidateParameters(new[] { "a" }));
+        Assert.Throws<ArgumentException>(() => twp.ValidateParameters(new object[] { "a" }));
     }
 
     [Fact]
     public void TooManyParametersDetected() {
         var twp = new TriggerWithParameters<Trigger, string, string>(Trigger.X);
-        Assert.Throws<ArgumentException>(() => twp.ValidateParameters(new[] { "a", "b", "c" }));
+        Assert.Throws<ArgumentException>(() => twp.ValidateParameters(new object[] { "a", "b", "c" }));
     }
 }

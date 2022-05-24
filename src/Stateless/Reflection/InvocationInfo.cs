@@ -28,7 +28,7 @@ public class InvocationInfo {
     /// <summary>
     ///     Text returned for compiler-generated functions where the caller has not specified a description
     /// </summary>
-    public static string DefaultFunctionDescription { get; set; } = "Function";
+    public const string DefaultFunctionDescription = "Function";
 
     /// <summary>
     ///     A description of the invoked method.  Returns:
@@ -59,7 +59,7 @@ public class InvocationInfo {
     /// <param name="methodName">The name of the invoked method.</param>
     /// <param name="description">A description of the invoked method.</param>
     /// <param name="timing">Sets a value indicating whether the method is invoked asynchronously.</param>
-    public InvocationInfo(string? methodName, string? description,
+    private InvocationInfo(string? methodName, string? description,
                           Timing  timing) // description can be null if user didn't specify a description
     {
         MethodName   = methodName;

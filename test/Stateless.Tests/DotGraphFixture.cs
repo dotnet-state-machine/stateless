@@ -32,21 +32,14 @@ public class DotGraphFixture {
         return s.Replace("\n", Environment.NewLine);
     }
 
-    private static string Box(string label, List<string> entries = null, List<string> exits = null) {
-        string b;
-
+    private static string Box(string label, IEnumerable<string> entries = null, IEnumerable<string> exits = null) {
         var es = new List<string>();
-        if (entries is { })
-            foreach (var entry in entries)
-                es.Add($"entry / {entry}");
-        if (exits is { })
-            foreach (var exit in exits)
-                es.Add($"exit / {exit}");
+        if (entries is { }) 
+            es.AddRange(entries.Select(entry => $"entry / {entry}"));
+        if (exits is { }) 
+            es.AddRange(exits.Select(exit => $"exit / {exit}"));
 
-        if (es.Count == 0)
-            b = $"\"{label}\" [label=\"{label}\"];\n";
-        else
-            b = $"\"{label}\" [label=\"{label}|{string.Join("\\n", es)}\"];\n";
+        var b = es.Count == 0 ? $"\"{label}\" [label=\"{label}\"];\n" : $"\"{label}\" [label=\"{label}|{string.Join("\\n", es)}\"];\n";
 
         return b.Replace("\n", Environment.NewLine);
     }

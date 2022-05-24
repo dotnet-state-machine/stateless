@@ -7,12 +7,12 @@ public abstract class TransitionInfo {
     ///     Method descriptions of the guard conditions.
     ///     Returns a non-null but empty list if there are no guard conditions
     /// </summary>
-    public IEnumerable<InvocationInfo> GuardConditionsMethodDescriptions;
+    public readonly IEnumerable<InvocationInfo> GuardConditionsMethodDescriptions;
 
     /// <summary>
     ///     The trigger whose firing resulted in this transition.
     /// </summary>
-    public TriggerInfo Trigger { get; protected set; }
+    public TriggerInfo Trigger { get; }
 
     /// <summary>
     ///     TODO

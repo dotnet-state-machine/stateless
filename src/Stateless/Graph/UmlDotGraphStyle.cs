@@ -71,7 +71,7 @@ public class UmlDotGraphStyle : GraphStyleBase {
     /// <param name="destinationNodeName"></param>
     /// <param name="guards"></param>
     /// <returns></returns>
-    public override string FormatOneTransition(string? sourceNodeName, string? trigger, IEnumerable<string>? actions,
+    protected override string FormatOneTransition(string? sourceNodeName, string? trigger, IEnumerable<string>? actions,
                                                string? destinationNodeName, IEnumerable<string> guards) {
         var label = trigger ?? "";
 

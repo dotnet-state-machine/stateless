@@ -41,7 +41,7 @@ public class InitialTransitionFixture {
     }
 
     [Fact]
-    public async Task DoesNotEnterSubStateofSubstate() {
+    public async Task DoesNotEnterSubStateOfSubstate() {
         var sm = new StateMachine<State, Trigger>(State.A);
 
         sm.Configure(State.A).Permit(Trigger.X, State.B);
@@ -60,7 +60,7 @@ public class InitialTransitionFixture {
     }
 
     [Fact]
-    public async void DoesNotEnterSubStateofSubstateAsync() {
+    public async void DoesNotEnterSubStateOfSubstateAsync() {
         var sm = new StateMachine<State, Trigger>(State.A);
 
         sm.Configure(State.A).Permit(Trigger.X, State.B);
@@ -160,7 +160,7 @@ public class InitialTransitionFixture {
     }
 
     [Fact]
-    public async Task EntersSubStateofSubstate() {
+    public async Task EntersSubStateOfSubstate() {
         var sm = new StateMachine<State, Trigger>(State.A);
 
         sm.Configure(State.A).Permit(Trigger.X, State.B);
@@ -180,7 +180,7 @@ public class InitialTransitionFixture {
     }
 
     [Fact]
-    public async void EntersSubStateofSubstateAsync() {
+    public async void EntersSubStateOfSubstateAsync() {
         var sm = new StateMachine<State, Trigger>(State.A);
 
         sm.Configure(State.A).Permit(Trigger.X, State.B);
@@ -242,29 +242,29 @@ public class InitialTransitionFixture {
 
         var order = 0;
 
-        var onEntryStateAfired = 0;
-        var onEntryStateBfired = 0;
-        var onExitStateAfired = 0;
-        var onExitStateBfired = 0;
+        var onEntryStateAFired = 0;
+        var onEntryStateBFired = 0;
+        var onExitStateAFired = 0;
+        var onExitStateBFired = 0;
 
         sm.Configure(State.A)
           .InitialTransition(State.B)
-          .OnEntry(_ => onEntryStateAfired = ++order)
-          .OnExit(_ => onExitStateAfired   = ++order)
+          .OnEntry(_ => onEntryStateAFired = ++order)
+          .OnExit(_ => onExitStateAFired   = ++order)
           .PermitReentry(Trigger.X);
 
         sm.Configure(State.B)
           .SubstateOf(State.A)
-          .OnEntry(_ => onEntryStateBfired = ++order)
-          .OnExit(_ => onExitStateBfired   = ++order);
+          .OnEntry(_ => onEntryStateBFired = ++order)
+          .OnExit(_ => onExitStateBFired   = ++order);
 
         await sm.FireAsync(Trigger.X);
 
         Assert.Equal(State.B, sm.State);
-        Assert.Equal(0, onExitStateBfired);
-        Assert.Equal(1, onExitStateAfired);
-        Assert.Equal(2, onEntryStateAfired);
-        Assert.Equal(3, onEntryStateBfired);
+        Assert.Equal(0, onExitStateBFired);
+        Assert.Equal(1, onExitStateAFired);
+        Assert.Equal(2, onEntryStateAFired);
+        Assert.Equal(3, onEntryStateBFired);
     }
 
     [Fact]

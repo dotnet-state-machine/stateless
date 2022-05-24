@@ -15,11 +15,11 @@ public class TransitionFixture {
         machine.Configure(1)
                .InternalTransitionIf(
                                      1,
-                                     _ => { return true; },
+                                     _ => true,
                                      () => { Assert.True(true); })
                .InternalTransitionIf(
                                      1,
-                                     _ => { return false; },
+                                     _ => false,
                                      () => { Assert.True(false); });
 
         await machine.FireAsync(1);

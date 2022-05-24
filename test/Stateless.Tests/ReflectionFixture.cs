@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using Stateless.Reflection;
 using Xunit.Sdk;
+// ReSharper disable ConvertClosureToMethodGroup
 
 namespace Stateless.Tests;
 
@@ -61,7 +62,7 @@ public class ReflectionFixture {
         Assert.Equal(timing == InvocationInfo.Timing.Asynchronous, method.IsAsync);
     }
 
-    private static void VerifyMethodNameses(IEnumerable<InvocationInfo> methods, string prefix, string body,
+    private static void VerifyMethodNames(IEnumerable<InvocationInfo> methods, string prefix, string body,
                                             State                       state,
                                             InvocationInfo.Timing       timing, HashSet<string> suffixes) {
         Assert.Equal(suffixes.Count, methods.Count());
@@ -381,7 +382,7 @@ public class ReflectionFixture {
         inf = sm.GetInfo();
 
         foreach (var stateInfo in inf.States)
-            VerifyMethodNameses(stateInfo.EntryActions.Select(x => x.Method), "On", "Entry",
+            VerifyMethodNames(stateInfo.EntryActions.Select(x => x.Method), "On", "Entry",
                                 (State) stateInfo.UnderlyingState,
                                 InvocationInfo.Timing.Synchronous,
                                 new HashSet<string> {

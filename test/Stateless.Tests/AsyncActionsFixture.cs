@@ -84,7 +84,7 @@ public class AsyncActionsFixture {
           .Permit(Trigger.X, State.B);
 
         var test = "";
-        sm.OnUnhandledTriggerAsync((s, t, u) => Task.Run(() => test = "foo"));
+        sm.OnUnhandledTriggerAsync((_, _, _) => Task.Run(() => test = "foo"));
 
         await sm.FireAsync(Trigger.Z).ConfigureAwait(false);
 
@@ -95,25 +95,25 @@ public class AsyncActionsFixture {
     public async void IfSelfTransitionPermited_ActionsFire_InSubstate_async() {
         var sm = new StateMachine<State, Trigger>(State.A);
 
-        var onEntryStateBfired = false;
-        var onExitStateBfired = false;
-        var onExitStateAfired = false;
+        var onEntryStateBFired = false;
+        var onExitStateBFired = false;
+        var onExitStateAFired = false;
 
         sm.Configure(State.B)
-          .OnEntryAsync(_ => Task.Run(() => onEntryStateBfired = true))
+          .OnEntryAsync(_ => Task.Run(() => onEntryStateBFired = true))
           .PermitReentry(Trigger.X)
-          .OnExitAsync(_ => Task.Run(() => onExitStateBfired = true));
+          .OnExitAsync(_ => Task.Run(() => onExitStateBFired = true));
 
         sm.Configure(State.A)
           .SubstateOf(State.B)
-          .OnExitAsync(_ => Task.Run(() => onExitStateAfired = true));
+          .OnExitAsync(_ => Task.Run(() => onExitStateAFired = true));
 
         await sm.FireAsync(Trigger.X).ConfigureAwait(false);
 
         Assert.Equal(State.B, sm.State);
-        Assert.True(onExitStateAfired);
-        Assert.True(onExitStateBfired);
-        Assert.True(onEntryStateBfired);
+        Assert.True(onExitStateAFired);
+        Assert.True(onExitStateBFired);
+        Assert.True(onEntryStateBFired);
     }
 
     [Fact]

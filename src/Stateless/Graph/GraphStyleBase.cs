@@ -100,7 +100,7 @@ public abstract class GraphStyleBase {
     /// <param name="destinationNodeName"></param>
     /// <param name="guards">List of guards (if any)</param>
     /// <returns></returns>
-    public virtual string FormatOneTransition(string? sourceNodeName, string? trigger, IEnumerable<string>? actions,
+    protected virtual string FormatOneTransition(string? sourceNodeName, string? trigger, IEnumerable<string>? actions,
                                               string? destinationNodeName, IEnumerable<string> guards) =>
         throw new
             InvalidOperationException("If you use IGraphStyle.FormatAllTransitions() you must implement an override of FormatOneTransition()");

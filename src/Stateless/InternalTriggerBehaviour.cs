@@ -10,12 +10,6 @@ public partial class StateMachine<TState, TTrigger> {
             : this(trigger, guard) =>
             _callback = EventCallbackFactory.Create(internalAction);
 
-        // FIXME: inconsistent with synchronous version of StateConfiguration
-        public InternalTriggerBehaviour(TTrigger                          trigger, TransitionGuard? guard,
-                                        Func<Transition, object?[], Task> internalAction)
-            : this(trigger, guard) =>
-            _callback = EventCallbackFactory.Create(internalAction);
-
         public InternalTriggerBehaviour(TTrigger                          trigger, Func<bool> guard,
                                         Func<Transition, object?[], Task> internalAction,
                                         string?                           guardDescription = null)

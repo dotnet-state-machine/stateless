@@ -231,7 +231,7 @@ public class StateRepresentationFixture {
     }
 
     [Fact]
-    public void WhenTransitioGuardConditionsMet_TriggerCanBeFired() {
+    public void WhenTransitionGuardConditionsMet_TriggerCanBeFired() {
         var rep = CreateRepresentation(State.B);
 
         var trueConditions = new[] {
@@ -267,9 +267,9 @@ public class StateRepresentationFixture {
             new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(Trigger.X, State.C, transitionGuard);
         super.AddTriggerBehaviour(transition);
 
-        var reslt = sub.TryFindHandler(Trigger.X, Array.Empty<object>(), out var result);
+        var result = sub.TryFindHandler(Trigger.X, Array.Empty<object>(), out _);
 
-        Assert.False(reslt);
+        Assert.False(result);
         Assert.False(sub.CanHandle(Trigger.X));
         Assert.False(super.CanHandle(Trigger.X));
     }
@@ -281,7 +281,7 @@ public class StateRepresentationFixture {
     }
 
     [Fact]
-    public void WhenTransitionExistsInSupersate_TriggerCanBeFired() {
+    public void WhenTransitionExistsInSuperstate_TriggerCanBeFired() {
         var rep = CreateRepresentation(State.B);
         rep.AddTriggerBehaviour(new StateMachine<State, Trigger>.IgnoredTriggerBehaviour(Trigger.X, null));
         var sub = CreateRepresentation(State.C);
@@ -308,8 +308,8 @@ public class StateRepresentationFixture {
         Assert.True(sub.CanHandle(Trigger.X));
         Assert.True(super.CanHandle(Trigger.X));
         Assert.NotNull(result);
-        Assert.True(result?.Handler.GuardConditionsMet());
-        Assert.False(result?.UnmetGuardConditions.Any());
+        Assert.True(result.Handler.GuardConditionsMet());
+        Assert.False(result.UnmetGuardConditions.Any());
     }
 
     [Fact]
