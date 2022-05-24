@@ -1,26 +1,8 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using Xunit;
+﻿namespace Stateless.Tests;
 
-namespace Stateless.Tests; 
-
-public class DynamicTriggerBehaviour
-{
+public class DynamicTriggerBehaviour {
     [Fact]
-    public async Task DestinationStateIsDynamic()
-    {
-        var sm = new StateMachine<State, Trigger>(State.A);
-        sm.Configure(State.A)
-          .PermitDynamic(Trigger.X, () => State.B);
-
-        await sm.FireAsync(Trigger.X);
-
-        Assert.Equal(State.B, sm.State);
-    }
-
-    [Fact]
-    public async Task DestinationStateIsCalculatedBasedOnTriggerParameters()
-    {
+    public async Task DestinationStateIsCalculatedBasedOnTriggerParameters() {
         var sm = new StateMachine<State, Trigger>(State.A);
         var trigger = sm.SetTriggerParameters<int>(Trigger.X);
         sm.Configure(State.A)
@@ -32,8 +14,18 @@ public class DynamicTriggerBehaviour
     }
 
     [Fact]
-    public async Task Sdfsf()
-    {
+    public async Task DestinationStateIsDynamic() {
+        var sm = new StateMachine<State, Trigger>(State.A);
+        sm.Configure(State.A)
+          .PermitDynamic(Trigger.X, () => State.B);
+
+        await sm.FireAsync(Trigger.X);
+
+        Assert.Equal(State.B, sm.State);
+    }
+
+    [Fact]
+    public async Task Sdfsf() {
         var sm = new StateMachine<State, Trigger>(State.A);
         var trigger = sm.SetTriggerParameters<int>(Trigger.X);
         sm.Configure(State.A)

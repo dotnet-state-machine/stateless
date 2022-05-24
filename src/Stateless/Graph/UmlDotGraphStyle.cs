@@ -1,36 +1,31 @@
 ﻿using System.Text;
 
-namespace Stateless.Graph; 
+namespace Stateless.Graph;
 
 /// <summary>
-/// Generate DOT graphs in basic UML style
+///     Generate DOT graphs in basic UML style
 /// </summary>
-public class UmlDotGraphStyle : GraphStyleBase
-{
+public class UmlDotGraphStyle : GraphStyleBase {
     /// <summary>Get the text that starts a new graph</summary>
     /// <returns></returns>
-    public override string GetPrefix()
-    {
-        return "digraph {\n"
-             + "compound=true;\n"
-             + "node [shape=Mrecord]\n"
-             + "rankdir=\"LR\"\n";
-    }
+    public override string GetPrefix() =>
+        "digraph {\n"
+      + "compound=true;\n"
+      + "node [shape=Mrecord]\n"
+      + "rankdir=\"LR\"\n";
 
     /// <summary>
-    /// Returns the formatted text for a single superstate and its substates.
-    /// For example, for DOT files this would be a subgraph containing nodes for all the substates.
+    ///     Returns the formatted text for a single superstate and its substates.
+    ///     For example, for DOT files this would be a subgraph containing nodes for all the substates.
     /// </summary>
     /// <param name="stateInfo">The superstate to generate text for</param>
     /// <returns>Description of the superstate, and all its substates, in the desired format</returns>
-    public override string FormatOneCluster(SuperState stateInfo)
-    {
+    public override string FormatOneCluster(SuperState stateInfo) {
         var sourceName = stateInfo.StateName;
 
         var label = new StringBuilder($"{sourceName}");
 
-        if ((stateInfo.EntryActions.Count > 0) || (stateInfo.ExitActions.Count > 0))
-        {
+        if (stateInfo.EntryActions.Count > 0 || stateInfo.ExitActions.Count > 0) {
             label.Append("\\n----------");
             label.Append(string.Concat(stateInfo.EntryActions.Select(act => $"\\nentry / {act}")));
             label.Append(string.Concat(stateInfo.ExitActions.Select(act => $"\\nexit / {act}")));
@@ -38,10 +33,7 @@ public class UmlDotGraphStyle : GraphStyleBase
 
         var stateRepresentationString = $"\nsubgraph \"cluster{stateInfo.NodeName}\"\n\t{{\n\tlabel = \"{label}\"\n";
 
-        foreach (var subState in stateInfo.SubStates)
-        {
-            stateRepresentationString += FormatOneState(subState);
-        }
+        foreach (var subState in stateInfo.SubStates) stateRepresentationString += FormatOneState(subState);
 
         stateRepresentationString += "}\n";
 
@@ -49,13 +41,12 @@ public class UmlDotGraphStyle : GraphStyleBase
     }
 
     /// <summary>
-    /// Generate the text for a single state
+    ///     Generate the text for a single state
     /// </summary>
     /// <param name="state">The state to generate text for</param>
     /// <returns></returns>
-    public override string FormatOneState(State state)
-    {
-        if ((state.EntryActions.Count == 0) && (state.ExitActions.Count == 0))
+    public override string FormatOneState(State state) {
+        if (state.EntryActions.Count == 0 && state.ExitActions.Count == 0)
             return $"\"{state.StateName}\" [label=\"{state.StateName}\"];\n";
 
         var f = $"\"{state.StateName}\" [label=\"{state.StateName}|";
@@ -72,7 +63,7 @@ public class UmlDotGraphStyle : GraphStyleBase
     }
 
     /// <summary>
-    /// Generate text for a single transition
+    ///     Generate text for a single transition
     /// </summary>
     /// <param name="sourceNodeName"></param>
     /// <param name="trigger"></param>
@@ -80,16 +71,15 @@ public class UmlDotGraphStyle : GraphStyleBase
     /// <param name="destinationNodeName"></param>
     /// <param name="guards"></param>
     /// <returns></returns>
-    public override string FormatOneTransition(string? sourceNodeName, string? trigger, IEnumerable<string>? actions, string? destinationNodeName, IEnumerable<string> guards)
-    {
+    public override string FormatOneTransition(string? sourceNodeName, string? trigger, IEnumerable<string>? actions,
+                                               string? destinationNodeName, IEnumerable<string> guards) {
         var label = trigger ?? "";
 
         var actionsString = string.Join(", ", actions ?? Enumerable.Empty<string>());
         if (!string.IsNullOrEmpty(actionsString))
             label += $" / {actionsString}";
-            
-        foreach (var info in guards)
-        {
+
+        foreach (var info in guards) {
             if (label.Length > 0)
                 label += " ";
             label += $"[{info}]";
@@ -99,18 +89,14 @@ public class UmlDotGraphStyle : GraphStyleBase
     }
 
     /// <summary>
-    /// Generate the text for a single decision node
+    ///     Generate the text for a single decision node
     /// </summary>
     /// <param name="nodeName">Name of the node</param>
     /// <param name="label">Label for the node</param>
     /// <returns></returns>
-    public override string FormatOneDecisionNode(string? nodeName, string label)
-    {
-        return $"\"{nodeName}\" [shape = \"diamond\", label = \"{label}\"];\n";
-    }
+    public override string FormatOneDecisionNode(string? nodeName, string label) =>
+        $"\"{nodeName}\" [shape = \"diamond\", label = \"{label}\"];\n";
 
-    private static string FormatOneLine(string? fromNodeName, string? toNodeName, string label)
-    {
-        return $"\"{fromNodeName}\" -> \"{toNodeName}\" [style=\"solid\", label=\"{label}\"];";
-    }
+    private static string FormatOneLine(string? fromNodeName, string? toNodeName, string label) =>
+        $"\"{fromNodeName}\" -> \"{toNodeName}\" [style=\"solid\", label=\"{label}\"];";
 }

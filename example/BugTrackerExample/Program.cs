@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace BugTrackerExample; 
+namespace BugTrackerExample;
 
-internal static class Program
-{
-    private static async Task Main()
-    {
+internal static class Program {
+    private static async Task Main() {
         var bug = new Bug("Incorrect stock count");
 
         await bug.AssignAsync("Joe");

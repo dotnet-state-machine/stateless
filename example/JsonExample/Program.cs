@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace JsonExample; 
+namespace JsonExample;
 
-internal static class Program
-{
-    private static async Task Main()
-    {
+internal static class Program {
+    private static async Task Main() {
         Console.WriteLine("Creating member from JSON");
         var aMember = Member.FromJson("{ \"State\":\"1\",\"Name\":\"Jay\"}");
 
@@ -23,10 +21,7 @@ internal static class Program
 
         var anotherMember = Member.FromJson(jsonString);
 
-        if (aMember.Equals(anotherMember))
-        {
-            Console.WriteLine("Members are equal");
-        }
+        if (aMember.Equals(anotherMember)) Console.WriteLine("Members are equal");
 
         Console.WriteLine("Press any key...");
         Console.ReadKey();

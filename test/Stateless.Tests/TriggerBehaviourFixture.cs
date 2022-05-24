@@ -1,82 +1,69 @@
-﻿namespace Stateless.Tests; 
+﻿namespace Stateless.Tests;
 
-public class TriggerBehaviourFixture
-{
+public class TriggerBehaviourFixture {
+    private static bool False(params object[] args) => false;
+
+    private static bool True(params object[] args) => true;
+
     [Fact]
-    public void ExposesCorrectUnderlyingTrigger()
-    {
+    public void ExposesCorrectUnderlyingTrigger() {
         var transitioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
-                                                              Trigger.X, State.C, null);
+         Trigger.X, State.C, null);
 
         Assert.Equal(Trigger.X, transitioning.Trigger);
     }
 
-    private static bool False(params object[] args)
-    {
-        return false;
-    }
-
     [Fact]
-    public void WhenGuardConditionFalse_GuardConditionsMetIsFalse()
-    {
-        var transitioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
-                                                              Trigger.X, State.C, new TransitionGuard(False));
-
-        Assert.False(transitioning.GuardConditionsMet());
-    }
-
-    private static bool True(params object[] args)
-    {
-        return true;
-    }
-
-    [Fact]
-    public void WhenGuardConditionTrue_GuardConditionsMetIsTrue()
-    {
-        var transitioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
-                                                              Trigger.X, State.C, new TransitionGuard(True));
-
-        Assert.True(transitioning.GuardConditionsMet());
-    }
-
-    [Fact]
-    public void WhenOneOfMultipleGuardConditionsFalse_GuardConditionsMetIsFalse()
-    {
-        var falseGuard = new[] {
-            new Tuple<Func<object[], bool>, string>(_ => true, "1"),
-            new Tuple<Func<object[], bool>, string>(_ => true, "2")
-        };
-
-        var transitioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
-                                                              Trigger.X, State.C, new TransitionGuard(falseGuard));
-
-        Assert.True(transitioning.GuardConditionsMet());
-    }
-
-    [Fact]
-    public void WhenAllMultipleGuardConditionsFalse_IsGuardConditionsMetIsFalse()
-    {
-        var falseGuard = new[] {
-            new Tuple<Func<object[], bool>, string>(_ => false, "1"),
-            new Tuple<Func<object[], bool>, string>(_ => false, "2")
-        };
-
-        var transitioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
-                                                              Trigger.X, State.C, new TransitionGuard(falseGuard));
-
-        Assert.False(transitioning.GuardConditionsMet());
-    }
-
-    [Fact]
-    public void WhenAllGuardConditionsTrue_GuardConditionsMetIsTrue()
-    {
+    public void WhenAllGuardConditionsTrue_GuardConditionsMetIsTrue() {
         var trueGuard = new[] {
             new Tuple<Func<object[], bool>, string>(_ => true, "1"),
             new Tuple<Func<object[], bool>, string>(_ => true, "2")
         };
 
         var transitioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
-                                                              Trigger.X, State.C, new TransitionGuard(trueGuard));
+         Trigger.X, State.C, new TransitionGuard(trueGuard));
+
+        Assert.True(transitioning.GuardConditionsMet());
+    }
+
+    [Fact]
+    public void WhenAllMultipleGuardConditionsFalse_IsGuardConditionsMetIsFalse() {
+        var falseGuard = new[] {
+            new Tuple<Func<object[], bool>, string>(_ => false, "1"),
+            new Tuple<Func<object[], bool>, string>(_ => false, "2")
+        };
+
+        var transitioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
+         Trigger.X, State.C, new TransitionGuard(falseGuard));
+
+        Assert.False(transitioning.GuardConditionsMet());
+    }
+
+    [Fact]
+    public void WhenGuardConditionFalse_GuardConditionsMetIsFalse() {
+        var transitioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
+         Trigger.X, State.C, new TransitionGuard(False));
+
+        Assert.False(transitioning.GuardConditionsMet());
+    }
+
+    [Fact]
+    public void WhenGuardConditionTrue_GuardConditionsMetIsTrue() {
+        var transitioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
+         Trigger.X, State.C, new TransitionGuard(True));
+
+        Assert.True(transitioning.GuardConditionsMet());
+    }
+
+    [Fact]
+    public void WhenOneOfMultipleGuardConditionsFalse_GuardConditionsMetIsFalse() {
+        var falseGuard = new[] {
+            new Tuple<Func<object[], bool>, string>(_ => true, "1"),
+            new Tuple<Func<object[], bool>, string>(_ => true, "2")
+        };
+
+        var transitioning = new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(
+         Trigger.X, State.C, new TransitionGuard(falseGuard));
 
         Assert.True(transitioning.GuardConditionsMet());
     }

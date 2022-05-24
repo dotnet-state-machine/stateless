@@ -3,45 +3,21 @@ using System.Threading.Tasks;
 using Stateless;
 using Stateless.Graph;
 
-namespace TelephoneCallExample; 
+namespace TelephoneCallExample;
 
-public class PhoneCall
-{
-    private enum Trigger
-    {
-        CallDialed,
-        CallConnected,
-        LeftMessage,
-        PlacedOnHold,
-        TakenOffHold,
-        PhoneHurledAgainstWall,
-        MuteMicrophone,
-        UnmuteMicrophone,
-        SetVolume
-    }
+public class PhoneCall {
+    private readonly string _caller;
 
-    private enum State
-    {
-        OffHook,
-        Ringing,
-        Connected,
-        OnHold,
-        PhoneDestroyed
-    }
-
-    private State _state = State.OffHook;
-
-    private readonly StateMachine<State, Trigger>                  _machine;
-    private readonly StateMachine<State, Trigger>.TriggerWithParameters<int> _setVolumeTrigger;
+    private readonly StateMachine<State, Trigger> _machine;
 
     private readonly StateMachine<State, Trigger>.TriggerWithParameters<string> _setCalleeTrigger;
-
-    private readonly string _caller;
+    private readonly StateMachine<State, Trigger>.TriggerWithParameters<int>    _setVolumeTrigger;
 
     private string _callee;
 
-    public PhoneCall(string caller)
-    {
+    private State _state = State.OffHook;
+
+    public PhoneCall(string caller) {
         _caller  = caller;
         _machine = new StateMachine<State, Trigger>(() => _state, s => _state = s);
 
@@ -69,82 +45,87 @@ public class PhoneCall
                 .Permit(Trigger.TakenOffHold, State.Connected)
                 .Permit(Trigger.PhoneHurledAgainstWall, State.PhoneDestroyed);
 
-        _machine.OnTransitioned(t => Console.WriteLine($"OnTransitioned: {t.Source} -> {t.Destination} via {t.Trigger}({string.Join(", ",  t.Parameters)})"));
+        _machine.OnTransitioned(t =>
+                                    Console
+                                       .WriteLine($"OnTransitioned: {t.Source} -> {t.Destination} via {t.Trigger}({string.Join(", ", t.Parameters)})"));
     }
 
-    private static void OnSetVolume(int volume)
-    {
+    private static void OnSetVolume(int volume) {
         Console.WriteLine($"Volume set to {volume}!");
     }
 
-    private static void OnUnmute()
-    {
+    private static void OnUnmute() {
         Console.WriteLine("Microphone unmuted!");
     }
 
-    private static void OnMute()
-    {
+    private static void OnMute() {
         Console.WriteLine("Microphone muted!");
     }
 
-    private void OnDialed(string callee)
-    {
+    private void OnDialed(string callee) {
         _callee = callee;
         Console.WriteLine("[Phone Call] placed for : [{0}]", _callee);
     }
 
-    private static void StartCallTimer()
-    {
+    private static void StartCallTimer() {
         Console.WriteLine("[Timer:] Call started at {0}", DateTime.Now);
     }
 
-    private static void StopCallTimer()
-    {
+    private static void StopCallTimer() {
         Console.WriteLine("[Timer:] Call ended at {0}", DateTime.Now);
     }
 
-    public async Task MuteAsync()
-    {
+    public async Task MuteAsync() {
         await _machine.FireAsync(Trigger.MuteMicrophone);
     }
 
-    public async Task UnmuteAsync()
-    {
+    public async Task UnmuteAsync() {
         await _machine.FireAsync(Trigger.UnmuteMicrophone);
     }
 
-    public async Task SetVolumeAsync(int volume)
-    {
+    public async Task SetVolumeAsync(int volume) {
         await _machine.FireAsync(_setVolumeTrigger, volume);
     }
 
-    public void Print()
-    {
+    public void Print() {
         Console.WriteLine("[{1}] placed call and [Status:] {0}", _machine.State, _caller);
     }
 
-    public async Task DialedAsync(string callee)
-    {           
+    public async Task DialedAsync(string callee) {
         await _machine.FireAsync(_setCalleeTrigger, callee);
     }
 
-    public async Task ConnectedAsync()
-    {
+    public async Task ConnectedAsync() {
         await _machine.FireAsync(Trigger.CallConnected);
     }
 
-    public async Task HoldAsync()
-    {
+    public async Task HoldAsync() {
         await _machine.FireAsync(Trigger.PlacedOnHold);
     }
 
-    public async Task ResumeAsync()
-    {
+    public async Task ResumeAsync() {
         await _machine.FireAsync(Trigger.TakenOffHold);
     }
 
-    public string ToDotGraph()
-    {
-        return UmlDotGraph.Format(_machine.GetInfo());
+    public string ToDotGraph() => UmlDotGraph.Format(_machine.GetInfo());
+
+    private enum Trigger {
+        CallDialed,
+        CallConnected,
+        LeftMessage,
+        PlacedOnHold,
+        TakenOffHold,
+        PhoneHurledAgainstWall,
+        MuteMicrophone,
+        UnmuteMicrophone,
+        SetVolume
+    }
+
+    private enum State {
+        OffHook,
+        Ringing,
+        Connected,
+        OnHold,
+        PhoneDestroyed
     }
 }

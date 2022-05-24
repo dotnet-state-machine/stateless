@@ -1,16 +1,15 @@
 ﻿namespace Stateless.Tests;
 
-internal enum Trigger
-{
-    X, Y, Z
+internal enum Trigger {
+    X,
+    Y,
+    Z
 }
 
-class FirstFakeTrigger
-{
+internal class FirstFakeTrigger {
     public bool IsAllowed { get; set; }
 }
 
-class SecondFakeTrigger
-{
+internal class SecondFakeTrigger {
     public bool IsOk { get; set; }
 }

@@ -3,39 +3,27 @@
 using Stateless.Graph;
 using Stateless.Reflection;
 
-namespace Stateless.Tests; 
+namespace Stateless.Tests;
 
-public class DotGraphFixture
-{
+public class DotGraphFixture {
 #if WRITE_DOTS_TO_FOLDER
         static readonly string DestinationFolder = "c:\\temp\\";
 #endif
 
-    private bool IsTrue()
-    {
-        return true;
-    }
+    private bool IsTrue() => true;
 
-    private void OnEntry()
-    {
+    private void OnEntry() { }
 
-    }
+    private void OnExit() { }
 
-    private void OnExit()
-    {
-
-    }
-
-    private enum Style
-    {
+    private enum Style {
         Uml
     }
 
     private static readonly string Suffix =
         $"{Environment.NewLine} init [label=\"\", shape=point];{Environment.NewLine} init -> \"A\"[style = \"solid\"]{Environment.NewLine}}}";
 
-    private static string Prefix()
-    {
+    private static string Prefix() {
         var s = "digraph {\n"
               + "compound=true;\n"
               + "node [shape=Mrecord]\n"
@@ -44,41 +32,32 @@ public class DotGraphFixture
         return s.Replace("\n", Environment.NewLine);
     }
 
-    private static string Box(string label, List<string> entries = null, List<string> exits = null)
-    {
+    private static string Box(string label, List<string> entries = null, List<string> exits = null) {
         string b;
 
         var es = new List<string>();
         if (entries is { })
-        {
             foreach (var entry in entries)
                 es.Add($"entry / {entry}");
-        }
         if (exits is { })
-        {
             foreach (var exit in exits)
                 es.Add($"exit / {exit}");
-        }
 
         if (es.Count == 0)
             b = $"\"{label}\" [label=\"{label}\"];\n";
         else
-        {
             b = $"\"{label}\" [label=\"{label}|{string.Join("\\n", es)}\"];\n";
-        }
 
         return b.Replace("\n", Environment.NewLine);
     }
 
-    private static string Decision(string nodeName, string label)
-    {
+    private static string Decision(string nodeName, string label) {
         var b = $"\"{nodeName}\" [shape = \"diamond\", label = \"{label}\"];\n";
 
         return b.Replace("\n", Environment.NewLine);
     }
 
-    private static string Line(string from, string to, string label)
-    {
+    private static string Line(string from, string to, string label) {
         var s = $"\n\"{from}\" -> \"{to}\" [style=\"solid\"";
 
         if (label is { })
@@ -89,8 +68,7 @@ public class DotGraphFixture
         return s.Replace("\n", Environment.NewLine);
     }
 
-    private static string Subgraph(Style style, string graphName, string label, string contents)
-    {
+    private static string Subgraph(Style style, string graphName, string label, string contents) {
         if (style != Style.Uml)
             throw new Exception("WRITE MORE CODE");
 
@@ -102,8 +80,7 @@ public class DotGraphFixture
     }
 
     [Fact]
-    public void SimpleTransition()
-    {
+    public void SimpleTransition() {
         var expected = Prefix() + Box("A") + Box("B") + Line("A", "B", "X") + Suffix;
 
         var sm = new StateMachine<State, Trigger>(State.A);
@@ -121,8 +98,7 @@ public class DotGraphFixture
     }
 
     [Fact]
-    public void SimpleTransitionUml()
-    {
+    public void SimpleTransitionUml() {
         var expected = Prefix() + Box("A") + Box("B") + Line("A", "B", "X") + Suffix;
 
         var sm = new StateMachine<State, Trigger>(State.A);
@@ -140,8 +116,7 @@ public class DotGraphFixture
     }
 
     [Fact]
-    public void TwoSimpleTransitions()
-    {
+    public void TwoSimpleTransitions() {
         var expected = Prefix() + Box("A") + Box("B") + Box("C")
                      + Line("A", "B", "X")
                      + Line("A", "C", "Y")
@@ -157,8 +132,7 @@ public class DotGraphFixture
     }
 
     [Fact]
-    public void WhenDiscriminatedByAnonymousGuard()
-    {
+    public void WhenDiscriminatedByAnonymousGuard() {
         static bool AnonymousGuard() => true;
 
         var expected = Prefix() + Box("A") + Box("B")
@@ -174,14 +148,13 @@ public class DotGraphFixture
     }
 
     [Fact]
-    public void WhenDiscriminatedByAnonymousGuardWithDescription()
-    {
+    public void WhenDiscriminatedByAnonymousGuardWithDescription() {
         static bool AnonymousGuard() => true;
 
         var expected = Prefix()
                      + Box("A") + Box("B")
                      + Line("A", "B", "X [description]")
-                    +  Suffix;
+                     + Suffix;
 
         var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -198,8 +171,7 @@ public class DotGraphFixture
     }
 
     [Fact]
-    public void WhenDiscriminatedByNamedDelegate()
-    {
+    public void WhenDiscriminatedByNamedDelegate() {
         var expected = Prefix()
                      + Box("A") + Box("B")
                      + Line("A", "B", "X [IsTrue]")
@@ -214,8 +186,7 @@ public class DotGraphFixture
     }
 
     [Fact]
-    public void WhenDiscriminatedByNamedDelegateWithDescription()
-    {
+    public void WhenDiscriminatedByNamedDelegateWithDescription() {
         var expected = Prefix()
                      + Box("A") + Box("B")
                      + Line("A", "B", "X [description]")
@@ -230,8 +201,7 @@ public class DotGraphFixture
     }
 
     [Fact]
-    public void DestinationStateIsDynamic()
-    {
+    public void DestinationStateIsDynamic() {
         var expected = Prefix()
                      + Box("A")
                      + Decision("Decision1", "Function")
@@ -251,8 +221,7 @@ public class DotGraphFixture
     }
 
     [Fact]
-    public void DestinationStateIsCalculatedBasedOnTriggerParameters()
-    {
+    public void DestinationStateIsCalculatedBasedOnTriggerParameters() {
         var expected = Prefix()
                      + Box("A")
                      + Decision("Decision1", "Function")
@@ -272,8 +241,7 @@ public class DotGraphFixture
     }
 
     [Fact]
-    public void OnEntryWithAnonymousActionAndDescription()
-    {
+    public void OnEntryWithAnonymousActionAndDescription() {
         var expected = Prefix() + Box("A", new List<string> { "enteredA" }) + Suffix;
 
         var sm = new StateMachine<State, Trigger>(State.A);
@@ -291,8 +259,7 @@ public class DotGraphFixture
     }
 
     [Fact]
-    public void OnEntryWithNamedDelegateActionAndDescription()
-    {
+    public void OnEntryWithNamedDelegateActionAndDescription() {
         var expected = Prefix() + Box("A", new List<string> { "enteredA" }) + Suffix;
 
         var sm = new StateMachine<State, Trigger>(State.A);
@@ -304,8 +271,7 @@ public class DotGraphFixture
     }
 
     [Fact]
-    public void OnExitWithAnonymousActionAndDescription()
-    {
+    public void OnExitWithAnonymousActionAndDescription() {
         var expected = Prefix() + Box("A", null, new List<string> { "exitA" }) + Suffix;
 
         var sm = new StateMachine<State, Trigger>(State.A);
@@ -317,9 +283,7 @@ public class DotGraphFixture
     }
 
     [Fact]
-    public void OnExitWithNamedDelegateActionAndDescription()
-    {
-
+    public void OnExitWithNamedDelegateActionAndDescription() {
         var sm = new StateMachine<State, Trigger>(State.A);
 
         sm.Configure(State.A)
@@ -332,8 +296,7 @@ public class DotGraphFixture
     }
 
     [Fact]
-    public void TransitionWithIgnore()
-    {
+    public void TransitionWithIgnore() {
         // Ignored triggers do not appear in the graph
         var expected = Prefix()
                      + Box("A") + Box("B")
@@ -351,14 +314,13 @@ public class DotGraphFixture
     }
 
     [Fact]
-    public void OnEntryWithTriggerParameter()
-    {
-        var expected = Prefix()                                  + Box("A", new List<string> { "OnEntry" })
-                                                      + Box("B") + Box("C")
-                                                      + Line("A", "B", "X / BX")
-                                                      + Line("A", "C", "Y / TestEntryActionString [IsTriggerY]")
-                                                      + Line("A", "B", "Z [IsTriggerZ]")
-                                                      + Suffix;
+    public void OnEntryWithTriggerParameter() {
+        var expected = Prefix()                       + Box("A", new List<string> { "OnEntry" })
+                                           + Box("B") + Box("C")
+                                           + Line("A", "B", "X / BX")
+                                           + Line("A", "C", "Y / TestEntryActionString [IsTriggerY]")
+                                           + Line("A", "B", "Z [IsTriggerZ]")
+                                           + Suffix;
 
         static bool AnonymousGuard() => true;
         var sm = new StateMachine<State, Trigger>(State.A);
@@ -383,17 +345,16 @@ public class DotGraphFixture
 
         Assert.Equal(expected, dotGraph);
     }
-        
+
     [Fact]
-    public void SpacedUmlWithSubstate()
-    {
+    public void SpacedUmlWithSubstate() {
         var stateA = "State A";
         var stateB = "State B";
         var stateC = "State C";
         var stateD = "State D";
         var triggerX = "Trigger X";
         var triggerY = "Trigger Y";
-            
+
         var expected =
             $"{Prefix()}{Subgraph(Style.Uml, stateD, $"{stateD}\\n----------\\nentry / Enter D", Box(stateB) + Box(stateC))}{Box(stateA, new List<string> { "Enter A" }, new List<string> { "Exit A" })}{Line(stateA, stateB, triggerX)}{Line(stateA, stateC, triggerY)}{Environment.NewLine} init [label=\"\", shape=point];{Environment.NewLine} init -> \"{stateA}\"[style = \"solid\"]{Environment.NewLine}}}";
 
@@ -421,8 +382,7 @@ public class DotGraphFixture
     }
 
     [Fact]
-    public void UmlWithSubstate()
-    {
+    public void UmlWithSubstate() {
         var expected = Prefix()
                      + Subgraph(Style.Uml, "D", "D\\n----------\\nentry / EnterD",
                                 Box("B")
@@ -455,8 +415,7 @@ public class DotGraphFixture
     }
 
     [Fact]
-    public void UmlWithDynamic()
-    {
+    public void UmlWithDynamic() {
         var expected = Prefix()
                      + Box("A")
                      + Box("B")
@@ -470,7 +429,8 @@ public class DotGraphFixture
         var sm = new StateMachine<State, Trigger>(State.A);
 
         sm.Configure(State.A)
-          .PermitDynamic(Trigger.X, DestinationSelector, null, new DynamicStateInfos { { State.B, "ChoseB"}, { State.C, "ChoseC" } });
+          .PermitDynamic(Trigger.X, DestinationSelector, null,
+                         new DynamicStateInfos { { State.B, "ChoseB" }, { State.C, "ChoseC" } });
 
         sm.Configure(State.B);
         sm.Configure(State.C);
@@ -484,13 +444,12 @@ public class DotGraphFixture
     }
 
     [Fact]
-    public void TransitionWithIgnoreAndEntry()
-    {
+    public void TransitionWithIgnoreAndEntry() {
         var expected = Prefix()
                      + Box("A", new List<string> { "DoEntry" })
                      + Box("B", new List<string> { "DoThisEntry" })
                      + Line("A", "B", "X")
-                     + Line("A", "A", "Y") 
+                     + Line("A", "A", "Y")
                      + Line("B", "B", "Z / DoThisEntry")
                      + Suffix;
 
@@ -516,5 +475,5 @@ public class DotGraphFixture
 
     private void  TestEntryAction()                 { }
     private void  TestEntryActionString(string val) { }
-    private State DestinationSelector()             { return State.A; }
+    private State DestinationSelector()             => State.A;
 }

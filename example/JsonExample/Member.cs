@@ -3,28 +3,20 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Stateless;
 
-namespace JsonExample; 
+namespace JsonExample;
 
-public class Member
-{
-    private enum MemberTriggers
-    {
-        Suspend,
-        Terminate,
-        Reactivate
-    }
-    public enum MembershipState
-    {
+public class Member {
+    public enum MembershipState {
         Inactive,
         Active,
         Terminated
     }
+
+    private readonly StateMachine<MembershipState, MemberTriggers> _stateMachine;
     public           MembershipState                               State => _stateMachine.State;
     public           string                                        Name  { get; }
-    private readonly StateMachine<MembershipState, MemberTriggers> _stateMachine;
 
-    public Member(string name)
-    {
+    public Member(string name) {
         _stateMachine = new StateMachine<MembershipState, MemberTriggers>(MembershipState.Active);
         Name          = name;
 
@@ -32,8 +24,7 @@ public class Member
     }
 
     [JsonConstructor]
-    private Member(string state, string name)
-    {
+    private Member(string state, string name) {
         var memberState = (MembershipState) Enum.Parse(typeof(MembershipState), state);
         _stateMachine = new StateMachine<MembershipState, MemberTriggers>(memberState);
         Name          = name;
@@ -41,8 +32,7 @@ public class Member
         ConfigureStateMachine();
     }
 
-    private void ConfigureStateMachine()
-    {
+    private void ConfigureStateMachine() {
         _stateMachine.Configure(MembershipState.Active)
                      .Permit(MemberTriggers.Suspend, MembershipState.Inactive)
                      .Permit(MemberTriggers.Terminate, MembershipState.Terminated);
@@ -55,33 +45,27 @@ public class Member
                      .Permit(MemberTriggers.Reactivate, MembershipState.Active);
     }
 
-    public async Task TerminateAsync()
-    {
+    public async Task TerminateAsync() {
         await _stateMachine.FireAsync(MemberTriggers.Terminate);
     }
 
-    public async Task SuspendAsync()
-    {
+    public async Task SuspendAsync() {
         await _stateMachine.FireAsync(MemberTriggers.Suspend);
     }
 
-    public async Task ReactivateAsync()
-    {
+    public async Task ReactivateAsync() {
         await _stateMachine.FireAsync(MemberTriggers.Reactivate);
     }
 
-    public string ToJson()
-    {
-        return JsonConvert.SerializeObject(this);
-    }
+    public string ToJson() => JsonConvert.SerializeObject(this);
 
-    public static Member FromJson(string jsonString)
-    {
-        return JsonConvert.DeserializeObject<Member>(jsonString);
-    }
+    public static Member FromJson(string jsonString) => JsonConvert.DeserializeObject<Member>(jsonString);
 
-    public bool Equals(Member anotherMember)
-    {
-        return ((State == anotherMember.State) && (Name == anotherMember.Name));
+    public bool Equals(Member anotherMember) => State == anotherMember.State && Name == anotherMember.Name;
+
+    private enum MemberTriggers {
+        Suspend,
+        Terminate,
+        Reactivate
     }
 }

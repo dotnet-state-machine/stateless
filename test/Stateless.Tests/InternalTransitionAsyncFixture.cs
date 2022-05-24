@@ -1,19 +1,40 @@
-﻿namespace Stateless.Tests; 
+﻿namespace Stateless.Tests;
 
-public class InternalTransitionAsyncFixture
-{
+public class InternalTransitionAsyncFixture {
+    private static bool PreCondition(ref int calls) {
+        calls++;
+        return true;
+    }
+
+    private static async Task ChangePaymentState(Order order, PaymentStatus paymentStatus) {
+        await Task.FromResult(order.PaymentStatus = paymentStatus);
+    }
+
+    private enum OrderStatus {
+        OrderPlaced
+    }
+
+    private enum PaymentStatus {
+        Pending,
+        Completed
+    }
+
+    private enum OrderStateTrigger {
+        PaymentCompleted
+    }
+
+    private class Order {
+        public OrderStatus   Status        { get; internal set; }
+        public PaymentStatus PaymentStatus { get; internal set; }
+    }
+
     /// <summary>
-    /// This unit test demonstrated bug report #417
+    ///     This unit test demonstrated bug report #417
     /// </summary>
     [Fact]
-    public async Task InternalTransitionAsyncIf_GuardExecutedOnlyOnce()
-    {
+    public async Task InternalTransitionAsyncIf_GuardExecutedOnlyOnce() {
         var guardCalls = 0;
-        var order = new Order
-        {
-            Status        = OrderStatus.OrderPlaced,
-            PaymentStatus = PaymentStatus.Pending,
-        };
+        var order = new Order { Status = OrderStatus.OrderPlaced, PaymentStatus = PaymentStatus.Pending };
         var stateMachine = new StateMachine<OrderStatus, OrderStateTrigger>(order.Status);
         stateMachine.Configure(OrderStatus.OrderPlaced)
                     .InternalTransitionAsyncIf(OrderStateTrigger.PaymentCompleted,
@@ -23,25 +44,5 @@ public class InternalTransitionAsyncFixture
         await stateMachine.FireAsync(OrderStateTrigger.PaymentCompleted);
 
         Assert.Equal(1, guardCalls);
-    }
-
-    private static bool PreCondition(ref int calls)
-    {
-        calls++;
-        return true;
-    }
-
-    private static async Task ChangePaymentState(Order order, PaymentStatus paymentStatus)
-    {
-        await Task.FromResult(order.PaymentStatus = paymentStatus);
-    }
-
-    private enum OrderStatus { OrderPlaced }
-    private enum PaymentStatus { Pending, Completed }
-    private enum OrderStateTrigger { PaymentCompleted }
-    private class Order
-    {
-        public OrderStatus   Status        { get; internal set; }
-        public PaymentStatus PaymentStatus { get; internal set; }
     }
 }

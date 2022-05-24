@@ -2,16 +2,14 @@
 using System.Threading.Tasks;
 using Stateless;
 
-namespace OnOffExample; 
+namespace OnOffExample;
 
 /// <summary>
-/// This example has a simple state machine with only two states. The state
-/// information is of type string, and the type of the trigger is char. 
+///     This example has a simple state machine with only two states. The state
+///     information is of type string, and the type of the trigger is char.
 /// </summary>
-internal static class Program
-{
-    private static async Task Main()
-    {
+internal static class Program {
+    private static async Task Main() {
         const string on = "On";
         const string off = "Off";
         const char space = ' ';
@@ -25,11 +23,10 @@ internal static class Program
 
         Console.WriteLine("Press <space> to toggle the switch. Any other key will exit the program.");
 
-        while (true)
-        {
+        while (true) {
             Console.WriteLine($"Switch is in state: {onOffSwitch.State}");
             var pressed = Console.ReadKey(true).KeyChar;
-                
+
             // Check if user wants to exit
             if (pressed != space) break;
 

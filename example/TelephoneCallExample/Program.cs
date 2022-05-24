@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace TelephoneCallExample; 
+namespace TelephoneCallExample;
 
-internal static class Program
-{
-    private static async Task Main()
-    {
-        var phoneCall = new PhoneCall("Lokesh");            
+internal static class Program {
+    private static async Task Main() {
+        var phoneCall = new PhoneCall("Lokesh");
 
         phoneCall.Print();
         await phoneCall.DialedAsync("Prameela");
@@ -32,5 +30,5 @@ internal static class Program
 
         Console.WriteLine("Press any key...");
         Console.ReadKey(true);
-    }        
+    }
 }

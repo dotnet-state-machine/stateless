@@ -1,11 +1,9 @@
 ﻿using System.Reflection;
 
-namespace Stateless; 
+namespace Stateless;
 
-internal static class ReflectionExtensions
-{
-    public static Assembly GetAssembly(this Type type)
-    {
+internal static class ReflectionExtensions {
+    public static Assembly GetAssembly(this Type type) {
 #if NETSTANDARD1_0
         return type.GetTypeInfo().Assembly;
 #else
@@ -25,8 +23,7 @@ internal static class ReflectionExtensions
     /// </summary>
     /// <param name="del">Delegate whose method info is desired</param>
     /// <returns>Null if <paramref name="del" /> is null, otherwise <see cref="MemberInfo.Name" />.</returns>
-    private static MethodInfo TryGetMethodInfo(this Delegate del)
-    {
+    private static MethodInfo TryGetMethodInfo(this Delegate del) {
 #if NETSTANDARD1_0
         return del.GetMethodInfo();
 #else
@@ -39,8 +36,5 @@ internal static class ReflectionExtensions
     /// </summary>
     /// <param name="del">Delegate whose method name is desired</param>
     /// <returns>Null if <paramref name="del" /> is null, otherwise <see cref="MemberInfo.Name" />.</returns>
-    public static string TryGetMethodName(this Delegate del)
-    {
-        return TryGetMethodInfo(del).Name;
-    }
+    public static string TryGetMethodName(this Delegate del) => TryGetMethodInfo(del).Name;
 }
