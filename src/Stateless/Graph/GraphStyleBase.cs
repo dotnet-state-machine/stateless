@@ -51,44 +51,42 @@ public abstract class GraphStyleBase {
     /// </summary>
     /// <param name="transitions">List of all transitions in the state graph</param>
     /// <returns>Description of all transitions, in the desired format</returns>
-    public virtual List<string> FormatAllTransitions(List<Transition>? transitions) {
-        var lines = new List<string>();
-        if (transitions == null) return lines;
+    public virtual IEnumerable<string> FormatAllTransitions(List<Transition>? transitions) {
+        if (transitions == null) yield break;
 
         foreach (var transit in transitions) {
-            string line;
-            if (transit is StayTransition stay) {
-                if (!stay.ExecuteEntryExitActions)
-                    line = FormatOneTransition(stay.SourceState.NodeName, stay.Trigger.UnderlyingTrigger?.ToString(),
-                                               null, stay.SourceState.NodeName, stay.Guards.Select(x => x.Description));
-                else if (stay.SourceState.EntryActions.Count == 0)
-                    line = FormatOneTransition(stay.SourceState.NodeName, stay.Trigger.UnderlyingTrigger?.ToString(),
-                                               null, stay.SourceState.NodeName, stay.Guards.Select(x => x.Description));
-                else
-                    // There are entry functions into the state, so call out that this transition
-                    // does invoke them (since normally a transition back into the same state doesn't)
-                    line = FormatOneTransition(stay.SourceState.NodeName, stay.Trigger.UnderlyingTrigger?.ToString(),
-                                               stay.SourceState.EntryActions, stay.SourceState.NodeName,
-                                               stay.Guards.Select(x => x.Description));
-            } else {
-                if (transit is FixedTransition fix) {
-                    line = FormatOneTransition(fix.SourceState.NodeName, fix.Trigger.UnderlyingTrigger?.ToString(),
-                                               fix.DestinationEntryActions.Select(x => x.Method.Description),
-                                               fix.DestinationState.NodeName, fix.Guards.Select(x => x.Description));
-                } else {
-                    if (transit is DynamicTransition dyn)
-                        line = FormatOneTransition(dyn.SourceState.NodeName, dyn.Trigger.UnderlyingTrigger?.ToString(),
-                                                   dyn.DestinationEntryActions.Select(x => x.Method.Description),
-                                                   dyn.DestinationState.NodeName, new List<string> { dyn.Criterion });
-                    else
-                        throw new ArgumentException("Unexpected transition type");
-                }
-            }
-
-            lines.Add(line);
+            yield return transit switch {
+                StayTransition { ExecuteEntryExitActions: false } stay => 
+                    FormatOneTransition(stay.SourceState.NodeName,
+                                        stay.Trigger.UnderlyingTrigger?.ToString(), null,
+                                        stay.SourceState.NodeName,
+                                        stay.Guards.Select(x => x.Description)),
+                StayTransition stay when stay.SourceState.EntryActions.Count == 0 => 
+                    FormatOneTransition(stay.SourceState.NodeName,
+                                        stay.Trigger.UnderlyingTrigger?.ToString(),
+                                        null,
+                                        stay.SourceState.NodeName,
+                                        stay.Guards.Select(x => x.Description)),
+                // There are entry functions into the state, so call out that this transition
+                // does invoke them (since normally a transition back into the same state doesn't)
+                StayTransition stay => FormatOneTransition(stay.SourceState.NodeName,
+                                                           stay.Trigger.UnderlyingTrigger?.ToString(),
+                                                           stay.SourceState.EntryActions, stay.SourceState.NodeName,
+                                                           stay.Guards.Select(x => x.Description)),
+                FixedTransition fix => FormatOneTransition(fix.SourceState.NodeName,
+                                                           fix.Trigger.UnderlyingTrigger?.ToString(),
+                                                           fix.DestinationEntryActions
+                                                              .Select(x => x.Method.Description),
+                                                           fix.DestinationState.NodeName,
+                                                           fix.Guards.Select(x => x.Description)),
+                DynamicTransition dyn => FormatOneTransition(dyn.SourceState.NodeName,
+                                                             dyn.Trigger.UnderlyingTrigger?.ToString(),
+                                                             dyn.DestinationEntryActions.Select(x => x.Method
+                                                                .Description), dyn.DestinationState.NodeName,
+                                                             new List<string> { dyn.Criterion }),
+                _ => throw new ArgumentException("Unexpected transition type")
+            };
         }
-
-        return lines;
     }
 
     /// <summary>

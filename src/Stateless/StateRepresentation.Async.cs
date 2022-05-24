@@ -73,16 +73,15 @@ public partial class StateMachine<TState, TTrigger> {
                 await ExecuteExitActionsAsync(transition).ConfigureAwait(false);
 
                 // Must check if there is a superstate, and if we are leaving that superstate
-                if (Superstate is { }) {
-                    // Check if destination is within the state list
-                    if (IsIncludedIn(transition.Destination)) {
-                        // Destination state is within the list, exit first superstate only if it is NOT the first
-                        if (!Superstate.UnderlyingState.Equals(transition.Destination))
-                            return await Superstate.ExitAsync(transition).ConfigureAwait(false);
-                    } else {
-                        // Exit the superstate as well
+                if (Superstate is null) return transition;
+                // Check if destination is within the state list
+                if (IsIncludedIn(transition.Destination)) {
+                    // Destination state is within the list, exit first superstate only if it is NOT the first
+                    if (!Superstate.UnderlyingState.Equals(transition.Destination))
                         return await Superstate.ExitAsync(transition).ConfigureAwait(false);
-                    }
+                } else {
+                    // Exit the superstate as well
+                    return await Superstate.ExitAsync(transition).ConfigureAwait(false);
                 }
             }
 

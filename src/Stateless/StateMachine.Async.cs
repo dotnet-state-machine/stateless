@@ -277,25 +277,25 @@ public partial class StateMachine<TState, TTrigger> {
         }
 
         // Recursively enter substates that have an initial transition
-        if (representation.HasInitialTransition) {
-            // Verify that the target state is a substate
-            // Check if state has substate(s), and if an initial transition(s) has been set up.
-            if (!representation.GetSubstates()
-                               .Any(s => s.UnderlyingState.Equals(representation.InitialTransitionTarget)))
-                throw new
-                    InvalidOperationException($"The target ({representation.InitialTransitionTarget}) for the initial transition is not a substate.");
+        if (!representation.HasInitialTransition) return representation;
 
-            Debug.Assert(representation.InitialTransitionTarget != null);
-            var initialTransition = new Transition(transition.Source, representation.InitialTransitionTarget!,
-                                                          transition.Trigger, args, true);
-            representation = GetRepresentation(representation.InitialTransitionTarget!);
+        // Verify that the target state is a substate
+        // Check if state has substate(s), and if an initial transition(s) has been set up.
+        if (!representation.GetSubstates()
+                           .Any(s => s.UnderlyingState.Equals(representation.InitialTransitionTarget)))
+            throw new
+                InvalidOperationException($"The target ({representation.InitialTransitionTarget}) for the initial transition is not a substate.");
 
-            // Alert all listeners of initial state transition
-            await _onTransitionedEvent
-                 .InvokeAsync(new Transition(transition.Destination, initialTransition.Destination, transition.Trigger,
-                                             transition.Parameters)).ConfigureAwait(false);
-            representation = await EnterStateAsync(representation, initialTransition, args).ConfigureAwait(false);
-        }
+        Debug.Assert(representation.InitialTransitionTarget != null);
+        var initialTransition = new Transition(transition.Source, representation.InitialTransitionTarget!,
+                                               transition.Trigger, args, true);
+        representation = GetRepresentation(representation.InitialTransitionTarget!);
+
+        // Alert all listeners of initial state transition
+        await _onTransitionedEvent
+             .InvokeAsync(new Transition(transition.Destination, initialTransition.Destination, transition.Trigger,
+                                         transition.Parameters)).ConfigureAwait(false);
+        representation = await EnterStateAsync(representation, initialTransition, args).ConfigureAwait(false);
 
         return representation;
     }

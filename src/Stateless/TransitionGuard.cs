@@ -6,11 +6,6 @@ internal class TransitionGuard {
     public static readonly TransitionGuard       Empty = new(ArrayHelper.Empty<Tuple<Func<object?[], bool>, string>>());
     internal               IList<GuardCondition> Conditions { get; }
 
-    /// <summary>
-    ///     Guards is the list of the guard functions for all guard conditions for this transition
-    /// </summary>
-    internal ICollection<Func<object?[], bool>> Guards => Conditions.Select(g => g.Guard).ToList();
-
     internal TransitionGuard(IEnumerable<Tuple<Func<bool>, string>> guards) {
         Conditions = guards
                     .Select(g => new GuardCondition(g.Item1, InvocationInfo.Create(g.Item1, g.Item2)))
@@ -85,25 +80,19 @@ internal class TransitionGuard {
         };
     }
 
-    public static Tuple<Func<object?[], bool>, string>[] ToPackedGuards<TArg0>(
+    public static IEnumerable<Tuple<Func<object?[], bool>, string>> ToPackedGuards<TArg0>(
         IEnumerable<Tuple<Func<TArg0?, bool>, string>> guards) {
-        return guards.Select(guard => new Tuple<Func<object?[], bool>, string>(
-                                                                               ToPackedGuard(guard.Item1), guard.Item2))
-                     .ToArray();
+        return guards.Select(guard => new Tuple<Func<object?[], bool>, string>(ToPackedGuard(guard.Item1), guard.Item2));
     }
 
-    public static Tuple<Func<object?[], bool>, string>[] ToPackedGuards<TArg0, TArg1>(
+    public static IEnumerable<Tuple<Func<object?[], bool>, string>> ToPackedGuards<TArg0, TArg1>(
         IEnumerable<Tuple<Func<TArg0?, TArg1?, bool>, string>> guards) {
-        return guards.Select(guard => new Tuple<Func<object?[], bool>, string>(
-                                                                               ToPackedGuard(guard.Item1), guard.Item2))
-                     .ToArray();
+        return guards.Select(guard => new Tuple<Func<object?[], bool>, string>(ToPackedGuard(guard.Item1), guard.Item2));
     }
 
-    public static Tuple<Func<object?[], bool>, string>[] ToPackedGuards<TArg0, TArg1, TArg2>(
+    public static IEnumerable<Tuple<Func<object?[], bool>, string>> ToPackedGuards<TArg0, TArg1, TArg2>(
         IEnumerable<Tuple<Func<TArg0?, TArg1?, TArg2?, bool>, string>> guards) {
-        return guards.Select(guard => new Tuple<Func<object?[], bool>, string>(
-                                                                               ToPackedGuard(guard.Item1), guard.Item2))
-                     .ToArray();
+        return guards.Select(guard => new Tuple<Func<object?[], bool>, string>(ToPackedGuard(guard.Item1), guard.Item2));
     }
 
     #endregion

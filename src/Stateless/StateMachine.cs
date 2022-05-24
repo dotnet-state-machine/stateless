@@ -135,11 +135,9 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
     }
 
     private StateRepresentation GetRepresentation(TState state) {
-        if (!_stateConfiguration.TryGetValue(state, out var result)) {
-            result = new StateRepresentation(state);
-            _stateConfiguration.Add(state, result);
-        }
-
+        if (_stateConfiguration.TryGetValue(state, out var result)) return result;
+        result = new StateRepresentation(state);
+        _stateConfiguration.Add(state, result);
         return result;
     }
 

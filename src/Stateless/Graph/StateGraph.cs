@@ -1,4 +1,5 @@
-﻿using Stateless.Reflection;
+﻿using System.Text;
+using Stateless.Reflection;
 
 namespace Stateless.Graph;
 
@@ -54,37 +55,34 @@ public class StateGraph {
     /// <param name="style"></param>
     /// <returns></returns>
     public string ToGraph(GraphStyleBase style) {
-        var dirGraphText = style.GetPrefix().Replace("\n", Environment.NewLine);
+        var dirGraphText = new StringBuilder(style.GetPrefix().Replace("\n", Environment.NewLine));
 
         // Start with the clusters
         foreach (var state in States.Values.Where(x => x is SuperState))
-            dirGraphText += style.FormatOneCluster((SuperState) state).Replace("\n", Environment.NewLine);
+            dirGraphText.Append(style.FormatOneCluster((SuperState) state).Replace("\n", Environment.NewLine));
 
         // Next process all non-cluster states
-        foreach (var state in States.Values) {
-            if (state is SuperState || state is Decision || state.SuperState is { })
-                continue;
-            dirGraphText += style.FormatOneState(state).Replace("\n", Environment.NewLine);
+        foreach (var state in States.Values.Where(state => state is not (SuperState or Decision) && state.SuperState is null)) {
+            dirGraphText.Append(style.FormatOneState(state).Replace("\n", Environment.NewLine));
         }
 
         // Finally, add decision nodes
         foreach (var dec in Decisions)
-            dirGraphText += style.FormatOneDecisionNode(dec.NodeName, dec.Method.Description)
-                                 .Replace("\n", Environment.NewLine);
+            dirGraphText.Append(style.FormatOneDecisionNode(dec.NodeName, dec.Method.Description)
+                                 .Replace("\n", Environment.NewLine));
 
         // now build behaviours
-        var transits = style.FormatAllTransitions(Transitions);
-        foreach (var transit in transits)
-            dirGraphText += Environment.NewLine + transit;
+        foreach (var transit in style.FormatAllTransitions(Transitions))
+            dirGraphText.Append(Environment.NewLine + transit);
 
         // Add initial transition if present
         var initialStateName = _initialState.UnderlyingState.ToString();
-        dirGraphText += $"{Environment.NewLine} init [label=\"\", shape=point];";
-        dirGraphText += $"{Environment.NewLine} init -> \"{initialStateName}\"[style = \"solid\"]";
+        dirGraphText.Append($"{Environment.NewLine} init [label=\"\", shape=point];");
+        dirGraphText.Append($"{Environment.NewLine} init -> \"{initialStateName}\"[style = \"solid\"]");
 
-        dirGraphText += $"{Environment.NewLine}}}";
+        dirGraphText.Append($"{Environment.NewLine}}}");
 
-        return dirGraphText;
+        return dirGraphText.ToString();
     }
 
     /// <summary>
@@ -100,10 +98,9 @@ public class StateGraph {
                 if (entryAction.FromTrigger is { })
                     // This 'state' has an 'entryAction' that only fires when it gets the trigger 'entryAction.FromTrigger'
                     // Does it have any incoming transitions that specify that trigger?
-                    foreach (var transit in state.Arriving)
-                        if (transit.ExecuteEntryExitActions
-                         && transit.Trigger.UnderlyingTrigger?.ToString() == entryAction.FromTrigger)
-                            transit.DestinationEntryActions.Add(entryAction);
+                    foreach (var transit in state.Arriving.Where(transit => transit.ExecuteEntryExitActions
+                                                                         && transit.Trigger.UnderlyingTrigger?.ToString() == entryAction.FromTrigger))
+                        transit.DestinationEntryActions.Add(entryAction);
         }
     }
 
@@ -139,17 +136,16 @@ public class StateGraph {
                 Transitions.Add(trans);
                 fromState.Leaving.Add(trans);
                 decide.Arriving.Add(trans);
-                if (dyno.PossibleDestinationStates is { })
-                    foreach (var dynamicStateInfo in dyno.PossibleDestinationStates) {
-                        States.TryGetValue(dynamicStateInfo.DestinationState, out var toState);
-                        if (toState is { }) {
-                            var dTrans =
-                                new DynamicTransition(decide, toState, dyno.Trigger, dynamicStateInfo.Criterion);
-                            Transitions.Add(dTrans);
-                            decide.Leaving.Add(dTrans);
-                            toState.Arriving.Add(dTrans);
-                        }
-                    }
+                if (dyno.PossibleDestinationStates is null) continue;
+                foreach (var dynamicStateInfo in dyno.PossibleDestinationStates) {
+                    States.TryGetValue(dynamicStateInfo.DestinationState, out var toState);
+                    if (toState is null) continue;
+                    var dTrans =
+                        new DynamicTransition(decide, toState, dyno.Trigger, dynamicStateInfo.Criterion);
+                    Transitions.Add(dTrans);
+                    decide.Leaving.Add(dTrans);
+                    toState.Arriving.Add(dTrans);
+                }
             }
 
             foreach (var ignored in stateInfo.IgnoredTriggers) {

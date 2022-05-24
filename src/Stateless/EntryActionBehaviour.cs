@@ -34,9 +34,7 @@ public partial class StateMachine<TState, TTrigger> {
                 Trigger = trigger;
 
             public override Task ExecuteAsync(Transition transition, object?[] args) {
-                if (transition.Trigger.Equals(Trigger))
-                    return base.ExecuteAsync(transition, args);
-                return TaskResult.Done;
+                return transition.Trigger.Equals(Trigger) ? base.ExecuteAsync(transition, args) : TaskResult.Done;
             }
         }
     }

@@ -31,13 +31,13 @@ public class UmlDotGraphStyle : GraphStyleBase {
             label.Append(string.Concat(stateInfo.ExitActions.Select(act => $"\\nexit / {act}")));
         }
 
-        var stateRepresentationString = $"\nsubgraph \"cluster{stateInfo.NodeName}\"\n\t{{\n\tlabel = \"{label}\"\n";
+        var stateRepresentationString = new StringBuilder($"\nsubgraph \"cluster{stateInfo.NodeName}\"\n\t{{\n\tlabel = \"{label}\"\n");
 
-        foreach (var subState in stateInfo.SubStates) stateRepresentationString += FormatOneState(subState);
+        foreach (var subState in stateInfo.SubStates) stateRepresentationString.Append(FormatOneState(subState));
 
-        stateRepresentationString += "}\n";
+        stateRepresentationString.Append("}\n");
 
-        return stateRepresentationString;
+        return stateRepresentationString.ToString();
     }
 
     /// <summary>

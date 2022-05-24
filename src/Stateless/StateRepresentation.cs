@@ -26,15 +26,14 @@ public partial class StateMachine<TState, TTrigger> {
         public StateRepresentation? Superstate { get; set; }
 
         public TState UnderlyingState => _state;
-
-        public IEnumerable<TTrigger> PermittedTriggers    => GetPermittedTriggers();
-        public bool                  HasInitialTransition { get; private set; }
+        
+        public bool HasInitialTransition { get; private set; }
 
         public StateRepresentation(TState state) => _state = state;
 
         internal ICollection<StateRepresentation> GetSubstates() => _substates;
 
-        public bool CanHandle(TTrigger trigger, params object[] args) => TryFindHandler(trigger, args, out var _);
+        public bool CanHandle(TTrigger trigger, params object[] args) => TryFindHandler(trigger, args, out _);
 
         public bool CanHandle(TTrigger                                     trigger, object[] args,
                               [NotNullWhen(true)] out ICollection<string>? unmetGuards) {
@@ -97,15 +96,14 @@ public partial class StateMachine<TState, TTrigger> {
             var triggerBehaviourResults = results as TriggerBehaviourResult[] ?? results.ToArray();
             var result = triggerBehaviourResults.FirstOrDefault(r => r.UnmetGuardConditions.Any());
 
-            if (result is { }) {
-                var unmetConditions = triggerBehaviourResults.Where(r => r.UnmetGuardConditions.Any())
-                                                             .SelectMany(r => r.UnmetGuardConditions);
+            if (result is null) return result;
+            var unmetConditions = triggerBehaviourResults.Where(r => r.UnmetGuardConditions.Any())
+                                                         .SelectMany(r => r.UnmetGuardConditions);
 
-                // Add other unmet conditions to first result
-                foreach (var condition in unmetConditions)
-                    if (!result.UnmetGuardConditions.Contains(condition))
-                        result.UnmetGuardConditions.Add(condition);
-            }
+            // Add other unmet conditions to first result
+            foreach (var condition in unmetConditions)
+                if (!result.UnmetGuardConditions.Contains(condition))
+                    result.UnmetGuardConditions.Add(condition);
 
             return result;
         }

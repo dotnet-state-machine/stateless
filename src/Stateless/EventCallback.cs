@@ -21,8 +21,6 @@ internal class EventCallback {
         }
     }
 
-    public Task InvokeAsync(params object[] args) => DynamicInvokeAsync(args);
-
     protected Task DynamicInvokeAsync(params object?[] args) {
         switch (Delegate) {
             case null:

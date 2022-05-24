@@ -14,11 +14,6 @@ public partial class StateMachine<TState, TTrigger> {
         internal TransitionGuard Guard { get; }
 
         /// <summary>
-        ///     Guards is the list of guard functions for the transition guard for this trigger
-        /// </summary>
-        internal ICollection<Func<object?[], bool>> Guards => Guard.Guards;
-
-        /// <summary>
         ///     TriggerBehaviour constructor
         /// </summary>
         /// <param name="trigger"></param>

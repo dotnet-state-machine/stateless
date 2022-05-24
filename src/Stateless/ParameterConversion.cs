@@ -3,7 +3,7 @@
 namespace Stateless;
 
 internal static class ParameterConversion {
-    public static object? Unpack(object?[] args, Type argType, int index) {
+    private static object? Unpack(object?[] args, Type argType, int index) {
         if (args == null) throw new ArgumentNullException(nameof(args));
 
         if (args.Length == 0)
@@ -28,7 +28,7 @@ internal static class ParameterConversion {
         return arg;
     }
 
-    public static bool TryUnpack(object?[]? args, Type argType, int index, [NotNullWhen(true)] out object? result) {
+    private static bool TryUnpack(object?[]? args, Type argType, int index, [NotNullWhen(true)] out object? result) {
         if (args is null || args.Length <= index) {
             result = null;
             return false;
