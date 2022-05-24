@@ -80,6 +80,6 @@ public class DynamicTransitionInfo : TransitionInfo {
     /// <returns></returns>
     public static DynamicTransitionInfo Create<TTrigger>(TTrigger       trigger,  IEnumerable<InvocationInfo>? guards,
                                                          InvocationInfo selector, DynamicStateInfos? possibleStates) =>
-        new DynamicTransitionInfo(guards ?? new List<InvocationInfo>(), new TriggerInfo(trigger), selector,
-                                  possibleStates);
+        new(guards ?? new List<InvocationInfo>(), new TriggerInfo(trigger), selector,
+            possibleStates);
 }

@@ -68,5 +68,5 @@ public class InvocationInfo {
     }
 
     internal static InvocationInfo Create(Delegate? method, string? description, Timing timing = Timing.Synchronous) =>
-        new InvocationInfo(method?.TryGetMethodName(), description, timing);
+        new(method?.TryGetMethodName(), description, timing);
 }

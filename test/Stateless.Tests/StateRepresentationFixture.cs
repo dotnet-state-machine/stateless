@@ -11,8 +11,7 @@ public class StateRepresentationFixture {
         sub.Superstate = super;
     }
 
-    private static StateMachine<State, Trigger>.StateRepresentation CreateRepresentation(State state) =>
-        new StateMachine<State, Trigger>.StateRepresentation(state);
+    private static StateMachine<State, Trigger>.StateRepresentation CreateRepresentation(State state) => new(state);
 
     // Issue #422 - Add all guard descriptions to result if multiple guards fail for same trigger
     [Fact]

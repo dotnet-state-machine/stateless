@@ -1,4 +1,4 @@
-namespace Stateless.Tests; 
+namespace Stateless.Tests;
 
 public class AsyncActionsFixture {
     [Fact]
