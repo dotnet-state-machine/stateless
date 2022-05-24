@@ -33,8 +33,8 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
 
     private readonly Action<TState> _stateMutator;
 
-    private readonly IDictionary<TTrigger, TriggerWithParameters> _triggerConfiguration =
-        new Dictionary<TTrigger, TriggerWithParameters>();
+    private readonly IDictionary<TTrigger, Stateless.TriggerWithParameters<TTrigger>> _triggerConfiguration =
+        new Dictionary<TTrigger, Stateless.TriggerWithParameters<TTrigger>>();
 
     private bool                   _firing;
     private UnhandledTriggerAction _unhandledTriggerAction;
@@ -74,7 +74,7 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
     /// <param name="initialState">The initial state.</param>
     /// <param name="firingMode">Optional specification of firing mode.</param>
     public StateMachine(TState initialState, FiringMode firingMode = FiringMode.Queued) : this() {
-        var reference = new StateReference(initialState);
+        var reference  = new StateReference<TState>(initialState);
         _stateAccessor = () => reference.State;
         _stateMutator  = s => reference.State = s;
 
@@ -160,8 +160,8 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
     ///     An object that can be passed to the Fire() method in order to
     ///     fire the parameterized trigger.
     /// </returns>
-    public TriggerWithParameters SetTriggerParameters(TTrigger trigger, params Type[] argumentTypes) {
-        var configuration = new TriggerWithParameters(trigger, argumentTypes);
+    public Stateless.TriggerWithParameters<TTrigger> SetTriggerParameters(TTrigger trigger, params Type[] argumentTypes) {
+        var configuration = new Stateless.TriggerWithParameters<TTrigger>(trigger, argumentTypes);
         SaveTriggerConfiguration(configuration);
         return configuration;
     }
@@ -212,7 +212,7 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
     /// <param name="args">A variable-length parameters list containing arguments. </param>
     /// <returns>True if the trigger can be fired, false otherwise.</returns>
     /// <exception cref="ArgumentNullException"></exception>
-    public bool CanFire(TriggerWithParameters trigger, params object[] args) {
+    public bool CanFire(Stateless.TriggerWithParameters<TTrigger> trigger, params object[] args) {
         if (trigger == null) throw new ArgumentNullException(nameof(trigger));
         return CurrentRepresentation.CanHandle(trigger.Trigger, args);
     }
@@ -250,8 +250,8 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
     ///     An object that can be passed to the Fire() method in order to
     ///     fire the parameterized trigger.
     /// </returns>
-    public TriggerWithParameters<TArg0> SetTriggerParameters<TArg0>(TTrigger trigger) {
-        var configuration = new TriggerWithParameters<TArg0>(trigger);
+    public Stateless.TriggerWithParameters<TTrigger, TArg0> SetTriggerParameters<TArg0>(TTrigger trigger) {
+        var configuration = new Stateless.TriggerWithParameters<TTrigger, TArg0>(trigger);
         SaveTriggerConfiguration(configuration);
         return configuration;
     }
@@ -266,8 +266,8 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
     ///     An object that can be passed to the Fire() method in order to
     ///     fire the parameterized trigger.
     /// </returns>
-    public TriggerWithParameters<TArg0, TArg1> SetTriggerParameters<TArg0, TArg1>(TTrigger trigger) {
-        var configuration = new TriggerWithParameters<TArg0, TArg1>(trigger);
+    public TriggerWithParameters<TTrigger, TArg0, TArg1> SetTriggerParameters<TArg0, TArg1>(TTrigger trigger) {
+        var configuration = new TriggerWithParameters<TTrigger, TArg0, TArg1>(trigger);
         SaveTriggerConfiguration(configuration);
         return configuration;
     }
@@ -283,13 +283,13 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
     ///     An object that can be passed to the Fire() method in order to
     ///     fire the parameterized trigger.
     /// </returns>
-    public TriggerWithParameters<TArg0, TArg1, TArg2> SetTriggerParameters<TArg0, TArg1, TArg2>(TTrigger trigger) {
-        var configuration = new TriggerWithParameters<TArg0, TArg1, TArg2>(trigger);
+    public TriggerWithParameters<TTrigger, TArg0, TArg1, TArg2> SetTriggerParameters<TArg0, TArg1, TArg2>(TTrigger trigger) {
+        var configuration = new TriggerWithParameters<TTrigger, TArg0, TArg1, TArg2>(trigger);
         SaveTriggerConfiguration(configuration);
         return configuration;
     }
 
-    private void SaveTriggerConfiguration(TriggerWithParameters trigger) {
+    private void SaveTriggerConfiguration(Stateless.TriggerWithParameters<TTrigger> trigger) {
         if (_triggerConfiguration.ContainsKey(trigger.Trigger))
             throw new InvalidOperationException(
                                                 string.Format(StateMachineResources.CannotReconfigureParameters,

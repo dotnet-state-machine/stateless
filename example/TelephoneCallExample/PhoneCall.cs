@@ -10,8 +10,8 @@ public class PhoneCall {
 
     private readonly StateMachine<State, Trigger> _machine;
 
-    private readonly StateMachine<State, Trigger>.TriggerWithParameters<string> _setCalleeTrigger;
-    private readonly StateMachine<State, Trigger>.TriggerWithParameters<int>    _setVolumeTrigger;
+    private readonly TriggerWithParameters<Trigger, string> _setCalleeTrigger;
+    private readonly TriggerWithParameters<Trigger, int>    _setVolumeTrigger;
 
     private string _callee;
 

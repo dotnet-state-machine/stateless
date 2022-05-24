@@ -7,7 +7,7 @@ namespace BugTrackerExample;
 
 public class Bug {
     // The TriggerWithParameters object is used when a trigger requires a payload.
-    private readonly StateMachine<State, Trigger>.TriggerWithParameters<string> _assignTrigger;
+    private readonly TriggerWithParameters<Trigger, string> _assignTrigger;
 
     private readonly StateMachine<State, Trigger> _machine;
 

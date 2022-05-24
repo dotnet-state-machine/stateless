@@ -24,7 +24,7 @@ public class ActionInfo {
 
     internal static ActionInfo Create<TState, TTrigger>(StateMachine<TState, TTrigger>.EntryActionBehavior entryAction)
         where TState : notnull where TTrigger : notnull {
-        if (entryAction is StateMachine<TState, TTrigger>.EntryActionBehavior.From<TTrigger> syncFrom)
+        if (entryAction is StateMachine<TState, TTrigger>.EntryActionBehavior.From syncFrom)
             return new ActionInfo(entryAction.Description, syncFrom.Trigger.ToString());
         return new ActionInfo(entryAction.Description, null);
     }

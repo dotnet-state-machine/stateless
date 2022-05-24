@@ -22,14 +22,14 @@ public partial class StateMachine<TState, TTrigger> {
         public virtual Task ExecuteAsync(Transition transition, object?[] args) =>
             _callback.InvokeAsync(transition, args);
 
-        public sealed class From<TTriggerType> : EntryActionBehavior {
-            internal TTriggerType Trigger { get; }
+        public sealed class From : EntryActionBehavior {
+            internal TTrigger Trigger { get; }
 
-            public From(TTriggerType trigger, Action<Transition, object?[]> action, InvocationInfo description)
+            public From(TTrigger trigger, Action<Transition, object?[]> action, InvocationInfo description)
                 : base(action, description) =>
                 Trigger = trigger;
 
-            public From(TTriggerType trigger, Func<Transition, object?[], Task> action, InvocationInfo description)
+            public From(TTrigger trigger, Func<Transition, object?[], Task> action, InvocationInfo description)
                 : base(action, description) =>
                 Trigger = trigger;
 

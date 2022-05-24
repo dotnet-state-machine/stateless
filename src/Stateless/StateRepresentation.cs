@@ -120,7 +120,7 @@ public partial class StateMachine<TState, TTrigger> {
 
         public void AddEntryAction(TTrigger       trigger, Action<Transition, object?[]> action,
                                    InvocationInfo entryActionDescription) {
-            EntryActions.Add(new EntryActionBehavior.From<TTrigger>(trigger, action, entryActionDescription));
+            EntryActions.Add(new EntryActionBehavior.From(trigger, action, entryActionDescription));
         }
 
         public void AddEntryAction(Action<Transition, object?[]> action, InvocationInfo entryActionDescription) {

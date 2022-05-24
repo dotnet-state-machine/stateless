@@ -1,6 +1,6 @@
 using Stateless.Reflection;
 
-namespace Stateless; 
+namespace Stateless;
 
 public partial class StateMachine<TState, TTrigger> {
     internal partial class StateRepresentation {
@@ -16,10 +16,7 @@ public partial class StateMachine<TState, TTrigger> {
                                    InvocationInfo entryActionDescription) {
             if (action == null) throw new ArgumentNullException(nameof(action));
 
-            EntryActions.Add(new EntryActionBehavior.From<TTrigger>(
-                                                                    trigger,
-                                                                    action,
-                                                                    entryActionDescription));
+            EntryActions.Add(new EntryActionBehavior.From(trigger, action, entryActionDescription));
         }
 
         public void AddEntryAction(Func<Transition, object?[], Task> action, InvocationInfo entryActionDescription) {

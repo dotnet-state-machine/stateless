@@ -26,15 +26,15 @@ public class TriggerWithParametersFixture {
 
     [Fact]
     public void DescribesUnderlyingTrigger() {
-        var twp = new StateMachine<State, Trigger>.TriggerWithParameters<string>(Trigger.X);
+        var twp = new TriggerWithParameters<Trigger, string>(Trigger.X);
         Assert.Equal(Trigger.X, twp.Trigger);
     }
 
     [Fact]
     public void GetPermittedTriggersShouldAcceptStronglyTypedTriggersWithConditionalGuardsConfigurations() {
         var stateMachine = new StateMachine<State, Trigger>(State.A);
-        var firstTrigger = new StateMachine<State, Trigger>.TriggerWithParameters<FirstFakeTrigger>(Trigger.X);
-        var secondTrigger = new StateMachine<State, Trigger>.TriggerWithParameters<SecondFakeTrigger>(Trigger.Y);
+        var firstTrigger = new TriggerWithParameters<Trigger, FirstFakeTrigger>(Trigger.X);
+        var secondTrigger = new TriggerWithParameters<Trigger, SecondFakeTrigger>(Trigger.Y);
 
         stateMachine.Configure(State.A)
                     .PermitIf(firstTrigger, State.B, trigger => trigger.IsAllowed)
@@ -56,31 +56,31 @@ public class TriggerWithParametersFixture {
 
     [Fact]
     public void IncompatibleParameterListIsNotValid() {
-        var twp = new StateMachine<State, Trigger>.TriggerWithParameters(Trigger.X, typeof(int), typeof(string));
+        var twp = new TriggerWithParameters<Trigger>(Trigger.X, typeof(int), typeof(string));
         Assert.Throws<ArgumentException>(() => twp.ValidateParameters(new object[] { 123 }));
     }
 
     [Fact]
     public void IncompatibleParametersAreNotValid() {
-        var twp = new StateMachine<State, Trigger>.TriggerWithParameters<string>(Trigger.X);
+        var twp = new TriggerWithParameters<Trigger, string>(Trigger.X);
         Assert.Throws<ArgumentException>(() => twp.ValidateParameters(new object[] { 123 }));
     }
 
     [Fact]
     public void ParameterListOfCorrectTypeAreAccepted() {
-        var twp = new StateMachine<State, Trigger>.TriggerWithParameters(Trigger.X, typeof(int), typeof(string));
+        var twp = new TriggerWithParameters<Trigger>(Trigger.X, typeof(int), typeof(string));
         twp.ValidateParameters(new object[] { 123, "arg" });
     }
 
     [Fact]
     public void ParametersArePolymorphic() {
-        var twp = new StateMachine<State, Trigger>.TriggerWithParameters<object>(Trigger.X);
+        var twp = new TriggerWithParameters<Trigger, object>(Trigger.X);
         twp.ValidateParameters(new[] { "arg" });
     }
 
     [Fact]
     public void ParametersOfCorrectTypeAreAccepted() {
-        var twp = new StateMachine<State, Trigger>.TriggerWithParameters<string>(Trigger.X);
+        var twp = new TriggerWithParameters<Trigger, string>(Trigger.X);
         twp.ValidateParameters(new[] { "arg" });
     }
 
@@ -98,13 +98,13 @@ public class TriggerWithParametersFixture {
 
     [Fact]
     public void TooFewParametersDetected() {
-        var twp = new StateMachine<State, Trigger>.TriggerWithParameters<string, string>(Trigger.X);
+        var twp = new TriggerWithParameters<Trigger, string, string>(Trigger.X);
         Assert.Throws<ArgumentException>(() => twp.ValidateParameters(new[] { "a" }));
     }
 
     [Fact]
     public void TooManyParametersDetected() {
-        var twp = new StateMachine<State, Trigger>.TriggerWithParameters<string, string>(Trigger.X);
+        var twp = new TriggerWithParameters<Trigger, string, string>(Trigger.X);
         Assert.Throws<ArgumentException>(() => twp.ValidateParameters(new[] { "a", "b", "c" }));
     }
 }

@@ -48,7 +48,7 @@ public partial class StateMachine<TState, TTrigger> {
     ///     The current state does
     ///     not allow the trigger to be fired.
     /// </exception>
-    public Task FireAsync(TriggerWithParameters trigger, params object?[] args) {
+    public Task FireAsync(Stateless.TriggerWithParameters<TTrigger> trigger, params object?[] args) {
         if (trigger == null) throw new ArgumentNullException(nameof(trigger));
 
         return InternalFireAsync(trigger.Trigger, args);
@@ -67,7 +67,7 @@ public partial class StateMachine<TState, TTrigger> {
     ///     The current state does
     ///     not allow the trigger to be fired.
     /// </exception>
-    public Task FireAsync<TArg0>(TriggerWithParameters<TArg0> trigger, TArg0? arg0) {
+    public Task FireAsync<TArg0>(Stateless.TriggerWithParameters<TTrigger, TArg0> trigger, TArg0? arg0) {
         if (trigger == null) throw new ArgumentNullException(nameof(trigger));
 
         return InternalFireAsync(trigger.Trigger, arg0);
@@ -88,7 +88,7 @@ public partial class StateMachine<TState, TTrigger> {
     ///     The current state does
     ///     not allow the trigger to be fired.
     /// </exception>
-    public Task FireAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, TArg0? arg0, TArg1? arg1) {
+    public Task FireAsync<TArg0, TArg1>(TriggerWithParameters<TTrigger, TArg0, TArg1> trigger, TArg0? arg0, TArg1? arg1) {
         if (trigger == null) throw new ArgumentNullException(nameof(trigger));
 
         return InternalFireAsync(trigger.Trigger, arg0, arg1);
@@ -111,8 +111,8 @@ public partial class StateMachine<TState, TTrigger> {
     ///     The current state does
     ///     not allow the trigger to be fired.
     /// </exception>
-    public Task FireAsync<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, TArg0? arg0,
-                                               TArg1?                                     arg1,    TArg2? arg2) {
+    public Task FireAsync<TArg0, TArg1, TArg2>(TriggerWithParameters<TTrigger, TArg0, TArg1, TArg2> trigger, TArg0? arg0,
+                                               TArg1?                                               arg1,    TArg2? arg2) {
         if (trigger == null) throw new ArgumentNullException(nameof(trigger));
 
         return InternalFireAsync(trigger.Trigger, arg0, arg1, arg2);

@@ -46,9 +46,9 @@ public partial class StateMachine<TState, TTrigger> {
         /// <param name="guard">Function that must return true in order for the trigger to be accepted.</param>
         /// <param name="internalAction">The asynchronous action performed by the internal transition</param>
         /// <returns></returns>
-        public StateConfiguration InternalTransitionAsyncIf<TArg0>(TriggerWithParameters<TArg0>   trigger,
-                                                                   Func<bool>                     guard,
-                                                                   Func<TArg0?, Transition, Task> internalAction) {
+        public StateConfiguration InternalTransitionAsyncIf<TArg0>(Stateless.TriggerWithParameters<TTrigger, TArg0> trigger,
+                                                                   Func<bool>                               guard,
+                                                                   Func<TArg0?, Transition, Task>           internalAction) {
             if (trigger        == null) throw new ArgumentNullException(nameof(trigger));
             if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
@@ -70,7 +70,7 @@ public partial class StateMachine<TState, TTrigger> {
         /// <param name="internalAction">The asynchronous action performed by the internal transition</param>
         /// <returns></returns>
         public StateConfiguration InternalTransitionAsyncIf<TArg0, TArg1>(
-            TriggerWithParameters<TArg0, TArg1>    trigger, Func<bool> guard,
+            TriggerWithParameters<TTrigger, TArg0, TArg1>    trigger, Func<bool> guard,
             Func<TArg0?, TArg1?, Transition, Task> internalAction) {
             if (trigger        == null) throw new ArgumentNullException(nameof(trigger));
             if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
@@ -96,7 +96,7 @@ public partial class StateMachine<TState, TTrigger> {
         /// <param name="internalAction">The asynchronous action performed by the internal transition</param>
         /// <returns></returns>
         public StateConfiguration InternalTransitionAsyncIf<TArg0, TArg1, TArg2>(
-            TriggerWithParameters<TArg0, TArg1, TArg2>     trigger, Func<bool> guard,
+            TriggerWithParameters<TTrigger, TArg0, TArg1, TArg2>     trigger, Func<bool> guard,
             Func<TArg0?, TArg1?, TArg2?, Transition, Task> internalAction) {
             if (trigger        == null) throw new ArgumentNullException(nameof(trigger));
             if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
@@ -143,8 +143,8 @@ public partial class StateMachine<TState, TTrigger> {
         /// <param name="trigger">The accepted trigger</param>
         /// <param name="internalAction">The asynchronous action performed by the internal transition</param>
         /// <returns></returns>
-        public StateConfiguration InternalTransitionAsync<TArg0>(TriggerWithParameters<TArg0>   trigger,
-                                                                 Func<TArg0?, Transition, Task> internalAction) {
+        public StateConfiguration InternalTransitionAsync<TArg0>(Stateless.TriggerWithParameters<TTrigger, TArg0> trigger,
+                                                                 Func<TArg0?, Transition, Task>           internalAction) {
             return InternalTransitionAsyncIf(trigger, () => true, internalAction);
         }
 
@@ -157,7 +157,7 @@ public partial class StateMachine<TState, TTrigger> {
         /// <param name="trigger">The accepted trigger</param>
         /// <param name="internalAction">The asynchronous action performed by the internal transition</param>
         /// <returns></returns>
-        public StateConfiguration InternalTransitionAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger,
+        public StateConfiguration InternalTransitionAsync<TArg0, TArg1>(TriggerWithParameters<TTrigger, TArg0, TArg1> trigger,
                                                                         Func<TArg0?, TArg1?, Transition, Task>
                                                                             internalAction) {
             return InternalTransitionAsyncIf(trigger, () => true, internalAction);
@@ -174,7 +174,7 @@ public partial class StateMachine<TState, TTrigger> {
         /// <param name="internalAction">The asynchronous action performed by the internal transition</param>
         /// <returns></returns>
         public StateConfiguration InternalTransitionAsync<TArg0, TArg1, TArg2>(
-            TriggerWithParameters<TArg0, TArg1, TArg2>     trigger,
+            TriggerWithParameters<TTrigger, TArg0, TArg1, TArg2>     trigger,
             Func<TArg0?, TArg1?, TArg2?, Transition, Task> internalAction) {
             return InternalTransitionAsyncIf(trigger, () => true, internalAction);
         }
@@ -294,8 +294,8 @@ public partial class StateMachine<TState, TTrigger> {
         /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
         /// <param name="entryActionDescription">Action description.</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration OnEntryFromAsync(TriggerWithParameters trigger, Func<Transition, Task> entryAction,
-                                                   string?               entryActionDescription = null) {
+        public StateConfiguration OnEntryFromAsync(Stateless.TriggerWithParameters<TTrigger> trigger, Func<Transition, Task> entryAction,
+                                                   string?                                   entryActionDescription = null) {
             if (trigger     == null) throw new ArgumentNullException(nameof(trigger));
             if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
 
@@ -317,9 +317,9 @@ public partial class StateMachine<TState, TTrigger> {
         /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
         /// <param name="entryActionDescription">Action description.</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration OnEntryFromAsync<TArg0>(TriggerWithParameters<TArg0> trigger,
-                                                          Func<TArg0?, Task>           entryAction,
-                                                          string?                      entryActionDescription = null) {
+        public StateConfiguration OnEntryFromAsync<TArg0>(Stateless.TriggerWithParameters<TTrigger, TArg0> trigger,
+                                                          Func<TArg0?, Task>                       entryAction,
+                                                          string?                                  entryActionDescription = null) {
             if (trigger     == null) throw new ArgumentNullException(nameof(trigger));
             if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
 
@@ -341,9 +341,9 @@ public partial class StateMachine<TState, TTrigger> {
         /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
         /// <param name="entryActionDescription">Action description.</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration OnEntryFromAsync<TArg0>(TriggerWithParameters<TArg0> trigger,
-                                                          Func<TArg0?, Transition, Task> entryAction,
-                                                          string? entryActionDescription = null) {
+        public StateConfiguration OnEntryFromAsync<TArg0>(Stateless.TriggerWithParameters<TTrigger, TArg0> trigger,
+                                                          Func<TArg0?, Transition, Task>           entryAction,
+                                                          string?                                  entryActionDescription = null) {
             if (trigger     == null) throw new ArgumentNullException(nameof(trigger));
             if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
 
@@ -366,9 +366,9 @@ public partial class StateMachine<TState, TTrigger> {
         /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
         /// <param name="entryActionDescription">Action description.</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration OnEntryFromAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger,
-                                                                 Func<TArg0?, TArg1?, Task> entryAction,
-                                                                 string? entryActionDescription = null) {
+        public StateConfiguration OnEntryFromAsync<TArg0, TArg1>(TriggerWithParameters<TTrigger, TArg0, TArg1> trigger,
+                                                                 Func<TArg0?, TArg1?, Task>                    entryAction,
+                                                                 string?                                       entryActionDescription = null) {
             if (trigger     == null) throw new ArgumentNullException(nameof(trigger));
             if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
 
@@ -391,9 +391,9 @@ public partial class StateMachine<TState, TTrigger> {
         /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
         /// <param name="entryActionDescription">Action description.</param>
         /// <returns>The receiver.</returns>
-        public StateConfiguration OnEntryFromAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger,
-                                                                 Func<TArg0?, TArg1?, Transition, Task> entryAction,
-                                                                 string? entryActionDescription = null) {
+        public StateConfiguration OnEntryFromAsync<TArg0, TArg1>(TriggerWithParameters<TTrigger, TArg0, TArg1> trigger,
+                                                                 Func<TArg0?, TArg1?, Transition, Task>        entryAction,
+                                                                 string?                                       entryActionDescription = null) {
             if (trigger     == null) throw new ArgumentNullException(nameof(trigger));
             if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
 
@@ -418,7 +418,7 @@ public partial class StateMachine<TState, TTrigger> {
         /// <param name="entryActionDescription">Action description.</param>
         /// <returns>The receiver.</returns>
         public StateConfiguration OnEntryFromAsync<TArg0, TArg1, TArg2>(
-            TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0?, TArg1?, TArg2?, Task> entryAction,
+            TriggerWithParameters<TTrigger, TArg0, TArg1, TArg2> trigger, Func<TArg0?, TArg1?, TArg2?, Task> entryAction,
             string?                                    entryActionDescription = null) {
             if (trigger     == null) throw new ArgumentNullException(nameof(trigger));
             if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
@@ -445,7 +445,7 @@ public partial class StateMachine<TState, TTrigger> {
         /// <param name="entryActionDescription">Action description.</param>
         /// <returns>The receiver.</returns>
         public StateConfiguration OnEntryFromAsync<TArg0, TArg1, TArg2>(
-            TriggerWithParameters<TArg0, TArg1, TArg2>     trigger,
+            TriggerWithParameters<TTrigger, TArg0, TArg1, TArg2>     trigger,
             Func<TArg0?, TArg1?, TArg2?, Transition, Task> entryAction, string? entryActionDescription = null) {
             if (trigger     == null) throw new ArgumentNullException(nameof(trigger));
             if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
