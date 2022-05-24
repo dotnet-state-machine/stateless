@@ -59,7 +59,7 @@ public partial class StateMachine<TState, TTrigger> {
             if (transition.IsReentry) {
                 await ExecuteEntryActionsAsync(transition, entryArgs).ConfigureAwait(false);
             } else if (!Includes(transition.Source)) {
-                if (Superstate is { } && transition is not InitialTransition)
+                if (Superstate is { } && !transition.IsInitial)
                     await Superstate.EnterAsync(transition, entryArgs).ConfigureAwait(false);
 
                 await ExecuteEntryActionsAsync(transition, entryArgs).ConfigureAwait(false);

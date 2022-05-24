@@ -4,7 +4,7 @@
 ///     Associates configured parameters with an underlying trigger value.
 /// </summary>
 /// <typeparam name="TTrigger"></typeparam>
-public class TriggerWithParameters<TTrigger> {
+public class TriggerWithParameters<TTrigger> where TTrigger : notnull {
     private readonly Type[] _argumentTypes;
 
     /// <summary>
@@ -35,26 +35,11 @@ public class TriggerWithParameters<TTrigger> {
 }
 
 /// <summary>
-///     A configured trigger with two required arguments.
-/// </summary>
-/// <typeparam name="TTrigger"></typeparam>
-/// <typeparam name="TArg0">The type of the first argument.</typeparam>
-/// <typeparam name="TArg1">The type of the second argument.</typeparam>
-public class TriggerWithParameters<TTrigger, TArg0, TArg1> : TriggerWithParameters<TTrigger> {
-    /// <summary>
-    ///     Create a configured trigger.
-    /// </summary>
-    /// <param name="underlyingTrigger">Trigger represented by this trigger configuration.</param>
-    public TriggerWithParameters(TTrigger underlyingTrigger)
-        : base(underlyingTrigger, typeof(TArg0), typeof(TArg1)) { }
-}
-
-/// <summary>
 ///     A configured trigger with one required argument.
 /// </summary>
 /// <typeparam name="TTrigger"></typeparam>
 /// <typeparam name="TArg0">The type of the first argument.</typeparam>
-public class TriggerWithParameters<TTrigger, TArg0> : TriggerWithParameters<TTrigger> {
+public class TriggerWithParameters<TTrigger, TArg0> : TriggerWithParameters<TTrigger> where TTrigger : notnull {
     /// <summary>
     ///     Create a configured trigger.
     /// </summary>
@@ -64,13 +49,28 @@ public class TriggerWithParameters<TTrigger, TArg0> : TriggerWithParameters<TTri
 }
 
 /// <summary>
+///     A configured trigger with two required arguments.
+/// </summary>
+/// <typeparam name="TTrigger"></typeparam>
+/// <typeparam name="TArg0">The type of the first argument.</typeparam>
+/// <typeparam name="TArg1">The type of the second argument.</typeparam>
+public class TriggerWithParameters<TTrigger, TArg0, TArg1> : TriggerWithParameters<TTrigger> where TTrigger : notnull {
+    /// <summary>
+    ///     Create a configured trigger.
+    /// </summary>
+    /// <param name="underlyingTrigger">Trigger represented by this trigger configuration.</param>
+    public TriggerWithParameters(TTrigger underlyingTrigger)
+        : base(underlyingTrigger, typeof(TArg0), typeof(TArg1)) { }
+}
+
+/// <summary>
 ///     A configured trigger with three required arguments.
 /// </summary>
 /// <typeparam name="TTrigger"></typeparam>
 /// <typeparam name="TArg0">The type of the first argument.</typeparam>
 /// <typeparam name="TArg1">The type of the second argument.</typeparam>
 /// <typeparam name="TArg2">The type of the third argument.</typeparam>
-public class TriggerWithParameters<TTrigger, TArg0, TArg1, TArg2> : TriggerWithParameters<TTrigger> {
+public class TriggerWithParameters<TTrigger, TArg0, TArg1, TArg2> : TriggerWithParameters<TTrigger> where TTrigger : notnull {
     /// <summary>
     ///     Create a configured trigger.
     /// </summary>

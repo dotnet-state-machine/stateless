@@ -286,8 +286,8 @@ public partial class StateMachine<TState, TTrigger> {
                     InvalidOperationException($"The target ({representation.InitialTransitionTarget}) for the initial transition is not a substate.");
 
             Debug.Assert(representation.InitialTransitionTarget != null);
-            var initialTransition = new InitialTransition(transition.Source, representation.InitialTransitionTarget!,
-                                                          transition.Trigger, args);
+            var initialTransition = new Transition(transition.Source, representation.InitialTransitionTarget!,
+                                                          transition.Trigger, args, true);
             representation = GetRepresentation(representation.InitialTransitionTarget!);
 
             // Alert all listeners of initial state transition
