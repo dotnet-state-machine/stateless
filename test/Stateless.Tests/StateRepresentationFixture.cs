@@ -231,23 +231,6 @@ public class StateRepresentationFixture {
     }
 
     [Fact]
-    public void WhenTransitionGuardConditionsMet_TriggerCanBeFired() {
-        var rep = CreateRepresentation(State.B);
-
-        var trueConditions = new[] {
-            new Tuple<Func<object[], bool>, string>(_ => true, "1"),
-            new Tuple<Func<object[], bool>, string>(_ => true, "2")
-        };
-
-        var transitionGuard = new TransitionGuard(trueConditions);
-        var transition =
-            new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(Trigger.X, State.C, transitionGuard);
-        rep.AddTriggerBehaviour(transition);
-
-        Assert.True(rep.CanHandle(Trigger.X));
-    }
-
-    [Fact]
     public void WhenTransitionDoesNotExist_TriggerCanBeFired() {
         var rep = CreateRepresentation(State.B);
         rep.AddTriggerBehaviour(new StateMachine<State, Trigger>.IgnoredTriggerBehaviour(Trigger.X, null));
@@ -310,6 +293,23 @@ public class StateRepresentationFixture {
         Assert.NotNull(result);
         Assert.True(result.Handler.GuardConditionsMet());
         Assert.False(result.UnmetGuardConditions.Any());
+    }
+
+    [Fact]
+    public void WhenTransitionGuardConditionsMet_TriggerCanBeFired() {
+        var rep = CreateRepresentation(State.B);
+
+        var trueConditions = new[] {
+            new Tuple<Func<object[], bool>, string>(_ => true, "1"),
+            new Tuple<Func<object[], bool>, string>(_ => true, "2")
+        };
+
+        var transitionGuard = new TransitionGuard(trueConditions);
+        var transition =
+            new StateMachine<State, Trigger>.TransitioningTriggerBehaviour(Trigger.X, State.C, transitionGuard);
+        rep.AddTriggerBehaviour(transition);
+
+        Assert.True(rep.CanHandle(Trigger.X));
     }
 
     [Fact]

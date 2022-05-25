@@ -70,7 +70,8 @@ public class TriggerWithParameters<TTrigger, TArg0, TArg1> : TriggerWithParamete
 /// <typeparam name="TArg0">The type of the first argument.</typeparam>
 /// <typeparam name="TArg1">The type of the second argument.</typeparam>
 /// <typeparam name="TArg2">The type of the third argument.</typeparam>
-public class TriggerWithParameters<TTrigger, TArg0, TArg1, TArg2> : TriggerWithParameters<TTrigger> where TTrigger : notnull {
+public class TriggerWithParameters<TTrigger, TArg0, TArg1, TArg2> : TriggerWithParameters<TTrigger>
+    where TTrigger : notnull {
     /// <summary>
     ///     Create a configured trigger.
     /// </summary>

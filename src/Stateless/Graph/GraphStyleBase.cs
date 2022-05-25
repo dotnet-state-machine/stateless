@@ -54,14 +54,14 @@ public abstract class GraphStyleBase {
     public virtual IEnumerable<string> FormatAllTransitions(List<Transition>? transitions) {
         if (transitions == null) yield break;
 
-        foreach (var transit in transitions) {
+        foreach (var transit in transitions)
             yield return transit switch {
-                StayTransition { ExecuteEntryExitActions: false } stay => 
+                StayTransition { ExecuteEntryExitActions: false } stay =>
                     FormatOneTransition(stay.SourceState.NodeName,
                                         stay.Trigger.UnderlyingTrigger?.ToString(), null,
                                         stay.SourceState.NodeName,
                                         stay.Guards.Select(x => x.Description)),
-                StayTransition stay when stay.SourceState.EntryActions.Count == 0 => 
+                StayTransition stay when stay.SourceState.EntryActions.Count == 0 =>
                     FormatOneTransition(stay.SourceState.NodeName,
                                         stay.Trigger.UnderlyingTrigger?.ToString(),
                                         null,
@@ -86,7 +86,6 @@ public abstract class GraphStyleBase {
                                                              new List<string> { dyn.Criterion }),
                 _ => throw new ArgumentException("Unexpected transition type")
             };
-        }
     }
 
     /// <summary>
@@ -100,7 +99,7 @@ public abstract class GraphStyleBase {
     /// <param name="guards">List of guards (if any)</param>
     /// <returns></returns>
     protected virtual string FormatOneTransition(string? sourceNodeName, string? trigger, IEnumerable<string>? actions,
-                                              string? destinationNodeName, IEnumerable<string> guards) =>
+                                                 string? destinationNodeName, IEnumerable<string> guards) =>
         throw new
             InvalidOperationException("If you use IGraphStyle.FormatAllTransitions() you must implement an override of FormatOneTransition()");
 }

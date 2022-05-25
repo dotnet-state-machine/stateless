@@ -26,7 +26,7 @@ public partial class StateMachine<TState, TTrigger> {
         public StateRepresentation? Superstate { get; set; }
 
         public TState UnderlyingState => _state;
-        
+
         public bool HasInitialTransition { get; private set; }
 
         public StateRepresentation(TState state) => _state = state;

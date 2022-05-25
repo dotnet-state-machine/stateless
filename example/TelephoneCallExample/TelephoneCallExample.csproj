@@ -14,8 +14,4 @@
     <ProjectReference Include="..\..\src\Stateless\Stateless.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-
 </Project>

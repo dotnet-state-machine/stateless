@@ -62,14 +62,14 @@ public class StateGraph {
             dirGraphText.Append(style.FormatOneCluster((SuperState) state).Replace("\n", Environment.NewLine));
 
         // Next process all non-cluster states
-        foreach (var state in States.Values.Where(state => state is not (SuperState or Decision) && state.SuperState is null)) {
+        foreach (var state in
+                 States.Values.Where(state => state is not (SuperState or Decision) && state.SuperState is null))
             dirGraphText.Append(style.FormatOneState(state).Replace("\n", Environment.NewLine));
-        }
 
         // Finally, add decision nodes
         foreach (var dec in Decisions)
             dirGraphText.Append(style.FormatOneDecisionNode(dec.NodeName, dec.Method.Description)
-                                 .Replace("\n", Environment.NewLine));
+                                     .Replace("\n", Environment.NewLine));
 
         // now build behaviours
         foreach (var transit in style.FormatAllTransitions(Transitions))
@@ -99,7 +99,8 @@ public class StateGraph {
                     // This 'state' has an 'entryAction' that only fires when it gets the trigger 'entryAction.FromTrigger'
                     // Does it have any incoming transitions that specify that trigger?
                     foreach (var transit in state.Arriving.Where(transit => transit.ExecuteEntryExitActions
-                                                                         && transit.Trigger.UnderlyingTrigger?.ToString() == entryAction.FromTrigger))
+                                                                         && transit.Trigger.UnderlyingTrigger
+                                                                              ?.ToString() == entryAction.FromTrigger))
                         transit.DestinationEntryActions.Add(entryAction);
         }
     }

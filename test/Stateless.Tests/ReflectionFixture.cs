@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using Stateless.Reflection;
 using Xunit.Sdk;
+
 // ReSharper disable ConvertClosureToMethodGroup
 
 namespace Stateless.Tests;
@@ -63,8 +64,8 @@ public class ReflectionFixture {
     }
 
     private static void VerifyMethodNames(IEnumerable<InvocationInfo> methods, string prefix, string body,
-                                            State                       state,
-                                            InvocationInfo.Timing       timing, HashSet<string> suffixes) {
+                                          State                       state,
+                                          InvocationInfo.Timing       timing, HashSet<string> suffixes) {
         Assert.Equal(suffixes.Count, methods.Count());
 
         foreach (var method in methods) {
@@ -383,16 +384,16 @@ public class ReflectionFixture {
 
         foreach (var stateInfo in inf.States)
             VerifyMethodNames(stateInfo.EntryActions.Select(x => x.Method), "On", "Entry",
-                                (State) stateInfo.UnderlyingState,
-                                InvocationInfo.Timing.Synchronous,
-                                new HashSet<string> {
-                                    "",
-                                    "Trans",
-                                    "Int",
-                                    "IntTrans",
-                                    "IntInt",
-                                    "IntIntInt"
-                                });
+                              (State) stateInfo.UnderlyingState,
+                              InvocationInfo.Timing.Synchronous,
+                              new HashSet<string> {
+                                  "",
+                                  "Trans",
+                                  "Int",
+                                  "IntTrans",
+                                  "IntInt",
+                                  "IntIntInt"
+                              });
 
         /*
         public StateConfiguration OnEntryFrom<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Action<TArg0, TArg1, Transition> entryAction, string entryActionDescription = null)

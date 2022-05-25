@@ -808,7 +808,7 @@ public class StateMachineFixture {
 
         StateMachine<State, Trigger>.Transition transition = null;
         sm.OnTransitionCompleted(t => transition = t);
-        
+
         const string firstParameter = "the parameter";
         const int secondParameter = 99;
         const bool thirdParameter = true;

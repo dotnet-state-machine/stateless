@@ -31,7 +31,8 @@ public class UmlDotGraphStyle : GraphStyleBase {
             label.Append(string.Concat(stateInfo.ExitActions.Select(act => $"\\nexit / {act}")));
         }
 
-        var stateRepresentationString = new StringBuilder($"\nsubgraph \"cluster{stateInfo.NodeName}\"\n\t{{\n\tlabel = \"{label}\"\n");
+        var stateRepresentationString =
+            new StringBuilder($"\nsubgraph \"cluster{stateInfo.NodeName}\"\n\t{{\n\tlabel = \"{label}\"\n");
 
         foreach (var subState in stateInfo.SubStates) stateRepresentationString.Append(FormatOneState(subState));
 
@@ -72,7 +73,7 @@ public class UmlDotGraphStyle : GraphStyleBase {
     /// <param name="guards"></param>
     /// <returns></returns>
     protected override string FormatOneTransition(string? sourceNodeName, string? trigger, IEnumerable<string>? actions,
-                                               string? destinationNodeName, IEnumerable<string> guards) {
+                                                  string? destinationNodeName, IEnumerable<string> guards) {
         var label = trigger ?? "";
 
         var actionsString = string.Join(", ", actions ?? Enumerable.Empty<string>());

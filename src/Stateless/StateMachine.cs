@@ -234,7 +234,8 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
     /// </summary>
     /// <returns>A description of the current state and permitted triggers.</returns>
     public override string ToString() {
-        return $"StateMachine {{ State = {State}, PermittedTriggers = {{ {string.Join(", ", GetPermittedTriggers().Select(t => t.ToString()).ToArray())} }}}}";
+        return
+            $"StateMachine {{ State = {State}, PermittedTriggers = {{ {string.Join(", ", GetPermittedTriggers().Select(t => t.ToString()).ToArray())} }}}}";
     }
 
     /// <summary>

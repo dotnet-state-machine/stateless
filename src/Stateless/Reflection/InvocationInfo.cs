@@ -16,6 +16,11 @@ public class InvocationInfo {
         Asynchronous
     }
 
+    /// <summary>
+    ///     Text returned for compiler-generated functions where the caller has not specified a description
+    /// </summary>
+    public const string DefaultFunctionDescription = "Function";
+
     private readonly string? _description;
 
     private readonly Timing _timing;
@@ -25,11 +30,6 @@ public class InvocationInfo {
     ///     name that is often not human-friendly (e.g. "(.ctor)b__2_0" except with angle brackets instead of parentheses)
     /// </summary>
     public string? MethodName { get; }
-
-    /// <summary>
-    ///     Text returned for compiler-generated functions where the caller has not specified a description
-    /// </summary>
-    public const string DefaultFunctionDescription = "Function";
 
     /// <summary>
     ///     A description of the invoked method.  Returns:
@@ -60,7 +60,7 @@ public class InvocationInfo {
     /// <param name="methodName">The name of the invoked method.</param>
     /// <param name="description">A description of the invoked method.</param>
     /// <param name="timing">Sets a value indicating whether the method is invoked asynchronously.</param>
-    private InvocationInfo(string? methodName, string? description, Timing  timing) {
+    private InvocationInfo(string? methodName, string? description, Timing timing) {
         MethodName   = methodName;
         _description = description;
         _timing      = timing;
