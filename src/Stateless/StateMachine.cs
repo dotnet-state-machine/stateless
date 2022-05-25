@@ -25,27 +25,26 @@ public enum FiringMode {
 public partial class StateMachine<TState, TTrigger> where TState : notnull where TTrigger : notnull {
     private readonly Queue<QueuedTrigger> _eventQueue = new();
     private readonly FiringMode           _firingMode;
-    private readonly OnTransitionedEvent  _onTransitionCompletedEvent;
-    private readonly OnTransitionedEvent  _onTransitionedEvent;
-    private readonly Func<TState>         _stateAccessor;
+    private readonly OnTransitionedEvent  _onTransitionCompletedEvent = new();
+    private readonly OnTransitionedEvent  _onTransitionedEvent        = new();
+
+    private readonly IStateStorage<TState> _state;
 
     private readonly IDictionary<TState, StateRepresentation> _stateConfiguration =
         new Dictionary<TState, StateRepresentation>();
-
-    private readonly Action<TState> _stateMutator;
 
     private readonly IDictionary<TTrigger, TriggerWithParameters<TTrigger>> _triggerConfiguration =
         new Dictionary<TTrigger, TriggerWithParameters<TTrigger>>();
 
     private bool                   _firing;
-    private UnhandledTriggerAction _unhandledTriggerAction;
+    private UnhandledTriggerAction _unhandledTriggerAction = new(DefaultUnhandledTriggerAction);
 
     /// <summary>
     ///     The current state.
     /// </summary>
     public TState State {
-        get => _stateAccessor();
-        private set => _stateMutator(value);
+        get => _state.State;
+        private set => _state.State = value;
     }
 
     /// <summary>
@@ -62,36 +61,27 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
     /// <param name="stateMutator">An action that will be called to write new state values.</param>
     /// <param name="firingMode">Optional specification of firing mode.</param>
     public StateMachine(Func<TState> stateAccessor, Action<TState> stateMutator,
-                        FiringMode   firingMode = FiringMode.Queued) : this() {
-        _stateAccessor = stateAccessor ?? throw new ArgumentNullException(nameof(stateAccessor));
-        _stateMutator  = stateMutator  ?? throw new ArgumentNullException(nameof(stateMutator));
-
-        _firingMode = firingMode;
-    }
+                        FiringMode   firingMode = FiringMode.Queued) :
+        this(new ExternalStateStorage<TState>(stateAccessor ?? throw new ArgumentNullException(nameof(stateAccessor)),
+                                              stateMutator  ?? throw new ArgumentNullException(nameof(stateMutator))),
+             firingMode) { }
 
     /// <summary>
     ///     Construct a state machine.
     /// </summary>
     /// <param name="initialState">The initial state.</param>
     /// <param name="firingMode">Optional specification of firing mode.</param>
-    public StateMachine(TState initialState, FiringMode firingMode = FiringMode.Queued) : this() {
-        var reference = new StateReference<TState>(initialState);
-        _stateAccessor = () => reference.State;
-        _stateMutator  = s => reference.State = s;
-
-        _firingMode = firingMode;
-    }
-
+    public StateMachine(TState initialState, FiringMode firingMode = FiringMode.Queued) :
+        this(new InternalStateStorage<TState>(initialState), firingMode) { }
 
     /// <summary>
-    ///     Default constructor
+    ///     Construct a state machine.
     /// </summary>
-    private StateMachine() {
-        _unhandledTriggerAction     = new UnhandledTriggerAction(DefaultUnhandledTriggerAction);
-        _onTransitionedEvent        = new OnTransitionedEvent();
-        _onTransitionCompletedEvent = new OnTransitionedEvent();
-        _stateAccessor              = default!; // Set in other ctor
-        _stateMutator               = default!; // Set in other ctor
+    /// <param name="stateStorage">The storage for the state.</param>
+    /// <param name="firingMode">Optional specification of firing mode.</param>
+    public StateMachine(IStateStorage<TState> stateStorage, FiringMode firingMode = FiringMode.Queued) {
+        _state      = stateStorage;
+        _firingMode = firingMode;
     }
 
     /// <summary>
@@ -296,8 +286,8 @@ public partial class StateMachine<TState, TTrigger> where TState : notnull where
         _triggerConfiguration.Add(trigger.Trigger, trigger);
     }
 
-    private void DefaultUnhandledTriggerAction(TState               state, TTrigger trigger,
-                                               ICollection<string>? unmetGuardConditions) {
+    private static void DefaultUnhandledTriggerAction(TState               state, TTrigger trigger,
+                                                      ICollection<string>? unmetGuardConditions) {
         if (unmetGuardConditions?.Any() ?? false)
             throw new InvalidOperationException(
                                                 string.Format(
