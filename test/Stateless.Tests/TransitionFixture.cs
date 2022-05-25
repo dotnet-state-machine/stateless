@@ -8,7 +8,7 @@ public class TransitionFixture {
     }
 
     [Fact]
-    public async Task TestInternalIf() {
+    public void TestInternalIf() {
         // Verifies that only one internal action is executed
         var machine = new StateMachine<int, int>(1);
 
@@ -22,7 +22,7 @@ public class TransitionFixture {
                                      _ => false,
                                      () => { Assert.True(false); });
 
-        await machine.FireAsync(1);
+        machine.Fire(1);
     }
 
     [Fact]

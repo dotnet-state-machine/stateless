@@ -2,7 +2,7 @@
 
 public class ActiveStatesFixture {
     [Fact]
-    public async Task WhenActivate() {
+    public void WhenActivate() {
         var sm = new StateMachine<State, Trigger>(State.A);
 
         var expectedOrdering = new List<string> { "ActivatedC", "ActivatedA" };
@@ -19,7 +19,7 @@ public class ActiveStatesFixture {
         sm.OnTransitioned(_ => actualOrdering.Add("OnTransitioned"));
         sm.OnTransitionCompleted(_ => actualOrdering.Add("OnTransitionCompleted"));
 
-        await sm.ActivateAsync();
+        sm.Activate();
 
         Assert.Equal(expectedOrdering.Count, actualOrdering.Count);
         for (var i = 0; i < expectedOrdering.Count; i++)
@@ -27,7 +27,7 @@ public class ActiveStatesFixture {
     }
 
     [Fact]
-    public async Task WhenActivateIsIdempotent() {
+    public void WhenActivateIsIdempotent() {
         var sm = new StateMachine<State, Trigger>(State.A);
 
         var actualOrdering = new List<string>();
@@ -39,13 +39,13 @@ public class ActiveStatesFixture {
         sm.Configure(State.C)
           .OnActivate(() => actualOrdering.Add("ActivatedC"));
 
-        await sm.ActivateAsync();
+        sm.Activate();
 
         Assert.Equal(2, actualOrdering.Count);
     }
 
     [Fact]
-    public async Task WhenDeactivate() {
+    public void WhenDeactivate() {
         var sm = new StateMachine<State, Trigger>(State.A);
 
         var expectedOrdering = new List<string> { "DeactivatedA", "DeactivatedC" };
@@ -62,8 +62,8 @@ public class ActiveStatesFixture {
         sm.OnTransitioned(_ => actualOrdering.Add("OnTransitioned"));
         sm.OnTransitionCompleted(_ => actualOrdering.Add("OnTransitionCompleted"));
 
-        await sm.ActivateAsync();
-        await sm.DeactivateAsync();
+        sm.Activate();
+        sm.Deactivate();
 
         Assert.Equal(expectedOrdering.Count, actualOrdering.Count);
         for (var i = 0; i < expectedOrdering.Count; i++)
@@ -71,7 +71,7 @@ public class ActiveStatesFixture {
     }
 
     [Fact]
-    public async Task WhenDeactivateIsIdempotent() {
+    public void WhenDeactivateIsIdempotent() {
         var sm = new StateMachine<State, Trigger>(State.A);
 
         var actualOrdering = new List<string>();
@@ -83,17 +83,17 @@ public class ActiveStatesFixture {
         sm.Configure(State.C)
           .OnDeactivate(() => actualOrdering.Add("DeactivatedC"));
 
-        await sm.ActivateAsync();
-        await sm.DeactivateAsync();
+        sm.Activate();
+        sm.Deactivate();
 
         actualOrdering.Clear();
-        await sm.ActivateAsync();
+        sm.Activate();
 
         Assert.Equal(0, actualOrdering.Count);
     }
 
     [Fact]
-    public async Task WhenTransitioning() {
+    public void WhenTransitioning() {
         var sm = new StateMachine<State, Trigger>(State.A);
 
         var expectedOrdering = new List<string> {
@@ -127,9 +127,9 @@ public class ActiveStatesFixture {
         sm.OnTransitioned(_ => actualOrdering.Add("OnTransitioned"));
         sm.OnTransitionCompleted(_ => actualOrdering.Add("OnTransitionCompleted"));
 
-        await sm.ActivateAsync();
-        await sm.FireAsync(Trigger.X);
-        await sm.FireAsync(Trigger.Y);
+        sm.Activate();
+        sm.Fire(Trigger.X);
+        sm.Fire(Trigger.Y);
 
         Assert.Equal(expectedOrdering.Count, actualOrdering.Count);
         for (var i = 0; i < expectedOrdering.Count; i++)
@@ -137,7 +137,7 @@ public class ActiveStatesFixture {
     }
 
     [Fact]
-    public async Task WhenTransitioningWithinSameSuperstate() {
+    public void WhenTransitioningWithinSameSuperstate() {
         var sm = new StateMachine<State, Trigger>(State.A);
 
         var expectedOrdering = new List<string> { "ActivatedC", "ActivatedA" };
@@ -160,9 +160,9 @@ public class ActiveStatesFixture {
           .OnActivate(() => actualOrdering.Add("ActivatedC"))
           .OnDeactivate(() => actualOrdering.Add("DeactivatedC"));
 
-        await sm.ActivateAsync();
-        await sm.FireAsync(Trigger.X);
-        await sm.FireAsync(Trigger.Y);
+        sm.Activate();
+        sm.Fire(Trigger.X);
+        sm.Fire(Trigger.Y);
 
         Assert.Equal(expectedOrdering.Count, actualOrdering.Count);
         for (var i = 0; i < expectedOrdering.Count; i++)

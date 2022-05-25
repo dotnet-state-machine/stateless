@@ -14,7 +14,7 @@ public class IgnoredTriggerBehaviourFixture {
     }
 
     [Fact]
-    public async Task IgnoredTriggerMustBeIgnoredSync() {
+    public void IgnoredTriggerMustBeIgnoredSync() {
         var internalActionExecuted = false;
         var stateMachine = new StateMachine<State, Trigger>(State.B);
         stateMachine.Configure(State.A)
@@ -26,7 +26,7 @@ public class IgnoredTriggerBehaviourFixture {
 
         try {
             // >>> The following statement should not execute the internal action
-            await stateMachine.FireAsync(Trigger.X);
+            stateMachine.Fire(Trigger.X);
         } catch (NullReferenceException) {
             internalActionExecuted = true;
         }
@@ -35,7 +35,7 @@ public class IgnoredTriggerBehaviourFixture {
     }
 
     [Fact]
-    public async Task IgnoreIfFalseTriggerMustNotBeIgnored() {
+    public void IgnoreIfFalseTriggerMustNotBeIgnored() {
         var stateMachine = new StateMachine<State, Trigger>(State.B);
         stateMachine.Configure(State.A)
                     .Permit(Trigger.X, State.C);
@@ -44,13 +44,13 @@ public class IgnoredTriggerBehaviourFixture {
                     .SubstateOf(State.A)
                     .IgnoreIf(Trigger.X, () => false);
 
-        await stateMachine.FireAsync(Trigger.X);
+        stateMachine.Fire(Trigger.X);
 
         Assert.Equal(State.C, stateMachine.State);
     }
 
     [Fact]
-    public async Task IgnoreIfTrueTriggerMustBeIgnored() {
+    public void IgnoreIfTrueTriggerMustBeIgnored() {
         var stateMachine = new StateMachine<State, Trigger>(State.B);
         stateMachine.Configure(State.A)
                     .Permit(Trigger.X, State.C);
@@ -59,7 +59,7 @@ public class IgnoredTriggerBehaviourFixture {
                     .SubstateOf(State.A)
                     .IgnoreIf(Trigger.X, () => true);
 
-        await stateMachine.FireAsync(Trigger.X);
+        stateMachine.Fire(Trigger.X);
 
         Assert.Equal(State.B, stateMachine.State);
     }

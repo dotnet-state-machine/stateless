@@ -190,7 +190,7 @@ public class AsyncActionsFixture {
     }
 
     [Fact]
-    public async Task SuperStateShouldNotExitOnSubStateTransition_WhenUsingSyncTriggers() {
+    public void SuperStateShouldNotExitOnSubStateTransition_WhenUsingSyncTriggers() {
         // Arrange.
         var sm = new StateMachine<State, Trigger>(State.A);
         var record = new List<string>();
@@ -217,8 +217,8 @@ public class AsyncActionsFixture {
 
 
         // Act.
-        await sm.FireAsync(Trigger.X);
-        await sm.FireAsync(Trigger.Y);
+        sm.Fire(Trigger.X);
+        sm.Fire(Trigger.Y);
 
         // Assert.
         Assert.Equal("Exited state A", record[0]);
@@ -261,7 +261,7 @@ public class AsyncActionsFixture {
 
         sm.Configure(State.B)
           .InitialTransition(State.C)
-          .OnEntryAsync(() => sm.FireAsync(Trigger.Y))
+          .OnEntry(() => sm.Fire(Trigger.Y))
           .Permit(Trigger.Y, State.D);
 
         sm.Configure(State.C)

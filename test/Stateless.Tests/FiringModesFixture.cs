@@ -8,7 +8,7 @@ public class FiringModesFixture {
     ///     Check that the immediate firing modes executes entry/exit out of order.
     /// </summary>
     [Fact]
-    public async Task ImmediateEntryAProcessedBeforeEnterB() {
+    public void ImmediateEntryAProcessedBeforeEnterB() {
         var record = new List<string>();
         var sm = new StateMachine<State, Trigger>(State.A, FiringMode.Immediate);
 
@@ -18,15 +18,15 @@ public class FiringModesFixture {
           .OnExit(() => record.Add("ExitA"));
 
         sm.Configure(State.B)
-          .OnEntryAsync(async () => {
+          .OnEntry(() => {
                // Fire this before finishing processing the entry action
-               await sm.FireAsync(Trigger.Y);
+               sm.Fire(Trigger.Y);
                record.Add("EnterB");
            })
           .Permit(Trigger.Y, State.A)
           .OnExit(() => record.Add("ExitB"));
 
-        await sm.FireAsync(Trigger.X);
+        sm.Fire(Trigger.X);
 
         // Expected sequence of events: Exit A -> Exit B -> Enter A -> Enter B
         Assert.Equal("ExitA", record[0]);
@@ -39,7 +39,7 @@ public class FiringModesFixture {
     ///     Check that the immediate firing modes executes entry/exit out of order.
     /// </summary>
     [Fact]
-    public async Task ImmediateFiringOnEntryEndsUpInCorrectState() {
+    public void ImmediateFiringOnEntryEndsUpInCorrectState() {
         var record = new List<string>();
         var sm = new StateMachine<State, Trigger>(State.A, FiringMode.Immediate);
 
@@ -49,10 +49,10 @@ public class FiringModesFixture {
           .OnExit(() => record.Add("ExitA"));
 
         sm.Configure(State.B)
-          .OnEntryAsync(() => {
+          .OnEntry(() => {
                record.Add("EnterB");
                // Fire this before finishing processing the entry action
-               return sm.FireAsync(Trigger.X);
+               sm.Fire(Trigger.X);
            })
           .Permit(Trigger.X, State.C)
           .OnExit(() => record.Add("ExitB"));
@@ -62,7 +62,7 @@ public class FiringModesFixture {
           .Permit(Trigger.X, State.A)
           .OnExit(() => record.Add("ExitC"));
 
-        await sm.FireAsync(Trigger.X);
+        sm.Fire(Trigger.X);
 
         // Expected sequence of events: Exit A -> Exit B -> Enter A -> Enter B
         Assert.Equal("ExitA", record[0]);

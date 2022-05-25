@@ -89,10 +89,10 @@ public class AsyncFiringModesFixture {
           .OnExit(() => record.Add("ExitA"));
 
         sm.Configure(State.B)
-          .OnEntryAsync(() => {
+          .OnEntry(() => {
                record.Add("EnterB");
                // Fire this before finishing processing the entry action
-               return sm.FireAsync(Trigger.X);
+               sm.Fire(Trigger.X);
            })
           .Permit(Trigger.X, State.C)
           .OnExit(() => record.Add("ExitB"));

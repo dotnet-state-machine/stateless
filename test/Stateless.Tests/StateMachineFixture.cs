@@ -14,8 +14,8 @@ public class StateMachineFixture {
         _numCalls++;
     }
 
-    private static async Task RunSimpleTest<TState, TTransition>(IEnumerable<TState>      states,
-                                                                 IEnumerable<TTransition> transitions) {
+    private static void RunSimpleTest<TState, TTransition>(IEnumerable<TState>      states,
+                                                           IEnumerable<TTransition> transitions) {
         var a = states.First();
         var b = states.Skip(1).First();
         var x = transitions.First();
@@ -25,7 +25,7 @@ public class StateMachineFixture {
         sm.Configure(a)
           .Permit(x, b);
 
-        await sm.FireAsync(x);
+        sm.Fire(x);
 
         Assert.Equal(b, sm.State);
     }
@@ -96,17 +96,17 @@ public class StateMachineFixture {
     }
 
     [Fact]
-    public async Task CanUseReferenceTypeMarkers() {
-        await RunSimpleTest(
-                            new[] { StateA, StateB, StateC },
-                            new[] { TriggerX, TriggerY });
+    public void CanUseReferenceTypeMarkers() {
+        RunSimpleTest(
+                      new[] { StateA, StateB, StateC },
+                      new[] { TriggerX, TriggerY });
     }
 
     [Fact]
-    public async Task CanUseValueTypeMarkers() {
-        await RunSimpleTest(
-                            Enum.GetValues(typeof(State)).Cast<State>(),
-                            Enum.GetValues(typeof(Trigger)).Cast<Trigger>());
+    public void CanUseValueTypeMarkers() {
+        RunSimpleTest(
+                      Enum.GetValues(typeof(State)).Cast<State>(),
+                      Enum.GetValues(typeof(Trigger)).Cast<Trigger>());
     }
 
     [Fact]
@@ -129,38 +129,38 @@ public class StateMachineFixture {
     }
 
     [Fact]
-    public async Task ExceptionThrownForInvalidTransition() {
+    public void ExceptionThrownForInvalidTransition() {
         var sm = new StateMachine<State, Trigger>(State.A);
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => sm.FireAsync(Trigger.X));
+        var exception = Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
         Assert.Equal(exception.Message,
                      "No valid leaving transitions are permitted from state 'A' for trigger 'X'. Consider ignoring the trigger.");
     }
 
     [Fact]
-    public async Task ExceptionThrownForInvalidTransitionMentionsGuardDescriptionIfPresent() {
+    public void ExceptionThrownForInvalidTransitionMentionsGuardDescriptionIfPresent() {
         // If guard description is empty then method name of guard is used
         // so I have skipped empty description test.
         const string guardDescription = "test";
 
         var sm = new StateMachine<State, Trigger>(State.A);
         sm.Configure(State.A).PermitIf(Trigger.X, State.B, () => false, guardDescription);
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => sm.FireAsync(Trigger.X));
+        var exception = Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
         Assert.Equal(typeof(InvalidOperationException), exception.GetType());
     }
 
     [Fact]
-    public async Task ExceptionThrownForInvalidTransitionMentionsMultiGuardGuardDescriptionIfPresent() {
+    public void ExceptionThrownForInvalidTransitionMentionsMultiGuardGuardDescriptionIfPresent() {
         var sm = new StateMachine<State, Trigger>(State.A);
         sm.Configure(State.A).PermitIf(Trigger.X, State.B,
                                        new Tuple<Func<bool>, string>(() => false, "test1"),
                                        new Tuple<Func<bool>, string>(() => false, "test2"));
 
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => sm.FireAsync(Trigger.X));
+        var exception = Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
         Assert.Equal(typeof(InvalidOperationException), exception.GetType());
     }
 
     [Fact]
-    public async Task ExceptionWhenBothParameterizedGuardClausesFalse() {
+    public void ExceptionWhenBothParameterizedGuardClausesFalse() {
         var sm = new StateMachine<State, Trigger>(State.A);
         var x = sm.SetTriggerParameters<int>(Trigger.X);
         // Create Two guards that both must be true
@@ -168,64 +168,64 @@ public class StateMachineFixture {
         var negativeGuard = Tuple.Create(new Func<int, bool>(o => o != 3), "Negative Guard");
         sm.Configure(State.A).PermitIf(x, State.B, positiveGuard, negativeGuard);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => sm.FireAsync(x, 3));
+        Assert.Throws<InvalidOperationException>(() => sm.Fire(x, 3));
     }
 
     [Fact]
-    public async Task ExceptionWhenGuardFalseOnTriggerWithMultipleParameters() {
+    public void ExceptionWhenGuardFalseOnTriggerWithMultipleParameters() {
         var sm = new StateMachine<State, Trigger>(State.A);
         var x = sm.SetTriggerParameters<string, int>(Trigger.X);
         sm.Configure(State.A).PermitIf(x, State.B, (s, i) => s == "3" && i == 3);
         Assert.Equal(sm.State, State.A);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => sm.FireAsync(x, "2", 2));
-        await Assert.ThrowsAsync<InvalidOperationException>(() => sm.FireAsync(x, "3", 2));
-        await Assert.ThrowsAsync<InvalidOperationException>(() => sm.FireAsync(x, "2", 3));
+        Assert.Throws<InvalidOperationException>(() => sm.Fire(x, "2", 2));
+        Assert.Throws<InvalidOperationException>(() => sm.Fire(x, "3", 2));
+        Assert.Throws<InvalidOperationException>(() => sm.Fire(x, "2", 3));
     }
 
     [Fact]
-    public async Task ExceptionWhenIgnoreIfParameterizedGuardFalse() {
+    public void ExceptionWhenIgnoreIfParameterizedGuardFalse() {
         var sm = new StateMachine<State, Trigger>(State.A);
         var x = sm.SetTriggerParameters<int>(Trigger.X);
         sm.Configure(State.A).IgnoreIf(x, i => i == 3);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => sm.FireAsync(x, 2));
+        Assert.Throws<InvalidOperationException>(() => sm.Fire(x, 2));
     }
 
     [Fact]
-    public async Task ExceptionWhenParameterizedGuardFalse() {
+    public void ExceptionWhenParameterizedGuardFalse() {
         var sm = new StateMachine<State, Trigger>(State.A);
         var x = sm.SetTriggerParameters<int>(Trigger.X);
         sm.Configure(State.A).PermitIf(x, State.B, i => i == 3);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => sm.FireAsync(x, 2));
+        Assert.Throws<InvalidOperationException>(() => sm.Fire(x, 2));
     }
 
     [Fact]
-    public async Task ExceptionWhenPermitDynamicIfHasMultipleNonExclusiveGuards() {
+    public void ExceptionWhenPermitDynamicIfHasMultipleNonExclusiveGuards() {
         var sm = new StateMachine<State, Trigger>(State.A);
         var x = sm.SetTriggerParameters<int>(Trigger.X);
         sm.Configure(State.A).PermitDynamicIf(x, i => i == 4 ? State.B : State.C, i => i % 2 == 0)
           .PermitDynamicIf(x, i => i                    == 2 ? State.C : State.D, i => i     == 2);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => sm.FireAsync(x, 2));
+        Assert.Throws<InvalidOperationException>(() => sm.Fire(x, 2));
     }
 
     [Fact]
-    public async Task ExceptionWhenPermitIfHasMultipleNonExclusiveGuards() {
+    public void ExceptionWhenPermitIfHasMultipleNonExclusiveGuards() {
         var sm = new StateMachine<State, Trigger>(State.A);
         var x = sm.SetTriggerParameters<int>(Trigger.X);
         sm.Configure(State.A).PermitIf(x, State.B, i => i % 2 == 0) // Is Even
           .PermitIf(x, State.C, i => i                        == 2);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => sm.FireAsync(x, 2));
+        Assert.Throws<InvalidOperationException>(() => sm.Fire(x, 2));
     }
 
     /// <summary>
     ///     Verifies guard clauses are only called one time during a transition evaluation.
     /// </summary>
     [Fact]
-    public async Task GuardClauseCalledOnlyOnce() {
+    public void GuardClauseCalledOnlyOnce() {
         var sm = new StateMachine<State, Trigger>(State.A);
         var i = 0;
 
@@ -234,13 +234,13 @@ public class StateMachineFixture {
             return true;
         });
 
-        await sm.FireAsync(Trigger.X);
+        sm.Fire(Trigger.X);
 
         Assert.Equal(1, i);
     }
 
     [Fact]
-    public async Task IfSelfTransitionPermited_ActionsFire() {
+    public void IfSelfTransitionPermited_ActionsFire() {
         var sm = new StateMachine<State, Trigger>(State.B);
 
         var fired = false;
@@ -249,13 +249,13 @@ public class StateMachineFixture {
           .OnEntry(_ => fired = true)
           .PermitReentry(Trigger.X);
 
-        await sm.FireAsync(Trigger.X);
+        sm.Fire(Trigger.X);
 
         Assert.True(fired);
     }
 
     [Fact]
-    public async Task IfSelfTransitionPermited_ActionsFire_InSubstate() {
+    public void IfSelfTransitionPermited_ActionsFire_InSubstate() {
         var sm = new StateMachine<State, Trigger>(State.A);
 
         var onEntryStateBFired = false;
@@ -271,7 +271,7 @@ public class StateMachineFixture {
           .SubstateOf(State.B)
           .OnExit(_ => onExitStateAFired = true);
 
-        await sm.FireAsync(Trigger.X);
+        sm.Fire(Trigger.X);
 
         Assert.Equal(State.B, sm.State);
         Assert.True(onEntryStateBFired);
@@ -280,7 +280,7 @@ public class StateMachineFixture {
     }
 
     [Fact]
-    public async Task IgnoreVsPermitReentry() {
+    public void IgnoreVsPermitReentry() {
         var sm = new StateMachine<State, Trigger>(State.A);
 
         sm.Configure(State.A)
@@ -290,14 +290,14 @@ public class StateMachineFixture {
 
         _numCalls = 0;
 
-        await sm.FireAsync(Trigger.X);
-        await sm.FireAsync(Trigger.Y);
+        sm.Fire(Trigger.X);
+        sm.Fire(Trigger.Y);
 
         Assert.Equal(1, _numCalls);
     }
 
     [Fact]
-    public async Task IgnoreVsPermitReentryFrom() {
+    public void IgnoreVsPermitReentryFrom() {
         var sm = new StateMachine<State, Trigger>(State.A);
 
         sm.Configure(State.A)
@@ -308,8 +308,8 @@ public class StateMachineFixture {
 
         _numCalls = 0;
 
-        await sm.FireAsync(Trigger.X);
-        await sm.FireAsync(Trigger.Y);
+        sm.Fire(Trigger.X);
+        sm.Fire(Trigger.Y);
 
         Assert.Equal(1, _numCalls);
     }
@@ -347,7 +347,7 @@ public class StateMachineFixture {
     }
 
     [Fact]
-    public async Task NoExceptionWhenPermitIfHasMultipleExclusiveGuardsBothFalse() {
+    public void NoExceptionWhenPermitIfHasMultipleExclusiveGuardsBothFalse() {
         var sm = new StateMachine<State, Trigger>(State.A);
         var onUnhandledTriggerWasCalled = false;
         sm.OnUnhandledTrigger((_, _) => { onUnhandledTriggerWasCalled = true; }); // NEVER CALLED
@@ -356,24 +356,24 @@ public class StateMachineFixture {
           .PermitIf(Trigger.X, State.B, () => i == 2)
           .PermitIf(Trigger.X, State.C, () => i == 1);
 
-        await sm.FireAsync(Trigger.X); // THROWS EXCEPTION
+        sm.Fire(Trigger.X); // THROWS EXCEPTION
 
         Assert.True(onUnhandledTriggerWasCalled, "OnUnhandledTrigger was called");
         Assert.Equal(sm.State, State.A);
     }
 
     [Fact]
-    public async Task NoTransitionWhenIgnoreIfParameterizedGuardTrue() {
+    public void NoTransitionWhenIgnoreIfParameterizedGuardTrue() {
         var sm = new StateMachine<State, Trigger>(State.A);
         var x = sm.SetTriggerParameters<int>(Trigger.X);
         sm.Configure(State.A).IgnoreIf(x, i => i == 3);
-        await sm.FireAsync(x, 3);
+        sm.Fire(x, 3);
 
         Assert.Equal(sm.State, State.A);
     }
 
     [Fact]
-    public async Task OnExitFiresOnlyOnceReentrySubstate() {
+    public void OnExitFiresOnlyOnceReentrySubstate() {
         var sm = new StateMachine<State, Trigger>(State.A);
 
         var exitB = 0;
@@ -391,7 +391,7 @@ public class StateMachineFixture {
           .OnEntry(() => entryB++)
           .OnExit(() => exitB++);
 
-        await sm.FireAsync(Trigger.X);
+        sm.Fire(Trigger.X);
 
         Assert.Equal(0, exitB);
         Assert.Equal(0, entryB);
@@ -400,7 +400,7 @@ public class StateMachineFixture {
     }
 
     [Fact]
-    public async Task ParametersSuppliedToFireArePassedToEntryAction() {
+    public void ParametersSuppliedToFireArePassedToEntryAction() {
         var sm = new StateMachine<State, Trigger>(State.B);
 
         var x = sm.SetTriggerParameters<string, int>(Trigger.X);
@@ -420,7 +420,7 @@ public class StateMachineFixture {
         var suppliedArgS = "something";
         var suppliedArgI = 42;
 
-        await sm.FireAsync(x, suppliedArgS, suppliedArgI);
+        sm.Fire(x, suppliedArgS, suppliedArgI);
 
         Assert.Equal(suppliedArgS, entryArgS);
         Assert.Equal(suppliedArgI, entryArgI);
@@ -512,19 +512,19 @@ public class StateMachineFixture {
     }
 
     [Fact]
-    public async Task StateCanBeStoredExternally() {
+    public void StateCanBeStoredExternally() {
         var state = State.B;
         var sm = new StateMachine<State, Trigger>(() => state, s => state = s);
         sm.Configure(State.B).Permit(Trigger.X, State.C);
         Assert.Equal(State.B, sm.State);
         Assert.Equal(State.B, state);
-        await sm.FireAsync(Trigger.X);
+        sm.Fire(Trigger.X);
         Assert.Equal(State.C, sm.State);
         Assert.Equal(State.C, state);
     }
 
     [Fact]
-    public async Task StateMutatorShouldBeCalledOnlyOnce() {
+    public void StateMutatorShouldBeCalledOnlyOnce() {
         var state = State.B;
         var count = 0;
         var sm = new StateMachine<State, Trigger>(() => state, s => {
@@ -532,7 +532,7 @@ public class StateMachineFixture {
             count++;
         });
         sm.Configure(State.B).Permit(Trigger.X, State.C);
-        await sm.FireAsync(Trigger.X);
+        sm.Fire(Trigger.X);
         Assert.Equal(1, count);
     }
 
@@ -549,7 +549,7 @@ public class StateMachineFixture {
     ///     The expected ordering is OnExit, OnTransitioned, OnEntry, OnTransitionCompleted
     /// </summary>
     [Fact]
-    public async Task TheOnTransitionedEventFiresBeforeTheOnEntryEventAndOnTransitionCompletedFiresAfterwards() {
+    public void TheOnTransitionedEventFiresBeforeTheOnEntryEventAndOnTransitionCompletedFiresAfterwards() {
         var sm = new StateMachine<State, Trigger>(State.B);
         var expectedOrdering = new List<string> { "OnExit", "OnTransitioned", "OnEntry", "OnTransitionCompleted" };
         var actualOrdering = new List<string>();
@@ -564,14 +564,14 @@ public class StateMachineFixture {
         sm.OnTransitioned(_ => actualOrdering.Add("OnTransitioned"));
         sm.OnTransitionCompleted(_ => actualOrdering.Add("OnTransitionCompleted"));
 
-        await sm.FireAsync(Trigger.X);
+        sm.Fire(Trigger.X);
 
         Assert.Equal(expectedOrdering.Count, actualOrdering.Count);
         for (var i = 0; i < expectedOrdering.Count; i++) Assert.Equal(expectedOrdering[i], actualOrdering[i]);
     }
 
     [Fact]
-    public async Task TransitionToSuperstateDoesNotExitSuperstate() {
+    public void TransitionToSuperstateDoesNotExitSuperstate() {
         var sm = new StateMachine<State, Trigger>(State.B);
 
         var superExit = false;
@@ -587,7 +587,7 @@ public class StateMachineFixture {
           .Permit(Trigger.Y, State.A)
           .OnExit(() => subExit = true);
 
-        await sm.FireAsync(Trigger.Y);
+        sm.Fire(Trigger.Y);
 
         Assert.True(subExit);
         Assert.False(superEntry);
@@ -595,99 +595,99 @@ public class StateMachineFixture {
     }
 
     [Fact]
-    public async Task TransitionWhenBothParameterizedGuardClausesTrue() {
+    public void TransitionWhenBothParameterizedGuardClausesTrue() {
         var sm = new StateMachine<State, Trigger>(State.A);
         var x = sm.SetTriggerParameters<int>(Trigger.X);
         var positiveGuard = Tuple.Create(new Func<int, bool>(o => o == 2), "Positive Guard");
         var negativeGuard = Tuple.Create(new Func<int, bool>(o => o != 3), "Negative Guard");
         sm.Configure(State.A).PermitIf(x, State.B, positiveGuard, negativeGuard);
-        await sm.FireAsync(x, 2);
+        sm.Fire(x, 2);
 
         Assert.Equal(sm.State, State.B);
     }
 
     [Fact]
-    public async Task TransitionWhenGuardReturnsTrueOnTriggerWithMultipleParameters() {
+    public void TransitionWhenGuardReturnsTrueOnTriggerWithMultipleParameters() {
         var sm = new StateMachine<State, Trigger>(State.A);
         var x = sm.SetTriggerParameters<string, int>(Trigger.X);
         sm.Configure(State.A).PermitIf(x, State.B, (s, i) => s == "3" && i == 3);
-        await sm.FireAsync(x, "3", 3);
+        sm.Fire(x, "3", 3);
         Assert.Equal(sm.State, State.B);
     }
 
     [Fact]
-    public async Task TransitionWhenParameterizedGuardTrue() {
+    public void TransitionWhenParameterizedGuardTrue() {
         var sm = new StateMachine<State, Trigger>(State.A);
         var x = sm.SetTriggerParameters<int>(Trigger.X);
         sm.Configure(State.A).PermitIf(x, State.B, i => i == 2);
-        await sm.FireAsync(x, 2);
+        sm.Fire(x, 2);
 
         Assert.Equal(sm.State, State.B);
     }
 
     [Fact]
-    public async Task TransitionWhenPermitDynamicIfHasMultipleExclusiveGuards() {
+    public void TransitionWhenPermitDynamicIfHasMultipleExclusiveGuards() {
         var sm = new StateMachine<State, Trigger>(State.A);
         var x = sm.SetTriggerParameters<int>(Trigger.X);
         sm.Configure(State.A)
           .PermitDynamicIf(x, i => i == 3 ? State.B : State.C, i => i == 3 || i == 5)
           .PermitDynamicIf(x, i => i == 2 ? State.C : State.D, i => i == 2 || i == 4);
-        await sm.FireAsync(x, 3);
+        sm.Fire(x, 3);
         Assert.Equal(sm.State, State.B);
     }
 
     [Fact]
-    public async Task TransitionWhenPermitIfHasMultipleExclusiveGuards() {
+    public void TransitionWhenPermitIfHasMultipleExclusiveGuards() {
         var sm = new StateMachine<State, Trigger>(State.A);
         var x = sm.SetTriggerParameters<int>(Trigger.X);
         sm.Configure(State.A)
           .PermitIf(x, State.B, i => i == 3)
           .PermitIf(x, State.C, i => i == 2);
-        await sm.FireAsync(x, 3);
+        sm.Fire(x, 3);
         Assert.Equal(sm.State, State.B);
     }
 
     [Fact]
-    public async Task TransitionWhenPermitIfHasMultipleExclusiveGuardsWithSuperStateFalse() {
+    public void TransitionWhenPermitIfHasMultipleExclusiveGuardsWithSuperStateFalse() {
         var sm = new StateMachine<State, Trigger>(State.B);
         var x = sm.SetTriggerParameters<int>(Trigger.X);
         sm.Configure(State.A).PermitIf(x, State.D, i => i == 3);
         {
             sm.Configure(State.B).SubstateOf(State.A).PermitIf(x, State.C, i => i == 2);
         }
-        await sm.FireAsync(x, 2);
+        sm.Fire(x, 2);
         Assert.Equal(sm.State, State.C);
     }
 
     [Fact]
-    public async Task TransitionWhenPermitIfHasMultipleExclusiveGuardsWithSuperStateTrue() {
+    public void TransitionWhenPermitIfHasMultipleExclusiveGuardsWithSuperStateTrue() {
         var sm = new StateMachine<State, Trigger>(State.B);
         var x = sm.SetTriggerParameters<int>(Trigger.X);
         sm.Configure(State.A).PermitIf(x, State.D, i => i == 3);
         {
             sm.Configure(State.B).SubstateOf(State.A).PermitIf(x, State.C, i => i == 2);
         }
-        await sm.FireAsync(x, 3);
+        sm.Fire(x, 3);
         Assert.Equal(sm.State, State.D);
     }
 
     [Fact]
-    public async Task TransitionWhenPermitReentryIfParameterizedGuardFalse() {
+    public void TransitionWhenPermitReentryIfParameterizedGuardFalse() {
         var sm = new StateMachine<State, Trigger>(State.A);
         var x = sm.SetTriggerParameters<int>(Trigger.X);
         sm.Configure(State.A)
           .PermitReentryIf(x, i => i == 3);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => sm.FireAsync(x, 2));
+        Assert.Throws<InvalidOperationException>(() => sm.Fire(x, 2));
     }
 
     [Fact]
-    public async Task TransitionWhenPermitReentryIfParameterizedGuardTrue() {
+    public void TransitionWhenPermitReentryIfParameterizedGuardTrue() {
         var sm = new StateMachine<State, Trigger>(State.A);
         var x = sm.SetTriggerParameters<int>(Trigger.X);
         sm.Configure(State.A)
           .PermitReentryIf(x, i => i == 3);
-        await sm.FireAsync(x, 3);
+        sm.Fire(x, 3);
         Assert.Equal(sm.State, State.A);
     }
 
@@ -699,7 +699,7 @@ public class StateMachineFixture {
     }
 
     [Fact]
-    public async Task WhenAnUnhandledTriggerIsFired_TheProvidedHandlerIsCalledWithStateAndTrigger() {
+    public void WhenAnUnhandledTriggerIsFired_TheProvidedHandlerIsCalledWithStateAndTrigger() {
         var sm = new StateMachine<State, Trigger>(State.B);
 
         State? state = null;
@@ -709,14 +709,14 @@ public class StateMachineFixture {
             trigger = t;
         });
 
-        await sm.FireAsync(Trigger.Z);
+        sm.Fire(Trigger.Z);
 
         Assert.Equal(State.B, state);
         Assert.Equal(Trigger.Z, trigger);
     }
 
     [Fact]
-    public async Task WhenATransitionOccurs_TheOnTransitionCompletedEventFires() {
+    public void WhenATransitionOccurs_TheOnTransitionCompletedEventFires() {
         var sm = new StateMachine<State, Trigger>(State.B);
 
         sm.Configure(State.B)
@@ -725,7 +725,7 @@ public class StateMachineFixture {
         StateMachine<State, Trigger>.Transition transition = null;
         sm.OnTransitionCompleted(t => transition = t);
 
-        await sm.FireAsync(Trigger.X);
+        sm.Fire(Trigger.X);
 
         Assert.NotNull(transition);
         Assert.Equal(Trigger.X, transition.Trigger);
@@ -735,7 +735,7 @@ public class StateMachineFixture {
     }
 
     [Fact]
-    public async Task WhenATransitionOccurs_TheOnTransitionedEventFires() {
+    public void WhenATransitionOccurs_TheOnTransitionedEventFires() {
         var sm = new StateMachine<State, Trigger>(State.B);
 
         sm.Configure(State.B)
@@ -744,7 +744,7 @@ public class StateMachineFixture {
         StateMachine<State, Trigger>.Transition transition = null;
         sm.OnTransitioned(t => transition = t);
 
-        await sm.FireAsync(Trigger.X);
+        sm.Fire(Trigger.X);
 
         Assert.NotNull(transition);
         Assert.Equal(Trigger.X, transition.Trigger);
@@ -754,7 +754,7 @@ public class StateMachineFixture {
     }
 
     [Fact]
-    public async Task WhenATransitionOccurs_WithAParameterizedTrigger_TheOnTransitionCompletedEventFires() {
+    public void WhenATransitionOccurs_WithAParameterizedTrigger_TheOnTransitionCompletedEventFires() {
         var sm = new StateMachine<State, Trigger>(State.B);
         var triggerX = sm.SetTriggerParameters<string>(Trigger.X);
 
@@ -765,7 +765,7 @@ public class StateMachineFixture {
         sm.OnTransitionCompleted(t => transition = t);
 
         var parameter = "the parameter";
-        await sm.FireAsync(triggerX, parameter);
+        sm.Fire(triggerX, parameter);
 
         Assert.NotNull(transition);
         Assert.Equal(Trigger.X, transition.Trigger);
@@ -776,7 +776,7 @@ public class StateMachineFixture {
     }
 
     [Fact]
-    public async Task WhenATransitionOccurs_WithAParameterizedTrigger_TheOnTransitionedEventFires() {
+    public void WhenATransitionOccurs_WithAParameterizedTrigger_TheOnTransitionedEventFires() {
         var sm = new StateMachine<State, Trigger>(State.B);
         var triggerX = sm.SetTriggerParameters<string>(Trigger.X);
 
@@ -787,7 +787,7 @@ public class StateMachineFixture {
         sm.OnTransitioned(t => transition = t);
 
         var parameter = "the parameter";
-        await sm.FireAsync(triggerX, parameter);
+        sm.Fire(triggerX, parameter);
 
         Assert.NotNull(transition);
         Assert.Equal(Trigger.X, transition.Trigger);
@@ -798,7 +798,7 @@ public class StateMachineFixture {
     }
 
     [Fact]
-    public async Task
+    public void
         WhenATransitionOccurs_WithAParameterizedTrigger_WithMultipleParameters_TheOnTransitionCompletedEventFires() {
         var sm = new StateMachine<State, Trigger>(State.B);
         var triggerX = sm.SetTriggerParameters<string, int, bool>(Trigger.X);
@@ -812,7 +812,7 @@ public class StateMachineFixture {
         const string firstParameter = "the parameter";
         const int secondParameter = 99;
         const bool thirdParameter = true;
-        await sm.FireAsync(triggerX, firstParameter, secondParameter, thirdParameter);
+        sm.Fire(triggerX, firstParameter, secondParameter, thirdParameter);
 
         Assert.NotNull(transition);
         Assert.Equal(Trigger.X, transition.Trigger);
@@ -825,8 +825,7 @@ public class StateMachineFixture {
     }
 
     [Fact]
-    public async Task
-        WhenATransitionOccurs_WithAParameterizedTrigger_WithMultipleParameters_TheOnTransitionedEventFires() {
+    public void WhenATransitionOccurs_WithAParameterizedTrigger_WithMultipleParameters_TheOnTransitionedEventFires() {
         var sm = new StateMachine<State, Trigger>(State.B);
         var triggerX = sm.SetTriggerParameters<string, int, bool>(Trigger.X);
 
@@ -839,7 +838,7 @@ public class StateMachineFixture {
         const string firstParameter = "the parameter";
         const int secondParameter = 99;
         const bool thirdParameter = true;
-        await sm.FireAsync(triggerX, firstParameter, secondParameter, thirdParameter);
+        sm.Fire(triggerX, firstParameter, secondParameter, thirdParameter);
 
         Assert.NotNull(transition);
         Assert.Equal(Trigger.X, transition.Trigger);
@@ -939,20 +938,20 @@ public class StateMachineFixture {
     }
 
     [Fact]
-    public async Task WhenDiscriminatedByGuard_ChoosesPermitedTransition() {
+    public void WhenDiscriminatedByGuard_ChoosesPermitedTransition() {
         var sm = new StateMachine<State, Trigger>(State.B);
 
         sm.Configure(State.B)
           .PermitIf(Trigger.X, State.A, () => false)
           .PermitIf(Trigger.X, State.C, () => true);
 
-        await sm.FireAsync(Trigger.X);
+        sm.Fire(Trigger.X);
 
         Assert.Equal(State.C, sm.State);
     }
 
     [Fact]
-    public async Task WhenDiscriminatedByMultiConditionGuard_ChoosesPermitedTransition() {
+    public void WhenDiscriminatedByMultiConditionGuard_ChoosesPermitedTransition() {
         var sm = new StateMachine<State, Trigger>(State.B);
 
         sm.Configure(State.B)
@@ -963,13 +962,13 @@ public class StateMachineFixture {
                     new Tuple<Func<bool>, string>(() => true, "1"),
                     new Tuple<Func<bool>, string>(() => true, "2"));
 
-        await sm.FireAsync(Trigger.X);
+        sm.Fire(Trigger.X);
 
         Assert.Equal(State.C, sm.State);
     }
 
     [Fact]
-    public async Task WhenInSubstate_TriggerIgnoredInSuperstate_RemainsInSubstate() {
+    public void WhenInSubstate_TriggerIgnoredInSuperstate_RemainsInSubstate() {
         var sm = new StateMachine<State, Trigger>(State.B);
 
         sm.Configure(State.B)
@@ -978,7 +977,7 @@ public class StateMachineFixture {
         sm.Configure(State.C)
           .Ignore(Trigger.X);
 
-        await sm.FireAsync(Trigger.X);
+        sm.Fire(Trigger.X);
 
         Assert.Equal(State.B, sm.State);
     }
@@ -993,7 +992,7 @@ public class StateMachineFixture {
     }
 
     [Fact]
-    public async Task WhenTriggerIsIgnored_ActionsNotExecuted() {
+    public void WhenTriggerIsIgnored_ActionsNotExecuted() {
         var sm = new StateMachine<State, Trigger>(State.B);
 
         var fired = false;
@@ -1002,7 +1001,7 @@ public class StateMachineFixture {
           .OnEntry(_ => fired = true)
           .Ignore(Trigger.X);
 
-        await sm.FireAsync(Trigger.X);
+        sm.Fire(Trigger.X);
 
         Assert.False(fired);
     }

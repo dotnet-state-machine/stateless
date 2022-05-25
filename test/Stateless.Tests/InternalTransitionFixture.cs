@@ -2,7 +2,7 @@
 
 public class InternalTransitionFixture {
     [Fact]
-    public async Task AllowTriggerWithThreeParameters() {
+    public void AllowTriggerWithThreeParameters() {
         var sm = new StateMachine<State, Trigger>(State.B);
         var trigger = sm.SetTriggerParameters<int, string, bool>(Trigger.X);
         const int intParam = 5;
@@ -18,12 +18,12 @@ public class InternalTransitionFixture {
                Assert.Equal(boolParam, b);
            });
 
-        await sm.FireAsync(trigger, intParam, strParam, boolParam);
+        sm.Fire(trigger, intParam, strParam, boolParam);
         Assert.True(callbackInvoked);
     }
 
     [Fact]
-    public async Task AllowTriggerWithTwoParameters() {
+    public void AllowTriggerWithTwoParameters() {
         var sm = new StateMachine<State, Trigger>(State.B);
         var trigger = sm.SetTriggerParameters<int, string>(Trigger.X);
         const int intParam = 5;
@@ -37,7 +37,7 @@ public class InternalTransitionFixture {
                Assert.Equal(strParam, s);
            });
 
-        await sm.FireAsync(trigger, intParam, strParam);
+        sm.Fire(trigger, intParam, strParam);
         Assert.True(callbackInvoked);
     }
 
@@ -68,7 +68,7 @@ public class InternalTransitionFixture {
     }
 
     [Fact]
-    public async Task ConditionalTriggerWithoutParameters() {
+    public void ConditionalTriggerWithoutParameters() {
         var sm = new StateMachine<State, Trigger>(State.B);
         var predicateInvoked = false;
         var callbackInvoked = false;
@@ -80,13 +80,13 @@ public class InternalTransitionFixture {
                                 },
                                 () => { callbackInvoked = true; });
 
-        await sm.FireAsync(Trigger.X);
+        sm.Fire(Trigger.X);
         Assert.True(predicateInvoked);
         Assert.True(callbackInvoked);
     }
 
     [Fact]
-    public async Task ConditionalTriggerWithParameter() {
+    public void ConditionalTriggerWithParameter() {
         var sm = new StateMachine<State, Trigger>(State.B);
         var trigger = sm.SetTriggerParameters<int>(Trigger.X);
         const int intParam = 5;
@@ -104,13 +104,13 @@ public class InternalTransitionFixture {
                                     Assert.Equal(intParam, i);
                                 });
 
-        await sm.FireAsync(trigger, intParam);
+        sm.Fire(trigger, intParam);
         Assert.True(predicateInvoked);
         Assert.True(callbackInvoked);
     }
 
     [Fact]
-    public async Task InternalTriggerHandledOnlyOnceInSub() {
+    public void InternalTriggerHandledOnlyOnceInSub() {
         var handledIn = State.C;
 
         var sm = new StateMachine<State, Trigger>(State.B);
@@ -123,13 +123,13 @@ public class InternalTransitionFixture {
           .InternalTransition(Trigger.X, () => handledIn = State.B);
 
         // The state machine is in state B. It should only be handled in in State B, so handledIn should be equal to State.B
-        await sm.FireAsync(Trigger.X);
+        sm.Fire(Trigger.X);
 
         Assert.Equal(State.B, handledIn);
     }
 
     [Fact]
-    public async Task InternalTriggerHandledOnlyOnceInSuper() {
+    public void InternalTriggerHandledOnlyOnceInSuper() {
         var handledIn = State.C;
 
         var sm = new StateMachine<State, Trigger>(State.A);
@@ -142,13 +142,13 @@ public class InternalTransitionFixture {
           .InternalTransition(Trigger.X, () => handledIn = State.B);
 
         // The state machine is in state A. It should only be handled in in State A, so handledIn should be equal to State.A
-        await sm.FireAsync(Trigger.X);
+        sm.Fire(Trigger.X);
 
         Assert.Equal(State.A, handledIn);
     }
 
     [Fact]
-    public async Task OnlyOneHandlerExecuted() {
+    public void OnlyOneHandlerExecuted() {
         var handled = 0;
 
         var sm = new StateMachine<State, Trigger>(State.A);
@@ -157,23 +157,23 @@ public class InternalTransitionFixture {
           .InternalTransition(Trigger.X, () => handled++)
           .InternalTransition(Trigger.Y, () => handled++);
 
-        await sm.FireAsync(Trigger.X);
+        sm.Fire(Trigger.X);
 
         Assert.Equal(1, handled);
 
-        await sm.FireAsync(Trigger.Y);
+        sm.Fire(Trigger.Y);
 
         Assert.Equal(2, handled);
     }
 
     [Fact]
-    public async Task StayInSameStateOneState_Action() {
+    public void StayInSameStateOneState_Action() {
         var sm = new StateMachine<State, Trigger>(State.A);
         sm.Configure(State.A)
           .InternalTransition(Trigger.X, () => { });
 
         Assert.Equal(State.A, sm.State);
-        await sm.FireAsync(Trigger.X);
+        sm.Fire(Trigger.X);
         Assert.Equal(State.A, sm.State);
     }
 
@@ -182,18 +182,18 @@ public class InternalTransitionFixture {
     ///     This will fail if the state changes after the trigger has fired.
     /// </summary>
     [Fact]
-    public async Task StayInSameStateOneState_Transition() {
+    public void StayInSameStateOneState_Transition() {
         var sm = new StateMachine<State, Trigger>(State.A);
         sm.Configure(State.A)
           .InternalTransition(Trigger.X, _ => { });
 
         Assert.Equal(State.A, sm.State);
-        await sm.FireAsync(Trigger.X);
+        sm.Fire(Trigger.X);
         Assert.Equal(State.A, sm.State);
     }
 
     [Fact]
-    public async Task StayInSameStateTwoStates_Action() {
+    public void StayInSameStateTwoStates_Action() {
         var sm = new StateMachine<State, Trigger>(State.A);
 
         sm.Configure(State.A)
@@ -206,20 +206,20 @@ public class InternalTransitionFixture {
 
         // This should not cause any state changes
         Assert.Equal(State.A, sm.State);
-        await sm.FireAsync(Trigger.X);
+        sm.Fire(Trigger.X);
         Assert.Equal(State.A, sm.State);
 
         // Change state to B
-        await sm.FireAsync(Trigger.Y);
+        sm.Fire(Trigger.Y);
 
         // This should also not cause any state changes
         Assert.Equal(State.B, sm.State);
-        await sm.FireAsync(Trigger.X);
+        sm.Fire(Trigger.X);
         Assert.Equal(State.B, sm.State);
     }
 
     [Fact]
-    public async Task StayInSameStateTwoStates_Transition() {
+    public void StayInSameStateTwoStates_Transition() {
         var sm = new StateMachine<State, Trigger>(State.A);
 
         sm.Configure(State.A)
@@ -232,20 +232,20 @@ public class InternalTransitionFixture {
 
         // This should not cause any state changes
         Assert.Equal(State.A, sm.State);
-        await sm.FireAsync(Trigger.X);
+        sm.Fire(Trigger.X);
         Assert.Equal(State.A, sm.State);
 
         // Change state to B
-        await sm.FireAsync(Trigger.Y);
+        sm.Fire(Trigger.Y);
 
         // This should also not cause any state changes
         Assert.Equal(State.B, sm.State);
-        await sm.FireAsync(Trigger.X);
+        sm.Fire(Trigger.X);
         Assert.Equal(State.B, sm.State);
     }
 
     [Fact]
-    public async Task StayInSameSubStateTransitionInSubstate_Action() {
+    public void StayInSameSubStateTransitionInSubstate_Action() {
         var sm = new StateMachine<State, Trigger>(State.B);
 
         sm.Configure(State.A);
@@ -257,14 +257,14 @@ public class InternalTransitionFixture {
 
         // This should not cause any state changes
         Assert.Equal(State.B, sm.State);
-        await sm.FireAsync(Trigger.X);
+        sm.Fire(Trigger.X);
         Assert.Equal(State.B, sm.State);
-        await sm.FireAsync(Trigger.Y);
+        sm.Fire(Trigger.Y);
         Assert.Equal(State.B, sm.State);
     }
 
     [Fact]
-    public async Task StayInSameSubStateTransitionInSubstate_Transition() {
+    public void StayInSameSubStateTransitionInSubstate_Transition() {
         var sm = new StateMachine<State, Trigger>(State.B);
 
         sm.Configure(State.A);
@@ -275,12 +275,12 @@ public class InternalTransitionFixture {
 
         // This should not cause any state changes
         Assert.Equal(State.B, sm.State);
-        await sm.FireAsync(Trigger.X);
+        sm.Fire(Trigger.X);
         Assert.Equal(State.B, sm.State);
     }
 
     [Fact]
-    public async Task StayInSameSubStateTransitionInSuperstate_Action() {
+    public void StayInSameSubStateTransitionInSuperstate_Action() {
         var sm = new StateMachine<State, Trigger>(State.B);
 
         sm.Configure(State.A)
@@ -292,14 +292,14 @@ public class InternalTransitionFixture {
 
         // This should not cause any state changes
         Assert.Equal(State.B, sm.State);
-        await sm.FireAsync(Trigger.X);
+        sm.Fire(Trigger.X);
         Assert.Equal(State.B, sm.State);
-        await sm.FireAsync(Trigger.Y);
+        sm.Fire(Trigger.Y);
         Assert.Equal(State.B, sm.State);
     }
 
     [Fact]
-    public async Task StayInSameSubStateTransitionInSuperstate_Transition() {
+    public void StayInSameSubStateTransitionInSuperstate_Transition() {
         var sm = new StateMachine<State, Trigger>(State.B);
 
         sm.Configure(State.A)
@@ -310,7 +310,7 @@ public class InternalTransitionFixture {
 
         // This should not cause any state changes
         Assert.Equal(State.B, sm.State);
-        await sm.FireAsync(Trigger.X);
+        sm.Fire(Trigger.X);
         Assert.Equal(State.B, sm.State);
     }
 }
