@@ -3,7 +3,8 @@
   <PropertyGroup>
     <AssemblyTitle>Stateless</AssemblyTitle>
     <Product>Stateless</Product>
-    <TargetFrameworks>netstandard2.0;netstandard1.0;net45;net40;net472;net50</TargetFrameworks>
+    <TargetFrameworks>net6.0</TargetFrameworks>
+    <LangVersion>10.0</LangVersion>
     <Description>Create state machines and lightweight state machine-based workflows directly in .NET code</Description>
     <Copyright>Copyright © Stateless Contributors 2009-2019</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
@@ -18,17 +19,18 @@
     <PackageProjectUrl>https://github.com/dotnet-state-machine/stateless</PackageProjectUrl>
     <license>http://www.apache.org/licenses/LICENSE-2.0</license>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' OR '$(TargetFramework)' == 'netstandard2.0' ">
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
     <DefineConstants>$(DefineConstants);PORTABLE_REFLECTION;TASKS</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' OR '$(TargetFramework)' == 'net472' OR '$(TargetFramework)' == 'net50'">
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
     <DefineConstants>$(DefineConstants);TASKS</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\asset\Stateless.png" Pack="true" PackagePath="\"/>
+    <None Include="..\..\asset\Stateless.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 </Project>

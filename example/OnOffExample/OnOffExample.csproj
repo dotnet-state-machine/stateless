@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFrameworks>net6.0</TargetFrameworks>
+    <LangVersion>10.0</LangVersion>
     <AssemblyName>OnOffExample</AssemblyName>
     <OutputType>Exe</OutputType>
     <PackageId>OnOffExample</PackageId>
@@ -13,9 +14,4 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Stateless\Stateless.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-
 </Project>
