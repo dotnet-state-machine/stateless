@@ -3,7 +3,7 @@
 namespace Stateless.Graph
 {
     /// <summary>
-    /// Class to generate a DOT grah in UML format
+    /// Class to generate a DOT graph in UML format
     /// </summary>
     public static class UmlDotGraph
     {
