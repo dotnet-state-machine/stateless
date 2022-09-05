@@ -25,14 +25,14 @@ jobs:
       
     - name: Pack alpha version
       if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
-      run: dotnet pack src/stateless/stateless.csproj --version-suffix dev-${{github.run_id}} --configuration Release
+      run: dotnet pack src/Stateless/Stateless.csproj --version-suffix dev-${{github.run_id}} --configuration Release
     - name: Publish alpha version
       if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
-      run: dotnet nuget push src\stateless\bin\Release\*.nupkg -s nuget.org --api-key ${{ secrets.NUGETAPIKEY }}
+      run: dotnet nuget push src/Stateless/bin/Release/*.nupkg -s nuget.org --api-key ${{ secrets.NUGETAPIKEY }}
   
     - name: Pack Release version
       if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-      run: dotnet pack src/stateless/stateless.csproj --configuration Release
+      run: dotnet pack src/Stateless/Stateless.csproj --configuration Release
     - name: Publish Release version
       if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-      run: dotnet nuget push src\stateless\bin\Release\*.nupkg -s nuget.org --api-key ${{ secrets.NUGETAPIKEY }}
+      run: dotnet nuget push src/Stateless/bin/Release/*.nupkg -s nuget.org --api-key ${{ secrets.NUGETAPIKEY }}
