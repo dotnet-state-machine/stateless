@@ -168,27 +168,19 @@ stateMachine.OnUnhandledTrigger((state, trigger) => { });
 
 ### State change notifications (events)
 
-Stateless supports 3 types of state machine events:
- * Internal state transition 
+Stateless supports 2 types of state machine events:
  * State transition
  * State machine transition completed
 
-#### Internal state transition 
-```csharp
-stateMachine.OnInternalTransitioned((state, trigger) => { });
-```
-
-This event will be invoked every time the state machine handles an internal state transition.
-
 #### State transition
 ```csharp
-stateMachine.OnTransitioned((state, trigger) => { });
+stateMachine.OnTransitioned((transition) => { });
 ```
 This event will be invoked every time the state machine changes state.
 
 #### State machine transition completed
 ```csharp
-stateMachine.OnTransitionCompleted((state, trigger) => { });
+stateMachine.OnTransitionCompleted((transition) => { });
 ```
 This event will be invoked at the very end of the trigger handling, after the last  entry action have been executed.
 
