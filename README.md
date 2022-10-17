@@ -1,4 +1,4 @@
-# Stateless [![Build status](https://ci.appveyor.com/api/projects/status/github/dotnet-state-machine/stateless?svg=true)](https://ci.appveyor.com/project/DotnetStateMachine/stateless/branch/master) [![NuGet Pre Release](https://img.shields.io/nuget/vpre/Stateless.svg)](https://www.nuget.org/packages/stateless) [![Join the chat at https://gitter.im/dotnet-state-machine/stateless](https://badges.gitter.im/dotnet-state-machine/stateless.svg)](https://gitter.im/dotnet-state-machine/stateless?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Stack Overflow](https://img.shields.io/badge/stackoverflow-tag-orange.svg)](http://stackoverflow.com/questions/tagged/stateless-state-machine)
+# Stateless [![Build status](https://github.com/dotnet-state-machine/stateless/actions/workflows/BuildAndTestOnPullRequests.yml/badge.svg)](https://github.com/dotnet-state-machine/stateless/actions/workflows/BuildAndTestOnPullRequests.yml) [![NuGet Pre Release](https://img.shields.io/nuget/vpre/Stateless.svg)](https://www.nuget.org/packages/stateless) [![Join the chat at https://gitter.im/dotnet-state-machine/stateless](https://badges.gitter.im/dotnet-state-machine/stateless.svg)](https://gitter.im/dotnet-state-machine/stateless?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Stack Overflow](https://img.shields.io/badge/stackoverflow-tag-orange.svg)](http://stackoverflow.com/questions/tagged/stateless-state-machine)
 
 **Create *state machines* and lightweight *state machine-based workflows* directly in .NET code:**
 
@@ -31,7 +31,7 @@ Most standard state machine constructs are supported:
 
  * Generic support for states and triggers of any .NET type (numbers, strings, enums, etc.)
  * Hierarchical states
- * Entry/exit events for states
+ * Entry/exit actions for states
  * Guard clauses to support conditional transitions
  * Introspection
 
@@ -56,17 +56,17 @@ phoneCall.Configure(State.OnHold)
 
 In addition to the `StateMachine.State` property, which will report the precise current state, an `IsInState(State)` method is provided. `IsInState(State)` will take substates into account, so that if the example above was in the `OnHold` state, `IsInState(State.Connected)` would also evaluate to `true`.
 
-### Entry/Exit Events
+### Entry/Exit actions
 
 In the example, the `StartCallTimer()` method will be executed when a call is connected. The `StopCallTimer()` will be executed when call completes (by either hanging up or hurling the phone against the wall.)
 
 The call can move between the `Connected` and `OnHold` states without the `StartCallTimer()` and `StopCallTimer()` methods being called repeatedly because the `OnHold` state is a substate of the `Connected` state.
 
-Entry/Exit event handlers can be supplied with a parameter of type `Transition` that describes the trigger, source and destination states.
+Entry/Exit action handlers can be supplied with a parameter of type `Transition` that describes the trigger, source and destination states.
 
 ### Internal transitions
 
-Sometimes an event does needs to be handled, but the state shouldn't change. This is an internal transition. Use `InternalTransition` for this.
+Sometimes a trigger does needs to be handled, but the state shouldn't change. This is an internal transition. Use `InternalTransition` for this.
 
 ### Initial state transitions
 
@@ -79,6 +79,15 @@ A substate can be marked as initial state. When the state machine enters the sup
     sm.Configure(State.C)
         .SubstateOf(State.B);
 ```
+
+Due to Stateless' internal structure, it does not know when it is "started". This makes it impossible to handle an initial transition in the traditional way. It is possible to work around this limitation by adding a dummy initial state, and then use Activate() to "start" the state machine.
+
+```csharp
+    sm.Configure(InitialState)
+        .OnActivate(() => sm.Fire(LetsGo)))
+        .Permit(LetsGo, StateA)
+```
+
 
 ### External State Storage
 
@@ -143,7 +152,7 @@ phoneCall.Configure(State.Connected)
     .Ignore(Trigger.CallDialled);
 ```
 
-Alternatively, a state can be marked reentrant so its entry and exit events will fire even when transitioning from/to itself:
+Alternatively, a state can be marked reentrant so its entry and exit actions will fire even when transitioning from/to itself:
 
 ```csharp
 stateMachine.Configure(State.Assigned)
@@ -156,6 +165,24 @@ By default, triggers must be ignored explicitly. To override Stateless's default
 ```csharp
 stateMachine.OnUnhandledTrigger((state, trigger) => { });
 ```
+
+### State change notifications (events)
+
+Stateless supports 2 types of state machine events:
+ * State transition
+ * State machine transition completed
+
+#### State transition
+```csharp
+stateMachine.OnTransitioned((transition) => { });
+```
+This event will be invoked every time the state machine changes state.
+
+#### State machine transition completed
+```csharp
+stateMachine.OnTransitionCompleted((transition) => { });
+```
+This event will be invoked at the very end of the trigger handling, after the last  entry action have been executed.
 
 ### Export to DOT graph
 

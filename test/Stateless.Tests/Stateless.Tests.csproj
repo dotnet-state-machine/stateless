@@ -3,7 +3,7 @@
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);TASKS</DefineConstants>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <TargetFrameworks>net50</TargetFrameworks>
+    <TargetFrameworks>net6.0</TargetFrameworks>
     <IsPackable>false</IsPackable>
     <AssemblyName>Stateless.Tests</AssemblyName>
     <AssemblyOriginatorKeyFile>../../asset/Stateless.snk</AssemblyOriginatorKeyFile>
