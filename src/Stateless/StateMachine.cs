@@ -130,8 +130,8 @@ namespace Stateless
         {
             return CurrentRepresentation.GetPermittedTriggers(args);
         }
-		
-		 /// <summary>
+
+        /// <summary>
         /// Returns configured Parametrized trigger by the key. 
         /// </summary>
         /// <param name="trigger">Key of the trigger</param>
