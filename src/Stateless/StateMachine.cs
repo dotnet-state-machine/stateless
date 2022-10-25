@@ -130,7 +130,24 @@ namespace Stateless
         {
             return CurrentRepresentation.GetPermittedTriggers(args);
         }
+		
+		 /// <summary>
+        /// Returns configured Parametrized trigger by the key. 
+        /// </summary>
+        /// <param name="trigger">Key of the trigger</param>
+        /// <param name="triggerWithParameters">The actual trigger object to be returned</param>
+        /// <returns>bool whether such trigger is registered</returns>
+        public bool TryGetTriggerWithParameters(TTrigger trigger, out TriggerWithParameters triggerWithParameters)
+        {
+            return _triggerConfiguration.TryGetValue(trigger, out triggerWithParameters);
+        }
 
+        /// <summary>
+        /// Returns registered parametrized triggers.
+        /// </summary>
+        /// <returns>registered parametrized triggers</returns>
+        public IEnumerable<TriggerWithParameters> GetTriggersWithParameters() => _triggerConfiguration.Values;
+		
         StateRepresentation CurrentRepresentation
         {
             get
