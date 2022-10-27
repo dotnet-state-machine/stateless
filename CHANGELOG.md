@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 5.12.0 - 2022.10.17
+### Added
+ - Add explicit .NET 6.0 framework support [#479]
+ - Stateless.Tests -> .NET 6 [#484]
+ - Update Readme regarding state machine events [#488]
+### Fixed
+ - Typo in summary comment of class UmlDotGraph [#471]
+ - Github workflows/dotnet pack: Fix project path casing and directory separators [#478]
+ - Hardcode the AssemblyName attribute in the .csproj to "Stateless" [#480]
+### Security
+ - Bump Newtonsoft.Json from 10.0.3 to 13.0.1 in /example/JsonExample [#487]
+
 ## 5.11.0 - 2021.04.28
 ### Added
  - Added CanFire overload to return unmet guard descriptions [#443]
