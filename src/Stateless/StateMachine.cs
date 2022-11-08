@@ -131,6 +131,17 @@ namespace Stateless
             return CurrentRepresentation.GetPermittedTriggers(args);
         }
 
+#if !NETSTANDARD1_0
+        /// <summary>
+        /// Gets the currently-permissible triggers with any configured parameters.
+        /// </summary>
+        public IEnumerable<TriggerDetails<TState, TTrigger>> GetDetailedPermittedTriggers(params object[] args)
+        {
+            return CurrentRepresentation.GetPermittedTriggers(args)
+                .Select(trigger => new TriggerDetails<TState, TTrigger>(trigger, _triggerConfiguration));
+        }
+#endif
+
         StateRepresentation CurrentRepresentation
         {
             get

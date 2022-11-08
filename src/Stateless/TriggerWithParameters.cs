@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Stateless
 {
@@ -22,6 +23,11 @@ namespace Stateless
                 _underlyingTrigger = underlyingTrigger;
                 _argumentTypes = argumentTypes ?? throw new ArgumentNullException(nameof(argumentTypes));
             }
+
+            /// <summary>
+            /// Gets the arguments types expected by this trigger.
+            /// </summary>
+            public IEnumerable<Type> ArgumentTypes => _argumentTypes;
 
             /// <summary>
             /// Gets the underlying trigger value that has been configured.

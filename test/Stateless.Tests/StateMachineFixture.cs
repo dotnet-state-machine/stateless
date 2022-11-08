@@ -1066,5 +1066,36 @@ namespace Stateless.Tests
             Assert.True(unmetGuards?.Count == 0);
         }
 
+        [Fact]
+        public void GetDetailedPermittedTriggers_ReturnsTriggerWithoutParameters()
+        {
+            var sm = new StateMachine<State, Trigger>(State.B);
+
+            sm.Configure(State.B)
+                .Permit(Trigger.X, State.A);
+
+            var permitted = sm.GetDetailedPermittedTriggers().ToList();
+            Assert.Single(permitted);
+            var triggerDetails = permitted.First();
+            Assert.False(triggerDetails.HasParameters);
+            Assert.Null(triggerDetails.Parameters);
+        }
+
+        [Fact]
+        public void GetDetailedPermittedTriggers_ReturnsTriggerWithParameters()
+        {
+            var sm = new StateMachine<State, Trigger>(State.B);
+
+            var pt = sm.SetTriggerParameters<int>(Trigger.X);
+            sm.Configure(State.B)
+                .Permit(Trigger.X, State.A);
+
+            var permitted = sm.GetDetailedPermittedTriggers().ToList();
+            Assert.Single(permitted);
+            var triggerDetails = permitted.First();
+            Assert.True(triggerDetails.HasParameters);
+            Assert.Equal(pt, triggerDetails.Parameters);
+        }
+
     }
 }
