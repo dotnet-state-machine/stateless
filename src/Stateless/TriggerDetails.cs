@@ -31,7 +31,7 @@ namespace Stateless
 
         /// <summary>
         /// When <see cref="HasParameters"/> is <code>true</code>, returns the parameters required by 
-        /// this trigger; otherwise, returns <code>false</code>.
+        /// this trigger; otherwise, returns <code>null</code>.
         /// </summary>
         public StateMachine<TState, TTrigger>.TriggerWithParameters Parameters { get; }
     }
