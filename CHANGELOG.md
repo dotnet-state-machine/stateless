@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 5.13.0 - 2022.12.29
+### Added
+ - Add method to get permitted triggers with parameter information [#494]
+### Fixed
+ - Fix incorrect initial state in dotgraph after trigger fired [#495]
+
 ## 5.12.0 - 2022.10.17
 ### Added
  - Add explicit .NET 6.0 framework support [#479]
