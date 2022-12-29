@@ -30,6 +30,7 @@ namespace Stateless
         private UnhandledTriggerAction _unhandledTriggerAction;
         private readonly OnTransitionedEvent _onTransitionedEvent;
         private readonly OnTransitionedEvent _onTransitionCompletedEvent;
+        private readonly TState _initialState;
         private readonly FiringMode _firingMode;
 
         private class QueuedTrigger
@@ -69,6 +70,7 @@ namespace Stateless
             _stateAccessor = stateAccessor ?? throw new ArgumentNullException(nameof(stateAccessor));
             _stateMutator = stateMutator ?? throw new ArgumentNullException(nameof(stateMutator));
 
+            _initialState = stateAccessor();
             _firingMode = firingMode;
         }
 
@@ -83,6 +85,7 @@ namespace Stateless
             _stateAccessor = () => reference.State;
             _stateMutator = s => reference.State = s;
 
+            _initialState = initialState;
             _firingMode = firingMode;
         }
 
@@ -131,6 +134,17 @@ namespace Stateless
             return CurrentRepresentation.GetPermittedTriggers(args);
         }
 
+#if !NETSTANDARD1_0
+        /// <summary>
+        /// Gets the currently-permissible triggers with any configured parameters.
+        /// </summary>
+        public IEnumerable<TriggerDetails<TState, TTrigger>> GetDetailedPermittedTriggers(params object[] args)
+        {
+            return CurrentRepresentation.GetPermittedTriggers(args)
+                .Select(trigger => new TriggerDetails<TState, TTrigger>(trigger, _triggerConfiguration));
+        }
+#endif
+
         StateRepresentation CurrentRepresentation
         {
             get
@@ -144,7 +158,7 @@ namespace Stateless
         /// </summary>
         public StateMachineInfo GetInfo()
         {
-            var initialState = StateInfo.CreateStateInfo(new StateRepresentation(State));
+            var initialState = StateInfo.CreateStateInfo(new StateRepresentation(_initialState));
 
             var representations = _stateConfiguration.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 

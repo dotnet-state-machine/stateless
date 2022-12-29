@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace Stateless.Tests
@@ -72,6 +74,35 @@ namespace Stateless.Tests
         {
             var twp = new StateMachine<State, Trigger>.TriggerWithParameters(Trigger.X, new Type[] { typeof(int), typeof(string) });
             twp.ValidateParameters(new object[] { 123, "arg" });
+        }
+
+        [Fact]
+        public void Arguments_Returs_Single_Argument()
+        {
+            var twp = new StateMachine<State, Trigger>.TriggerWithParameters<int>(Trigger.X);
+            Assert.Single(twp.ArgumentTypes);
+            Assert.Equal(typeof(int), twp.ArgumentTypes.First());
+        }
+
+        [Fact]
+        public void Arguments_Returs_Two_Arguments()
+        {
+            var twp = new StateMachine<State, Trigger>.TriggerWithParameters<int, string>(Trigger.X);
+            var args = twp.ArgumentTypes.ToList();
+            Assert.Equal(2, args.Count);
+            Assert.Equal(typeof(int), args[0]);
+            Assert.Equal(typeof(string), args[1]);
+        }
+
+        [Fact]
+        public void Arguments_Returs_Three_Arguments()
+        {
+            var twp = new StateMachine<State, Trigger>.TriggerWithParameters<int, string, List<bool>>(Trigger.X);
+            var args = twp.ArgumentTypes.ToList();
+            Assert.Equal(3, args.Count);
+            Assert.Equal(typeof(int), args[0]);
+            Assert.Equal(typeof(string), args[1]);
+            Assert.Equal(typeof(List<bool>), args[2]);
         }
     }
 }

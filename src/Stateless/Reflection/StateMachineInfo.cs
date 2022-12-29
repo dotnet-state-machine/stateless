@@ -20,12 +20,11 @@ namespace Stateless.Reflection
         /// <summary>
         /// Exposes the initial state of this state machine.
         /// </summary>
-
         public StateInfo InitialState { get; }
+
         /// <summary>
         /// Exposes the states, transitions, and actions of this machine.
         /// </summary>
-
         public IEnumerable<StateInfo> States { get; }
 
         /// <summary>
