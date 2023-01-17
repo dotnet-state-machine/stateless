@@ -1,6 +1,4 @@
-﻿#if TASKS
-
-using System;
+﻿using System;
 using System.Threading.Tasks;
 
 namespace Stateless
@@ -20,7 +18,7 @@ namespace Stateless
             {
                 if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Async(trigger, guard, (t, args) => entryAction(t)));
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard, (t, args) => entryAction(t)));
                 return this;
             }
 
@@ -35,7 +33,7 @@ namespace Stateless
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Async(trigger, guard, (t, args) => internalAction()));
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard, (t, args) => internalAction()));
                 return this;
             }
 
@@ -51,7 +49,7 @@ namespace Stateless
             {
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Async(trigger, guard, (t, args) => internalAction(t)));
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger, guard, (t, args) => internalAction(t)));
                 return this;
             }
 
@@ -68,7 +66,7 @@ namespace Stateless
                 if (trigger == null) throw new ArgumentNullException(nameof(trigger));
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Async(trigger.Trigger, guard, (t, args) => internalAction(ParameterConversion.Unpack<TArg0>(args, 0), t)));
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard, (t, args) => internalAction(ParameterConversion.Unpack<TArg0>(args, 0), t)));
                 return this;
             }
 
@@ -86,7 +84,7 @@ namespace Stateless
                 if (trigger == null) throw new ArgumentNullException(nameof(trigger));
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Async(trigger.Trigger, guard, (t, args) => internalAction(
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard, (t, args) => internalAction(
                     ParameterConversion.Unpack<TArg0>(args, 0),
                     ParameterConversion.Unpack<TArg1>(args, 1), t)));
                 return this;
@@ -107,7 +105,7 @@ namespace Stateless
                 if (trigger == null) throw new ArgumentNullException(nameof(trigger));
                 if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Async(trigger.Trigger, guard, (t, args) => internalAction(
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour(trigger.Trigger, guard, (t, args) => internalAction(
                     ParameterConversion.Unpack<TArg0>(args, 0),
                     ParameterConversion.Unpack<TArg1>(args, 1),
                     ParameterConversion.Unpack<TArg2>(args, 2), t)));
@@ -288,6 +286,27 @@ namespace Stateless
                 return this;
             }
 
+
+            /// <summary>
+            /// Specify an asynchronous action that will execute when transitioning into
+            /// the configured state.
+            /// </summary>
+            /// <param name="entryAction">Action to execute, providing details of the transition.</param>
+            /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
+            /// <param name="entryActionDescription">Action description.</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration OnEntryFromAsync(TriggerWithParameters trigger, Func<Transition, Task> entryAction, string entryActionDescription = null)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+
+                _representation.AddEntryAction(
+                    trigger.Trigger,
+                    (t, args) => entryAction(t),
+                    Reflection.InvocationInfo.Create(entryAction, entryActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                return this;
+            }
+
             /// <summary>
             /// Specify an asynchronous action that will execute when transitioning into
             /// the configured state.
@@ -462,4 +481,3 @@ namespace Stateless
         }
     }
 }
-#endif

@@ -30,6 +30,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\asset\Stateless.png" Pack="true" PackagePath="\"/>
+    <None Include="..\..\asset\Stateless.png" Pack="true" PackagePath="\" />
   </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net40'">
+    <PackageReference Include="Microsoft.Bcl.Async" Version="1.0.168" />
+  </ItemGroup>
+
 </Project>
