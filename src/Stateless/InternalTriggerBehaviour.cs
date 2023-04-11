@@ -45,7 +45,7 @@ namespace Stateless
             {
                 readonly Func<Transition, object[], Task> InternalAction;
 
-                public Async(TTrigger trigger, Func<bool> guard,Func<Transition, object[], Task> internalAction, string guardDescription = null) : base(trigger, new TransitionGuard(guard, guardDescription))
+                public Async(TTrigger trigger, Func<object[], bool> guard,Func<Transition, object[], Task> internalAction, string guardDescription = null) : base(trigger, new TransitionGuard(guard, guardDescription))
                 {
                     InternalAction = internalAction;
                 }
