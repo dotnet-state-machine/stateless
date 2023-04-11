@@ -24,14 +24,10 @@ namespace Stateless
                 if (action == null) throw new ArgumentNullException(nameof(action));
 
                 EntryActions.Add(
-                    new EntryActionBehavior.Async((t, args) =>
-                    {
-                        if (t.Trigger.Equals(trigger))
-                            return action(t, args);
-
-                        return TaskResult.Done;
-                    },
-                    entryActionDescription));
+                    new EntryActionBehavior.AsyncFrom<TTrigger>(
+                        trigger,
+                        action,
+                        entryActionDescription));
             }
 
             public void AddEntryAction(Func<Transition, object[], Task> action, Reflection.InvocationInfo entryActionDescription)
