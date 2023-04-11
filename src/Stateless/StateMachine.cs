@@ -64,7 +64,7 @@ namespace Stateless
         /// </summary>
         /// <param name="stateAccessor">A function that will be called to read the current state value.</param>
         /// <param name="stateMutator">An action that will be called to write new state values.</param>
-        /// <param name="firingMode">Optional specification of fireing mode.</param>
+        /// <param name="firingMode">Optional specification of firing mode.</param>
         public StateMachine(Func<TState> stateAccessor, Action<TState> stateMutator, FiringMode firingMode) : this()
         {
             _stateAccessor = stateAccessor ?? throw new ArgumentNullException(nameof(stateAccessor));
@@ -78,7 +78,7 @@ namespace Stateless
         /// Construct a state machine.
         /// </summary>
         /// <param name="initialState">The initial state.</param>
-        /// <param name="firingMode">Optional specification of fireing mode.</param>
+        /// <param name="firingMode">Optional specification of firing mode.</param>
         public StateMachine(TState initialState, FiringMode firingMode) : this()
         {
             var reference = new StateReference { State = initialState };
@@ -476,7 +476,7 @@ namespace Stateless
             _onTransitionedEvent.Invoke(transition);
             var representation = EnterState(newRepresentation, transition, args);
 
-            // Check if state has changed by entering new state (by fireing triggers in OnEntry or such)
+            // Check if state has changed by entering new state (by firing triggers in OnEntry or such)
             if (!representation.UnderlyingState.Equals(State))
             {
                 // The state has been changed after entering the state, must update current state to new one

@@ -249,7 +249,7 @@ namespace Stateless
             await _onTransitionedEvent.InvokeAsync(transition);
             var representation =await EnterStateAsync(newRepresentation, transition, args);
 
-            // Check if state has changed by entering new state (by fireing triggers in OnEntry or such)
+            // Check if state has changed by entering new state (by firing triggers in OnEntry or such)
             if (!representation.UnderlyingState.Equals(State))
             {
                 // The state has been changed after entering the state, must update current state to new one
