@@ -230,6 +230,11 @@ await stateMachine.FireAsync(Trigger.Assigned);
 Stateless runs on .NET 4.0+ and practically all modern .NET platforms by targeting .NET Standard 1.0 and .NET Standard2.0. Visual Studio 2017 or later is required to build the solution.
 
 
+## Contributing
+
+We welcome contributions to this project. Check [CONTRIBUTING.md](CONTRIBUTING.md) for more info.
+
+
 ## Project Goals
 
 This page is an almost-complete description of Stateless, and its explicit aim is to remain minimal.
