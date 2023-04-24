@@ -144,12 +144,12 @@ namespace Stateless
             {
                 _firing = true;
 
-                await InternalFireOneAsync(trigger, args).ConfigureAwait(false);
+                await InternalFireOneAsync(trigger, args).ConfigureAwait(RetainSynchronizationContext);
 
                 while (_eventQueue.Count != 0)
                 {
                     var queuedEvent = _eventQueue.Dequeue();
-                    await InternalFireOneAsync(queuedEvent.Trigger, queuedEvent.Args).ConfigureAwait(false);
+                    await InternalFireOneAsync(queuedEvent.Trigger, queuedEvent.Args).ConfigureAwait(RetainSynchronizationContext);
                 }
             }
             finally
@@ -225,15 +225,15 @@ namespace Stateless
                 transition = new Transition(transition.Destination, transition.Destination, transition.Trigger, args);
                 await newRepresentation.ExitAsync(transition);
 
-                await _onTransitionedEvent.InvokeAsync(transition);
+                await _onTransitionedEvent.InvokeAsync(transition, RetainSynchronizationContext);
                 representation = await EnterStateAsync(newRepresentation, transition, args);
-                await _onTransitionCompletedEvent.InvokeAsync(transition);
+                await _onTransitionCompletedEvent.InvokeAsync(transition, RetainSynchronizationContext);
             }
             else
             {
-                await _onTransitionedEvent.InvokeAsync(transition);
+                await _onTransitionedEvent.InvokeAsync(transition, RetainSynchronizationContext);
                 representation = await EnterStateAsync(newRepresentation, transition, args);
-                await _onTransitionCompletedEvent.InvokeAsync(transition);
+                await _onTransitionCompletedEvent.InvokeAsync(transition, RetainSynchronizationContext);
             }
             State = representation.UnderlyingState;
         }
@@ -246,7 +246,7 @@ namespace Stateless
             var newRepresentation = GetRepresentation(transition.Destination);
 
             //Alert all listeners of state transition
-            await _onTransitionedEvent.InvokeAsync(transition);
+            await _onTransitionedEvent.InvokeAsync(transition, RetainSynchronizationContext);
             var representation =await EnterStateAsync(newRepresentation, transition, args);
 
             // Check if state has changed by entering new state (by firing triggers in OnEntry or such)
@@ -256,7 +256,7 @@ namespace Stateless
                 State = representation.UnderlyingState;
             }
 
-           await _onTransitionCompletedEvent.InvokeAsync(new Transition(transition.Source, State, transition.Trigger, transition.Parameters));
+            await _onTransitionCompletedEvent.InvokeAsync(new Transition(transition.Source, State, transition.Trigger, transition.Parameters), RetainSynchronizationContext);
         }
 
 
@@ -287,7 +287,7 @@ namespace Stateless
                 representation = GetRepresentation(representation.InitialTransitionTarget);
 
                 // Alert all listeners of initial state transition
-                await _onTransitionedEvent.InvokeAsync(new Transition(transition.Destination, initialTransition.Destination, transition.Trigger, transition.Parameters));
+                await _onTransitionedEvent.InvokeAsync(new Transition(transition.Destination, initialTransition.Destination, transition.Trigger, transition.Parameters), RetainSynchronizationContext);
                 representation = await EnterStateAsync(representation, initialTransition, args);
             }
 

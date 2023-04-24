@@ -89,6 +89,10 @@ namespace Stateless
             _firingMode = firingMode;
         }
 
+        /// <summary>
+        /// For certain situations, it is essential that the SynchronizationContext is retained for all delegate calls.
+        /// </summary>
+        public bool RetainSynchronizationContext { get; set; } = false;
 
         /// <summary>
         /// Default constructor
@@ -186,7 +190,7 @@ namespace Stateless
         {
             if (!_stateConfiguration.TryGetValue(state, out StateRepresentation result))
             {
-                result = new StateRepresentation(state);
+                result = new StateRepresentation(state, RetainSynchronizationContext);
                 _stateConfiguration.Add(state, result);
             }
 
