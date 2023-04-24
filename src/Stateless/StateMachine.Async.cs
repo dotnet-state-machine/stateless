@@ -205,7 +205,7 @@ namespace Stateless
                         if (itb is InternalTriggerBehaviour.Async ita)
                             await ita.ExecuteAsync(transition, args);
                         else
-                            await Task.Run(() => itb.Execute(transition, args));
+                            itb.Execute(transition, args);
                         break;
                     }
                 default:
