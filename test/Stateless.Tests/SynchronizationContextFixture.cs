@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -24,17 +26,23 @@ public class SynchronizationContextFixture
         SynchronizationContext.SetSynchronizationContext(_syncContext);
     }
     
-    private async Task CaptureSyncContextAsync()
+    private async Task CaptureThenLoseSyncContext()
     {
-        _capturedSyncContext.Add(SynchronizationContext.Current);
-        await Task.Delay(TimeSpan.FromMilliseconds(1)).ConfigureAwait(false);
+        CaptureSyncContext();
+        await LoseSyncContext().ConfigureAwait(false);
     }
     
     private void CaptureSyncContext()
     {
         _capturedSyncContext.Add(SynchronizationContext.Current);
     }
-    
+
+    private async Task LoseSyncContext()
+    {
+        await Task.Delay(TimeSpan.FromMilliseconds(1)).ConfigureAwait(false);
+        Assert.NotEqual(_syncContext, SynchronizationContext.Current);
+    }
+
     private void AssertSyncContextAlwaysRetained(int? numberOfExpectedCalls = null)
     {
         Assert.NotEmpty(_capturedSyncContext);
@@ -45,27 +53,19 @@ public class SynchronizationContextFixture
     }
 
     [Fact]
-    public async Task Ensure_XUnit_is_using_SyncContext()
+    public void Ensure_XUnit_is_using_SyncContext()
     {
         SetSyncContext();
-        await CaptureSyncContextAsync();
+        CaptureSyncContext();
         AssertSyncContextAlwaysRetained();
     }
     
     [Fact]
-    public async Task ConfigureAwait_false_should_lose_sync_context()
+    public async Task Ensure_XUnit_can_lose_sync_context()
     {
         SetSyncContext();
-        await Task.Delay(TimeSpan.FromMilliseconds(1)).ConfigureAwait(false);
+        await LoseSyncContext().ConfigureAwait(false);
         Assert.NotEqual(_syncContext, SynchronizationContext.Current);
-    }
-
-    [Fact]
-    public async Task ConfigureAwait_true_should_retain_sync_context()
-    {
-        SetSyncContext();
-        await Task.Delay(TimeSpan.FromMilliseconds(1)).ConfigureAwait(true);
-        Assert.Equal(_syncContext, SynchronizationContext.Current);
     }
 
     [Fact]
@@ -75,7 +75,7 @@ public class SynchronizationContextFixture
         SetSyncContext();
         var sm = GetSut();
         sm.Configure(State.A)
-            .OnActivateAsync(CaptureSyncContextAsync);
+            .OnActivateAsync(CaptureThenLoseSyncContext);
         
         // ACT
         await sm.ActivateAsync();
@@ -91,11 +91,11 @@ public class SynchronizationContextFixture
         SetSyncContext();
         var sm = GetSut();
         sm.Configure(State.A)
-            .OnActivateAsync(CaptureSyncContextAsync)
+            .OnActivateAsync(CaptureThenLoseSyncContext)
             .SubstateOf(State.B);
             ;
         sm.Configure(State.B)
-            .OnActivateAsync(CaptureSyncContextAsync);
+            .OnActivateAsync(CaptureThenLoseSyncContext);
         
         // ACT
         await sm.ActivateAsync();
@@ -111,11 +111,11 @@ public class SynchronizationContextFixture
         SetSyncContext();
         var sm = GetSut();
         sm.Configure(State.A)
-            .OnDeactivateAsync(CaptureSyncContextAsync)
+            .OnDeactivateAsync(CaptureThenLoseSyncContext)
             .SubstateOf(State.B);
             ;
         sm.Configure(State.B)
-            .OnDeactivateAsync(CaptureSyncContextAsync);
+            .OnDeactivateAsync(CaptureThenLoseSyncContext);
         
         // ACT
         await sm.DeactivateAsync();
@@ -131,9 +131,9 @@ public class SynchronizationContextFixture
         SetSyncContext();
         var sm = GetSut();
         sm.Configure(State.A)
-            .OnActivateAsync(CaptureSyncContextAsync)
-            .OnActivateAsync(CaptureSyncContextAsync)
-            .OnActivateAsync(CaptureSyncContextAsync);
+            .OnActivateAsync(CaptureThenLoseSyncContext)
+            .OnActivateAsync(CaptureThenLoseSyncContext)
+            .OnActivateAsync(CaptureThenLoseSyncContext);
         
         // ACT
         await sm.ActivateAsync();
@@ -149,9 +149,9 @@ public class SynchronizationContextFixture
         SetSyncContext();
         var sm = GetSut();
         sm.Configure(State.A)
-            .OnDeactivateAsync(CaptureSyncContextAsync)
-            .OnDeactivateAsync(CaptureSyncContextAsync)
-            .OnDeactivateAsync(CaptureSyncContextAsync);
+            .OnDeactivateAsync(CaptureThenLoseSyncContext)
+            .OnDeactivateAsync(CaptureThenLoseSyncContext)
+            .OnDeactivateAsync(CaptureThenLoseSyncContext);
         
         // ACT
         await sm.DeactivateAsync();
@@ -168,7 +168,7 @@ public class SynchronizationContextFixture
         var sm = GetSut();
         sm.Configure(State.A).Permit(Trigger.X, State.B);
         sm.Configure(State.B)
-            .OnEntryAsync(CaptureSyncContextAsync);
+            .OnEntryAsync(CaptureThenLoseSyncContext);
         
         // ACT
         await sm.FireAsync(Trigger.X);
@@ -185,9 +185,9 @@ public class SynchronizationContextFixture
         var sm = GetSut();
         sm.Configure(State.A).Permit(Trigger.X, State.B);
         sm.Configure(State.B)
-            .OnEntryAsync(CaptureSyncContextAsync)
-            .OnEntryAsync(CaptureSyncContextAsync)
-            .OnEntryAsync(CaptureSyncContextAsync);
+            .OnEntryAsync(CaptureThenLoseSyncContext)
+            .OnEntryAsync(CaptureThenLoseSyncContext)
+            .OnEntryAsync(CaptureThenLoseSyncContext);
         
         // ACT
         await sm.FireAsync(Trigger.X);
@@ -204,9 +204,9 @@ public class SynchronizationContextFixture
         var sm = GetSut();
         sm.Configure(State.A)
             .Permit(Trigger.X, State.B)
-            .OnExitAsync(CaptureSyncContextAsync)
-            .OnExitAsync(CaptureSyncContextAsync)
-            .OnExitAsync(CaptureSyncContextAsync);
+            .OnExitAsync(CaptureThenLoseSyncContext)
+            .OnExitAsync(CaptureThenLoseSyncContext)
+            .OnExitAsync(CaptureThenLoseSyncContext);
         sm.Configure(State.B);
         
         // ACT
@@ -223,13 +223,13 @@ public class SynchronizationContextFixture
         SetSyncContext();
         var sm = GetSut(State.B);
         sm.Configure(State.A)
-            .OnExitAsync(CaptureSyncContextAsync)
+            .OnExitAsync(CaptureThenLoseSyncContext)
             ;
         
         sm.Configure(State.B)
             .SubstateOf(State.A)
             .Permit(Trigger.X, State.C)
-            .OnExitAsync(CaptureSyncContextAsync)
+            .OnExitAsync(CaptureThenLoseSyncContext)
             ;
         sm.Configure(State.C);
         
@@ -250,12 +250,12 @@ public class SynchronizationContextFixture
 
         sm.Configure(State.B)
             .SubstateOf(State.A)
-            .OnExitAsync(CaptureSyncContextAsync);
+            .OnExitAsync(CaptureThenLoseSyncContext);
         
         sm.Configure(State.C)
             .SubstateOf(State.B)
             .Permit(Trigger.X, State.A)
-            .OnExitAsync(CaptureSyncContextAsync);
+            .OnExitAsync(CaptureThenLoseSyncContext);
         
         // ACT
         await sm.FireAsync(Trigger.X);
@@ -271,8 +271,8 @@ public class SynchronizationContextFixture
         SetSyncContext();
         var sm = GetSut();
         sm.Configure(State.A).PermitReentry(Trigger.X)
-            .OnEntryAsync(CaptureSyncContextAsync)
-            .OnEntryAsync(CaptureSyncContextAsync);
+            .OnEntryAsync(CaptureThenLoseSyncContext)
+            .OnEntryAsync(CaptureThenLoseSyncContext);
         
         // ACT
         await sm.FireAsync(Trigger.X);
@@ -288,8 +288,8 @@ public class SynchronizationContextFixture
         SetSyncContext();
         var sm = GetSut();
         sm.Configure(State.A).PermitReentry(Trigger.X)
-            .OnExitAsync(CaptureSyncContextAsync)
-            .OnExitAsync(CaptureSyncContextAsync);
+            .OnExitAsync(CaptureThenLoseSyncContext)
+            .OnExitAsync(CaptureThenLoseSyncContext);
         
         // ACT
         await sm.FireAsync(Trigger.X);
@@ -307,13 +307,13 @@ public class SynchronizationContextFixture
         sm.Configure(State.A)
             .InternalTransitionAsync(Trigger.X, async () =>
             {
-                await CaptureSyncContextAsync();
+                await CaptureThenLoseSyncContext();
                 await sm.FireAsync(Trigger.Y);
             })
             .Permit(Trigger.Y, State.B)
             ;
         sm.Configure(State.B)
-            .OnEntryAsync(CaptureSyncContextAsync);
+            .OnEntryAsync(CaptureThenLoseSyncContext);
         
         // ACT
         await sm.FireAsync(Trigger.X);
@@ -333,9 +333,9 @@ public class SynchronizationContextFixture
 
         sm.Configure(State.B);
 
-        sm.OnTransitionedAsync(_ => CaptureSyncContextAsync());
-        sm.OnTransitionedAsync(_ => CaptureSyncContextAsync());
-        sm.OnTransitionedAsync(_ => CaptureSyncContextAsync());
+        sm.OnTransitionedAsync(_ => CaptureThenLoseSyncContext());
+        sm.OnTransitionedAsync(_ => CaptureThenLoseSyncContext());
+        sm.OnTransitionedAsync(_ => CaptureThenLoseSyncContext());
         
         // ACT
         await sm.FireAsync(Trigger.X);
