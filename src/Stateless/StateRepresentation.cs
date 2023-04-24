@@ -22,7 +22,7 @@ namespace Stateless
             readonly ICollection<StateRepresentation> _substates = new List<StateRepresentation>();
             public TState InitialTransitionTarget { get; private set; } = default;
 
-            public StateRepresentation(TState state, bool retainSynchronizationContext)
+            public StateRepresentation(TState state, bool retainSynchronizationContext = false)
             {
                 _state = state;
                 _retainSynchronizationContext = retainSynchronizationContext;
