@@ -162,7 +162,7 @@ namespace Stateless
         /// </summary>
         public StateMachineInfo GetInfo()
         {
-            var initialState = StateInfo.CreateStateInfo(new StateRepresentation(_initialState));
+            var initialState = StateInfo.CreateStateInfo(new StateRepresentation(_initialState, RetainSynchronizationContext));
 
             var representations = _stateConfiguration.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
@@ -172,7 +172,7 @@ namespace Stateless
             var reachable = behaviours
                 .Distinct()
                 .Except(representations.Keys)
-                .Select(underlying => new StateRepresentation(underlying))
+                .Select(underlying => new StateRepresentation(underlying, RetainSynchronizationContext))
                 .ToArray();
 
             foreach (var representation in reachable)
