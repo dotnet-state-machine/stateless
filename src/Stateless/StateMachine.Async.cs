@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Stateless
@@ -205,7 +206,11 @@ namespace Stateless
                         if (itb is InternalTriggerBehaviour.Async ita)
                             await ita.ExecuteAsync(transition, args);
                         else
-                            await Task.Run(() => itb.Execute(transition, args));
+                            if (RetainSynchronizationContext)
+                                await Task.Factory.StartNew(() => itb.Execute(transition, args),
+                                    CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.FromCurrentSynchronizationContext());
+                            else
+                                await Task.Run(() => itb.Execute(transition, args));
                         break;
                     }
                 default:
