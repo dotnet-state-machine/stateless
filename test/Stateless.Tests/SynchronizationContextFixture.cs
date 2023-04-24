@@ -11,25 +11,30 @@ namespace Stateless.Tests;
 
 public class SynchronizationContextFixture
 {
-    private readonly MaxConcurrencySyncContext _syncContext = new(3);
+    // Define a custom SynchronizationContext. All calls made to delegates should within this context.
+    private readonly MaxConcurrencySyncContext _customSynchronizationContext = new(3);
     private readonly List<SynchronizationContext> _capturedSyncContext = new();
     
     private StateMachine<State, Trigger> GetSut(State initialState = State.A)
     {
-        var sm = new StateMachine<State, Trigger>(initialState, FiringMode.Queued);
-        sm.RetainSynchronizationContext = true;
-        return sm;
+        return new StateMachine<State, Trigger>(initialState, FiringMode.Queued)
+        {
+            RetainSynchronizationContext = true
+        };
     }
     
     private void SetSyncContext()
     {
-        SynchronizationContext.SetSynchronizationContext(_syncContext);
+        SynchronizationContext.SetSynchronizationContext(_customSynchronizationContext);
     }
-    
+
+    /// <summary>
+    /// Simulate a call that loses the synchronization context
+    /// </summary>
     private async Task CaptureThenLoseSyncContext()
     {
         CaptureSyncContext();
-        await LoseSyncContext().ConfigureAwait(false);
+        await LoseSyncContext().ConfigureAwait(false); // ConfigureAwait false here to ensure we continue using the sync context returned by LoseSyncContext 
     }
     
     private void CaptureSyncContext()
@@ -39,17 +44,18 @@ public class SynchronizationContextFixture
 
     private async Task LoseSyncContext()
     {
-        await Task.Delay(TimeSpan.FromMilliseconds(1)).ConfigureAwait(false);
-        Assert.NotEqual(_syncContext, SynchronizationContext.Current);
+        await Task.Delay(TimeSpan.FromMilliseconds(1)).ConfigureAwait(false); // Switch synchronization context and continue
+        Assert.NotEqual(_customSynchronizationContext, SynchronizationContext.Current);
     }
 
-    private void AssertSyncContextAlwaysRetained(int? numberOfExpectedCalls = null)
+    /// <summary>
+    ///  
+    /// </summary>
+    /// <param name="numberOfExpectedCalls"></param>
+    private void AssertSyncContextAlwaysRetained(int numberOfExpectedCalls)
     {
-        Assert.NotEmpty(_capturedSyncContext);
-        if (numberOfExpectedCalls is not null)
-            Assert.Equal(numberOfExpectedCalls, _capturedSyncContext.Count);
-        
-        Assert.All(_capturedSyncContext, actual => Assert.Equal(_syncContext, actual));
+        Assert.Equal(numberOfExpectedCalls, _capturedSyncContext.Count);
+        Assert.All(_capturedSyncContext, actual => Assert.Equal(_customSynchronizationContext, actual));
     }
 
     [Fact]
@@ -57,7 +63,7 @@ public class SynchronizationContextFixture
     {
         SetSyncContext();
         CaptureSyncContext();
-        AssertSyncContextAlwaysRetained();
+        AssertSyncContextAlwaysRetained(1);
     }
     
     [Fact]
@@ -65,7 +71,7 @@ public class SynchronizationContextFixture
     {
         SetSyncContext();
         await LoseSyncContext().ConfigureAwait(false);
-        Assert.NotEqual(_syncContext, SynchronizationContext.Current);
+        Assert.NotEqual(_customSynchronizationContext, SynchronizationContext.Current);
     }
 
     [Fact]
