@@ -38,7 +38,7 @@ namespace Stateless {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Stateless.StateMachineResources", typeof(StateMachineResources).GetAssembly());
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Stateless.StateMachineResources", typeof(StateMachineResources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
