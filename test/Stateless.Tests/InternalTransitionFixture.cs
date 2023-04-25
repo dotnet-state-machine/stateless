@@ -8,7 +8,7 @@ namespace Stateless.Tests
     {
 
         /// <summary>
-        /// The expected behaviour of the internal transistion is that the state does not change.
+        /// The expected behaviour of the internal transition is that the state does not change.
         /// This will fail if the state changes after the trigger has fired.
         /// </summary>
         [Fact]

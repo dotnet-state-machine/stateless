@@ -59,7 +59,7 @@ namespace Stateless.Reflection
     public class DynamicTransitionInfo : TransitionInfo
     {
         /// <summary>
-        /// Gets method informtion for the destination state selector.
+        /// Gets method information for the destination state selector.
         /// </summary>
         public InvocationInfo DestinationStateSelectorDescription { get; private set; }
 

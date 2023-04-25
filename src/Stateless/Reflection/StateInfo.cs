@@ -136,7 +136,7 @@ namespace Stateless.Reflection
         public IEnumerable<InvocationInfo> DeactivateActions { get; private set; }
 
         /// <summary>
-        /// Actions that are defined to be exectuted on state-exit.
+        /// Actions that are defined to be executed on state-exit.
         /// </summary>
         public IEnumerable<InvocationInfo> ExitActions { get; private set; }
 
