@@ -47,8 +47,8 @@ namespace Stateless
             {
                 TriggerBehaviourResult superStateHandler = null;
 
-                bool handlerFound = (TryFindLocalHandler(trigger, args, out TriggerBehaviourResult localHandler) ||
-                                    (Superstate != null && Superstate.TryFindHandler(trigger, args, out superStateHandler)));
+                bool handlerFound = TryFindLocalHandler(trigger, args, out TriggerBehaviourResult localHandler) ||
+                                    (Superstate != null && Superstate.TryFindHandler(trigger, args, out superStateHandler));
 
                 // If no handler for super state, replace by local handler (see issue #398)
                 handler = superStateHandler ?? localHandler;

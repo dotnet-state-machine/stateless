@@ -13,7 +13,7 @@ namespace Stateless.Reflection
             var transition = new IgnoredTransitionInfo
             {
                 Trigger = new TriggerInfo(behaviour.Trigger),
-                GuardConditionsMethodDescriptions = (behaviour.Guard == null)
+                GuardConditionsMethodDescriptions = behaviour.Guard == null
                     ? new List<InvocationInfo>() : behaviour.Guard.Conditions.Select(c => c.MethodDescription)
             };
 
