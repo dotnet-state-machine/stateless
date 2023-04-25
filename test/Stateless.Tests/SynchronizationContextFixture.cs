@@ -9,7 +9,7 @@ namespace Stateless.Tests;
 
 public class SynchronizationContextFixture
 {
-    // Define a custom SynchronizationContext. All calls made to delegates should within this context.
+    // Define a custom SynchronizationContext. All calls made to delegates should be with this context.
     private readonly MaxConcurrencySyncContext _customSynchronizationContext = new(3);
     private readonly List<SynchronizationContext> _capturedSyncContext = new();
     
@@ -47,15 +47,20 @@ public class SynchronizationContextFixture
     }
 
     /// <summary>
-    ///  
+    /// Tests capture the SynchronizationContext at various points through out their execution.
+    /// This asserts that every capture is the expected SynchronizationContext instance and that is hasn't been lost. 
     /// </summary>
-    /// <param name="numberOfExpectedCalls"></param>
+    /// <param name="numberOfExpectedCalls">Ensure that we have the expected number of captures</param>
     private void AssertSyncContextAlwaysRetained(int numberOfExpectedCalls)
     {
         Assert.Equal(numberOfExpectedCalls, _capturedSyncContext.Count);
         Assert.All(_capturedSyncContext, actual => Assert.Equal(_customSynchronizationContext, actual));
     }
 
+    /// <summary>
+    /// XUnit uses its own SynchronizationContext to execute each test. Therefore, placing SetSyncContext() in the constructor instead of
+    /// at the start of every test does not work as desired. This test ensures XUnit's behaviour has not changed.
+    /// </summary>
     [Fact]
     public void Ensure_XUnit_is_using_SyncContext()
     {
@@ -64,6 +69,10 @@ public class SynchronizationContextFixture
         AssertSyncContextAlwaysRetained(1);
     }
     
+    /// <summary>
+    /// SynchronizationContext are funny things. The way that they are lost varies depending on their implementation.
+    /// This test ensures that our mechanism for losing the SynchronizationContext works.
+    /// </summary>
     [Fact]
     public async Task Ensure_XUnit_can_lose_sync_context()
     {
