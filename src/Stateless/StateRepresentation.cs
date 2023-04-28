@@ -232,7 +232,7 @@ namespace Stateless
             {
                 InternalTriggerBehaviour.Sync internalTransition = null;
 
-                // Look for actions in superstate(s) recursivly until we hit the topmost superstate, or we actually find some trigger handlers.
+                // Look for actions in superstate(s) recursively until we hit the topmost superstate, or we actually find some trigger handlers.
                 StateRepresentation aStateRep = this;
                 while (aStateRep != null)
                 {
