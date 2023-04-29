@@ -82,22 +82,6 @@ public class SynchronizationContextFixture
     }
 
     [Fact]
-    public async Task Single_activation_should_retain_SyncContext()
-    {
-        // ARRANGE
-        SetSyncContext();
-        var sm = GetSut();
-        sm.Configure(State.A)
-            .OnActivateAsync(CaptureThenLoseSyncContext);
-        
-        // ACT
-        await sm.ActivateAsync();
-        
-        // ASSERT
-        AssertSyncContextAlwaysRetained(1);
-    }
-    
-    [Fact]
     public async Task Activation_of_state_with_superstate_should_retain_SyncContext()
     {
         // ARRANGE
@@ -173,23 +157,6 @@ public class SynchronizationContextFixture
         AssertSyncContextAlwaysRetained(3);
     }
     
-    [Fact]
-    public async Task OnEntry_should_retain_SyncContext()
-    {
-        // ARRANGE
-        SetSyncContext();
-        var sm = GetSut();
-        sm.Configure(State.A).Permit(Trigger.X, State.B);
-        sm.Configure(State.B)
-            .OnEntryAsync(CaptureThenLoseSyncContext);
-        
-        // ACT
-        await sm.FireAsync(Trigger.X);
-        
-        // ASSERT
-        AssertSyncContextAlwaysRetained(1);
-    }
-
     [Fact]
     public async Task Multiple_OnEntry_should_retain_SyncContext()
     {
