@@ -42,7 +42,7 @@ public class SynchronizationContextFixture
 
     private async Task LoseSyncContext()
     {
-        await Task.Delay(TimeSpan.FromMilliseconds(1)).ConfigureAwait(false); // Switch synchronization context and continue
+        await Task.Run(() => { }).ConfigureAwait(false); // Switch synchronization context and continue
         Assert.NotEqual(_customSynchronizationContext, SynchronizationContext.Current);
     }
 
