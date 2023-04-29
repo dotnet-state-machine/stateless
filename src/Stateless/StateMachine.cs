@@ -422,8 +422,8 @@ namespace Stateless
                     HandleReentryTrigger(args, representativeState, transition);
                     break;
                 }
-                case DynamicTriggerBehaviour _ when (result.Handler.ResultsInTransitionFrom(source, args, out var destination)):
-                case TransitioningTriggerBehaviour _ when (result.Handler.ResultsInTransitionFrom(source, args, out destination)):
+                case DynamicTriggerBehaviour _ when result.Handler.ResultsInTransitionFrom(source, args, out var destination):
+                case TransitioningTriggerBehaviour _ when result.Handler.ResultsInTransitionFrom(source, args, out destination):
                 {
                     // Handle transition, and set new state
                     var transition = new Transition(source, destination, trigger, args);
