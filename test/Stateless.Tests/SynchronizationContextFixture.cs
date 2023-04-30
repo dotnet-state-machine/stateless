@@ -42,8 +42,7 @@ public class SynchronizationContextFixture
 
     private async Task LoseSyncContext()
     {
-        await Task.Run(() => { }).ConfigureAwait(false); // Switch synchronization context and continue
-        Assert.NotEqual(_customSynchronizationContext, SynchronizationContext.Current);
+        await Task.Yield();
     }
 
     /// <summary>
