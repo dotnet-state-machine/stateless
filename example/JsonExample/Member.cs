@@ -81,7 +81,7 @@ namespace JsonExample
 
         public bool Equals(Member anotherMember)
         {
-            return ((State == anotherMember.State) && (Name == anotherMember.Name));
+            return State == anotherMember.State && Name == anotherMember.Name;
         }
     }
 

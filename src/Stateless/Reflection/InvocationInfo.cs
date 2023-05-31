@@ -72,6 +72,6 @@ namespace Stateless.Reflection
         /// <summary>
         /// Returns true if the method is invoked asynchronously.
         /// </summary>
-        public bool IsAsync => (_timing == Timing.Asynchronous);
+        public bool IsAsync => _timing == Timing.Asynchronous;
     }
 }

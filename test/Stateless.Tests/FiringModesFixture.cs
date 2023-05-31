@@ -7,10 +7,10 @@ namespace Stateless.Tests
     /// <summary>
     /// This test class verifies that the firing modes are working as expected
     /// </summary>
-    public class FireingModesFixture
+    public class FiringModesFixture
     {
         /// <summary>
-        /// Check that the immediate fireing modes executes entry/exit out of order.
+        /// Check that the immediate firing modes executes entry/exit out of order.
         /// </summary>
         [Fact]
         public void ImmediateEntryAProcessedBeforeEnterB()
@@ -43,10 +43,10 @@ namespace Stateless.Tests
         }
 
         /// <summary>
-        /// Checks that queued fireing mode executes triggers in order
+        /// Checks that queued firing mode executes triggers in order
         /// </summary>
         [Fact]
-        public void ImmediateEntryAProcessedBeforeEterB()
+        public void QueuedEntryAProcessedAfterEnterB()
         {
             var record = new List<string>();
             var sm = new StateMachine<State, Trigger>(State.A, FiringMode.Queued);
@@ -76,10 +76,10 @@ namespace Stateless.Tests
         }
 
         /// <summary>
-        /// Check that the immediate fireing modes executes entry/exit out of order.
+        /// Check that the immediate firing modes executes entry/exit out of order.
         /// </summary>
         [Fact]
-        public void ImmediateFireingOnEntryEndsUpInCorrectState()
+        public void ImmediateFiringOnEntryEndsUpInCorrectState()
         {
             var record = new List<string>();
             var sm = new StateMachine<State, Trigger>(State.A, FiringMode.Immediate);

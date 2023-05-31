@@ -24,14 +24,10 @@ namespace Stateless
                 if (action == null) throw new ArgumentNullException(nameof(action));
 
                 EntryActions.Add(
-                    new EntryActionBehavior.Async((t, args) =>
-                    {
-                        if (t.Trigger.Equals(trigger))
-                            return action(t, args);
-
-                        return TaskResult.Done;
-                    },
-                    entryActionDescription));
+                    new EntryActionBehavior.AsyncFrom<TTrigger>(
+                        trigger,
+                        action,
+                        entryActionDescription));
             }
 
             public void AddEntryAction(Func<Transition, object[], Task> action, Reflection.InvocationInfo entryActionDescription)
@@ -50,29 +46,29 @@ namespace Stateless
             public async Task ActivateAsync()
             {
                 if (_superstate != null)
-                    await _superstate.ActivateAsync().ConfigureAwait(false);
+                    await _superstate.ActivateAsync().ConfigureAwait(_retainSynchronizationContext);
 
-                await ExecuteActivationActionsAsync().ConfigureAwait(false);
+                await ExecuteActivationActionsAsync().ConfigureAwait(_retainSynchronizationContext);
             }
 
             public async Task DeactivateAsync()
             {
-                await ExecuteDeactivationActionsAsync().ConfigureAwait(false);
+                await ExecuteDeactivationActionsAsync().ConfigureAwait(_retainSynchronizationContext);
 
                 if (_superstate != null)
-                    await _superstate.DeactivateAsync().ConfigureAwait(false);
+                    await _superstate.DeactivateAsync().ConfigureAwait(_retainSynchronizationContext);
             }
 
             async Task ExecuteActivationActionsAsync()
             {
                 foreach (var action in ActivateActions)
-                    await action.ExecuteAsync().ConfigureAwait(false);
+                    await action.ExecuteAsync().ConfigureAwait(_retainSynchronizationContext);
             }
 
             async Task ExecuteDeactivationActionsAsync()
             {
                 foreach (var action in DeactivateActions)
-                    await action.ExecuteAsync().ConfigureAwait(false);
+                    await action.ExecuteAsync().ConfigureAwait(_retainSynchronizationContext);
             }
 
 
@@ -80,14 +76,14 @@ namespace Stateless
             {
                 if (transition.IsReentry)
                 {
-                    await ExecuteEntryActionsAsync(transition, entryArgs).ConfigureAwait(false);
+                    await ExecuteEntryActionsAsync(transition, entryArgs).ConfigureAwait(_retainSynchronizationContext);
                 }
                 else if (!Includes(transition.Source))
                 {
                     if (_superstate != null && !(transition is InitialTransition))
-                        await _superstate.EnterAsync(transition, entryArgs).ConfigureAwait(false);
+                        await _superstate.EnterAsync(transition, entryArgs).ConfigureAwait(_retainSynchronizationContext);
 
-                    await ExecuteEntryActionsAsync(transition, entryArgs).ConfigureAwait(false);
+                    await ExecuteEntryActionsAsync(transition, entryArgs).ConfigureAwait(_retainSynchronizationContext);
                 }
             }
             
@@ -95,11 +91,11 @@ namespace Stateless
             {
                 if (transition.IsReentry)
                 {
-                    await ExecuteExitActionsAsync(transition).ConfigureAwait(false);
+                    await ExecuteExitActionsAsync(transition).ConfigureAwait(_retainSynchronizationContext);
                 }
                 else if (!Includes(transition.Destination))
                 {
-                    await ExecuteExitActionsAsync(transition).ConfigureAwait(false);
+                    await ExecuteExitActionsAsync(transition).ConfigureAwait(_retainSynchronizationContext);
 
                     // Must check if there is a superstate, and if we are leaving that superstate
                     if (_superstate != null)
@@ -110,13 +106,13 @@ namespace Stateless
                             // Destination state is within the list, exit first superstate only if it is NOT the first
                             if (!_superstate.UnderlyingState.Equals(transition.Destination))
                             {
-                                return await _superstate.ExitAsync(transition).ConfigureAwait(false);
+                                return await _superstate.ExitAsync(transition).ConfigureAwait(_retainSynchronizationContext);
                             }
                         }
                         else
                         {
                             // Exit the superstate as well
-                            return await _superstate.ExitAsync(transition).ConfigureAwait(false);
+                            return await _superstate.ExitAsync(transition).ConfigureAwait(_retainSynchronizationContext);
                         }
                     }
                 }
@@ -126,13 +122,13 @@ namespace Stateless
             async Task ExecuteEntryActionsAsync(Transition transition, object[] entryArgs)
             {
                 foreach (var action in EntryActions)
-                    await action.ExecuteAsync(transition, entryArgs).ConfigureAwait(false);
+                    await action.ExecuteAsync(transition, entryArgs).ConfigureAwait(_retainSynchronizationContext);
             }
 
             async Task ExecuteExitActionsAsync(Transition transition)
             {
                 foreach (var action in ExitActions)
-                    await action.ExecuteAsync(transition).ConfigureAwait(false);
+                    await action.ExecuteAsync(transition).ConfigureAwait(_retainSynchronizationContext);
             }
         }
     }

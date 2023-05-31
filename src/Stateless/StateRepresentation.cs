@@ -9,6 +9,7 @@ namespace Stateless
         internal partial class StateRepresentation
         {
             readonly TState _state;
+            private readonly bool _retainSynchronizationContext;
 
             internal IDictionary<TTrigger, ICollection<TriggerBehaviour>> TriggerBehaviours { get; } = new Dictionary<TTrigger, ICollection<TriggerBehaviour>>();
             internal ICollection<EntryActionBehavior> EntryActions { get; } = new List<EntryActionBehavior>();
@@ -21,9 +22,10 @@ namespace Stateless
             readonly ICollection<StateRepresentation> _substates = new List<StateRepresentation>();
             public TState InitialTransitionTarget { get; private set; } = default;
 
-            public StateRepresentation(TState state)
+            public StateRepresentation(TState state, bool retainSynchronizationContext = false)
             {
                 _state = state;
+                _retainSynchronizationContext = retainSynchronizationContext;
             }
 
             internal ICollection<StateRepresentation> GetSubstates()
@@ -47,8 +49,8 @@ namespace Stateless
             {
                 TriggerBehaviourResult superStateHandler = null;
 
-                bool handlerFound = (TryFindLocalHandler(trigger, args, out TriggerBehaviourResult localHandler) ||
-                                    (Superstate != null && Superstate.TryFindHandler(trigger, args, out superStateHandler)));
+                bool handlerFound = TryFindLocalHandler(trigger, args, out TriggerBehaviourResult localHandler) ||
+                                    (Superstate != null && Superstate.TryFindHandler(trigger, args, out superStateHandler));
 
                 // If no handler for super state, replace by local handler (see issue #398)
                 handler = superStateHandler ?? localHandler;
@@ -230,7 +232,7 @@ namespace Stateless
             {
                 InternalTriggerBehaviour.Sync internalTransition = null;
 
-                // Look for actions in superstate(s) recursivly until we hit the topmost superstate, or we actually find some trigger handlers.
+                // Look for actions in superstate(s) recursively until we hit the topmost superstate, or we actually find some trigger handlers.
                 StateRepresentation aStateRep = this;
                 while (aStateRep != null)
                 {
