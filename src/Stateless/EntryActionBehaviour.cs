@@ -95,13 +95,16 @@ namespace Stateless
 
                 public override void Execute(Transition transition, object[] args)
                 {
-                    if (transition.Trigger.Equals(Trigger))
-                        base.Execute(transition, args);
+                    ExecuteAsync(transition, args);
                 }
 
                 public override Task ExecuteAsync(Transition transition, object[] args)
                 {
-                    Execute(transition, args);
+                    if (transition.Trigger.Equals(Trigger))
+                    {
+                        return base.ExecuteAsync(transition, args);
+                    }
+
                     return TaskResult.Done;
                 }
             }
