@@ -5,6 +5,99 @@ namespace Stateless.Tests
 {
     public class InternalTransitionAsyncFixture
     {
+        [Fact]
+        public async Task InternalTransitionAsyncIf_AllowGuardWithParameter()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var trigger = sm.SetTriggerParameters<int>(Trigger.X);
+            const int intParam = 5;
+            var guardInvoked = false;
+            var callbackInvoked = false;
+
+            sm.Configure(State.A)
+                .InternalTransitionAsyncIf(trigger, i =>
+                {
+                    guardInvoked = true;
+                    Assert.Equal(intParam, i);
+                    return true;
+                }, (i, transition) =>
+                {
+                    callbackInvoked = true;
+                    Assert.Equal(intParam, i);
+                    return Task.CompletedTask;
+                });
+
+            await sm.FireAsync(trigger, intParam);
+
+            Assert.True(guardInvoked);
+            Assert.True(callbackInvoked);
+        }
+    
+        [Fact]
+        public async Task InternalTransitionAsyncIf_AllowGuardWithTwoParameters()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var trigger = sm.SetTriggerParameters<int, string>(Trigger.X);
+            const int intParam = 5;
+            const string stringParam = "5";
+            var guardInvoked = false;
+            var callbackInvoked = false;
+
+            sm.Configure(State.A)
+                .InternalTransitionAsyncIf(trigger, (i, s) =>
+                {
+                    guardInvoked = true;
+                    Assert.Equal(intParam, i);
+                    Assert.Equal(stringParam, s);
+                    return true;
+                }, (i, s, transition) =>
+                {
+                    callbackInvoked = true;
+                    Assert.Equal(intParam, i);
+                    Assert.Equal(stringParam, s);
+                    return Task.CompletedTask;
+                });
+
+            await sm.FireAsync(trigger, intParam, stringParam);
+
+            Assert.True(guardInvoked);
+            Assert.True(callbackInvoked);
+        }
+    
+        [Fact]
+        public async Task InternalTransitionAsyncIf_AllowGuardWithThreeParameters()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var trigger = sm.SetTriggerParameters<int, string, bool>(Trigger.X);
+            const int intParam = 5;
+            const string stringParam = "5";
+            const bool boolParam = true;
+            var guardInvoked = false;
+            var callbackInvoked = false;
+
+            sm.Configure(State.A)
+                .InternalTransitionAsyncIf(trigger, (i, s, b) =>
+                {
+                    guardInvoked = true;
+                    Assert.Equal(intParam, i);
+                    Assert.Equal(stringParam, s);
+                    Assert.Equal(boolParam, b);
+                    return true;
+                }, (i, s, b, transition) =>
+                {
+                    callbackInvoked = true;
+                    Assert.Equal(intParam, i);
+                    Assert.Equal(stringParam, s);
+                    Assert.Equal(boolParam, b);
+                    return Task.CompletedTask;
+                });
+
+            await sm.FireAsync(trigger, intParam, stringParam, boolParam);
+
+            Assert.True(guardInvoked);
+            Assert.True(callbackInvoked);
+        }
+    
         /// <summary>
         /// This unit test demonstrated bug report #417
         /// </summary>
