@@ -24,7 +24,7 @@ namespace Stateless.Reflection
 
         internal static InvocationInfo Create(Delegate method, string description, Timing timing = Timing.Synchronous)
         {
-            return new InvocationInfo(method?.TryGetMethodName(), description, timing);
+            return new InvocationInfo(method?.Method?.Name, description, timing);
         }
 
         /// <summary>
