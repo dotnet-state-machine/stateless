@@ -246,7 +246,7 @@ namespace Stateless
         public TriggerWithParameters SetTriggerParameters(TTrigger trigger, params Type[] argumentTypes)
         {
             var configuration = new TriggerWithParameters(trigger, argumentTypes);
-            SaveTriggerConfiguration(configuration);
+            SetTriggerParameters(configuration);
             return configuration;
         }
 
@@ -600,7 +600,7 @@ namespace Stateless
         public TriggerWithParameters<TArg0> SetTriggerParameters<TArg0>(TTrigger trigger)
         {
             var configuration = new TriggerWithParameters<TArg0>(trigger);
-            SaveTriggerConfiguration(configuration);
+            SetTriggerParameters(configuration);
             return configuration;
         }
 
@@ -615,7 +615,7 @@ namespace Stateless
         public TriggerWithParameters<TArg0, TArg1> SetTriggerParameters<TArg0, TArg1>(TTrigger trigger)
         {
             var configuration = new TriggerWithParameters<TArg0, TArg1>(trigger);
-            SaveTriggerConfiguration(configuration);
+            SetTriggerParameters(configuration);
             return configuration;
         }
 
@@ -631,11 +631,15 @@ namespace Stateless
         public TriggerWithParameters<TArg0, TArg1, TArg2> SetTriggerParameters<TArg0, TArg1, TArg2>(TTrigger trigger)
         {
             var configuration = new TriggerWithParameters<TArg0, TArg1, TArg2>(trigger);
-            SaveTriggerConfiguration(configuration);
+            SetTriggerParameters(configuration);
             return configuration;
         }
 
-        void SaveTriggerConfiguration(TriggerWithParameters trigger)
+        /// <summary>
+        /// Specify the arguments that must be supplied when a specific trigger is fired.
+        /// </summary>
+        /// <param name="trigger">The underlying trigger value and the argument types expected by the trigger.</param>
+        public void SetTriggerParameters(TriggerWithParameters trigger)
         {
             if (_triggerConfiguration.ContainsKey(trigger.Trigger))
                 throw new InvalidOperationException(
