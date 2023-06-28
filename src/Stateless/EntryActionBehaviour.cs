@@ -54,11 +54,6 @@ namespace Stateless
                         base.Execute(transition, args);
                 }
 
-                public override Task ExecuteAsync(Transition transition, object[] args)
-                {
-                    Execute(transition, args);
-                    return TaskResult.Done;
-                }
             }
 
             public class Async : EntryActionBehavior
@@ -93,15 +88,10 @@ namespace Stateless
                     Trigger = trigger;
                 }
 
-                public override void Execute(Transition transition, object[] args)
-                {
-                    if (transition.Trigger.Equals(Trigger))
-                        base.Execute(transition, args);
-                }
-
                 public override Task ExecuteAsync(Transition transition, object[] args)
                 {
-                    Execute(transition, args);
+                    if (transition.Trigger.Equals(Trigger))
+                        return base.ExecuteAsync(transition, args);
                     return TaskResult.Done;
                 }
             }
