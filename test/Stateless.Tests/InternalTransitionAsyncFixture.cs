@@ -5,6 +5,45 @@ namespace Stateless.Tests
 {
     public class InternalTransitionAsyncFixture
     {
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task InternalTransitionAsyncIf_NoArgumentGuard(bool expected)
+        {
+            bool? actual = null;
+            var stateMachine = new StateMachine<State, Trigger>(State.A);
+
+            var triggerX = stateMachine.SetTriggerParameters<bool>(Trigger.X);
+
+            stateMachine.Configure(State.A)
+                .InternalTransitionAsyncIf(triggerX, () => expected, (arg, s) => Task.Run(() => actual = true ))
+                .InternalTransitionAsyncIf(triggerX, () => !expected, (arg, s) => Task.Run(() => actual = false));
+
+            await stateMachine.FireAsync(triggerX, expected);
+
+            Assert.Equal(expected, actual);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task InternalTransitionAsyncIf_WithArgumentGuard(bool expected)
+        {
+            bool? actual = null;
+            var stateMachine = new StateMachine<State, Trigger>(State.A);
+
+            var triggerX = stateMachine.SetTriggerParameters<bool>(Trigger.X);
+
+            stateMachine.Configure(State.A)
+                .InternalTransitionAsyncIf(triggerX, (arg) => arg, (arg, s) => Task.Run(() => actual = true))
+                .InternalTransitionAsyncIf(triggerX, (arg) => !arg, (arg, s) => Task.Run(() => actual = false));
+
+            await stateMachine.FireAsync(triggerX, expected);
+
+            Assert.Equal(expected, actual);
+        }
+
         /// <summary>
         /// This unit test demonstrated bug report #417
         /// </summary>
