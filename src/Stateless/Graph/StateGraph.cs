@@ -69,7 +69,7 @@ namespace Stateless.Graph
             // Next process all non-cluster states
             foreach (var state in States.Values)
             {
-                if ((state is SuperState) || (state is Decision) || (state.SuperState != null))
+                if (state is SuperState || state is Decision || state.SuperState != null)
                     continue;
                 dirgraphText += style.FormatOneState(state).Replace("\n", System.Environment.NewLine);
             }
@@ -115,8 +115,8 @@ namespace Stateless.Graph
                         // Does it have any incoming transitions that specify that trigger?
                         foreach (var transit in state.Arriving)
                         {
-                            if ((transit.ExecuteEntryExitActions)
-                                && (transit.Trigger.UnderlyingTrigger.ToString() == entryAction.FromTrigger))
+                            if (transit.ExecuteEntryExitActions
+                                && transit.Trigger.UnderlyingTrigger.ToString() == entryAction.FromTrigger)
                             {
                                 transit.DestinationEntryActions.Add(entryAction);
                             }
@@ -208,7 +208,7 @@ namespace Stateless.Graph
         /// <param name="machineInfo"></param>
         void AddSuperstates(StateMachineInfo machineInfo)
         {
-            foreach (var stateInfo in machineInfo.States.Where(sc => (sc.Substates?.Count() > 0) && (sc.Superstate == null)))
+            foreach (var stateInfo in machineInfo.States.Where(sc => sc.Substates?.Count() > 0 && sc.Superstate == null))
             {
                 SuperState state = new SuperState(stateInfo);
                 States[stateInfo.UnderlyingState.ToString()] = state;

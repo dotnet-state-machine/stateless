@@ -4,7 +4,7 @@
     <AssemblyName>Stateless</AssemblyName>
     <AssemblyTitle>Stateless</AssemblyTitle>
     <Product>Stateless</Product>
-    <TargetFrameworks>netstandard2.0;netstandard1.0;net45;net40;net472;net5.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net462;net6.0</TargetFrameworks>
     <Description>Create state machines and lightweight state machine-based workflows directly in .NET code</Description>
     <Copyright>Copyright © Stateless Contributors 2009-$([System.DateTime]::Now.ToString(yyyy))</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
@@ -28,11 +28,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' OR '$(TargetFramework)' == 'netstandard2.0' ">
-    <DefineConstants>$(DefineConstants);PORTABLE_REFLECTION;TASKS</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' OR '$(TargetFramework)' == 'net472' OR '$(TargetFramework)' == 'net5.0' OR '$(TargetFramework)' == 'net6.0'">
+  <PropertyGroup>
     <DefineConstants>$(DefineConstants);TASKS</DefineConstants>
   </PropertyGroup>
 

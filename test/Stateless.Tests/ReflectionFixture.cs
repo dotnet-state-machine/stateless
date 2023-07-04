@@ -587,7 +587,7 @@ namespace Stateless.Tests
             InvocationInfo method = methods.First();
 
             if (state == State.A)
-                Assert.Equal(prefix + body + ((timing == InvocationInfo.Timing.Asynchronous) ? "Async" : ""), method.Description);
+                Assert.Equal(prefix + body + (timing == InvocationInfo.Timing.Asynchronous ? "Async" : ""), method.Description);
             else if (state == State.B)
                 Assert.Equal(UserDescription + "B-" + body, method.Description);
             else if (state == State.C)
@@ -612,15 +612,15 @@ namespace Stateless.Tests
                 {
                     if (state == State.A)
                     {
-                        matches = (method.Description == (prefix + body
-                            + ((timing == InvocationInfo.Timing.Asynchronous) ? "Async" : "" + suffix)));
+                        matches = method.Description == prefix + body
+                                                               + (timing == InvocationInfo.Timing.Asynchronous ? "Async" : "" + suffix);
                     }
                     else if (state == State.B)
-                        matches = (UserDescription + "B-" + body + suffix == method.Description);
+                        matches = UserDescription + "B-" + body + suffix == method.Description;
                     else if (state == State.C)
-                        matches = (InvocationInfo.DefaultFunctionDescription == method.Description);
+                        matches = InvocationInfo.DefaultFunctionDescription == method.Description;
                     else if (state == State.D)
-                        matches = (UserDescription + "D-" + body + suffix == method.Description);
+                        matches = UserDescription + "D-" + body + suffix == method.Description;
                     //
                     if (matches)
                     {
