@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 5.14.0 - 2022.11.08
+### Added
+ - Enable Source Link & Deterministic Builds [#501]
+ - Added optional `RetainSynchronizationContext` property [#519]
+ - Update example apps to `net6.0` [#520]
+ - Bump solution Visual Studio version to 2022 [#526]
+ - Remove obsolete TargetFrameworks [#524]
+### Fixed
+ - `StateMachineInfo.InitialState.Transitions` throws if `AddRelationships` not called [#514]
+ - Trigger information is missing for `OnEntryFromAsync` [#511]
+ - Fixed typos & redundant parentheses [#512], [#521], [#522]
+ - Change mechanism for losing the synchronization context [#528]
+ - `InvalidOperationException` thrown from call to `FireAsync` [#532]
+ - Added missing guard function parameter support from `InternalTransitionAsyncIf` [#530]
+ - Using `PermitIf` on a state with substates leads to reentry [#544]
+
 ## 5.13.0 - 2022.12.29
 ### Added
  - Add method to get permitted triggers with parameter information [#494]
