@@ -52,6 +52,23 @@ namespace Stateless
         /// Actions associated with leaving the current state and entering the new one
         /// will be invoked.
         /// </summary>
+        /// <param name="trigger">The trigger to fire.</param>
+        /// <param name="args">A variable-length parameters list containing arguments. </param>
+        /// <exception cref="System.InvalidOperationException">The current state does
+        /// not allow the trigger to be fired.</exception>
+        public Task FireAsync(TriggerWithParameters trigger, params object[] args)
+        {
+            if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+
+            return InternalFireAsync(trigger.Trigger, args);
+        }
+
+        /// <summary>
+        /// Transition from the current state via the specified trigger in async fashion.
+        /// The target state is determined by the configuration of the current state.
+        /// Actions associated with leaving the current state and entering the new one
+        /// will be invoked.
+        /// </summary>
         /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
         /// <param name="trigger">The trigger to fire.</param>
         /// <param name="arg0">The first argument.</param>
