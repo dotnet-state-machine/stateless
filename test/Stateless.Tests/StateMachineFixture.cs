@@ -109,6 +109,29 @@ namespace Stateless.Tests
         }
 
         [Fact]
+        public void WhenInSubstate_TriggerSuperStateTwiceToSameSubstate_DoesNotReenterSubstate()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var eCount = 0;
+
+            sm.Configure(State.B)
+                .OnEntry(() => { eCount++;})
+                .SubstateOf(State.C);
+
+            sm.Configure(State.A)
+                .SubstateOf(State.C);
+
+
+            sm.Configure(State.C)
+                .Permit(Trigger.X, State.B);
+
+            sm.Fire(Trigger.X);
+            sm.Fire(Trigger.X);
+
+            Assert.Equal(1, eCount);
+        }
+
+        [Fact]
         public void PermittedTriggersIncludeSuperstatePermittedTriggers()
         {
             var sm = new StateMachine<State, Trigger>(State.B);

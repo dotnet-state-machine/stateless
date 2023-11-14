@@ -10,7 +10,7 @@ namespace Stateless
         {
             event Action<Transition> _onTransitioned;
             readonly List<Func<Transition, Task>> _onTransitionedAsync = new List<Func<Transition, Task>>();
-
+            
             public void Invoke(Transition transition)
             {
                 if (_onTransitionedAsync.Count != 0)
@@ -22,12 +22,12 @@ namespace Stateless
             }
 
 #if TASKS
-            public async Task InvokeAsync(Transition transition)
+            public async Task InvokeAsync(Transition transition, bool retainSynchronizationContext)
             {
                 _onTransitioned?.Invoke(transition);
 
                 foreach (var callback in _onTransitionedAsync)
-                    await callback(transition).ConfigureAwait(false);
+                    await callback(transition).ConfigureAwait(retainSynchronizationContext);
             }
 #endif
 

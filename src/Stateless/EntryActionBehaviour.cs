@@ -40,7 +40,7 @@ namespace Stateless
 
             public class SyncFrom<TTriggerType> : Sync
             {
-                internal TTriggerType Trigger { get; private set; }
+                internal TTriggerType Trigger { get; }
 
                 public SyncFrom(TTriggerType trigger, Action<Transition, object[]> action, Reflection.InvocationInfo description)
                     : base(action, description)
@@ -80,6 +80,35 @@ namespace Stateless
                 public override Task ExecuteAsync(Transition transition, object[] args)
                 {
                     return _action(transition, args);
+                }
+            }
+            
+            public class AsyncFrom<TTriggerType> : Async
+            {
+                internal TTriggerType Trigger { get; }
+
+                public AsyncFrom(TTriggerType trigger, Func<Transition, object[], Task> action, Reflection.InvocationInfo description)
+                    : base(action, description)
+                {
+                    Trigger = trigger;
+                }
+
+                public override void Execute(Transition transition, object[] args)
+                {
+                    if (transition.Trigger.Equals(Trigger))
+                    {
+                        base.Execute(transition, args);
+                    }
+                }
+
+                public override Task ExecuteAsync(Transition transition, object[] args)
+                {
+                    if (transition.Trigger.Equals(Trigger))
+                    {
+                        return base.ExecuteAsync(transition, args);
+                    }
+
+                    return TaskResult.Done;
                 }
             }
         }

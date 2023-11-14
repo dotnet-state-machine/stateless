@@ -33,7 +33,7 @@ namespace Stateless.Graph
 
             StringBuilder label = new StringBuilder($"{sourceName}");
 
-            if ((stateInfo.EntryActions.Count > 0) || (stateInfo.ExitActions.Count > 0))
+            if (stateInfo.EntryActions.Count > 0 || stateInfo.ExitActions.Count > 0)
             {
                 label.Append("\\n----------");
                 label.Append(string.Concat(stateInfo.EntryActions.Select(act => "\\nentry / " + act)));
@@ -62,7 +62,7 @@ namespace Stateless.Graph
         /// <returns></returns>
         public override string FormatOneState(State state)
         {
-            if ((state.EntryActions.Count == 0) && (state.ExitActions.Count == 0))
+            if (state.EntryActions.Count == 0 && state.ExitActions.Count == 0)
                 return $"\"{state.StateName}\" [label=\"{state.StateName}\"];\n";
 
             string f = $"\"{state.StateName}\" [label=\"{state.StateName}|";

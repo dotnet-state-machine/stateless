@@ -64,7 +64,7 @@ namespace Stateless
         /// </summary>
         /// <param name="stateAccessor">A function that will be called to read the current state value.</param>
         /// <param name="stateMutator">An action that will be called to write new state values.</param>
-        /// <param name="firingMode">Optional specification of fireing mode.</param>
+        /// <param name="firingMode">Optional specification of firing mode.</param>
         public StateMachine(Func<TState> stateAccessor, Action<TState> stateMutator, FiringMode firingMode) : this()
         {
             _stateAccessor = stateAccessor ?? throw new ArgumentNullException(nameof(stateAccessor));
@@ -78,7 +78,7 @@ namespace Stateless
         /// Construct a state machine.
         /// </summary>
         /// <param name="initialState">The initial state.</param>
-        /// <param name="firingMode">Optional specification of fireing mode.</param>
+        /// <param name="firingMode">Optional specification of firing mode.</param>
         public StateMachine(TState initialState, FiringMode firingMode) : this()
         {
             var reference = new StateReference { State = initialState };
@@ -89,6 +89,10 @@ namespace Stateless
             _firingMode = firingMode;
         }
 
+        /// <summary>
+        /// For certain situations, it is essential that the SynchronizationContext is retained for all delegate calls.
+        /// </summary>
+        public bool RetainSynchronizationContext { get; set; } = false;
 
         /// <summary>
         /// Default constructor
@@ -134,7 +138,6 @@ namespace Stateless
             return CurrentRepresentation.GetPermittedTriggers(args);
         }
 
-#if !NETSTANDARD1_0
         /// <summary>
         /// Gets the currently-permissible triggers with any configured parameters.
         /// </summary>
@@ -143,7 +146,6 @@ namespace Stateless
             return CurrentRepresentation.GetPermittedTriggers(args)
                 .Select(trigger => new TriggerDetails<TState, TTrigger>(trigger, _triggerConfiguration));
         }
-#endif
 
         StateRepresentation CurrentRepresentation
         {
@@ -158,7 +160,7 @@ namespace Stateless
         /// </summary>
         public StateMachineInfo GetInfo()
         {
-            var initialState = StateInfo.CreateStateInfo(new StateRepresentation(_initialState));
+            var initialState = StateInfo.CreateStateInfo(new StateRepresentation(_initialState, RetainSynchronizationContext));
 
             var representations = _stateConfiguration.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
@@ -168,7 +170,7 @@ namespace Stateless
             var reachable = behaviours
                 .Distinct()
                 .Except(representations.Keys)
-                .Select(underlying => new StateRepresentation(underlying))
+                .Select(underlying => new StateRepresentation(underlying, RetainSynchronizationContext))
                 .ToArray();
 
             foreach (var representation in reachable)
@@ -186,7 +188,7 @@ namespace Stateless
         {
             if (!_stateConfiguration.TryGetValue(state, out StateRepresentation result))
             {
-                result = new StateRepresentation(state);
+                result = new StateRepresentation(state, RetainSynchronizationContext);
                 _stateConfiguration.Add(state, result);
             }
 
@@ -418,9 +420,13 @@ namespace Stateless
                     HandleReentryTrigger(args, representativeState, transition);
                     break;
                 }
-                case DynamicTriggerBehaviour _ when (result.Handler.ResultsInTransitionFrom(source, args, out var destination)):
-                case TransitioningTriggerBehaviour _ when (result.Handler.ResultsInTransitionFrom(source, args, out destination)):
+                case DynamicTriggerBehaviour _ when result.Handler.ResultsInTransitionFrom(source, args, out var destination):
+                case TransitioningTriggerBehaviour _ when result.Handler.ResultsInTransitionFrom(source, args, out destination):
                 {
+                    //If a trigger was found on a superstate that would cause unintended reentry, don't trigger.
+                    if (source.Equals(destination))
+                        break;
+
                     // Handle transition, and set new state
                     var transition = new Transition(source, destination, trigger, args);
                     HandleTransitioningTrigger(args, representativeState, transition);
@@ -476,7 +482,7 @@ namespace Stateless
             _onTransitionedEvent.Invoke(transition);
             var representation = EnterState(newRepresentation, transition, args);
 
-            // Check if state has changed by entering new state (by fireing triggers in OnEntry or such)
+            // Check if state has changed by entering new state (by firing triggers in OnEntry or such)
             if (!representation.UnderlyingState.Equals(State))
             {
                 // The state has been changed after entering the state, must update current state to new one

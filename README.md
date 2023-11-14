@@ -23,7 +23,7 @@ phoneCall.Fire(Trigger.CallDialled);
 Assert.AreEqual(State.Ringing, phoneCall.State);
 ```
 
-This project, as well as the example above, was inspired by [Simple State Machine](http://simplestatemachine.codeplex.com/).
+This project, as well as the example above, was inspired by [Simple State Machine (Archived)](https://web.archive.org/web/20170814020207/http://simplestatemachine.codeplex.com/).
 
 ## Features
 
@@ -124,7 +124,7 @@ phoneCall.Configure(State.OffHook)
 
 Guard clauses within a state must be mutually exclusive (multiple guard clauses cannot be valid at the same time.) Substates can override transitions by respecifying them, however substates cannot disallow transitions that are allowed by the superstate.
 
-The guard clauses will be evaluated whenever a trigger is fired. Guards should therefor be made side effect free.
+The guard clauses will be evaluated whenever a trigger is fired. Guards should therefore be made side effect free.
 
 ### Parameterised Triggers
 
@@ -225,9 +225,28 @@ await stateMachine.FireAsync(Trigger.Assigned);
 
 **Note:** while `StateMachine` may be used _asynchronously_, it remains single-threaded and may not be used _concurrently_ by multiple threads.
 
+## Advanced Features ##
+
+### Retaining the SynchronizationContext ###
+In specific situations where all handler methods must be invoked with the consumer's SynchronizationContext, set the _RetainSynchronizationContext_ property on creation:
+
+```csharp
+var stateMachine = new StateMachine<State, Trigger>(initialState)
+{
+    RetainSynchronizationContext = true
+};
+```
+
+Setting this is vital within a Microsoft Orleans Grain for example, which requires the SynchronizationContext in order to make calls to other Grains.
+
 ## Building
 
 Stateless runs on .NET 4.0+ and practically all modern .NET platforms by targeting .NET Standard 1.0 and .NET Standard2.0. Visual Studio 2017 or later is required to build the solution.
+
+
+## Contributing
+
+We welcome contributions to this project. Check [CONTRIBUTING.md](CONTRIBUTING.md) for more info.
 
 
 ## Project Goals
