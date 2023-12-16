@@ -241,7 +241,7 @@ Setting this is vital within a Microsoft Orleans Grain for example, which requir
 
 ## Building
 
-Stateless runs on .NET 4.0+ and practically all modern .NET platforms by targeting .NET Standard 1.0 and .NET Standard2.0. Visual Studio 2017 or later is required to build the solution.
+Stateless runs on .NET runtime version 4+ and practically all modern .NET platforms by targeting .NET Framework 4.6.2, .NET Standard 2.0 and .NET 8.0. Visual Studio 2017 or later is required to build the solution.
 
 
 ## Contributing
@@ -256,5 +256,3 @@ This page is an almost-complete description of Stateless, and its explicit aim i
 Please use the issue tracker or the if you'd like to report problems or discuss features.
 
 (_Why the name? Stateless implements the set of rules regarding state transitions, but, at least when the delegate version of the constructor is used, doesn't maintain any internal state itself._)
-
-[Visual Studio 2015 and .NET Core]: https://www.microsoft.com/net/core
