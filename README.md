@@ -41,6 +41,7 @@ Some useful extensions are also provided:
  * Parameterised triggers
  * Reentrant states
  * Export to DOT graph
+ * Export to mermaid graph
 
 ### Hierarchical States
 
