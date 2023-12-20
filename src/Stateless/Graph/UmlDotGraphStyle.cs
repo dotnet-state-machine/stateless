@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stateless.Reflection;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -121,6 +122,22 @@ namespace Stateless.Graph
         internal string FormatOneLine(string fromNodeName, string toNodeName, string label)
         {
             return $"\"{fromNodeName}\" -> \"{toNodeName}\" [style=\"solid\", label=\"{label}\"];";
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="initialState"></param>
+        /// <returns></returns>
+        public override string GetInitialTransition(StateInfo initialState)
+        {
+            var initialStateName = initialState.UnderlyingState.ToString();
+            string dirgraphText = System.Environment.NewLine + $" init [label=\"\", shape=point];";
+            dirgraphText += System.Environment.NewLine + $" init -> \"{initialStateName}\"[style = \"solid\"]";
+
+            dirgraphText += System.Environment.NewLine + "}";
+
+            return dirgraphText;
         }
     }
 }
