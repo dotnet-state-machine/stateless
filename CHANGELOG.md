@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## TODO: vNext - date
 ### Changed
+ - Updated net6.0 build target to net8.0 [#551]
  - New abstract method, `GetInitialTransition`, added to `GraphStyleBase` to remove DOT graph implementation from `StateGraph` [#557]
    - Classes that are derived from `GraphStyleBase` and are being migrated from an earlier release of Stateless will need to implement this method.
 ### Added
