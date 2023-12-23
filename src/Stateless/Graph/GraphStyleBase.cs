@@ -19,6 +19,12 @@ namespace Stateless.Graph
         public abstract string GetPrefix();
 
         /// <summary>
+        /// Get initial transition if present
+        /// </summary>
+        /// <returns></returns>
+        public abstract string GetInitialTransition(Reflection.StateInfo initialState);
+
+        /// <summary>
         /// Returns the formatted text for a single state.
         /// For example, for DOT files this would be the description of a single node:
         /// nodename [label="statename"];
