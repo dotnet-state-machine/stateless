@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## TODO: vNext - date
+### Changed
+ - Updated net6.0 build target to net8.0 [#551]
+ - New abstract method, `GetInitialTransition`, added to `GraphStyleBase` to remove DOT graph implementation from `StateGraph` [#557]
+   - Classes that are derived from `GraphStyleBase` and are being migrated from an earlier release of Stateless will need to implement this method.
+### Added
+ - Added license information and README file to NuGet package [#539, #553]
+
 ## 5.14.0 - 2023.11.14
 ### Added
  - Enable Source Link & Deterministic Builds [#501]
