@@ -66,7 +66,7 @@ Entry/Exit action handlers can be supplied with a parameter of type `Transition`
 
 ### Internal transitions
 
-Sometimes a trigger does needs to be handled, but the state shouldn't change. This is an internal transition. Use `InternalTransition` for this.
+Sometimes a trigger needs to be handled, but the state shouldn't change. This is an internal transition. Use `InternalTransition` for this.
 
 ### Initial state transitions
 
@@ -84,7 +84,7 @@ Due to Stateless' internal structure, it does not know when it is "started". Thi
 
 ```csharp
     sm.Configure(InitialState)
-        .OnActivate(() => sm.Fire(LetsGo)))
+        .OnActivate(() => sm.Fire(LetsGo))
         .Permit(LetsGo, StateA)
 ```
 
@@ -110,7 +110,7 @@ It might be necessary to perform some code before storing the object state, and 
 
 ### Introspection
 
-The state machine can provide a list of the triggers that can be successfully fired within the current state via the `StateMachine.PermittedTriggers` property. Use `StateMachine.GetInfo()` to retreive information about the state configuration.
+The state machine can provide a list of the triggers that can be successfully fired within the current state via the `StateMachine.PermittedTriggers` property. Use `StateMachine.GetInfo()` to retrieve information about the state configuration.
 
 ### Guard Clauses
 
@@ -182,7 +182,7 @@ This event will be invoked every time the state machine changes state.
 ```csharp
 stateMachine.OnTransitionCompleted((transition) => { });
 ```
-This event will be invoked at the very end of the trigger handling, after the last  entry action have been executed.
+This event will be invoked at the very end of the trigger handling, after the last  entry action has been executed.
 
 ### Export to DOT graph
 
@@ -208,7 +208,7 @@ Command line example: `dot -T pdf -o phoneCall.pdf phoneCall.dot` to generate a 
 
 ### Async triggers
 
-On platforms that provide `Task<T>`, the `StateMachine` supports `async` entry/exit actions and so-on:
+On platforms that provide `Task<T>`, the `StateMachine` supports `async` entry/exit actions and so on:
 
 ```csharp
 stateMachine.Configure(State.Assigned)
@@ -228,7 +228,7 @@ await stateMachine.FireAsync(Trigger.Assigned);
 ## Advanced Features ##
 
 ### Retaining the SynchronizationContext ###
-In specific situations where all handler methods must be invoked with the consumer's SynchronizationContext, set the _RetainSynchronizationContext_ property on creation:
+In specific situations where all handler methods must be invoked with the consumer's `SynchronizationContext`, set the `RetainSynchronizationContext` property on creation:
 
 ```csharp
 var stateMachine = new StateMachine<State, Trigger>(initialState)
@@ -237,7 +237,7 @@ var stateMachine = new StateMachine<State, Trigger>(initialState)
 };
 ```
 
-Setting this is vital within a Microsoft Orleans Grain for example, which requires the SynchronizationContext in order to make calls to other Grains.
+Setting this is vital within a Microsoft Orleans Grain for example, which requires the `SynchronizationContext` in order to make calls to other Grains.
 
 ## Building
 
@@ -253,6 +253,6 @@ We welcome contributions to this project. Check [CONTRIBUTING.md](CONTRIBUTING.m
 
 This page is an almost-complete description of Stateless, and its explicit aim is to remain minimal.
 
-Please use the issue tracker or the if you'd like to report problems or discuss features.
+Please use the issue tracker or the Discussions page if you'd like to report problems or discuss features.
 
 (_Why the name? Stateless implements the set of rules regarding state transitions, but, at least when the delegate version of the constructor is used, doesn't maintain any internal state itself._)
