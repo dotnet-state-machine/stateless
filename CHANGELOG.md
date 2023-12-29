@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 5.15.0 - 2023.12.29
+### Changed
+ - Updated net6.0 build target to net8.0 [#551]
+ - New abstract method, `GetInitialTransition`, added to `GraphStyleBase` to remove DOT graph implementation from `StateGraph` [#557]
+   - Classes that are derived from `GraphStyleBase` and are being migrated from an earlier release of Stateless will need to implement this method.
+### Added
+ - Added license information and README file to NuGet package [#539], [#553]
+
 ## 5.14.0 - 2023.11.14
 ### Added
  - Enable Source Link & Deterministic Builds [#501]
@@ -44,7 +52,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  - Added CanFire overload to return unmet guard descriptions [#443]
 ### Fixed
  - Inconsistency in sync/async statemachine execution [#444]
- - Added support for spaces in state/trigger names in Graphviz node graphs by wrapping them in escaped quotes #447
+ - Added support for spaces in state/trigger names in Graphviz node graphs by wrapping them in escaped quotes [#447]
 
 ## 5.10.1
 Re-releasing 5.2.0 as v5.10.1.
@@ -202,6 +210,37 @@ Version 5.10.0 is now listed as the newest, since it has the highest version num
 ### Removed
 ### Fixed
 
+[#551]: https://github.com/dotnet-state-machine/stateless/pull/551
+[#557]: https://github.com/dotnet-state-machine/stateless/issues/557
+[#553]: https://github.com/dotnet-state-machine/stateless/issues/553
+[#539]: https://github.com/dotnet-state-machine/stateless/issues/539
+[#501]: https://github.com/dotnet-state-machine/stateless/pull/501
+[#519]: https://github.com/dotnet-state-machine/stateless/pull/519
+[#520]: https://github.com/dotnet-state-machine/stateless/pull/520
+[#526]: https://github.com/dotnet-state-machine/stateless/pull/526
+[#524]: https://github.com/dotnet-state-machine/stateless/pull/524
+[#536]: https://github.com/dotnet-state-machine/stateless/pull/536
+[#514]: https://github.com/dotnet-state-machine/stateless/pull/514
+[#511]: https://github.com/dotnet-state-machine/stateless/pull/511
+[#522]: https://github.com/dotnet-state-machine/stateless/pull/522
+[#521]: https://github.com/dotnet-state-machine/stateless/pull/521
+[#512]: https://github.com/dotnet-state-machine/stateless/pull/512
+[#528]: https://github.com/dotnet-state-machine/stateless/pull/528
+[#532]: https://github.com/dotnet-state-machine/stateless/pull/532
+[#530]: https://github.com/dotnet-state-machine/stateless/pull/530
+[#544]: https://github.com/dotnet-state-machine/stateless/pull/544
+[#494]: https://github.com/dotnet-state-machine/stateless/pull/494
+[#495]: https://github.com/dotnet-state-machine/stateless/pull/495
+[#479]: https://github.com/dotnet-state-machine/stateless/pull/479
+[#484]: https://github.com/dotnet-state-machine/stateless/pull/484
+[#488]: https://github.com/dotnet-state-machine/stateless/pull/488
+[#471]: https://github.com/dotnet-state-machine/stateless/pull/471
+[#478]: https://github.com/dotnet-state-machine/stateless/pull/478
+[#480]: https://github.com/dotnet-state-machine/stateless/pull/480
+[#487]: https://github.com/dotnet-state-machine/stateless/pull/487
+[#443]: https://github.com/dotnet-state-machine/stateless/pull/443
+[#444]: https://github.com/dotnet-state-machine/stateless/issues/444
+[#447]: https://github.com/dotnet-state-machine/stateless/pull/447
 [#422]: https://github.com/dotnet-state-machine/stateless/issues/422
 [#416]: https://github.com/dotnet-state-machine/stateless/issues/416
 [#413]: https://github.com/dotnet-state-machine/stateless/issues/413

@@ -15,8 +15,15 @@ namespace Stateless.Graph
         /// For example, for DOT files the prefix text would be
         /// digraph {
         /// </summary>
-        /// <returns>Prefix text</returns>
+        /// <returns>Prefix text.</returns>
         public abstract string GetPrefix();
+
+        /// <summary>
+        /// Get initial transition if present.
+        /// </summary>
+        /// <param name="initialState">The initial state.</param>
+        /// <returns>Description of the initial transition, if present.</returns>
+        public abstract string GetInitialTransition(Reflection.StateInfo initialState);
 
         /// <summary>
         /// Returns the formatted text for a single state.
@@ -24,28 +31,28 @@ namespace Stateless.Graph
         /// nodename [label="statename"];
         /// Usually the information on exit and entry actions would also be included here.
         /// </summary>
-        /// <param name="state">The state to generate text for</param>
-        /// <returns>Description of the state in the desired format</returns>
+        /// <param name="state">The state to generate text for.</param>
+        /// <returns>Description of the state in the desired format.</returns>
         public abstract string FormatOneState(State state);
 
         /// <summary>
         /// Returns the formatted text for a single superstate and its substates.
         /// For example, for DOT files this would be a subgraph containing nodes for all the substates.
         /// </summary>
-        /// <param name="stateInfo">The superstate to generate text for</param>
-        /// <returns>Description of the superstate, and all its substates, in the desired format</returns>
+        /// <param name="stateInfo">The superstate to generate text for.</param>
+        /// <returns>Description of the superstate, and all its substates, in the desired format.</returns>
         public abstract string FormatOneCluster(SuperState stateInfo);
 
         /// <summary>
         /// Returns the formatted text for a single decision node.
-        /// A decision node is created each time there is a PermitDynamic() transition.  There will be a transition
+        /// A decision node is created each time there is a PermitDynamic() transition. There will be a transition
         /// from the state that has the dynamic transition to the decision node, and transitions from the decision
-        /// node to each of the destination nodes.  If the caller did not specify the possible destination states,
+        /// node to each of the destination nodes. If the caller did not specify the possible destination states,
         /// there will be no transitions leaving the decision node.
         /// </summary>
-        /// <param name="nodeName">Name of the node</param>
-        /// <param name="label">Label for the node</param>
-        /// <returns></returns>
+        /// <param name="nodeName">Name of the node.</param>
+        /// <param name="label">Label for the node.</param>
+        /// <returns>Description of the decision node for a dynamic transition, in the desired format.</returns>
         public abstract string FormatOneDecisionNode(string nodeName, string label);
 
         /// <summary>
@@ -53,8 +60,8 @@ namespace Stateless.Graph
         /// This form, which can be overridden, determines the type of each transition and passes the appropriate
         /// parameters to the virtual FormatOneTransition() function.
         /// </summary>
-        /// <param name="transitions">List of all transitions in the state graph</param>
-        /// <returns>Description of all transitions, in the desired format</returns>
+        /// <param name="transitions">List of all transitions in the state graph.</param>
+        /// <returns>Description of all transitions, in the desired format.</returns>
         public virtual List<string> FormatAllTransitions(List<Transition> transitions)
         {
             List<string> lines = new List<string>();
@@ -111,15 +118,15 @@ namespace Stateless.Graph
         }
 
         /// <summary>
-        /// Returns the formatted text for a single transition.  Only required if the default version of
+        /// Returns the formatted text for a single transition. Only required if the default version of
         /// FormatAllTransitions() is used.
         /// </summary>
-        /// <param name="sourceNodeName">Node name of the source state node</param>
-        /// <param name="trigger">Name of the trigger</param>
-        /// <param name="actions">List of entry and exit actions (if any)</param>
-        /// <param name="destinationNodeName"></param>
-        /// <param name="guards">List of guards (if any)</param>
-        /// <returns></returns>
+        /// <param name="sourceNodeName">Node name of the source state node.</param>
+        /// <param name="trigger">Name of the trigger.</param>
+        /// <param name="actions">List of entry and exit actions (if any).</param>
+        /// <param name="destinationNodeName">Name of the destination state node.</param>
+        /// <param name="guards">List of guards (if any).</param>
+        /// <returns>Description of the initial state transition, in the desired format.</returns>
         public virtual string FormatOneTransition(string sourceNodeName, string trigger, IEnumerable<string> actions, string destinationNodeName, IEnumerable<string> guards)
         {
             throw new InvalidOperationException("If you use IGraphStyle.FormatAllTransitions() you must implement an override of FormatOneTransition()");

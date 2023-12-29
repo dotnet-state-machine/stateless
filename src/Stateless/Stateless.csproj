@@ -4,11 +4,11 @@
     <AssemblyName>Stateless</AssemblyName>
     <AssemblyTitle>Stateless</AssemblyTitle>
     <Product>Stateless</Product>
-    <TargetFrameworks>netstandard2.0;net462;net6.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net462;net8.0;</TargetFrameworks>
     <Description>Create state machines and lightweight state machine-based workflows directly in .NET code</Description>
     <Copyright>Copyright © Stateless Contributors 2009-$([System.DateTime]::Now.ToString(yyyy))</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <VersionPrefix>5.14.0</VersionPrefix>
+    <VersionPrefix>5.15.0</VersionPrefix>
     <Authors>Stateless Contributors</Authors>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -19,6 +19,9 @@
     <PackageProjectUrl>https://github.com/dotnet-state-machine/stateless</PackageProjectUrl>
     <license>http://www.apache.org/licenses/LICENSE-2.0</license>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <PropertyGroup Label="SourceLink">
@@ -37,10 +40,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\asset\Stateless.png" Pack="true" PackagePath="\"/>
+    <None Include="..\..\asset\Stateless.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup Label="SourceLink">
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="docs\README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 </Project>
