@@ -48,27 +48,27 @@ namespace Stateless
             /// <summary>
             /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
             /// </summary>
-            /// <param name="trigger"></param>
-            /// <param name="entryAction"></param>
+            /// <param name="trigger">The accepted trigger</param>
+            /// <param name="internalAction">The action performed by the internal transition</param>
             /// <returns></returns>
-            public StateConfiguration InternalTransition(TTrigger trigger, Action<Transition> entryAction)
+            public StateConfiguration InternalTransition(TTrigger trigger, Action<Transition> internalAction)
             {
-                return InternalTransitionIf(trigger, t => true, entryAction);
+                return InternalTransitionIf(trigger, t => true, internalAction);
             }
 
             /// <summary>
             /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
             /// </summary>
-            /// <param name="trigger"></param>
+            /// <param name="trigger">The accepted trigger</param>
             /// <param name="guard">Function that must return true in order for the trigger to be accepted.</param>
-            /// <param name="entryAction"></param>
+            /// <param name="internalAction">The action performed by the internal transition</param>
             /// <param name="guardDescription">A description of the guard condition</param>
             /// <returns></returns>
-            public StateConfiguration InternalTransitionIf(TTrigger trigger, Func<object[], bool> guard, Action<Transition> entryAction, string guardDescription = null)
+            public StateConfiguration InternalTransitionIf(TTrigger trigger, Func<object[], bool> guard, Action<Transition> internalAction, string guardDescription = null)
             {
-                if (entryAction == null) throw new ArgumentNullException(nameof(entryAction));
+                if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
 
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger, guard, (t, args) => entryAction(t), guardDescription));
+                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger, guard, (t, args) => internalAction(t), guardDescription));
                 return this;
             }
 
@@ -97,35 +97,6 @@ namespace Stateless
 
                 _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger, guard, (t, args) => internalAction(), guardDescription));
                 return this;
-            }
-
-            /// <summary>
-            /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
-            /// </summary>
-            /// <typeparam name="TArg0"></typeparam>
-            /// <param name="trigger">The accepted trigger</param>
-            /// <param name="guard">Function that must return true in order for the trigger to be accepted.</param>
-            /// <param name="internalAction">The action performed by the internal transition</param>
-            /// <param name="guardDescription">A description of the guard condition</param>
-            /// <returns></returns>
-            public StateConfiguration InternalTransitionIf<TArg0>(TTrigger trigger, Func<object[], bool> guard, Action<Transition> internalAction, string guardDescription = null)
-            {
-                if (internalAction == null) throw new ArgumentNullException(nameof(internalAction));
-
-                _representation.AddTriggerBehaviour(new InternalTriggerBehaviour.Sync(trigger, guard, (t, args) => internalAction(t), guardDescription));
-                return this;
-            }
-
-            /// <summary>
-            /// Add an internal transition to the state machine. An internal action does not cause the Exit and Entry actions to be triggered, and does not change the state of the state machine
-            /// </summary>
-            /// <typeparam name="TArg0"></typeparam>
-            /// <param name="trigger">The accepted trigger</param>
-            /// <param name="internalAction">The action performed by the internal transition</param>
-            /// <returns></returns>
-            public StateConfiguration InternalTransition<TArg0>(TTrigger trigger, Action<Transition> internalAction)
-            {
-                return InternalTransitionIf(trigger, t => true, internalAction);
             }
 
             /// <summary>
