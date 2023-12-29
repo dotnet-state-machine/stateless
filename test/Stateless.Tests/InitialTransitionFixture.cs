@@ -335,5 +335,55 @@ namespace Stateless.Tests
                 Assert.Equal(expectedOrdering[i], actualOrdering[i]);
             }
         }
+
+        [Fact]
+        public async Task CheckMultipleFireAsync()
+        {
+            for (int i = 0; i < 200; i++)
+            {
+                await CheckAsyncMethod();
+            }
+        }
+
+        private async Task CheckAsyncMethod()
+        {
+            // Create a state machine
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A).Permit(Trigger.X, State.B);
+            sm.Configure(State.A).Permit(Trigger.Y, State.C);
+            sm.Configure(State.B).Permit(Trigger.Y, State.D);
+            sm.Configure(State.B).Permit(Trigger.X, State.A);
+            sm.Configure(State.C).Permit(Trigger.Y, State.D);
+            sm.Configure(State.C).Permit(Trigger.X, State.A);
+            sm.Configure(State.D).Permit(Trigger.Y, State.B);
+            sm.Configure(State.D).Permit(Trigger.X, State.C);
+
+
+            // Create some tasks
+            List<Task> tasks = new List<Task>();
+
+            for (int i = 0; i < 20; i++)
+            {
+                Task taskTriggerX = Task.Run(() => FireTrigger(sm, Trigger.X, false));
+                Task taskTriggerY = Task.Run(() => FireTrigger(sm, Trigger.Y, false));
+                Task taskTriggerDelay = Task.Run(() => FireTrigger(sm, Trigger.X, true));
+                tasks.Add(taskTriggerX);
+                tasks.Add(taskTriggerY);
+                tasks.Add(taskTriggerDelay);
+            }
+
+            // Wait for tasks to complete
+            await Task.WhenAll(tasks);
+        }
+
+        private async Task FireTrigger(StateMachine<State, Trigger> sm, Trigger trigger, bool addDelay)
+        {
+            if(addDelay)
+            {
+                await Task.Delay(20);
+            }
+            await sm.FireAsync(trigger);
+        }
     }
 }
