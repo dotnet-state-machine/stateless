@@ -544,7 +544,7 @@ namespace Stateless.Tests
         [Fact]
         public async Task FireAsyncTriggerWithParametersArray()
         {
-            const string expectedParam = "42-Stateless-True-420.69-Y";
+            const string expectedParam = "42-Stateless-True-123.45-Y";
             string actualParam = null;
 
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -559,7 +559,7 @@ namespace Stateless.Tests
                     return Task.CompletedTask;
                 });
 
-            await sm.FireAsync(Trigger.X, 42, "Stateless", true, 420.69, Trigger.Y);
+            await sm.FireAsync(Trigger.X, 42, "Stateless", true, 123.45, Trigger.Y);
 
             Assert.Equal(expectedParam, actualParam);
         }
@@ -567,7 +567,7 @@ namespace Stateless.Tests
         [Fact]
         public async Task FireAsync_TriggerWithMoreThanThreeParameters()
         {
-            const string expectedParam = "42-Stateless-True-420.69-Y";
+            const string expectedParam = "42-Stateless-True-123.45-Y";
             string actualParam = null;
 
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -584,7 +584,7 @@ namespace Stateless.Tests
 
             var parameterizedX = sm.SetTriggerParameters(Trigger.X, typeof(int), typeof(string), typeof(bool), typeof(double), typeof(Trigger));
 
-            await sm.FireAsync(parameterizedX, 42, "Stateless", true, 420.69, Trigger.Y);
+            await sm.FireAsync(parameterizedX, 42, "Stateless", true, 123.45, Trigger.Y);
 
             Assert.Equal(expectedParam, actualParam);
         }
