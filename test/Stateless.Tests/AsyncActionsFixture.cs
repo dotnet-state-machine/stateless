@@ -1,14 +1,15 @@
 #if TASKS
 
 using System;
-using System.Threading.Tasks;
 using System.Collections.Generic;
-
+using System.Globalization;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Stateless.Tests
 {
-
     public class AsyncActionsFixture
     {
         [Fact]
@@ -555,11 +556,12 @@ namespace Stateless.Tests
             sm.Configure(State.B)
                 .OnEntryAsync(t =>
                 {
-                    actualParam = string.Join("-", t.Parameters);
+                    actualParam = string.Join("-", t.Parameters.Select(x => string.Format(CultureInfo.InvariantCulture, "{0}", x)));
                     return Task.CompletedTask;
                 });
 
             await sm.FireAsync(Trigger.X, 42, "Stateless", true, 123.45, Trigger.Y);
+            Console.WriteLine(Thread.CurrentThread.CurrentCulture);
 
             Assert.Equal(expectedParam, actualParam);
         }
@@ -578,7 +580,7 @@ namespace Stateless.Tests
             sm.Configure(State.B)
                 .OnEntryAsync(t =>
                 {
-                    actualParam = string.Join("-", t.Parameters);
+                    actualParam = string.Join("-", t.Parameters.Select(x => string.Format(CultureInfo.InvariantCulture, "{0}", x)));
                     return Task.CompletedTask;
                 });
 
