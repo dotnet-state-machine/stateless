@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -561,7 +560,6 @@ namespace Stateless.Tests
                 });
 
             await sm.FireAsync(Trigger.X, 42, "Stateless", true, 123.45, Trigger.Y);
-            Console.WriteLine(Thread.CurrentThread.CurrentCulture);
 
             Assert.Equal(expectedParam, actualParam);
         }
