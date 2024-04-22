@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 
 using Xunit;
+using System.Globalization;
 
 namespace Stateless.Tests
 {
@@ -567,7 +568,8 @@ namespace Stateless.Tests
         [Fact]
         public async Task FireAsync_TriggerWithMoreThanThreeParameters()
         {
-            const string expectedParam = "42-Stateless-True-420.69-Y";
+            var decimalSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
+            string expectedParam = $"42-Stateless-True-420{decimalSeparator}69-Y";
             string actualParam = null;
 
             var sm = new StateMachine<State, Trigger>(State.A);
