@@ -6,7 +6,6 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
-using System.Globalization;
 
 namespace Stateless.Tests
 {
