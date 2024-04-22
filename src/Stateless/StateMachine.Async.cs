@@ -220,8 +220,19 @@ namespace Stateless
                         break;
                     }
                 case DynamicTriggerBehaviour _ when result.Handler.ResultsInTransitionFrom(source, args, out var destination):
-                case TransitioningTriggerBehaviour _ when result.Handler.ResultsInTransitionFrom(source, args, out destination):
                     {
+                        // Handle transition, and set new state; reentry is permitted from dynamic trigger behaviours.
+                        var transition = new Transition(source, destination, trigger, args);
+                        await HandleTransitioningTriggerAsync(args, representativeState, transition);
+
+                        break;
+                    }
+                case TransitioningTriggerBehaviour _ when result.Handler.ResultsInTransitionFrom(source, args, out var destination):
+                    {
+                        // If a trigger was found on a superstate that would cause unintended reentry, don't trigger.
+                        if (source.Equals(destination))
+                            break;
+
                         // Handle transition, and set new state
                         var transition = new Transition(source, destination, trigger, args);
                         await HandleTransitioningTriggerAsync(args, representativeState, transition);

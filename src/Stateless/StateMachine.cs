@@ -47,7 +47,7 @@ namespace Stateless
         /// </summary>
         /// <param name="stateAccessor">A function that will be called to read the current state value.</param>
         /// <param name="stateMutator">An action that will be called to write new state values.</param>
-        public StateMachine(Func<TState> stateAccessor, Action<TState> stateMutator) :this(stateAccessor, stateMutator, FiringMode.Queued)
+        public StateMachine(Func<TState> stateAccessor, Action<TState> stateMutator) : this(stateAccessor, stateMutator, FiringMode.Queued)
         {
         }
 
@@ -414,39 +414,39 @@ namespace Stateless
                 // Handle special case, re-entry in superstate
                 // Check if it is an internal transition, or a transition from one state to another.
                 case ReentryTriggerBehaviour handler:
-                {
-                    // Handle transition, and set new state
-                    var transition = new Transition(source, handler.Destination, trigger, args);
-                    HandleReentryTrigger(args, representativeState, transition);
-                    break;
-                }
-                case DynamicTriggerBehaviour _ when result.Handler.ResultsInTransitionFrom(source, args, out var destination):
-                {
-                    // Handle transition, and set new state; reentry is permitted from dynamic trigger behaviours.
-                    var transition = new Transition(source, destination, trigger, args);
-                    HandleTransitioningTrigger(args, representativeState, transition);
-
-                    break;
-                }
-                case TransitioningTriggerBehaviour _ when result.Handler.ResultsInTransitionFrom(source, args, out var destination):
-                {
-                    // If a trigger was found on a superstate that would cause unintended reentry, don't trigger.
-                    if (source.Equals(destination))
+                    {
+                        // Handle transition, and set new state
+                        var transition = new Transition(source, handler.Destination, trigger, args);
+                        HandleReentryTrigger(args, representativeState, transition);
                         break;
+                    }
+                case DynamicTriggerBehaviour _ when result.Handler.ResultsInTransitionFrom(source, args, out var destination):
+                    {
+                        // Handle transition, and set new state; reentry is permitted from dynamic trigger behaviours.
+                        var transition = new Transition(source, destination, trigger, args);
+                        HandleTransitioningTrigger(args, representativeState, transition);
 
-                    // Handle transition, and set new state
-                    var transition = new Transition(source, destination, trigger, args);
-                    HandleTransitioningTrigger(args, representativeState, transition);
+                        break;
+                    }
+                case TransitioningTriggerBehaviour _ when result.Handler.ResultsInTransitionFrom(source, args, out var destination):
+                    {
+                        // If a trigger was found on a superstate that would cause unintended reentry, don't trigger.
+                        if (source.Equals(destination))
+                            break;
 
-                    break;
-                }
+                        // Handle transition, and set new state
+                        var transition = new Transition(source, destination, trigger, args);
+                        HandleTransitioningTrigger(args, representativeState, transition);
+
+                        break;
+                    }
                 case InternalTriggerBehaviour _:
-                {
-                    // Internal transitions does not update the current state, but must execute the associated action.
-                    var transition = new Transition(source, source, trigger, args);
-                    CurrentRepresentation.InternalAction(transition, args);
-                    break;
-                }
+                    {
+                        // Internal transitions does not update the current state, but must execute the associated action.
+                        var transition = new Transition(source, source, trigger, args);
+                        CurrentRepresentation.InternalAction(transition, args);
+                        break;
+                    }
                 default:
                     throw new InvalidOperationException("State machine configuration incorrect, no handler for trigger.");
             }
@@ -478,7 +478,7 @@ namespace Stateless
             State = representation.UnderlyingState;
         }
 
-        private void HandleTransitioningTrigger( object[] args, StateRepresentation representativeState, Transition transition)
+        private void HandleTransitioningTrigger(object[] args, StateRepresentation representativeState, Transition transition)
         {
             transition = representativeState.Exit(transition);
 
@@ -499,7 +499,7 @@ namespace Stateless
             _onTransitionCompletedEvent.Invoke(new Transition(transition.Source, State, transition.Trigger, transition.Parameters));
         }
 
-        private StateRepresentation EnterState(StateRepresentation representation, Transition transition, object [] args)
+        private StateRepresentation EnterState(StateRepresentation representation, Transition transition, object[] args)
         {
             // Enter the new state
             representation.Enter(transition, args);
