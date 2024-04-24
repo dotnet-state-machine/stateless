@@ -21,7 +21,7 @@
             {
                 Console.Write("> ");
 
-                input = Console.ReadLine();
+                input = Console.ReadLine()!;
 
                 if (!string.IsNullOrWhiteSpace(input))
                     switch (input.Split(" ")[0])
@@ -101,7 +101,7 @@
                         Console.WriteLine($"{input.Split(" ")[1]} is not a valid AlarmCommand.");
                     }
                 }
-                catch (InvalidOperationException ex)
+                catch (InvalidOperationException)
                 {
                     Console.WriteLine($"{input.Split(" ")[1]} is not a valid AlarmCommand to the current state.");
                 }
