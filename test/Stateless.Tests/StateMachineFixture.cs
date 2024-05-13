@@ -115,7 +115,7 @@ namespace Stateless.Tests
             var eCount = 0;
 
             sm.Configure(State.B)
-                .OnEntry(() => { eCount++;})
+                .OnEntry(() => { eCount++; })
                 .SubstateOf(State.C);
 
             sm.Configure(State.A)
@@ -722,6 +722,185 @@ namespace Stateless.Tests
         }
 
         [Fact]
+        public void CanFire_When_Transition_Is_Conditional_On_Default_Value_And_Trigger_Parameters_Are_Omitted_Returns_True()
+        {
+            // This test verifies behavior in CanFire that may be considered a bug.
+            // When a PermitIf transition is configured with a parameterized trigger and the trigger is fired without parameters,
+            // CanFire will test the transition with the default values of the omitted trigger parameters' types.
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var valueTrigger = sm.SetTriggerParameters<int>(Trigger.X);
+            sm.Configure(State.A).PermitIf(valueTrigger, State.B, i => i == default);
+
+            Assert.True(sm.CanFire(Trigger.X));
+        }
+
+        [Fact]
+        public void CanFire_When_Transition_Is_Conditional_On_Non_Default_Value_And_Trigger_Parameters_Are_Omitted_Returns_False()
+        {
+            // This test verifies behavior in CanFire that may be considered a bug.
+            // When a PermitIf transition is configured with a parameterized trigger and the trigger is fired without parameters,
+            // CanFire will test the transition with the default values of the omitted trigger parameters' types.
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var valueTrigger = sm.SetTriggerParameters<int>(Trigger.X);
+            sm.Configure(State.A).PermitIf(valueTrigger, State.B, i => i == 1);
+
+            Assert.False(sm.CanFire(Trigger.X));
+        }
+
+        [Fact]
+        public void CanFire_When_Transition_Is_Conditional_And_One_Trigger_Parameter_Is_Used_And_Condition_Is_Met_Returns_True()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var valueTrigger = sm.SetTriggerParameters<int>(Trigger.X);
+            sm.Configure(State.A).PermitIf(valueTrigger, State.B, i => i == 1);
+
+            Assert.True(sm.CanFire(valueTrigger, 1));
+        }
+
+        [Fact]
+        public void CanFire_When_Transition_Is_Conditional_And_One_Trigger_Parameter_Is_Used_And_Condition_Is_NotMet_Returns_False()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var valueTrigger = sm.SetTriggerParameters<int>(Trigger.X);
+            sm.Configure(State.A).PermitIf(valueTrigger, State.B, i => i != 1);
+
+            Assert.False(sm.CanFire(valueTrigger, 1));
+        }
+
+        [Fact]
+        public void CanFire_When_Transition_Is_Conditional_And_Two_Trigger_Parameters_Are_Used_And_Condition_Is_Met_Returns_True()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var valueTrigger = sm.SetTriggerParameters<int, string>(Trigger.X);
+            sm.Configure(State.A).PermitIf(valueTrigger, State.B, (i, s) => i == 1 && s.Equals("X", StringComparison.Ordinal));
+
+            Assert.True(sm.CanFire(valueTrigger, 1, "X"));
+        }
+
+        [Fact]
+        public void CanFire_When_Transition_Is_Conditional_And_Two_Trigger_Parameters_Are_Used_And_Condition_Is_Not_Met_Returns_False()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var valueTrigger = sm.SetTriggerParameters<int, string>(Trigger.X);
+            sm.Configure(State.A).PermitIf(valueTrigger, State.B, (i, s) => i != 1 && s.Equals("Y", StringComparison.Ordinal));
+
+            Assert.False(sm.CanFire(valueTrigger, 1, "X"));
+        }
+
+        [Fact]
+        public void CanFire_When_Transition_Is_Conditional_And_Three_Trigger_Parameters_Are_Used_And_Condition_Is_Met_Returns_True()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var valueTrigger = sm.SetTriggerParameters<int, string, bool>(Trigger.X);
+            sm.Configure(State.A).PermitIf(valueTrigger, State.B, (i, s, b) => i == 1 && s.Equals("X", StringComparison.Ordinal) && b);
+
+            Assert.True(sm.CanFire(valueTrigger, 1, "X", true));
+        }
+
+        [Fact]
+        public void CanFire_When_Transition_Is_Conditional_And_Three_Trigger_Parameters_Are_Used_And_Condition_Is_Not_Met_Returns_False()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var valueTrigger = sm.SetTriggerParameters<int, string, bool>(Trigger.X);
+            sm.Configure(State.A).PermitIf(valueTrigger, State.B, (i, s, b) => i != 1 && s.Equals("Y", StringComparison.Ordinal) && !b);
+
+            Assert.False(sm.CanFire(valueTrigger, 1, "X", true));
+        }
+
+        [Fact]
+        public void CanFire_When_Transition_Is_Contidional_And_Has_One_Trigger_Parameter_And_A_Guard_Condition_Is_Met_Returns_Empty_Collection()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var valueTrigger = sm.SetTriggerParameters<int>(Trigger.X);
+            sm.Configure(State.A)
+                .PermitIf(valueTrigger, State.B, i => i == 1, "i equal to 1")
+                .PermitIf(valueTrigger, State.B, i => i == 2, "i equal to 2");
+
+            bool result = sm.CanFire(valueTrigger, 1, out ICollection<string> unmetGuards);
+
+            Assert.True(result);
+            Assert.False(unmetGuards.Any());
+        }
+
+        [Fact]
+        public void CanFire_When_Transition_Is_Contidional_And_Has_One_Trigger_Parameter_And_No_Guard_Conditions_Are_Met_Returns_Guard_Conditions()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var valueTrigger = sm.SetTriggerParameters<int>(Trigger.X);
+            sm.Configure(State.A)
+                .PermitIf(valueTrigger, State.B, i => i == 1, "i equal to 1")
+                .PermitIf(valueTrigger, State.B, i => i == 2, "i equal to 2");
+
+            bool result = sm.CanFire(valueTrigger, 3, out ICollection<string> unmetGuards);
+
+            Assert.Collection(unmetGuards,
+                item => Assert.Equal("i equal to 1", item),
+                item => Assert.Equal("i equal to 2", item));
+        }
+
+        [Fact]
+        public void CanFire_When_Transition_Is_Contidional_And_Has_Two_Trigger_Parameters_And_A_Guard_Condition_Is_Met_Returns_Empty_Collection()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var valueTrigger = sm.SetTriggerParameters<int, string>(Trigger.X);
+            sm.Configure(State.A)
+                .PermitIf(valueTrigger, State.B, (i, s) => i == 1 && s == "X", "i equal to 1 and s equal to 'X'")
+                .PermitIf(valueTrigger, State.B, (i, s) => i == 2 && s == "X", "i equal to 2 and s equal to 'Y'");
+
+            bool result = sm.CanFire(valueTrigger, 1, "X", out ICollection<string> unmetGuards);
+
+            Assert.True(result);
+            Assert.False(unmetGuards.Any());
+        }
+
+        [Fact]
+        public void CanFire_When_Transition_Is_Contidional_And_Has_Two_Trigger_Parameters_And_No_Guard_Conditions_Are_Met_Returns_Guard_Conditions()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var valueTrigger = sm.SetTriggerParameters<int, string>(Trigger.X);
+            sm.Configure(State.A)
+                .PermitIf(valueTrigger, State.B, (i, s) => i == 1 && s == "X", "i equal to 1 and s equal to 'X'")
+                .PermitIf(valueTrigger, State.B, (i, s) => i == 2 && s == "X", "i equal to 2 and s equal to 'Y'");
+
+            bool result = sm.CanFire(valueTrigger, 3, "Z", out ICollection<string> unmetGuards);
+
+            Assert.Collection(unmetGuards,
+                item => Assert.Equal("i equal to 1 and s equal to 'X'", item),
+                item => Assert.Equal("i equal to 2 and s equal to 'Y'", item));
+        }
+
+        [Fact]
+        public void CanFire_When_Transition_Is_Contidional_And_Has_Three_Trigger_Parameters_And_A_Guard_Condition_Is_Met_Returns_Empty_Collection()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var valueTrigger = sm.SetTriggerParameters<int, string, bool>(Trigger.X);
+            sm.Configure(State.A)
+                .PermitIf(valueTrigger, State.B, (i, s, b) => i == 1 && s == "X", "i equal to 1 and s equal to 'X' and boolean is true")
+                .PermitIf(valueTrigger, State.B, (i, s, b) => i == 2 && s == "X", "i equal to 2 and s equal to 'Y' and boolean is true");
+
+            bool result = sm.CanFire(valueTrigger, 1, "X", true, out ICollection<string> unmetGuards);
+
+            Assert.True(result);
+            Assert.False(unmetGuards.Any());
+        }
+
+        [Fact]
+        public void CanFire_When_Transition_Is_Contidional_And_Has_Three_Trigger_Parameters_And_No_Guard_Conditions_Are_Met_Returns_Guard_Conditions()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var valueTrigger = sm.SetTriggerParameters<int, string, bool>(Trigger.X);
+            sm.Configure(State.A)
+                .PermitIf(valueTrigger, State.B, (i, s, b) => i == 1 && s == "X", "i equal to 1 and s equal to 'X' and boolean is true")
+                .PermitIf(valueTrigger, State.B, (i, s, b) => i == 2 && s == "X", "i equal to 2 and s equal to 'Y' and boolean is true");
+
+            bool result = sm.CanFire(valueTrigger, 3, "Z", false, out ICollection<string> unmetGuards);
+
+            Assert.Collection(unmetGuards,
+                item => Assert.Equal("i equal to 1 and s equal to 'X' and boolean is true", item),
+                item => Assert.Equal("i equal to 2 and s equal to 'Y' and boolean is true", item));
+        }
+
+        [Fact]
         public void TransitionWhenPermitDyanmicIfHasMultipleExclusiveGuards()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -1048,7 +1227,7 @@ namespace Stateless.Tests
             const string guardDescription = "Guard failed";
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A)
-              .PermitIf(Trigger.X, State.B, ()=> false, guardDescription);
+              .PermitIf(Trigger.X, State.B, () => false, guardDescription);
 
             bool result = sm.CanFire(Trigger.X, out ICollection<string> unmetGuards);
 

@@ -570,6 +570,12 @@ namespace Stateless
         /// Returns true if <paramref name="trigger"/> can be fired
         /// in the current state.
         /// </summary>
+        /// <remarks>
+        /// When the trigger is configured with parameters, the <c>default</c> value of each of the trigger parameter's types will be used 
+        /// to evaluate whether it can fire, which may not be the desired behavior; to check if a trigger can be fired with specific arguments,
+        /// use the overload of <c>CanFire&lt;TArg1[, TArg2[ ,TArg3]]&gt;(TriggerWithParameters&lt;TArg1[, TArg2[ ,TArg3]]&gt;, ...)</c> that
+        /// matches the type arguments of your trigger.
+        /// </remarks>
         /// <param name="trigger">Trigger to test.</param>
         /// <returns>True if the trigger can be fired, false otherwise.</returns>
         public bool CanFire(TTrigger trigger)
@@ -579,14 +585,124 @@ namespace Stateless
 
         /// <summary>
         /// Returns true if <paramref name="trigger"/> can be fired
-        /// in the current state.
+        /// in the current state using the supplied trigger argument.
         /// </summary>
+        /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+        /// <param name="trigger">Trigger to test.</param>
+        /// <param name="arg0">The first argument.</param>
+        /// <returns>True if the trigger can be fired, false otherwise.</returns>
+        public bool CanFire<TArg0>(TriggerWithParameters<TArg0> trigger, TArg0 arg0)
+        {
+            if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+
+            return CurrentRepresentation.CanHandle(trigger.Trigger, arg0);
+        }
+
+        /// <summary>
+        /// Returns true if <paramref name="trigger"/> can be fired
+        /// in the current state using the supplied trigger arguments.
+        /// </summary>
+        /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+        /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
+        /// <param name="trigger">Trigger to test.</param>
+        /// <param name="arg0">The first argument.</param>
+        /// <param name="arg1">The second argument.</param>
+        /// <returns>True if the trigger can be fired, false otherwise.</returns>
+        public bool CanFire<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, TArg0 arg0, TArg1 arg1)
+        {
+            if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+
+            return CurrentRepresentation.CanHandle(trigger.Trigger, arg0, arg1);
+        }
+
+        /// <summary>
+        /// Returns true if <paramref name="trigger"/> can be fired
+        /// in the current state using the supplied trigger arguments.
+        /// </summary>
+        /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+        /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
+        /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
+        /// <param name="trigger">Trigger to test.</param>
+        /// <param name="arg0">The first argument.</param>
+        /// <param name="arg1">The second argument.</param>
+        /// <param name="arg2">The third argument.</param>
+        /// <returns>True if the trigger can be fired, false otherwise.</returns>
+        public bool CanFire<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, TArg0 arg0, TArg1 arg1, TArg2 arg2)
+        {
+            if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+
+            return CurrentRepresentation.CanHandle(trigger.Trigger, arg0, arg1, arg2);
+        }
+
+        /// <summary>
+        /// Returns true if <paramref name="trigger"/> can be fired in the current state.
+        /// </summary>
+        /// <remarks>
+        /// When the trigger is configured with parameters, the <c>default</c> value of each of the trigger parameter's types will be used 
+        /// to evaluate whether it can fire, which may not be the desired behavior; to check if a trigger can be fired with specific arguments,
+        /// use the overload of <c>CanFire&lt;TArg1[, TArg2[ ,TArg3]]&gt;(TriggerWithParameters&lt;TArg1[, TArg2[ ,TArg3]]&gt;, ...)</c> that
+        /// matches the type arguments of your trigger.
+        /// </remarks>
         /// <param name="trigger">Trigger to test.</param>
         /// <param name="unmetGuards">Guard descriptions of unmet guards. If given trigger is not configured for current state, this will be null.</param>
         /// <returns>True if the trigger can be fired, false otherwise.</returns>
         public bool CanFire(TTrigger trigger, out ICollection<string> unmetGuards)
         {
             return CurrentRepresentation.CanHandle(trigger, new object[] { }, out unmetGuards);
+        }
+
+        /// <summary>
+        /// Returns true if <paramref name="trigger"/> can be fired
+        /// in the current state using the supplied trigger argument.
+        /// </summary>
+        /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+        /// <param name="trigger">Trigger to test.</param>
+        /// <param name="arg0">The first argument.</param>
+        /// <param name="unmetGuards">Guard descriptions of unmet guards. If given trigger is not configured for current state, this will be null.</param>
+        /// <returns>True if the trigger can be fired, false otherwise.</returns>
+        public bool CanFire<TArg0>(TriggerWithParameters<TArg0> trigger, TArg0 arg0, out ICollection<string> unmetGuards)
+        {
+            if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+
+            return CurrentRepresentation.CanHandle(trigger.Trigger, new object[] { arg0 }, out unmetGuards);
+        }
+
+        /// <summary>
+        /// Returns true if <paramref name="trigger"/> can be fired
+        /// in the current state using the supplied trigger arguments.
+        /// </summary>
+        /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+        /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
+        /// <param name="trigger">Trigger to test.</param>
+        /// <param name="arg0">The first argument.</param>
+        /// <param name="arg1">The second argument.</param>
+        /// <param name="unmetGuards">Guard descriptions of unmet guards. If given trigger is not configured for current state, this will be null.</param>
+        /// <returns>True if the trigger can be fired, false otherwise.</returns>
+        public bool CanFire<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, TArg0 arg0, TArg1 arg1, out ICollection<string> unmetGuards)
+        {
+            if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+
+            return CurrentRepresentation.CanHandle(trigger.Trigger, new object[] { arg0, arg1 }, out unmetGuards);
+        }
+
+        /// <summary>
+        /// Returns true if <paramref name="trigger"/> can be fired
+        /// in the current state using the supplied trigger arguments.
+        /// </summary>
+        /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+        /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
+        /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
+        /// <param name="trigger">Trigger to test.</param>
+        /// <param name="arg0">The first argument.</param>
+        /// <param name="arg1">The second argument.</param>
+        /// <param name="arg2">The third argument.</param>
+        /// <param name="unmetGuards">Guard descriptions of unmet guards. If given trigger is not configured for current state, this will be null.</param>
+        /// <returns>True if the trigger can be fired, false otherwise.</returns>
+        public bool CanFire<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, TArg0 arg0, TArg1 arg1, TArg2 arg2, out ICollection<string> unmetGuards)
+        {
+            if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+
+            return CurrentRepresentation.CanHandle(trigger.Trigger, new object[] { arg0, arg1, arg2 }, out unmetGuards);
         }
 
         /// <summary>
