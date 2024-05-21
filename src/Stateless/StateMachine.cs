@@ -390,11 +390,13 @@ namespace Stateless
         /// </summary>
         /// <param name="trigger"></param>
         /// <param name="args"></param>
-        void InternalFireOne(TTrigger trigger, params object[] args)
+        private void InternalFireOne(TTrigger trigger, params object[] args)
         {
             // If this is a trigger with parameters, we must validate the parameter(s)
             if (_triggerConfiguration.TryGetValue(trigger, out TriggerWithParameters configuration))
+            {
                 configuration.ValidateParameters(args);
+            }
 
             var source = State;
             var representativeState = GetRepresentation(source);
@@ -420,22 +422,23 @@ namespace Stateless
                         HandleReentryTrigger(args, representativeState, transition);
                         break;
                     }
-                case DynamicTriggerBehaviour _ when result.Handler.ResultsInTransitionFrom(source, args, out var destination):
+                case DynamicTriggerBehaviour handler:
                     {
+                        handler.GetDestinationState(source, args, out var destination);
                         // Handle transition, and set new state; reentry is permitted from dynamic trigger behaviours.
                         var transition = new Transition(source, destination, trigger, args);
                         HandleTransitioningTrigger(args, representativeState, transition);
 
                         break;
                     }
-                case TransitioningTriggerBehaviour _ when result.Handler.ResultsInTransitionFrom(source, args, out var destination):
+                case TransitioningTriggerBehaviour handler:
                     {
                         // If a trigger was found on a superstate that would cause unintended reentry, don't trigger.
-                        if (source.Equals(destination))
+                        if (source.Equals(handler.Destination))
                             break;
 
                         // Handle transition, and set new state
-                        var transition = new Transition(source, destination, trigger, args);
+                        var transition = new Transition(source, handler.Destination, trigger, args);
                         HandleTransitioningTrigger(args, representativeState, transition);
 
                         break;

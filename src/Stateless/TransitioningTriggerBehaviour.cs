@@ -12,12 +12,6 @@
             {
                 Destination = destination;
             }
-
-            public override bool ResultsInTransitionFrom(TState source, object[] args, out TState destination)
-            {
-                destination = Destination;
-                return true;
-            }
         }
     }
 }
