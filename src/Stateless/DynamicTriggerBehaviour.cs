@@ -17,10 +17,9 @@ namespace Stateless
                 TransitionInfo = info ?? throw new ArgumentNullException(nameof(info));
             }
 
-            public override bool ResultsInTransitionFrom(TState source, object[] args, out TState destination)
+            public void GetDestinationState(TState source, object[] args, out TState destination)
             {
                 destination = _destination(args);
-                return true;
             }
         }
     }

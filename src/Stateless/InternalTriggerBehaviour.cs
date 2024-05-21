@@ -14,12 +14,6 @@ namespace Stateless
             public abstract void Execute(Transition transition, object[] args);
             public abstract Task ExecuteAsync(Transition transition, object[] args);
 
-            public override bool ResultsInTransitionFrom(TState source, object[] args, out TState destination)
-            {
-                destination = source;
-                return false;
-            }
-
             public class Sync : InternalTriggerBehaviour
             {
                 public Action<Transition, object[]> InternalAction { get; }
