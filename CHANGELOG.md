@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## 5.16.0 - 2024.05.21
+## 5.16.0 - 2024.05.24
 ### Changed
  - Permit state reentry from dynamic transitions [#565]
    - This is a change in behavior from v5.15.0 (see [#544]); this version restores the previous behavior for `PermitDynamic` that allows reentry;
