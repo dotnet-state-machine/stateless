@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -90,7 +89,7 @@ public class SynchronizationContextFixture
         sm.Configure(State.A)
             .OnActivateAsync(CaptureThenLoseSyncContext)
             .SubstateOf(State.B);
-            ;
+            
         sm.Configure(State.B)
             .OnActivateAsync(CaptureThenLoseSyncContext);
         
@@ -110,7 +109,7 @@ public class SynchronizationContextFixture
         sm.Configure(State.A)
             .OnDeactivateAsync(CaptureThenLoseSyncContext)
             .SubstateOf(State.B);
-            ;
+            
         sm.Configure(State.B)
             .OnDeactivateAsync(CaptureThenLoseSyncContext);
         

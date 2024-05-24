@@ -54,6 +54,19 @@ namespace Stateless
         /// </summary>
         /// <param name="trigger">The trigger to fire.</param>
         /// <param name="args">A variable-length parameters list containing arguments. </param>
+        public Task FireAsync(TTrigger trigger, params object[] args)
+        {
+            return InternalFireAsync(trigger, args);
+        }
+
+        /// <summary>
+        /// Transition from the current state via the specified trigger in async fashion.
+        /// The target state is determined by the configuration of the current state.
+        /// Actions associated with leaving the current state and entering the new one
+        /// will be invoked.
+        /// </summary>
+        /// <param name="trigger">The trigger to fire.</param>
+        /// <param name="args">A variable-length parameters list containing arguments. </param>
         /// <exception cref="System.InvalidOperationException">The current state does
         /// not allow the trigger to be fired.</exception>
         public Task FireAsync(TriggerWithParameters trigger, params object[] args)
@@ -206,11 +219,23 @@ namespace Stateless
                         await HandleReentryTriggerAsync(args, representativeState, transition);
                         break;
                     }
-                case DynamicTriggerBehaviour _ when result.Handler.ResultsInTransitionFrom(source, args, out var destination):
-                case TransitioningTriggerBehaviour _ when result.Handler.ResultsInTransitionFrom(source, args, out destination):
+                case DynamicTriggerBehaviour handler:
                     {
-                        // Handle transition, and set new state
+                        handler.GetDestinationState(source, args, out var destination);
+                        // Handle transition, and set new state; reentry is permitted from dynamic trigger behaviours.
                         var transition = new Transition(source, destination, trigger, args);
+                        await HandleTransitioningTriggerAsync(args, representativeState, transition);
+
+                        break;
+                    }
+                case TransitioningTriggerBehaviour handler:
+                    {
+                        // If a trigger was found on a superstate that would cause unintended reentry, don't trigger.
+                        if (source.Equals(handler.Destination))
+                            break;
+
+                        // Handle transition, and set new state
+                        var transition = new Transition(source, handler.Destination, trigger, args);
                         await HandleTransitioningTriggerAsync(args, representativeState, transition);
 
                         break;
