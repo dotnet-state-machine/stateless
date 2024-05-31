@@ -147,6 +147,17 @@ namespace Stateless
                 .Select(trigger => new TriggerDetails<TState, TTrigger>(trigger, _triggerConfiguration));
         }
 
+        /// <summary>
+        /// Gets any triggers for the current state that are not permissible, and the descriptions
+        /// of the unmet trigger conditions associated with them.
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public IEnumerable<Tuple<TTrigger, string[]>> GetTriggersWithUnmetConditions(params object[] args)
+        {
+            return CurrentRepresentation.GetTriggersWithUnmetGuardConditions(args);
+        }
+
         StateRepresentation CurrentRepresentation
         {
             get

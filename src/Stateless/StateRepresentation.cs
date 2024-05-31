@@ -330,6 +330,26 @@ namespace Stateless
                 return result;
             }
 
+            public IEnumerable<Tuple<TTrigger, string[]>> GetTriggersWithUnmetGuardConditions(params object[] args)
+            {
+                List<Tuple<TTrigger, string[]>> unmetConditions = new List<Tuple<TTrigger, string[]>>();
+
+                var behaviours = TriggerBehaviours.Values.SelectMany(x => x);
+                foreach (var triggerBehaviour in behaviours)
+                {
+                    if (triggerBehaviour.GuardConditionsMet(args))
+                        continue;
+                    
+                    var conditions = triggerBehaviour.UnmetGuardConditions(args);
+                    unmetConditions.Add(new Tuple<TTrigger, string[]>(triggerBehaviour.Trigger, conditions.ToArray()));
+                }
+                
+                if (Superstate != null)
+                    unmetConditions.AddRange(Superstate.GetTriggersWithUnmetGuardConditions(args));
+
+                return unmetConditions;
+            }
+
             internal void SetInitialTransition(TState state)
             {
                 InitialTransitionTarget = state;
