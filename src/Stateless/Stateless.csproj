@@ -17,7 +17,7 @@
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageIcon>Stateless.png</PackageIcon>
     <PackageProjectUrl>https://github.com/dotnet-state-machine/stateless</PackageProjectUrl>
-    <license>http://www.apache.org/licenses/LICENSE-2.0</license>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
