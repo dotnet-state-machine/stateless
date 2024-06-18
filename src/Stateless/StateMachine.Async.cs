@@ -165,28 +165,37 @@ namespace Stateless
         /// <param name="args">     A variable-length parameters list containing arguments. </param>
         async Task InternalFireQueuedAsync(TTrigger trigger, params object[] args)
         {
-            if (_firing)
+            if (!_firing)
             {
-                _eventQueue.Enqueue(new QueuedTrigger { Trigger = trigger, Args = args });
-                return;
-            }
+                await _lock.WaitAsync();
 
-            try
-            {
-                _firing = true;
-
-                await InternalFireOneAsync(trigger, args).ConfigureAwait(RetainSynchronizationContext);
-
-                while (_eventQueue.Count != 0)
+                if(!_firing)
                 {
-                    var queuedEvent = _eventQueue.Dequeue();
-                    await InternalFireOneAsync(queuedEvent.Trigger, queuedEvent.Args).ConfigureAwait(RetainSynchronizationContext);
+                    try
+                    {
+                        _firing = true;
+                        _lock.Release();
+                        await InternalFireOneAsync(trigger, args).ConfigureAwait(RetainSynchronizationContext);
+
+                        while (!_eventQueue.IsEmpty)
+                        {
+                            bool suuccess = _eventQueue.TryDequeue(out QueuedTrigger queuedEvent);
+                            if (suuccess)
+                            {
+                                await InternalFireOneAsync(queuedEvent.Trigger, queuedEvent.Args).ConfigureAwait(RetainSynchronizationContext);
+                            }
+                        }
+                        return;
+                    }
+                    finally
+                    {
+                        _firing = false;
+                    }
                 }
+                _lock.Release();
             }
-            finally
-            {
-                _firing = false;
-            }
+
+            _eventQueue.Enqueue(new QueuedTrigger { Trigger = trigger, Args = args });
         }
 
         async Task InternalFireOneAsync(TTrigger trigger, params object[] args)

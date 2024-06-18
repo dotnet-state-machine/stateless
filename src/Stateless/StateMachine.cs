@@ -1,7 +1,9 @@
 ﻿using Stateless.Reflection;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Stateless
 {
@@ -32,6 +34,7 @@ namespace Stateless
         private readonly OnTransitionedEvent _onTransitionCompletedEvent;
         private readonly TState _initialState;
         private readonly FiringMode _firingMode;
+        private readonly SemaphoreSlim _lock;
 
         private class QueuedTrigger
         {
@@ -39,7 +42,7 @@ namespace Stateless
             public object[] Args { get; set; }
         }
 
-        private readonly Queue<QueuedTrigger> _eventQueue = new Queue<QueuedTrigger>();
+        private readonly ConcurrentQueue<QueuedTrigger> _eventQueue = new ConcurrentQueue<QueuedTrigger>();
         private bool _firing;
 
         /// <summary>
@@ -102,6 +105,7 @@ namespace Stateless
             _unhandledTriggerAction = new UnhandledTriggerAction.Sync(DefaultUnhandledTriggerAction);
             _onTransitionedEvent = new OnTransitionedEvent();
             _onTransitionCompletedEvent = new OnTransitionedEvent();
+            _lock = new SemaphoreSlim(1, 1);
         }
 
         /// <summary>
@@ -374,8 +378,12 @@ namespace Stateless
                 // Empty queue for triggers
                 while (_eventQueue.Any())
                 {
-                    var queuedEvent = _eventQueue.Dequeue();
-                    InternalFireOne(queuedEvent.Trigger, queuedEvent.Args);
+                    bool suuccess = _eventQueue.TryDequeue(out QueuedTrigger queuedEvent);
+                    if(suuccess)
+                    {
+                        InternalFireOne(queuedEvent.Trigger, queuedEvent.Args);
+                    }
+                    
                 }
             }
             finally
