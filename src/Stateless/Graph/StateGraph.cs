@@ -58,12 +58,12 @@ namespace Stateless.Graph
         /// <returns></returns>
         public string ToGraph(GraphStyleBase style)
         {
-            string dirgraphText = style.GetPrefix().Replace("\n", System.Environment.NewLine);
+            string dirgraphText = style.GetPrefix();
 
             // Start with the clusters
             foreach (var state in States.Values.Where(x => x is SuperState))
             {
-                dirgraphText += style.FormatOneCluster((SuperState)state).Replace("\n", System.Environment.NewLine);
+                dirgraphText += style.FormatOneCluster((SuperState)state);
             }
 
             // Next process all non-cluster states
@@ -71,14 +71,13 @@ namespace Stateless.Graph
             {
                 if (state is SuperState || state is Decision || state.SuperState != null)
                     continue;
-                dirgraphText += style.FormatOneState(state).Replace("\n", System.Environment.NewLine);
+                dirgraphText += style.FormatOneState(state);
             }
 
             // Finally, add decision nodes
             foreach (var dec in Decisions)
             {
-                dirgraphText += style.FormatOneDecisionNode(dec.NodeName, dec.Method.Description)
-                    .Replace("\n", System.Environment.NewLine);
+                dirgraphText += style.FormatOneDecisionNode(dec.NodeName, dec.Method.Description);
             }
 
             // now build behaviours

@@ -41,6 +41,7 @@ Some useful extensions are also provided:
  * Parameterised triggers
  * Reentrant states
  * Export to DOT graph
+ * Export to mermaid graph
 
 ### Hierarchical States
 
@@ -205,6 +206,33 @@ digraph {
 
 This can then be rendered by tools that support the DOT graph language, such as the [dot command line tool](http://www.graphviz.org/doc/info/command.html) from [graphviz.org](http://www.graphviz.org) or [viz.js](https://github.com/mdaines/viz.js). See http://www.webgraphviz.com for instant gratification.
 Command line example: `dot -T pdf -o phoneCall.pdf phoneCall.dot` to generate a PDF file.
+
+### Export to mermaid graph
+
+It can be useful to visualize state machines on runtime. With this approach the code is the authoritative source and state diagrams are by-products which are always up to date.
+ 
+```csharp
+phoneCall.Configure(State.OffHook)
+    .PermitIf(Trigger.CallDialled, State.Ringing);
+    
+string graph = MermaidGraph.Format(phoneCall.GetInfo());
+```
+
+The `MermaidGraph.Format()` method returns a string representation of the state machine in the [Mermaid](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/creating-diagrams#creating-mermaid-diagrams), e.g.:
+
+```
+stateDiagram-v2
+     [*] --> OffHook
+    OffHook --> Ringing : CallDialled
+```
+
+This can then be rendered by GitHub or [Obsidian](https://github.com/obsidianmd)
+
+``` mermaid
+stateDiagram-v2
+     [*] --> OffHook
+    OffHook --> Ringing : CallDialled
+```
 
 ### Async triggers
 
