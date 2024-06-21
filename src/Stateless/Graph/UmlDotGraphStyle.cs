@@ -7,63 +7,67 @@ using System.Text;
 namespace Stateless.Graph
 {
     /// <summary>
-    /// Generate DOT graphs in basic UML style.
+    /// Generate DOT graphs in basic UML style
     /// </summary>
     public class UmlDotGraphStyle : GraphStyleBase
     {
-        /// <summary>Get the text that starts a new graph.</summary>
-        /// <returns>The prefix for the DOT graph document.</returns>
+        /// <summary>Get the text that starts a new graph</summary>
+        /// <returns></returns>
         public override string GetPrefix()
         {
-            return "digraph {\n"
-                      + "compound=true;\n"
-                      + "node [shape=Mrecord]\n"
-                      + "rankdir=\"LR\"\n";
+            var sb = new StringBuilder();
+            sb.AppendLine("digraph {")
+                .AppendLine("compound=true;")
+                .AppendLine("node [shape=Mrecord]")
+                .AppendLine("rankdir=\"LR\"");
+
+            return sb.ToString();
         }
 
         /// <summary>
         /// Returns the formatted text for a single superstate and its substates.
+        /// For example, for DOT files this would be a subgraph containing nodes for all the substates.
         /// </summary>
-        /// <returns>A DOT graph representation of the superstate and all its substates.</returns>
-        /// <inheritdoc/>
+        /// <param name="stateInfo">The superstate to generate text for</param>
+        /// <returns>Description of the superstate, and all its substates, in the desired format</returns>
         public override string FormatOneCluster(SuperState stateInfo)
         {
-            string stateRepresentationString = "";
+            var sb = new StringBuilder();
             var sourceName = stateInfo.StateName;
 
-            StringBuilder label = new StringBuilder($"{sourceName}");
+            StringBuilder label = new StringBuilder(sourceName);
 
-            if (stateInfo.EntryActions.Count > 0 || stateInfo.ExitActions.Count > 0)
+            if (stateInfo.EntryActions.Any() || stateInfo.ExitActions.Any())
             {
-                label.Append("\\n----------");
-                label.Append(string.Concat(stateInfo.EntryActions.Select(act => "\\nentry / " + act)));
-                label.Append(string.Concat(stateInfo.ExitActions.Select(act => "\\nexit / " + act)));
+                label.Append($"{Environment.NewLine}----------")
+                    .Append(string.Concat(stateInfo.EntryActions.Select(act => $"{Environment.NewLine}entry / {act}")))
+                    .Append(string.Concat(stateInfo.ExitActions.Select(act => $"{Environment.NewLine}exit / {act}")));
             }
 
-            stateRepresentationString = "\n"
-                + $"subgraph \"cluster{stateInfo.NodeName}\"" + "\n"
-                + "\t{" + "\n"
-                + $"\tlabel = \"{label.ToString()}\"" + "\n";
+            sb.AppendLine()
+                .AppendLine($"subgraph \"cluster{stateInfo.NodeName}\"")
+                .AppendLine("\t{")
+                .AppendLine($"\tlabel = \"{label.ToString()}\"");
 
             foreach (var subState in stateInfo.SubStates)
             {
-                stateRepresentationString += FormatOneState(subState);
+                sb.Append(FormatOneState(subState));
             }
 
-            stateRepresentationString += "}\n";
+            sb.AppendLine("}");
 
-            return stateRepresentationString;
+            return sb.ToString();
         }
 
         /// <summary>
-        /// Generate the text for a single state.
+        /// Generate the text for a single state
         /// </summary>
-        /// <returns>A DOT graph representation of the state.</returns>
-        /// <inheritdoc/>
+        /// <param name="state">The state to generate text for</param>
+        /// <returns></returns>
         public override string FormatOneState(State state)
         {
             if (state.EntryActions.Count == 0 && state.ExitActions.Count == 0)
-                return $"\"{state.StateName}\" [label=\"{state.StateName}\"];\n";
+                return $"\"{state.StateName}\" [label=\"{state.StateName}\"];{Environment.NewLine}";
 
             string f = $"\"{state.StateName}\" [label=\"{state.StateName}|";
 
@@ -71,18 +75,22 @@ namespace Stateless.Graph
             es.AddRange(state.EntryActions.Select(act => "entry / " + act));
             es.AddRange(state.ExitActions.Select(act => "exit / " + act));
 
-            f += String.Join("\\n", es);
+            f += string.Join(Environment.NewLine, es);
 
-            f += "\"];\n";
+            f += $"\"];{Environment.NewLine}";
 
             return f;
         }
 
         /// <summary>
-        /// Generate text for a single transition.
+        /// Generate text for a single transition
         /// </summary>
-        /// <returns>A DOT graph representation of a state transition.</returns>
-        /// <inheritdoc/>
+        /// <param name="sourceNodeName"></param>
+        /// <param name="trigger"></param>
+        /// <param name="actions"></param>
+        /// <param name="destinationNodeName"></param>
+        /// <param name="guards"></param>
+        /// <returns></returns>
         public override string FormatOneTransition(string sourceNodeName, string trigger, IEnumerable<string> actions, string destinationNodeName, IEnumerable<string> guards)
         {
             string label = trigger ?? "";
@@ -104,20 +112,26 @@ namespace Stateless.Graph
         }
 
         /// <summary>
-        /// Generate the text for a single decision node.
+        /// Generate the text for a single decision node
         /// </summary>
-        /// <returns>A DOT graph representation of the decision node for a dynamic transition.</returns>
-        /// <inheritdoc/>
+        /// <param name="nodeName">Name of the node</param>
+        /// <param name="label">Label for the node</param>
+        /// <returns></returns>
         public override string FormatOneDecisionNode(string nodeName, string label)
         {
-            return $"\"{nodeName}\" [shape = \"diamond\", label = \"{label}\"];\n";
+            return $"\"{nodeName}\" [shape = \"diamond\", label = \"{label}\"];{Environment.NewLine}";
+        }
+
+        internal string FormatOneLine(string fromNodeName, string toNodeName, string label)
+        {
+            return $"\"{fromNodeName}\" -> \"{toNodeName}\" [style=\"solid\", label=\"{label}\"];";
         }
 
         /// <summary>
-        /// Get initial transition if present.
+        /// 
         /// </summary>
-        /// <returns>A DOT graph representation of the initial state transition.</returns>
-        /// <inheritdoc/>
+        /// <param name="initialState"></param>
+        /// <returns></returns>
         public override string GetInitialTransition(StateInfo initialState)
         {
             var initialStateName = initialState.UnderlyingState.ToString();
@@ -127,11 +141,6 @@ namespace Stateless.Graph
             dirgraphText += System.Environment.NewLine + "}";
 
             return dirgraphText;
-        }
-
-        internal string FormatOneLine(string fromNodeName, string toNodeName, string label)
-        {
-            return $"\"{fromNodeName}\" -> \"{toNodeName}\" [style=\"solid\", label=\"{label}\"];";
         }
     }
 }

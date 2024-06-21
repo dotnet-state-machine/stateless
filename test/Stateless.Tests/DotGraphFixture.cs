@@ -71,7 +71,7 @@ namespace Stateless.Tests
                 b = $"\"{label}\" [label=\"{label}\"];\n";
             else
             {
-                b = $"\"{label}\"" + " [label=\"" + label + "|" + String.Join("\\n", es) + "\"];\n";
+                b = $"\"{label}\"" + " [label=\"" + label + "|" + String.Join("\n", es) + "\"];\n";
             }
 
             return b.Replace("\n", Environment.NewLine);
@@ -136,25 +136,6 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        public void SimpleTransitionUML()
-        {
-            var expected = Prefix(Style.UML) + Box(Style.UML, "A") + Box(Style.UML, "B") + Line("A", "B", "X") + suffix;
-
-            var sm = new StateMachine<State, Trigger>(State.A);
-
-            sm.Configure(State.A)
-                .Permit(Trigger.X, State.B);
-
-            string dotGraph = UmlDotGraph.Format(sm.GetInfo());
-
-#if WRITE_DOTS_TO_FOLDER
-            System.IO.File.WriteAllText(DestinationFolder + "SimpleTransitionUML.dot", dotGraph);
-#endif
-
-            Assert.Equal(expected, dotGraph);
-        }
-
-        [Fact]
         public void TwoSimpleTransitions()
         {
             var expected = Prefix(Style.UML) + Box(Style.UML, "A") + Box(Style.UML, "B") + Box(Style.UML, "C")
@@ -168,7 +149,13 @@ namespace Stateless.Tests
                 .Permit(Trigger.X, State.B)
                 .Permit(Trigger.Y, State.C);
 
-            Assert.Equal(expected, UmlDotGraph.Format(sm.GetInfo()));
+            string dotGraph = UmlDotGraph.Format(sm.GetInfo());
+
+#if WRITE_DOTS_TO_FOLDER
+            System.IO.File.WriteAllText(DestinationFolder + "TwoSimpleTransitions.dot", dotGraph);
+#endif
+
+            Assert.Equal(expected, dotGraph);
         }
 
         [Fact]
@@ -185,7 +172,13 @@ namespace Stateless.Tests
                 .PermitIf(Trigger.X, State.B, anonymousGuard);
             sm.Configure(State.B);
 
-            Assert.Equal(expected, UmlDotGraph.Format(sm.GetInfo()));
+            string dotGraph = UmlDotGraph.Format(sm.GetInfo());
+
+#if WRITE_DOTS_TO_FOLDER
+            System.IO.File.WriteAllText(DestinationFolder + "WhenDiscriminatedByAnonymousGuard.dot", dotGraph);
+#endif
+
+            Assert.Equal(expected, dotGraph);
         }
 
         [Fact]
@@ -225,7 +218,13 @@ namespace Stateless.Tests
             sm.Configure(State.A)
                 .PermitIf(Trigger.X, State.B, IsTrue);
 
-            Assert.Equal(expected, UmlDotGraph.Format(sm.GetInfo()));
+            string dotGraph = UmlDotGraph.Format(sm.GetInfo());
+
+#if WRITE_DOTS_TO_FOLDER
+            System.IO.File.WriteAllText(DestinationFolder + "WhenDiscriminatedByNamedDelegate.dot", dotGraph);
+#endif
+
+            Assert.Equal(expected, dotGraph);
         }
 
         [Fact]
@@ -362,7 +361,13 @@ namespace Stateless.Tests
                 .Ignore(Trigger.Y)
                 .Permit(Trigger.X, State.B);
 
-            Assert.Equal(expected, UmlDotGraph.Format(sm.GetInfo()));
+            string dotGraph = UmlDotGraph.Format(sm.GetInfo());
+
+#if WRITE_DOTS_TO_FOLDER
+            System.IO.File.WriteAllText(DestinationFolder + "TransitionWithIgnore.dot", dotGraph);
+#endif
+
+            Assert.Equal(expected, dotGraph);
         }
 
         [Fact]
@@ -410,7 +415,7 @@ namespace Stateless.Tests
             string TriggerY = "Trigger Y";
             
             var expected = Prefix(Style.UML)
-                           + Subgraph(Style.UML, StateD, $"{StateD}\\n----------\\nentry / Enter D",
+                           + Subgraph(Style.UML, StateD, $"{StateD}\n----------\nentry / Enter D",
                                Box(Style.UML, StateB)
                                + Box(Style.UML, StateC))
                            + Box(Style.UML, StateA, new List<string> { "Enter A" }, new List<string> { "Exit A" })
@@ -437,7 +442,7 @@ namespace Stateless.Tests
 
             string dotGraph = UmlDotGraph.Format(sm.GetInfo());
 #if WRITE_DOTS_TO_FOLDER
-            System.IO.File.WriteAllText(DestinationFolder + "UmlWithSubstate.dot", dotGraph);
+            System.IO.File.WriteAllText(DestinationFolder + "SpacedUmlWithSubstate.dot", dotGraph);
 #endif
 
             Assert.Equal(expected, dotGraph);
@@ -447,7 +452,7 @@ namespace Stateless.Tests
         public void UmlWithSubstate()
         {
             var expected = Prefix(Style.UML)
-                + Subgraph(Style.UML, "D", "D\\n----------\\nentry / EnterD",
+                + Subgraph(Style.UML, "D", "D\n----------\nentry / EnterD",
                     Box(Style.UML, "B")
                     + Box(Style.UML, "C"))
                 + Box(Style.UML, "A", new List<string> { "EnterA" }, new List<string> { "ExitA" })
