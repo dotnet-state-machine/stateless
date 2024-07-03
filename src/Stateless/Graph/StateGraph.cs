@@ -137,7 +137,7 @@ namespace Stateless.Graph
                     State toState = States[fix.DestinationState.UnderlyingState.ToString()];
                     if (fromState == toState)
                     {
-                        StayTransition stay = new StayTransition(fromState, fix.Trigger, fix.GuardConditionsMethodDescriptions, true);
+                        StayTransition stay = new StayTransition(fromState, fix.Trigger, fix.GuardConditionsMethodDescriptions, !fix.IsInternalTransition);
                         Transitions.Add(stay);
                         fromState.Leaving.Add(stay);
                         fromState.Arriving.Add(stay);
