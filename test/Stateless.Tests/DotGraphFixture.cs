@@ -538,6 +538,30 @@ namespace Stateless.Tests
         }
 
         [Fact]
+        public void Internal_Transition_Does_Not_Show_Entry_Exit_Functions()
+        {
+            var expected = Prefix(Style.UML)
+                + Box(Style.UML, "A", new List<string> { "DoEntry" }, new List<string> { "DoExit" })
+                + Line("A", "A", "X [Function]")
+                + suffix;
+
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .OnEntry(x => { }, "DoEntry")
+                .OnExit(x => { }, "DoExit")
+                .InternalTransition(Trigger.X, x => { });
+
+            string dotGraph = UmlDotGraph.Format(sm.GetInfo());
+
+#if WRITE_DOTS_TO_FOLDER
+            System.IO.File.WriteAllText(DestinationFolder + "Internal_Transition_Does_Not_Show_Entry_Exit_Functions.dot", dotGraph);
+#endif
+
+            Assert.Equal(expected, dotGraph);
+        }
+
+        [Fact]
         public void Initial_State_Not_Changed_After_Trigger_Fired()
         {
             var expected = Prefix(Style.UML) + Box(Style.UML, "A") + Box(Style.UML, "B") + Line("A", "B", "X") + suffix;
