@@ -583,7 +583,36 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        public void Reentrant_Transition_Shows_Entry_Action_When_Trigger_Has_Parameters()
+        public void Reentrant_Transition_Shows_Entry_Action_When_Action_Is_Configured_With_OnEntryFrom()
+        {
+            var expected = Prefix(Style.UML)
+                + Box(Style.UML, "A")
+                + Box(Style.UML, "B")
+                + Line("A", "B", "X / OnEntry")
+                + Line("B", "B", "X / OnEntry")
+                + suffix;
+
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .Permit(Trigger.X, State.B);
+
+            var list = new List<string>();
+            sm.Configure(State.B)
+                .OnEntryFrom(Trigger.X, OnEntry, entryActionDescription: "OnEntry")
+                .PermitReentry(Trigger.X);
+
+            string dotGraph = UmlDotGraph.Format(sm.GetInfo());
+
+#if WRITE_DOTS_TO_FOLDER
+            System.IO.File.WriteAllText(DestinationFolder + "Reentrant_Transition_Shows_Entry_Action_When_Action_Is_Configured_With_OnEntryFrom.dot", dotGraph);
+#endif
+
+            Assert.Equal(expected, dotGraph);
+        }
+
+        [Fact]
+        public void Reentrant_Transition_Shows_Entry_Action_When_Action_Is_Configured_With_OnEntryFrom_And_Trigger_Has_Parameter()
         {
             var expected = Prefix(Style.UML)
                 + Box(Style.UML, "A")
@@ -606,7 +635,7 @@ namespace Stateless.Tests
             string dotGraph = UmlDotGraph.Format(sm.GetInfo());
 
 #if WRITE_DOTS_TO_FOLDER
-            System.IO.File.WriteAllText(DestinationFolder + "Reentrant_Transition_Shows_Entry_Action_When_Trigger_Has_Parameters.dot", dotGraph);
+            System.IO.File.WriteAllText(DestinationFolder + "Reentrant_Transition_Shows_Entry_Action_When_Action_Is_Configured_With_OnEntryFrom_And_Trigger_Has_Parameter.dot", dotGraph);
 #endif
 
             Assert.Equal(expected, dotGraph);
