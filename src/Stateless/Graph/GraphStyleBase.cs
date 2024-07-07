@@ -77,17 +77,11 @@ namespace Stateless.Graph
                         line = FormatOneTransition(stay.SourceState.NodeName, stay.Trigger.UnderlyingTrigger.ToString(),
                             null, stay.SourceState.NodeName, stay.Guards.Select(x => x.Description));
                     }
-                    else if (stay.SourceState.EntryActions.Count == 0)
-                    {
-                        line = FormatOneTransition(stay.SourceState.NodeName, stay.Trigger.UnderlyingTrigger.ToString(),
-                            null, stay.SourceState.NodeName, stay.Guards.Select(x => x.Description));
-                    }
                     else
                     {
-                        // There are entry functions into the state, so call out that this transition
-                        // does invoke them (since normally a transition back into the same state doesn't)
                         line = FormatOneTransition(stay.SourceState.NodeName, stay.Trigger.UnderlyingTrigger.ToString(),
-                            stay.SourceState.EntryActions, stay.SourceState.NodeName, stay.Guards.Select(x => x.Description));
+                            stay.DestinationEntryActions.Select(x => x.Method.Description), 
+                            stay.SourceState.NodeName, stay.Guards.Select(x => x.Description));
                     }
                 }
                 else
