@@ -892,6 +892,14 @@ namespace Stateless.Tests
             StateConfiguration InternalPermitDynamic(TTrigger trigger, Func<object[], TState> destinationStateSelector, string guardDescription)
              */
         }
+
+        [Fact]
+        public void InvocationInfo_Description_Property_When_Method_Name_Is_Null_Returns_String_Literal_Null()
+        {
+            var invocationInfo = new InvocationInfo(null, null, InvocationInfo.Timing.Synchronous);
+
+            Assert.Equal("<null>", invocationInfo.Description);
+        }
     }
 }
 

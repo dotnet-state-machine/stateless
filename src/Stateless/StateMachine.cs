@@ -6,13 +6,13 @@ using System.Linq;
 namespace Stateless
 {
     /// <summary>
-    /// Enum for the different modes used when Fire-ing a trigger
+    /// Enum for the different modes used when <c>Fire</c>ing a trigger
     /// </summary>
     public enum FiringMode
     {
         /// <summary> Use immediate mode when the queuing of trigger events are not needed. Care must be taken when using this mode, as there is no run-to-completion guaranteed.</summary>
         Immediate,
-        /// <summary> Use the queued Fire-ing mode when run-to-completion is required. This is the recommended mode.</summary>
+        /// <summary> Use the queued <c>Fire</c>ing mode when run-to-completion is required. This is the recommended mode.</summary>
         Queued
     }
 
@@ -47,7 +47,7 @@ namespace Stateless
         /// </summary>
         /// <param name="stateAccessor">A function that will be called to read the current state value.</param>
         /// <param name="stateMutator">An action that will be called to write new state values.</param>
-        public StateMachine(Func<TState> stateAccessor, Action<TState> stateMutator) :this(stateAccessor, stateMutator, FiringMode.Queued)
+        public StateMachine(Func<TState> stateAccessor, Action<TState> stateMutator) : this(stateAccessor, stateMutator, FiringMode.Queued)
         {
         }
 
@@ -390,11 +390,13 @@ namespace Stateless
         /// </summary>
         /// <param name="trigger"></param>
         /// <param name="args"></param>
-        void InternalFireOne(TTrigger trigger, params object[] args)
+        private void InternalFireOne(TTrigger trigger, params object[] args)
         {
             // If this is a trigger with parameters, we must validate the parameter(s)
             if (_triggerConfiguration.TryGetValue(trigger, out TriggerWithParameters configuration))
+            {
                 configuration.ValidateParameters(args);
+            }
 
             var source = State;
             var representativeState = GetRepresentation(source);
@@ -414,28 +416,40 @@ namespace Stateless
                 // Handle special case, re-entry in superstate
                 // Check if it is an internal transition, or a transition from one state to another.
                 case ReentryTriggerBehaviour handler:
-                {
-                    // Handle transition, and set new state
-                    var transition = new Transition(source, handler.Destination, trigger, args);
-                    HandleReentryTrigger(args, representativeState, transition);
-                    break;
-                }
-                case DynamicTriggerBehaviour _ when result.Handler.ResultsInTransitionFrom(source, args, out var destination):
-                case TransitioningTriggerBehaviour _ when result.Handler.ResultsInTransitionFrom(source, args, out destination):
-                {
-                    // Handle transition, and set new state
-                    var transition = new Transition(source, destination, trigger, args);
-                    HandleTransitioningTrigger(args, representativeState, transition);
+                    {
+                        // Handle transition, and set new state
+                        var transition = new Transition(source, handler.Destination, trigger, args);
+                        HandleReentryTrigger(args, representativeState, transition);
+                        break;
+                    }
+                case DynamicTriggerBehaviour handler:
+                    {
+                        handler.GetDestinationState(source, args, out var destination);
+                        // Handle transition, and set new state; reentry is permitted from dynamic trigger behaviours.
+                        var transition = new Transition(source, destination, trigger, args);
+                        HandleTransitioningTrigger(args, representativeState, transition);
 
-                    break;
-                }
+                        break;
+                    }
+                case TransitioningTriggerBehaviour handler:
+                    {
+                        // If a trigger was found on a superstate that would cause unintended reentry, don't trigger.
+                        if (source.Equals(handler.Destination))
+                            break;
+
+                        // Handle transition, and set new state
+                        var transition = new Transition(source, handler.Destination, trigger, args);
+                        HandleTransitioningTrigger(args, representativeState, transition);
+
+                        break;
+                    }
                 case InternalTriggerBehaviour _:
-                {
-                    // Internal transitions does not update the current state, but must execute the associated action.
-                    var transition = new Transition(source, source, trigger, args);
-                    CurrentRepresentation.InternalAction(transition, args);
-                    break;
-                }
+                    {
+                        // Internal transitions does not update the current state, but must execute the associated action.
+                        var transition = new Transition(source, source, trigger, args);
+                        CurrentRepresentation.InternalAction(transition, args);
+                        break;
+                    }
                 default:
                     throw new InvalidOperationException("State machine configuration incorrect, no handler for trigger.");
             }
@@ -467,7 +481,7 @@ namespace Stateless
             State = representation.UnderlyingState;
         }
 
-        private void HandleTransitioningTrigger( object[] args, StateRepresentation representativeState, Transition transition)
+        private void HandleTransitioningTrigger(object[] args, StateRepresentation representativeState, Transition transition)
         {
             transition = representativeState.Exit(transition);
 
@@ -488,7 +502,7 @@ namespace Stateless
             _onTransitionCompletedEvent.Invoke(new Transition(transition.Source, State, transition.Trigger, transition.Parameters));
         }
 
-        private StateRepresentation EnterState(StateRepresentation representation, Transition transition, object [] args)
+        private StateRepresentation EnterState(StateRepresentation representation, Transition transition, object[] args)
         {
             // Enter the new state
             representation.Enter(transition, args);
@@ -559,6 +573,12 @@ namespace Stateless
         /// Returns true if <paramref name="trigger"/> can be fired
         /// in the current state.
         /// </summary>
+        /// <remarks>
+        /// When the trigger is configured with parameters, the <c>default</c> value of each of the trigger parameter's types will be used 
+        /// to evaluate whether it can fire, which may not be the desired behavior; to check if a trigger can be fired with specific arguments,
+        /// use the overload of <c>CanFire&lt;TArg1[, TArg2[ ,TArg3]]&gt;(TriggerWithParameters&lt;TArg1[, TArg2[ ,TArg3]]&gt;, ...)</c> that
+        /// matches the type arguments of your trigger.
+        /// </remarks>
         /// <param name="trigger">Trigger to test.</param>
         /// <returns>True if the trigger can be fired, false otherwise.</returns>
         public bool CanFire(TTrigger trigger)
@@ -568,14 +588,124 @@ namespace Stateless
 
         /// <summary>
         /// Returns true if <paramref name="trigger"/> can be fired
-        /// in the current state.
+        /// in the current state using the supplied trigger argument.
         /// </summary>
+        /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+        /// <param name="trigger">Trigger to test.</param>
+        /// <param name="arg0">The first argument.</param>
+        /// <returns>True if the trigger can be fired, false otherwise.</returns>
+        public bool CanFire<TArg0>(TriggerWithParameters<TArg0> trigger, TArg0 arg0)
+        {
+            if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+
+            return CurrentRepresentation.CanHandle(trigger.Trigger, arg0);
+        }
+
+        /// <summary>
+        /// Returns true if <paramref name="trigger"/> can be fired
+        /// in the current state using the supplied trigger arguments.
+        /// </summary>
+        /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+        /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
+        /// <param name="trigger">Trigger to test.</param>
+        /// <param name="arg0">The first argument.</param>
+        /// <param name="arg1">The second argument.</param>
+        /// <returns>True if the trigger can be fired, false otherwise.</returns>
+        public bool CanFire<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, TArg0 arg0, TArg1 arg1)
+        {
+            if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+
+            return CurrentRepresentation.CanHandle(trigger.Trigger, arg0, arg1);
+        }
+
+        /// <summary>
+        /// Returns true if <paramref name="trigger"/> can be fired
+        /// in the current state using the supplied trigger arguments.
+        /// </summary>
+        /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+        /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
+        /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
+        /// <param name="trigger">Trigger to test.</param>
+        /// <param name="arg0">The first argument.</param>
+        /// <param name="arg1">The second argument.</param>
+        /// <param name="arg2">The third argument.</param>
+        /// <returns>True if the trigger can be fired, false otherwise.</returns>
+        public bool CanFire<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, TArg0 arg0, TArg1 arg1, TArg2 arg2)
+        {
+            if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+
+            return CurrentRepresentation.CanHandle(trigger.Trigger, arg0, arg1, arg2);
+        }
+
+        /// <summary>
+        /// Returns true if <paramref name="trigger"/> can be fired in the current state.
+        /// </summary>
+        /// <remarks>
+        /// When the trigger is configured with parameters, the <c>default</c> value of each of the trigger parameter's types will be used 
+        /// to evaluate whether it can fire, which may not be the desired behavior; to check if a trigger can be fired with specific arguments,
+        /// use the overload of <c>CanFire&lt;TArg1[, TArg2[ ,TArg3]]&gt;(TriggerWithParameters&lt;TArg1[, TArg2[ ,TArg3]]&gt;, ...)</c> that
+        /// matches the type arguments of your trigger.
+        /// </remarks>
         /// <param name="trigger">Trigger to test.</param>
         /// <param name="unmetGuards">Guard descriptions of unmet guards. If given trigger is not configured for current state, this will be null.</param>
         /// <returns>True if the trigger can be fired, false otherwise.</returns>
         public bool CanFire(TTrigger trigger, out ICollection<string> unmetGuards)
         {
             return CurrentRepresentation.CanHandle(trigger, new object[] { }, out unmetGuards);
+        }
+
+        /// <summary>
+        /// Returns true if <paramref name="trigger"/> can be fired
+        /// in the current state using the supplied trigger argument.
+        /// </summary>
+        /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+        /// <param name="trigger">Trigger to test.</param>
+        /// <param name="arg0">The first argument.</param>
+        /// <param name="unmetGuards">Guard descriptions of unmet guards. If given trigger is not configured for current state, this will be null.</param>
+        /// <returns>True if the trigger can be fired, false otherwise.</returns>
+        public bool CanFire<TArg0>(TriggerWithParameters<TArg0> trigger, TArg0 arg0, out ICollection<string> unmetGuards)
+        {
+            if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+
+            return CurrentRepresentation.CanHandle(trigger.Trigger, new object[] { arg0 }, out unmetGuards);
+        }
+
+        /// <summary>
+        /// Returns true if <paramref name="trigger"/> can be fired
+        /// in the current state using the supplied trigger arguments.
+        /// </summary>
+        /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+        /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
+        /// <param name="trigger">Trigger to test.</param>
+        /// <param name="arg0">The first argument.</param>
+        /// <param name="arg1">The second argument.</param>
+        /// <param name="unmetGuards">Guard descriptions of unmet guards. If given trigger is not configured for current state, this will be null.</param>
+        /// <returns>True if the trigger can be fired, false otherwise.</returns>
+        public bool CanFire<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, TArg0 arg0, TArg1 arg1, out ICollection<string> unmetGuards)
+        {
+            if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+
+            return CurrentRepresentation.CanHandle(trigger.Trigger, new object[] { arg0, arg1 }, out unmetGuards);
+        }
+
+        /// <summary>
+        /// Returns true if <paramref name="trigger"/> can be fired
+        /// in the current state using the supplied trigger arguments.
+        /// </summary>
+        /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+        /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
+        /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
+        /// <param name="trigger">Trigger to test.</param>
+        /// <param name="arg0">The first argument.</param>
+        /// <param name="arg1">The second argument.</param>
+        /// <param name="arg2">The third argument.</param>
+        /// <param name="unmetGuards">Guard descriptions of unmet guards. If given trigger is not configured for current state, this will be null.</param>
+        /// <returns>True if the trigger can be fired, false otherwise.</returns>
+        public bool CanFire<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, TArg0 arg0, TArg1 arg1, TArg2 arg2, out ICollection<string> unmetGuards)
+        {
+            if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+
+            return CurrentRepresentation.CanHandle(trigger.Trigger, new object[] { arg0, arg1, arg2 }, out unmetGuards);
         }
 
         /// <summary>

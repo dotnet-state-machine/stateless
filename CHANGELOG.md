@@ -4,6 +4,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 5.16.0 - 2024.05.24
+### Changed
+ - Permit state reentry from dynamic transitions [#565]
+   - This is a change in behavior from v5.15.0 (see [#544]); this version restores the previous behavior for `PermitDynamic` that allows reentry;
+     if reentry is not the desired behavior, consider using a guard condition with `PermitDynamicIf`.
+ - Remove getDestination, and use Destination property instead (internal refactor) [#575]
+### Added
+ - Add overloads to `FireAsync` to support parameterized trigger arguments [#570]
+ - Add overloads to `CanFire` to support parameterized trigger arguments [#574]
+### Fixed
+ - Prevent `NullReferenceException` in the `InvocationInfo` class [#566]
+
+## 5.15.0 - 2023.12.29
+### Changed
+ - Updated net6.0 build target to net8.0 [#551]
+ - New abstract method, `GetInitialTransition`, added to `GraphStyleBase` to remove DOT graph implementation from `StateGraph` [#557]
+   - Classes that are derived from `GraphStyleBase` and are being migrated from an earlier release of Stateless will need to implement this method.
+### Added
+ - Added license information and README file to NuGet package [#539], [#553]
+
+## 5.14.0 - 2023.11.14
+### Added
+ - Enable Source Link & Deterministic Builds [#501]
+ - Added optional `RetainSynchronizationContext` property [#519]
+ - Update example apps to `net6.0` [#520]
+ - Bump solution Visual Studio version to 2022 [#526]
+ - Remove obsolete TargetFrameworks [#524]
+ - Added `FireAsync(TriggerWithParameters, params object[])` overload [#536]
+### Fixed
+ - `StateMachineInfo.InitialState.Transitions` throws if `AddRelationships` not called [#514]
+ - Trigger information is missing for `OnEntryFromAsync` [#511]
+ - Fixed typos & redundant parentheses [#512], [#521], [#522]
+ - Change mechanism for losing the synchronization context [#528]
+ - `InvalidOperationException` thrown from call to `FireAsync` [#532]
+ - Added missing guard function parameter support from `InternalTransitionAsyncIf` [#530]
+ - Using `PermitIf` on a state with substates leads to reentry [#544]
+
 ## 5.13.0 - 2022.12.29
 ### Added
  - Add method to get permitted triggers with parameter information [#494]
@@ -27,7 +64,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  - Added CanFire overload to return unmet guard descriptions [#443]
 ### Fixed
  - Inconsistency in sync/async statemachine execution [#444]
- - Added support for spaces in state/trigger names in Graphviz node graphs by wrapping them in escaped quotes #447
+ - Added support for spaces in state/trigger names in Graphviz node graphs by wrapping them in escaped quotes [#447]
 
 ## 5.10.1
 Re-releasing 5.2.0 as v5.10.1.
@@ -185,6 +222,42 @@ Version 5.10.0 is now listed as the newest, since it has the highest version num
 ### Removed
 ### Fixed
 
+[#575]: https://github.com/dotnet-state-machine/stateless/pull/575
+[#574]: https://github.com/dotnet-state-machine/stateless/pull/574
+[#570]: https://github.com/dotnet-state-machine/stateless/pull/570
+[#566]: https://github.com/dotnet-state-machine/stateless/pull/566
+[#565]: https://github.com/dotnet-state-machine/stateless/issues/565
+[#551]: https://github.com/dotnet-state-machine/stateless/pull/551
+[#557]: https://github.com/dotnet-state-machine/stateless/issues/557
+[#553]: https://github.com/dotnet-state-machine/stateless/issues/553
+[#539]: https://github.com/dotnet-state-machine/stateless/issues/539
+[#501]: https://github.com/dotnet-state-machine/stateless/pull/501
+[#519]: https://github.com/dotnet-state-machine/stateless/pull/519
+[#520]: https://github.com/dotnet-state-machine/stateless/pull/520
+[#526]: https://github.com/dotnet-state-machine/stateless/pull/526
+[#524]: https://github.com/dotnet-state-machine/stateless/pull/524
+[#536]: https://github.com/dotnet-state-machine/stateless/pull/536
+[#514]: https://github.com/dotnet-state-machine/stateless/pull/514
+[#511]: https://github.com/dotnet-state-machine/stateless/pull/511
+[#522]: https://github.com/dotnet-state-machine/stateless/pull/522
+[#521]: https://github.com/dotnet-state-machine/stateless/pull/521
+[#512]: https://github.com/dotnet-state-machine/stateless/pull/512
+[#528]: https://github.com/dotnet-state-machine/stateless/pull/528
+[#532]: https://github.com/dotnet-state-machine/stateless/pull/532
+[#530]: https://github.com/dotnet-state-machine/stateless/pull/530
+[#544]: https://github.com/dotnet-state-machine/stateless/pull/544
+[#494]: https://github.com/dotnet-state-machine/stateless/pull/494
+[#495]: https://github.com/dotnet-state-machine/stateless/pull/495
+[#479]: https://github.com/dotnet-state-machine/stateless/pull/479
+[#484]: https://github.com/dotnet-state-machine/stateless/pull/484
+[#488]: https://github.com/dotnet-state-machine/stateless/pull/488
+[#471]: https://github.com/dotnet-state-machine/stateless/pull/471
+[#478]: https://github.com/dotnet-state-machine/stateless/pull/478
+[#480]: https://github.com/dotnet-state-machine/stateless/pull/480
+[#487]: https://github.com/dotnet-state-machine/stateless/pull/487
+[#443]: https://github.com/dotnet-state-machine/stateless/pull/443
+[#444]: https://github.com/dotnet-state-machine/stateless/issues/444
+[#447]: https://github.com/dotnet-state-machine/stateless/pull/447
 [#422]: https://github.com/dotnet-state-machine/stateless/issues/422
 [#416]: https://github.com/dotnet-state-machine/stateless/issues/416
 [#413]: https://github.com/dotnet-state-machine/stateless/issues/413
