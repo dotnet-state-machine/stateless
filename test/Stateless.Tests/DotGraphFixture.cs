@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Xunit;
 using Stateless.Reflection;
 using Stateless.Graph;
+using System.Threading.Tasks;
 
 namespace Stateless.Tests
 {
@@ -196,7 +197,7 @@ namespace Stateless.Tests
             var expected = Prefix(Style.UML)
                 + Box(Style.UML, "A") + Box(Style.UML, "B")
                 + Line("A", "B", "X [description]")
-                +  suffix;
+                + suffix;
 
             var sm = new StateMachine<State, Trigger>(State.A);
 
@@ -266,6 +267,27 @@ namespace Stateless.Tests
         }
 
         [Fact]
+        public void DestinationStateIsDynamicAsync()
+        {
+            var expected = Prefix(Style.UML)
+                + Box(Style.UML, "A")
+                + Decision(Style.UML, "Decision1", "Function")
+                + Line("A", "Decision1", "X") + suffix;
+
+            var sm = new StateMachine<State, Trigger>(State.A);
+            sm.Configure(State.A)
+                .PermitDynamicAsync(Trigger.X, () => Task.FromResult(State.B));
+
+            string dotGraph = UmlDotGraph.Format(sm.GetInfo());
+
+#if WRITE_DOTS_TO_FOLDER
+            System.IO.File.WriteAllText(DestinationFolder + "DestinationStateIsDynamic.dot", dotGraph);
+#endif
+
+            Assert.Equal(expected, dotGraph);
+        }
+
+        [Fact]
         public void DestinationStateIsCalculatedBasedOnTriggerParameters()
         {
             var expected = Prefix(Style.UML)
@@ -277,6 +299,27 @@ namespace Stateless.Tests
             var trigger = sm.SetTriggerParameters<int>(Trigger.X);
             sm.Configure(State.A)
                 .PermitDynamic(trigger, i => i == 1 ? State.B : State.C);
+
+            string dotGraph = UmlDotGraph.Format(sm.GetInfo());
+
+#if WRITE_DOTS_TO_FOLDER
+            System.IO.File.WriteAllText(DestinationFolder + "DestinationStateIsCalculatedBasedOnTriggerParameters.dot", dotGraph);
+#endif
+            Assert.Equal(expected, dotGraph);
+        }
+
+        [Fact]
+        public void DestinationStateIsCalculatedBasedOnTriggerParametersAsync()
+        {
+            var expected = Prefix(Style.UML)
+                + Box(Style.UML, "A")
+                + Decision(Style.UML, "Decision1", "Function")
+                + Line("A", "Decision1", "X") + suffix;
+
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var trigger = sm.SetTriggerParameters<int>(Trigger.X);
+            sm.Configure(State.A)
+                .PermitDynamicAsync(trigger, i =>Task.FromResult(i == 1 ? State.B : State.C));
 
             string dotGraph = UmlDotGraph.Format(sm.GetInfo());
 
@@ -398,7 +441,7 @@ namespace Stateless.Tests
 
             Assert.Equal(expected, dotGraph);
         }
-        
+
         [Fact]
         public void SpacedUmlWithSubstate()
         {
@@ -408,14 +451,14 @@ namespace Stateless.Tests
             string StateD = "State D";
             string TriggerX = "Trigger X";
             string TriggerY = "Trigger Y";
-            
+
             var expected = Prefix(Style.UML)
                            + Subgraph(Style.UML, StateD, $"{StateD}\\n----------\\nentry / Enter D",
                                Box(Style.UML, StateB)
                                + Box(Style.UML, StateC))
                            + Box(Style.UML, StateA, new List<string> { "Enter A" }, new List<string> { "Exit A" })
                            + Line(StateA, StateB, TriggerX) + Line(StateA, StateC, TriggerY)
-                           +  Environment.NewLine
+                           + Environment.NewLine
                            + $" init [label=\"\", shape=point];" + Environment.NewLine
                            + $" init -> \"{StateA}\"[style = \"solid\"]" + Environment.NewLine
                            + "}";
@@ -493,7 +536,36 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
-                .PermitDynamic(Trigger.X, DestinationSelector, null, new DynamicStateInfos { { State.B, "ChoseB"}, { State.C, "ChoseC" } });
+                .PermitDynamic(Trigger.X, DestinationSelector, null, new DynamicStateInfos { { State.B, "ChoseB" }, { State.C, "ChoseC" } });
+
+            sm.Configure(State.B);
+            sm.Configure(State.C);
+
+            string dotGraph = UmlDotGraph.Format(sm.GetInfo());
+#if WRITE_DOTS_TO_FOLDER
+            System.IO.File.WriteAllText(DestinationFolder + "UmlWithDynamic.dot", dotGraph);
+#endif
+
+            Assert.Equal(expected, dotGraph);
+        }
+
+        [Fact]
+        public void UmlWithDynamicAsync()
+        {
+            var expected = Prefix(Style.UML)
+                + Box(Style.UML, "A")
+                + Box(Style.UML, "B")
+                + Box(Style.UML, "C")
+                + Decision(Style.UML, "Decision1", "Function")
+                + Line("A", "Decision1", "X")
+                + Line("Decision1", "B", "X [ChoseB]")
+                + Line("Decision1", "C", "X [ChoseC]")
+                + suffix;
+
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .PermitDynamicAsync(Trigger.X, () => Task.FromResult(DestinationSelector()), null, new DynamicStateInfos { { State.B, "ChoseB" }, { State.C, "ChoseC" } });
 
             sm.Configure(State.B);
             sm.Configure(State.C);
@@ -513,7 +585,7 @@ namespace Stateless.Tests
                 + Box(Style.UML, "A", new List<string> { "DoEntry" })
                 + Box(Style.UML, "B", new List<string> { "DoThisEntry" })
                 + Line("A", "B", "X")
-                + Line("A", "A", "Y") 
+                + Line("A", "A", "Y")
                 + Line("B", "B", "Z / DoThisEntry")
                 + suffix;
 
