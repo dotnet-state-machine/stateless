@@ -225,6 +225,37 @@ await stateMachine.FireAsync(Trigger.Assigned);
 
 **Note:** while `StateMachine` may be used _asynchronously_, it remains single-threaded and may not be used _concurrently_ by multiple threads.
 
+
+## Calling triggers from multiple threads on the same instance of State Machine (using SM as a shared resource)
+
+To fire a trigger from a thread safely, the `FireThreadSafeAsync()` method must be used:
+
+```csharp
+await stateMachine.FireThreadSafeAsync(Trigger.Assigned); //the await is entirely optional, you can fire-and-forget
+```
+
+The state machine itself will remain single-threaded internally, and the firing mechanism invoked by different threads is managed simply using a lock. 
+The state machine unlocks and will ingest the next trigger only when all actions relating to the firing of the last trigger, such as `PermitDynamic`, `OnEntry` and `OnExit` are executed.
+
+Calling `FireThreadSafeAsync` from two different threads will therefore result in the two triggers happening sequentially, akin to many siblings coming from all around the house to use the bathroom at the same time - the one that gets in first will finish their business in peace, and the rest will wait in the lobby in front of the loo, essentially forming a queue.
+If you do not want to block the firing threads or await the firing process to be over, you can safely just fire-and-forget your triggers from different threads "at" the state machine. 
+
+#### On developing a well-behaving thread-safe state machine
+
+Example: State machine is in state S, and triggers T1 and T2 can happen at about the same time, from different threads. 
+Therefore, assuming that T1 would normally lead to a transition from S to S1 state, and accordingly for T2 and S2, it is important to note that there are two ways things can occur:
+
+```mermaid
+graph LR;
+
+S --[trigger T1 from thread1]--> S1 --[trigger T2 from thread2]--> NEW_STATE1
+S --[trigger T2 from thread2]--> S2 --[trigger T1 from thread1]--> NEW_STATE2
+```
+It is the __duty of the developer__ to handle these occurences, and to define the behaviour of the state machine so that it can mirror the events in the real world. 
+If any trigger can happen at any time, Stateless may not be the right solution for you. 
+
+I reccomend using `OnUnhandledTrigger` capability mixed with logging to manage race conditions during development, and perhaps introducing a _TState.Panic_ state that the state machine transfers to on the appearance of an unexpected trigger. The latter will disable the default behaviour of `OnUnhandledTrigger` method, which is looping back to the source state.
+
 ## Advanced Features ##
 
 ### Retaining the SynchronizationContext ###
