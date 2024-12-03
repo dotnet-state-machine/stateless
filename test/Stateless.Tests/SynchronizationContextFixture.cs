@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -41,15 +43,16 @@ public class SynchronizationContextFixture
 
     private async Task LoseSyncContext()
     {
-        await Task.Run(() => { }).ConfigureAwait(false); // Switch synchronization context and continue
+        await new CompletesOnDifferentThreadAwaitable(); // Switch synchronization context and continue
         Assert.NotEqual(_customSynchronizationContext, SynchronizationContext.Current);
     }
 
     /// <summary>
-    /// Tests capture the SynchronizationContext at various points through out their execution.
-    /// This asserts that every capture is the expected SynchronizationContext instance and that is hasn't been lost. 
+    /// Tests capture the SynchronizationContext at various points throughout their execution.
+    /// This asserts that every capture is the expected SynchronizationContext instance and that it hasn't been lost. 
     /// </summary>
     /// <param name="numberOfExpectedCalls">Ensure that we have the expected number of captures</param>
+    // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
     private void AssertSyncContextAlwaysRetained(int numberOfExpectedCalls)
     {
         Assert.Equal(numberOfExpectedCalls, _capturedSyncContext.Count);
@@ -154,7 +157,7 @@ public class SynchronizationContextFixture
         
         // ASSERT
         AssertSyncContextAlwaysRetained(3);
-    }
+     }
     
     [Fact]
     public async Task Multiple_OnEntry_should_retain_SyncContext()
@@ -337,5 +340,22 @@ public class SynchronizationContextFixture
         
         // ASSERT
         AssertSyncContextAlwaysRetained(1);
+    }
+    
+    private class CompletesOnDifferentThreadAwaitable
+    {
+        public CompletesOnDifferentThreadAwaiter GetAwaiter() => new();
+
+        internal class CompletesOnDifferentThreadAwaiter : INotifyCompletion
+        {
+            public void GetResult() { }
+
+            public bool IsCompleted => false;
+
+            public void OnCompleted(Action continuation)
+            {
+                ThreadPool.QueueUserWorkItem(_ => continuation());
+            }
+        }
     }
 }
