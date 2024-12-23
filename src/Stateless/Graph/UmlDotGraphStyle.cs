@@ -7,12 +7,12 @@ using System.Text;
 namespace Stateless.Graph
 {
     /// <summary>
-    /// Generate DOT graphs in basic UML style
+    /// Generate DOT graphs in basic UML style.
     /// </summary>
     public class UmlDotGraphStyle : GraphStyleBase
     {
-        /// <summary>Get the text that starts a new graph</summary>
-        /// <returns></returns>
+        /// <summary>Get the text that starts a new graph.</summary>
+        /// <returns>The prefix for the DOT graph document.</returns>
         public override string GetPrefix()
         {
             var sb = new StringBuilder();
@@ -26,10 +26,9 @@ namespace Stateless.Graph
 
         /// <summary>
         /// Returns the formatted text for a single superstate and its substates.
-        /// For example, for DOT files this would be a subgraph containing nodes for all the substates.
         /// </summary>
-        /// <param name="stateInfo">The superstate to generate text for</param>
-        /// <returns>Description of the superstate, and all its substates, in the desired format</returns>
+        /// <returns>A DOT graph representation of the superstate and all its substates.</returns>
+        /// <inheritdoc/>
         public override string FormatOneCluster(SuperState stateInfo)
         {
             var sb = new StringBuilder();
@@ -60,10 +59,10 @@ namespace Stateless.Graph
         }
 
         /// <summary>
-        /// Generate the text for a single state
+        /// Generate the text for a single state.
         /// </summary>
-        /// <param name="state">The state to generate text for</param>
-        /// <returns></returns>
+        /// <returns>A DOT graph representation of the state.</returns>
+        /// <inheritdoc/>
         public override string FormatOneState(State state)
         {
             var escapedStateName = EscapeLabel(state.StateName);
@@ -85,14 +84,10 @@ namespace Stateless.Graph
         }
 
         /// <summary>
-        /// Generate text for a single transition
+        /// Generate text for a single transition.
         /// </summary>
-        /// <param name="sourceNodeName"></param>
-        /// <param name="trigger"></param>
-        /// <param name="actions"></param>
-        /// <param name="destinationNodeName"></param>
-        /// <param name="guards"></param>
-        /// <returns></returns>
+        /// <returns>A DOT graph representation of a state transition.</returns>
+        /// <inheritdoc/>
         public override string FormatOneTransition(string sourceNodeName, string trigger, IEnumerable<string> actions, string destinationNodeName, IEnumerable<string> guards)
         {
             string label = trigger ?? "";
@@ -116,19 +111,18 @@ namespace Stateless.Graph
         /// <summary>
         /// Generate the text for a single decision node
         /// </summary>
-        /// <param name="nodeName">Name of the node</param>
-        /// <param name="label">Label for the node</param>
-        /// <returns></returns>
+        /// <returns>A DOT graph representation of the decision node for a dynamic transition.</returns>
+        /// <inheritdoc/>
         public override string FormatOneDecisionNode(string nodeName, string label)
         {
             return $"\"{EscapeLabel(nodeName)}\" [shape = \"diamond\", label = \"{EscapeLabel(label)}\"];{Environment.NewLine}";
         }
 
         /// <summary>
-        /// 
+        /// Get initial transition if present.
         /// </summary>
-        /// <param name="initialState"></param>
-        /// <returns></returns>
+        /// <returns>A DOT graph representation of the initial state transition.</returns>
+        /// <inheritdoc/>
         public override string GetInitialTransition(StateInfo initialState)
         {
             var initialStateName = initialState.UnderlyingState.ToString();
