@@ -137,19 +137,32 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        public void SimpleTransitionUML()
+        public void SimpleTransitionWithEscaping()
         {
-            var expected = Prefix(Style.UML) + Box(Style.UML, "A") + Box(Style.UML, "B") + Line("A", "B", "X") + suffix;
+            var state1 = "\\state \"1\"";
+            var state2 = "\\state \"2\"";
+            var trigger1 = "\\trigger \"1\"";
 
-            var sm = new StateMachine<State, Trigger>(State.A);
+            string suffix = Environment.NewLine
+                + $" init [label=\"\", shape=point];" + Environment.NewLine
+                + $" init -> \"{EscapeLabel(state1)}\"[style = \"solid\"]" + Environment.NewLine
+                + "}";
 
-            sm.Configure(State.A)
-                .Permit(Trigger.X, State.B);
+            var expected =
+                Prefix(Style.UML) +
+                Box(Style.UML, EscapeLabel(state1)) +
+                Box(Style.UML, EscapeLabel(state2)) +
+                Line(EscapeLabel(state1), EscapeLabel(state2), EscapeLabel(trigger1)) + suffix;
+
+            var sm = new StateMachine<string, string>(state1);
+
+            sm.Configure(state1)
+                .Permit(trigger1, state2);
 
             string dotGraph = UmlDotGraph.Format(sm.GetInfo());
 
 #if WRITE_DOTS_TO_FOLDER
-            System.IO.File.WriteAllText(DestinationFolder + "SimpleTransitionUML.dot", dotGraph);
+            System.IO.File.WriteAllText(DestinationFolder + "SimpleTransitionWithEscaping.dot", dotGraph);
 #endif
 
             Assert.Equal(expected, dotGraph);
@@ -445,42 +458,46 @@ namespace Stateless.Tests
         [Fact]
         public void SpacedUmlWithSubstate()
         {
-            string StateA = "State A";
-            string StateB = "State B";
-            string StateC = "State C";
-            string StateD = "State D";
-            string TriggerX = "Trigger X";
-            string TriggerY = "Trigger Y";
+            string StateA = "State \"A\"";
+            string StateB = "State \"B\"";
+            string StateC = "State \"C\"";
+            string StateD = "State \"D\"";
+            string TriggerX = "Trigger \"X\"";
+            string TriggerY = "Trigger \"Y\"";
+            string EnterA = "Enter \"A\"";
+            string EnterD = "Enter \"D\"";
+            string ExitA = "Exit \"A\"";
 
             var expected = Prefix(Style.UML)
-                           + Subgraph(Style.UML, StateD, $"{StateD}\\n----------\\nentry / Enter D",
-                               Box(Style.UML, StateB)
-                               + Box(Style.UML, StateC))
-                           + Box(Style.UML, StateA, new List<string> { "Enter A" }, new List<string> { "Exit A" })
-                           + Line(StateA, StateB, TriggerX) + Line(StateA, StateC, TriggerY)
+                           + Subgraph(Style.UML, EscapeLabel(StateD), $"{EscapeLabel(StateD)}\\n----------\\nentry / {EscapeLabel(EnterD)}",
+                               Box(Style.UML, EscapeLabel(StateB))
+                               + Box(Style.UML, EscapeLabel(StateC)))
+                           + Box(Style.UML, EscapeLabel(StateA), new List<string> { EscapeLabel(EnterA) }, new List<string> { EscapeLabel(ExitA) })
+                           + Line(EscapeLabel(StateA), EscapeLabel(StateB), EscapeLabel(TriggerX))
+                           + Line(EscapeLabel(StateA), EscapeLabel(StateC), EscapeLabel(TriggerY))
                            + Environment.NewLine
                            + $" init [label=\"\", shape=point];" + Environment.NewLine
-                           + $" init -> \"{StateA}\"[style = \"solid\"]" + Environment.NewLine
+                           + $" init -> \"{EscapeLabel(StateA)}\"[style = \"solid\"]" + Environment.NewLine
                            + "}";
 
-            var sm = new StateMachine<string, string>("State A");
+            var sm = new StateMachine<string, string>(StateA);
 
             sm.Configure(StateA)
                 .Permit(TriggerX, StateB)
                 .Permit(TriggerY, StateC)
-                .OnEntry(TestEntryAction, "Enter A")
-                .OnExit(TestEntryAction, "Exit A");
+                .OnEntry(TestEntryAction, EnterA)
+                .OnExit(TestEntryAction, ExitA);
 
             sm.Configure(StateB)
                 .SubstateOf(StateD);
             sm.Configure(StateC)
                 .SubstateOf(StateD);
             sm.Configure(StateD)
-                .OnEntry(TestEntryAction, "Enter D");
+                .OnEntry(TestEntryAction, EnterD);
 
             string dotGraph = UmlDotGraph.Format(sm.GetInfo());
 #if WRITE_DOTS_TO_FOLDER
-            System.IO.File.WriteAllText(DestinationFolder + "UmlWithSubstate.dot", dotGraph);
+            System.IO.File.WriteAllText(DestinationFolder + "SpacedUmlWithSubstate.dot", dotGraph);
 #endif
 
             Assert.Equal(expected, dotGraph);
@@ -716,5 +733,6 @@ namespace Stateless.Tests
         private void TestEntryAction() { }
         private void TestEntryActionString(string val) { }
         private State DestinationSelector() { return State.A; }
+        private static string EscapeLabel(string label) { return label.Replace("\\", "\\\\").Replace("\"", "\\\""); }
     }
 }
