@@ -72,6 +72,10 @@ namespace Stateless.Reflection
                 {
                     dynamicTransitions.Add(((StateMachine<TState, TTrigger>.DynamicTriggerBehaviour)item).TransitionInfo);
                 }
+                foreach (var item in triggerBehaviours.Value.Where(behaviour => behaviour is StateMachine<TState, TTrigger>.DynamicTriggerBehaviourAsync))
+                {
+                    dynamicTransitions.Add(((StateMachine<TState, TTrigger>.DynamicTriggerBehaviourAsync)item).TransitionInfo);
+                }
             }
 
             info.AddRelationships(superstate, substates, fixedTransitions, dynamicTransitions);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Stateless.Tests
@@ -913,12 +914,34 @@ namespace Stateless.Tests
         }
 
         [Fact]
+        public async void TransitionWhenPermitDyanmicIfAsyncHasMultipleExclusiveGuards()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var x = sm.SetTriggerParameters<int>(Trigger.X);
+            sm.Configure(State.A)
+                .PermitDynamicIfAsync(x, i => Task.FromResult(i == 3 ? State.B : State.C), i => i == 3 || i == 5)
+                .PermitDynamicIfAsync(x, i => Task.FromResult(i == 2 ? State.C : State.D), i => i == 2 || i == 4);
+            await sm.FireAsync(x, 3);
+            Assert.Equal(sm.State, State.B);
+        }
+
+        [Fact]
         public void ExceptionWhenPermitDyanmicIfHasMultipleNonExclusiveGuards()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
             var x = sm.SetTriggerParameters<int>(Trigger.X);
             sm.Configure(State.A).PermitDynamicIf(x, i => i == 4 ? State.B : State.C, i => i % 2 == 0)
                 .PermitDynamicIf(x, i => i == 2 ? State.C : State.D, i => i == 2);
+
+            Assert.Throws<InvalidOperationException>(() => sm.Fire(x, 2));
+        }
+        [Fact]
+        public void ExceptionWhenPermitDyanmicIfAsyncHasMultipleNonExclusiveGuards()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var x = sm.SetTriggerParameters<int>(Trigger.X);
+            sm.Configure(State.A).PermitDynamicIfAsync(x, i => Task.FromResult(i == 4 ? State.B : State.C), i => i % 2 == 0)
+                .PermitDynamicIfAsync(x, i => Task.FromResult(i == 2 ? State.C : State.D), i => i == 2);
 
             Assert.Throws<InvalidOperationException>(() => sm.Fire(x, 2));
         }
