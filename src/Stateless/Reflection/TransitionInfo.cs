@@ -17,5 +17,10 @@ namespace Stateless.Reflection
         /// Returns a non-null but empty list if there are no guard conditions
         /// </summary>
         public IEnumerable<InvocationInfo> GuardConditionsMethodDescriptions;
+
+        /// <summary>
+        /// When true, the transition is internal and does not invoke the entry/exit actions of the state.
+        /// </summary>
+        public bool IsInternalTransition { get; protected set; }
     }
 }

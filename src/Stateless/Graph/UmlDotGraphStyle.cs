@@ -35,17 +35,17 @@ namespace Stateless.Graph
             var sb = new StringBuilder();
             var sourceName = stateInfo.StateName;
 
-            StringBuilder label = new StringBuilder(sourceName);
+            StringBuilder label = new StringBuilder($"{EscapeLabel(stateInfo.StateName)}");
 
             if (stateInfo.EntryActions.Any() || stateInfo.ExitActions.Any())
             {
-                label.Append($"{Environment.NewLine}----------")
-                    .Append(string.Concat(stateInfo.EntryActions.Select(act => $"{Environment.NewLine}entry / {act}")))
-                    .Append(string.Concat(stateInfo.ExitActions.Select(act => $"{Environment.NewLine}exit / {act}")));
+                label.Append("\\n----------");
+                label.Append(string.Concat(stateInfo.EntryActions.Select(act => "\\nentry / " + EscapeLabel(act))));
+                label.Append(string.Concat(stateInfo.ExitActions.Select(act => "\\nexit / " + EscapeLabel(act))));
             }
 
             sb.AppendLine()
-                .AppendLine($"subgraph \"cluster{stateInfo.NodeName}\"")
+                .AppendLine($"subgraph \"cluster{EscapeLabel(stateInfo.NodeName)}\"")
                 .AppendLine("\t{")
                 .AppendLine($"\tlabel = \"{label.ToString()}\"");
 
@@ -66,16 +66,18 @@ namespace Stateless.Graph
         /// <returns></returns>
         public override string FormatOneState(State state)
         {
-            if (state.EntryActions.Count == 0 && state.ExitActions.Count == 0)
-                return $"\"{state.StateName}\" [label=\"{state.StateName}\"];{Environment.NewLine}";
+            var escapedStateName = EscapeLabel(state.StateName);
 
-            string f = $"\"{state.StateName}\" [label=\"{state.StateName}|";
+            if (state.EntryActions.Count == 0 && state.ExitActions.Count == 0)
+                return $"\"{escapedStateName}\" [label=\"{escapedStateName}\"];{Environment.NewLine}";
+
+            string f = $"\"{escapedStateName}\" [label=\"{escapedStateName}|";
 
             List<string> es = new List<string>();
-            es.AddRange(state.EntryActions.Select(act => "entry / " + act));
-            es.AddRange(state.ExitActions.Select(act => "exit / " + act));
+            es.AddRange(state.EntryActions.Select(act => "entry / " + EscapeLabel(act)));
+            es.AddRange(state.ExitActions.Select(act => "exit / " + EscapeLabel(act)));
 
-            f += string.Join(Environment.NewLine, es);
+            f += string.Join("\\n", es);
 
             f += $"\"];{Environment.NewLine}";
 
@@ -119,12 +121,7 @@ namespace Stateless.Graph
         /// <returns></returns>
         public override string FormatOneDecisionNode(string nodeName, string label)
         {
-            return $"\"{nodeName}\" [shape = \"diamond\", label = \"{label}\"];{Environment.NewLine}";
-        }
-
-        internal string FormatOneLine(string fromNodeName, string toNodeName, string label)
-        {
-            return $"\"{fromNodeName}\" -> \"{toNodeName}\" [style=\"solid\", label=\"{label}\"];";
+            return $"\"{EscapeLabel(nodeName)}\" [shape = \"diamond\", label = \"{EscapeLabel(label)}\"];{Environment.NewLine}";
         }
 
         /// <summary>
@@ -135,12 +132,22 @@ namespace Stateless.Graph
         public override string GetInitialTransition(StateInfo initialState)
         {
             var initialStateName = initialState.UnderlyingState.ToString();
-            string dirgraphText = System.Environment.NewLine + $" init [label=\"\", shape=point];";
-            dirgraphText += System.Environment.NewLine + $" init -> \"{initialStateName}\"[style = \"solid\"]";
+            string dirgraphText = Environment.NewLine + $" init [label=\"\", shape=point];";
+            dirgraphText += Environment.NewLine + $" init -> \"{EscapeLabel(initialStateName)}\"[style = \"solid\"]";
 
-            dirgraphText += System.Environment.NewLine + "}";
+            dirgraphText += Environment.NewLine + "}";
 
             return dirgraphText;
+        }
+
+        internal string FormatOneLine(string fromNodeName, string toNodeName, string label)
+        {
+            return $"\"{EscapeLabel(fromNodeName)}\" -> \"{EscapeLabel(toNodeName)}\" [style=\"solid\", label=\"{EscapeLabel(label)}\"];";
+        }
+
+        private static string EscapeLabel(string label)
+        {
+            return label.Replace("\\", "\\\\").Replace("\"", "\\\"");
         }
     }
 }

@@ -422,6 +422,18 @@ namespace Stateless
                         HandleReentryTrigger(args, representativeState, transition);
                         break;
                     }
+                case DynamicTriggerBehaviourAsync asyncHandler:
+                    {
+                        asyncHandler.GetDestinationState(source, args)
+                            .ContinueWith(t =>
+                            {
+                                var destination = t.Result;
+                                // Handle transition, and set new state; reentry is permitted from dynamic trigger behaviours.
+                                var transition = new Transition(source, destination, trigger, args);
+                                return HandleTransitioningTriggerAsync(args, representativeState, transition);
+                            });
+                        break;
+                    }
                 case DynamicTriggerBehaviour handler:
                     {
                         handler.GetDestinationState(source, args, out var destination);

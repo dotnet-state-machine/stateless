@@ -136,10 +136,20 @@ namespace Stateless.Graph
                     State toState = States[fix.DestinationState.UnderlyingState.ToString()];
                     if (fromState == toState)
                     {
-                        StayTransition stay = new StayTransition(fromState, fix.Trigger, fix.GuardConditionsMethodDescriptions, true);
+                        StayTransition stay = new StayTransition(fromState, fix.Trigger, fix.GuardConditionsMethodDescriptions, !fix.IsInternalTransition);
                         Transitions.Add(stay);
                         fromState.Leaving.Add(stay);
                         fromState.Arriving.Add(stay);
+
+                        // If the reentrant transition causes the state's entry action to be executed, this is shown
+                        // explicity in the state graph by adding it to the DestinationEntryActions list.
+                        if (stay.ExecuteEntryExitActions)
+                        {
+                            foreach (var action in stateInfo.EntryActions.Where(a => a.FromTrigger is null))
+                            {
+                                stay.DestinationEntryActions.Add(action);
+                            }
+                        }
                     }
                     else
                     {
