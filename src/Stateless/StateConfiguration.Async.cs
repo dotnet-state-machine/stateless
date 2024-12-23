@@ -1,6 +1,7 @@
 ﻿#if TASKS
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Stateless
@@ -520,6 +521,561 @@ namespace Stateless
                 _representation.AddExitAction(
                     exitAction,
                     Reflection.InvocationInfo.Create(exitAction, exitActionDescription, Reflection.InvocationInfo.Timing.Asynchronous));
+                return this;
+            }
+
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state, calculated
+            /// dynamically by the supplied async function.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationStateSelector">
+            /// Async function to calculate the destination state; if the source and destination states are the same, it will be reentered and 
+            /// any exit or entry logic will be invoked.
+            /// </param>
+            /// <param name="destinationStateSelectorDescription">Optional description for the async function to calculate the state </param>
+            /// <param name="possibleDestinationStates">Optional array of possible destination states (used by output formatters) </param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration PermitDynamicAsync(TTrigger trigger, Func<Task<TState>> destinationStateSelector,
+                string destinationStateSelectorDescription = null, Reflection.DynamicStateInfos possibleDestinationStates = null)
+            {
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
+                _representation.AddTriggerBehaviour(
+                    new DynamicTriggerBehaviourAsync(trigger,
+                        args => destinationStateSelector(),
+                        null,           // No transition guard
+                        Reflection.DynamicTransitionInfo.Create(trigger,
+                            null,       // No guards
+                            Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),
+                            possibleDestinationStates
+                        )
+                    ));
+                return this;
+            }
+
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state, calculated
+            /// dynamically by the supplied async function.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationStateSelector">
+            /// Function to calculate the destination state; if the source and destination states are the same, it will be reentered and 
+            /// any exit or entry logic will be invoked.
+            /// </param>
+            /// <param name="destinationStateSelectorDescription">Optional description of the function to calculate the state </param>
+            /// <param name="possibleDestinationStates">Optional list of possible target states.</param>
+            /// <returns>The receiver.</returns>
+            /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+            public StateConfiguration PermitDynamicAsync<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, Task<TState>> destinationStateSelector,
+                string destinationStateSelectorDescription = null, Reflection.DynamicStateInfos possibleDestinationStates = null)
+            {
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+
+                _representation.AddTriggerBehaviour(
+                    new DynamicTriggerBehaviourAsync(trigger.Trigger,
+                        args => destinationStateSelector(
+                            ParameterConversion.Unpack<TArg0>(args, 0)),
+                        null,       // No transition guards
+                        Reflection.DynamicTransitionInfo.Create(trigger.Trigger,
+                            null,    // No guards
+                            Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),
+                            possibleDestinationStates)
+                    ));
+                return this;
+
+            }
+
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state, calculated
+            /// dynamically by the supplied async function.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationStateSelector">
+            /// Function to calculate the destination state; if the source and destination states are the same, it will be reentered and 
+            /// any exit or entry logic will be invoked.
+            /// </param>
+            /// <param name="guard">Function that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <param name="guardDescription">Guard description</param>
+            /// <param name="possibleDestinationStates">Optional list of possible target states.</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration PermitDynamicIfAsync(TTrigger trigger, Func<Task<TState>> destinationStateSelector,
+                Func<bool> guard, string guardDescription = null, Reflection.DynamicStateInfos possibleDestinationStates = null)
+            {
+                return PermitDynamicIfAsync(trigger, destinationStateSelector, null, guard, guardDescription, possibleDestinationStates);
+            }
+
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state, calculated
+            /// dynamically by the supplied async function.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationStateSelector">
+            /// Function to calculate the destination state; if the source and destination states are the same, it will be reentered and 
+            /// any exit or entry logic will be invoked.
+            /// </param>
+            /// <param name="destinationStateSelectorDescription">Description of the function to calculate the state </param>
+            /// <param name="guard">Function that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <param name="guardDescription">Guard description</param>
+            /// <param name="possibleDestinationStates">Optional list of possible target states.</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration PermitDynamicIfAsync(TTrigger trigger, Func<Task<TState>> destinationStateSelector,
+                string destinationStateSelectorDescription, Func<bool> guard, string guardDescription = null, Reflection.DynamicStateInfos possibleDestinationStates = null)
+            {
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
+                return InternalPermitDynamicIfAsync(
+                    trigger,
+                    args => destinationStateSelector(),
+                    destinationStateSelectorDescription,
+                    new TransitionGuard(guard, guardDescription),
+                    possibleDestinationStates);
+            }
+
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state, calculated
+            /// dynamically by the supplied async function.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationStateSelector">
+            /// Function to calculate the destination state; if the source and destination states are the same, it will be reentered and 
+            /// any exit or entry logic will be invoked.
+            /// </param>
+            /// <param name="guards">Functions and their descriptions that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <param name="possibleDestinationStates">Optional list of possible target states.</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration PermitDynamicIfAsync(TTrigger trigger, Func<Task<TState>> destinationStateSelector, Reflection.DynamicStateInfos possibleDestinationStates = null, params Tuple<Func<bool>, string>[] guards)
+            {
+                return PermitDynamicIfAsync(trigger, destinationStateSelector, null, possibleDestinationStates, guards);
+            }
+
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state, calculated
+            /// dynamically by the supplied async function.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationStateSelector">
+            /// Function to calculate the destination state; if the source and destination states are the same, it will be reentered and 
+            /// any exit or entry logic will be invoked.
+            /// </param>
+            /// <param name="destinationStateSelectorDescription">Description of the function to calculate the state </param>
+            /// <param name="guards">Functions and their descriptions that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <param name="possibleDestinationStates">Optional list of possible target states.</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration PermitDynamicIfAsync(TTrigger trigger, Func<Task<TState>> destinationStateSelector,
+                string destinationStateSelectorDescription, Reflection.DynamicStateInfos possibleDestinationStates = null, params Tuple<Func<bool>, string>[] guards)
+            {
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
+                return InternalPermitDynamicIfAsync(
+                    trigger,
+                    args => destinationStateSelector(),
+                    destinationStateSelectorDescription,
+                    new TransitionGuard(guards),
+                    possibleDestinationStates);
+            }
+
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state, calculated
+            /// dynamically by the supplied async function.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationStateSelector">
+            /// Function to calculate the destination state; if the source and destination states are the same, it will be reentered and 
+            /// any exit or entry logic will be invoked.
+            /// </param>
+            /// <param name="guard">Function that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <param name="guardDescription">Guard description</param>
+            /// <param name="possibleDestinationStates">Optional list of possible target states.</param>
+            /// <returns>The receiver.</returns>
+            /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+            public StateConfiguration PermitDynamicIfAsync<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, Task<TState>> destinationStateSelector, Func<bool> guard, string guardDescription = null, Reflection.DynamicStateInfos possibleDestinationStates = null)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
+                return InternalPermitDynamicIfAsync(
+                    trigger.Trigger,
+                    args => destinationStateSelector(
+                        ParameterConversion.Unpack<TArg0>(args, 0)),
+                    null,    // destinationStateSelectorString
+                    new TransitionGuard(guard, guardDescription),
+                    possibleDestinationStates);
+            }
+
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state, calculated
+            /// dynamically by the supplied async function.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationStateSelector">
+            /// Function to calculate the destination state; if the source and destination states are the same, it will be reentered and 
+            /// any exit or entry logic will be invoked.
+            /// </param>
+            /// <returns>The receiver.</returns>
+            /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+            public StateConfiguration PermitDynamicIfAsync<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, Task<TState>> destinationStateSelector)
+            {
+                return PermitDynamicIfAsync<TArg0>(trigger, destinationStateSelector, null, new Tuple<Func<bool>, string>[0]);
+            }
+
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state, calculated
+            /// dynamically by the supplied async function.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationStateSelector">
+            /// Function to calculate the destination state; if the source and destination states are the same, it will be reentered and 
+            /// any exit or entry logic will be invoked.
+            /// </param>
+            /// <param name="possibleDestinationStates">Optional list of possible target states.</param>
+            /// <param name="guards">Functions and their descriptions that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <returns>The receiver.</returns>
+            /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+            public StateConfiguration PermitDynamicIfAsync<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, Task<TState>> destinationStateSelector, Reflection.DynamicStateInfos possibleDestinationStates = null, params Tuple<Func<bool>, string>[] guards)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
+                return InternalPermitDynamicIfAsync(
+                    trigger.Trigger,
+                    args => destinationStateSelector(
+                        ParameterConversion.Unpack<TArg0>(args, 0)),
+                    null,    // destinationStateSelectorString
+                    new TransitionGuard(guards),
+                    possibleDestinationStates);
+            }
+
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state, calculated
+            /// dynamically by the supplied async function.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationStateSelector">
+            /// Function to calculate the destination state; if the source and destination states are the same, it will be reentered and 
+            /// any exit or entry logic will be invoked.
+            /// </param>
+            /// <param name="guard">Function that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <param name="guardDescription">Guard description</param>
+            /// <param name="possibleDestinationStates">Optional list of possible target states.</param>
+            /// <returns>The receiver.</returns>
+            /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+            /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
+            public StateConfiguration PermitDynamicIfAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, Task<TState>> destinationStateSelector, Func<bool> guard, string guardDescription = null, Reflection.DynamicStateInfos possibleDestinationStates = null)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
+                return InternalPermitDynamicIfAsync(
+                    trigger.Trigger,
+                    args => destinationStateSelector(
+                        ParameterConversion.Unpack<TArg0>(args, 0),
+                        ParameterConversion.Unpack<TArg1>(args, 1)),
+                    null,    // destinationStateSelectorString
+                    new TransitionGuard(guard, guardDescription),
+                    possibleDestinationStates);
+            }
+
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state, calculated
+            /// dynamically by the supplied async function.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationStateSelector">
+            /// Function to calculate the destination state; if the source and destination states are the same, it will be reentered and 
+            /// any exit or entry logic will be invoked.
+            /// </param>
+            /// <param name="possibleDestinationStates">Optional list of possible target states.</param>
+            /// <param name="guards">Functions and their descriptions that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <returns>The receiver.</returns>
+            /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+            /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
+            public StateConfiguration PermitDynamicIfAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, Task<TState>> destinationStateSelector, Reflection.DynamicStateInfos possibleDestinationStates = null, params Tuple<Func<bool>, string>[] guards)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
+                return InternalPermitDynamicIfAsync(
+                    trigger.Trigger,
+                    args => destinationStateSelector(
+                        ParameterConversion.Unpack<TArg0>(args, 0),
+                        ParameterConversion.Unpack<TArg1>(args, 1)),
+                    null,    // destinationStateSelectorString
+                    new TransitionGuard(guards),
+                    possibleDestinationStates);
+            }
+
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state, calculated
+            /// dynamically by the supplied async function.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationStateSelector">
+            /// Function to calculate the destination state; if the source and destination states are the same, it will be reentered and 
+            /// any exit or entry logic will be invoked.
+            /// </param>
+            /// <returns>The receiver.</returns>
+            /// <param name="guard">Function that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <param name="guardDescription">Guard description</param>
+            /// <param name="possibleDestinationStates">Optional list of possible target states.</param>
+            /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+            /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
+            /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
+            public StateConfiguration PermitDynamicIfAsync<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, Task<TState>> destinationStateSelector, Func<bool> guard, string guardDescription = null, Reflection.DynamicStateInfos possibleDestinationStates = null)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
+                return InternalPermitDynamicIfAsync(
+                    trigger.Trigger,
+                    args => destinationStateSelector(
+                        ParameterConversion.Unpack<TArg0>(args, 0),
+                        ParameterConversion.Unpack<TArg1>(args, 1),
+                        ParameterConversion.Unpack<TArg2>(args, 2)),
+                    null,    // destinationStateSelectorString
+                    new TransitionGuard(guard, guardDescription),
+                    possibleDestinationStates);
+            }
+
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state, calculated
+            /// dynamically by the supplied async function.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationStateSelector">
+            /// Function to calculate the destination state; if the source and destination states are the same, it will be reentered and 
+            /// any exit or entry logic will be invoked.
+            /// </param>
+            /// <param name="possibleDestinationStates">Optional list of possible target states.</param>
+            /// <returns>The receiver.</returns>
+            /// <param name="guards">Functions ant their descriptions that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+            /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
+            /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
+            public StateConfiguration PermitDynamicIfAsync<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, Task<TState>> destinationStateSelector, Reflection.DynamicStateInfos possibleDestinationStates = null, params Tuple<Func<bool>, string>[] guards)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
+                return InternalPermitDynamicIfAsync(
+                    trigger.Trigger,
+                    args => destinationStateSelector(
+                        ParameterConversion.Unpack<TArg0>(args, 0),
+                        ParameterConversion.Unpack<TArg1>(args, 1),
+                        ParameterConversion.Unpack<TArg2>(args, 2)),
+                    null,    // destinationStateSelectorString
+                    new TransitionGuard(guards),
+                    possibleDestinationStates);
+            }
+
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state, calculated
+            /// dynamically by the supplied async function.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationStateSelector">
+            /// Function to calculate the destination state; if the source and destination states are the same, it will be reentered and 
+            /// any exit or entry logic will be invoked.
+            /// </param>
+            /// <param name="guard">Parameterized Function that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <param name="guardDescription">Guard description</param>
+            /// <param name="possibleDestinationStates">Optional list of possible target states.</param>
+            /// <returns>The receiver.</returns>
+            /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+            public StateConfiguration PermitDynamicIfAsync<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, Task<TState>> destinationStateSelector, Func<TArg0, bool> guard, string guardDescription = null, Reflection.DynamicStateInfos possibleDestinationStates = null)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
+                return InternalPermitDynamicIfAsync(
+                    trigger.Trigger,
+                    args => destinationStateSelector(
+                        ParameterConversion.Unpack<TArg0>(args, 0)),
+                    null,    // destinationStateSelectorString
+                    new TransitionGuard(TransitionGuard.ToPackedGuard(guard), guardDescription),
+                    possibleDestinationStates);
+            }
+
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state, calculated
+            /// dynamically by the supplied async function.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationStateSelector">
+            /// Function to calculate the destination state; if the source and destination states are the same, it will be reentered and 
+            /// any exit or entry logic will be invoked.
+            /// </param>
+            /// <param name="possibleDestinationStates">Optional list of possible target states.</param>
+            /// <param name="guards">Functions and their descriptions that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <returns>The receiver.</returns>
+            /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+            public StateConfiguration PermitDynamicIfAsync<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, Task<TState>> destinationStateSelector, Reflection.DynamicStateInfos possibleDestinationStates = null, params Tuple<Func<TArg0, bool>, string>[] guards)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
+                return InternalPermitDynamicIfAsync(
+                    trigger.Trigger,
+                    args => destinationStateSelector(
+                        ParameterConversion.Unpack<TArg0>(args, 0)),
+                    null,    // destinationStateSelectorString
+                    new TransitionGuard(TransitionGuard.ToPackedGuards(guards)),
+                    possibleDestinationStates);
+            }
+
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state, calculated
+            /// dynamically by the supplied async function.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationStateSelector">
+            /// Function to calculate the destination state; if the source and destination states are the same, it will be reentered and 
+            /// any exit or entry logic will be invoked.
+            /// </param>
+            /// <param name="guard">Function that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <param name="guardDescription">Guard description</param>
+            /// <param name="possibleDestinationStates">Optional list of possible target states.</param>
+            /// <returns>The receiver.</returns>
+            /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+            /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
+            public StateConfiguration PermitDynamicIfAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, Task<TState>> destinationStateSelector, Func<TArg0, TArg1, bool> guard, string guardDescription = null, Reflection.DynamicStateInfos possibleDestinationStates = null)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
+                return InternalPermitDynamicIfAsync(
+                    trigger.Trigger,
+                    args => destinationStateSelector(
+                        ParameterConversion.Unpack<TArg0>(args, 0),
+                        ParameterConversion.Unpack<TArg1>(args, 1)),
+                    null,    // destinationStateSelectorString
+                    new TransitionGuard(TransitionGuard.ToPackedGuard(guard), guardDescription),
+                    possibleDestinationStates);
+            }
+
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state, calculated
+            /// dynamically by the supplied async function.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationStateSelector">
+            /// Function to calculate the destination state; if the source and destination states are the same, it will be reentered and 
+            /// any exit or entry logic will be invoked.
+            /// </param>
+            /// <param name="guards">Functions that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <param name="possibleDestinationStates">Optional list of possible target states.</param>
+            /// <returns>The receiver.</returns>
+            /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+            /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
+            public StateConfiguration PermitDynamicIfAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, Task<TState>> destinationStateSelector, Tuple<Func<TArg0, TArg1, bool>, string>[] guards, Reflection.DynamicStateInfos possibleDestinationStates = null)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
+                return InternalPermitDynamicIfAsync(
+                    trigger.Trigger,
+                    args => destinationStateSelector(
+                        ParameterConversion.Unpack<TArg0>(args, 0),
+                        ParameterConversion.Unpack<TArg1>(args, 1)),
+                    null,    // destinationStateSelectorString
+                    new TransitionGuard(TransitionGuard.ToPackedGuards(guards)),
+                    possibleDestinationStates);
+            }
+
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state, calculated
+            /// dynamically by the supplied async function.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationStateSelector">
+            /// Function to calculate the destination state; if the source and destination states are the same, it will be reentered and 
+            /// any exit or entry logic will be invoked.
+            /// </param>
+            /// <param name="guard">Function that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <param name="guardDescription">Guard description</param>
+            /// <param name="possibleDestinationStates">Optional list of possible target states.</param>
+            /// <returns>The receiver.</returns>
+            /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+            /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
+            /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
+            public StateConfiguration PermitDynamicIfAsync<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, Task<TState>> destinationStateSelector, Func<TArg0, TArg1, TArg2, bool> guard, string guardDescription = null, Reflection.DynamicStateInfos possibleDestinationStates = null)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
+                return InternalPermitDynamicIfAsync(
+                    trigger.Trigger,
+                    args => destinationStateSelector(
+                        ParameterConversion.Unpack<TArg0>(args, 0),
+                        ParameterConversion.Unpack<TArg1>(args, 1),
+                        ParameterConversion.Unpack<TArg2>(args, 2)),
+                    null,    // destinationStateSelectorString
+                    new TransitionGuard(TransitionGuard.ToPackedGuard(guard), guardDescription),
+                    possibleDestinationStates);
+            }
+
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state, calculated
+            /// dynamically by the supplied async function.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationStateSelector">
+            /// Function to calculate the destination state; if the source and destination states are the same, it will be reentered and 
+            /// any exit or entry logic will be invoked.
+            /// </param>
+            /// <param name="guards">Functions that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <param name="possibleDestinationStates">Optional list of possible target states.</param>
+            /// <returns>The receiver.</returns>
+            /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
+            /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
+            /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
+            public StateConfiguration PermitDynamicIfAsync<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, Task<TState>> destinationStateSelector, Tuple<Func<TArg0, TArg1, TArg2, bool>, string>[] guards, Reflection.DynamicStateInfos possibleDestinationStates = null)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+
+                return InternalPermitDynamicIfAsync(
+                    trigger.Trigger,
+                    args => destinationStateSelector(
+                        ParameterConversion.Unpack<TArg0>(args, 0),
+                        ParameterConversion.Unpack<TArg1>(args, 1),
+                        ParameterConversion.Unpack<TArg2>(args, 2)),
+                    null,    // destinationStateSelectorString
+                    new TransitionGuard(TransitionGuard.ToPackedGuards(guards)),
+                    possibleDestinationStates);
+            }
+            StateConfiguration InternalPermitDynamicIfAsync(TTrigger trigger, Func<object[],Task<TState>> destinationStateSelector,
+                string destinationStateSelectorDescription, TransitionGuard transitionGuard, Reflection.DynamicStateInfos possibleDestinationStates)
+            {
+                if (destinationStateSelector == null) throw new ArgumentNullException(nameof(destinationStateSelector));
+                if (transitionGuard == null) throw new ArgumentNullException(nameof(transitionGuard));
+
+                _representation.AddTriggerBehaviour(new DynamicTriggerBehaviourAsync(trigger,
+                    destinationStateSelector,
+                    transitionGuard,
+                    Reflection.DynamicTransitionInfo.Create(trigger,
+                        transitionGuard.Conditions.Select(x => x.MethodDescription),
+                        Reflection.InvocationInfo.Create(destinationStateSelector, destinationStateSelectorDescription),
+                        possibleDestinationStates)
+                    ));
                 return this;
             }
         }
