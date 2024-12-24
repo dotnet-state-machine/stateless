@@ -15,10 +15,13 @@ namespace Stateless.Graph
         /// <returns>The prefix for the DOT graph document.</returns>
         public override string GetPrefix()
         {
-            return "digraph {\n"
-                      + "compound=true;\n"
-                      + "node [shape=Mrecord]\n"
-                      + "rankdir=\"LR\"\n";
+            var sb = new StringBuilder();
+            sb.AppendLine("digraph {")
+                .AppendLine("compound=true;")
+                .AppendLine("node [shape=Mrecord]")
+                .AppendLine("rankdir=\"LR\"");
+
+            return sb.ToString();
         }
 
         /// <summary>
@@ -28,30 +31,31 @@ namespace Stateless.Graph
         /// <inheritdoc/>
         public override string FormatOneCluster(SuperState stateInfo)
         {
-            string stateRepresentationString = "";
+            var sb = new StringBuilder();
+            var sourceName = stateInfo.StateName;
 
             StringBuilder label = new StringBuilder($"{EscapeLabel(stateInfo.StateName)}");
 
-            if (stateInfo.EntryActions.Count > 0 || stateInfo.ExitActions.Count > 0)
+            if (stateInfo.EntryActions.Any() || stateInfo.ExitActions.Any())
             {
                 label.Append("\\n----------");
                 label.Append(string.Concat(stateInfo.EntryActions.Select(act => "\\nentry / " + EscapeLabel(act))));
                 label.Append(string.Concat(stateInfo.ExitActions.Select(act => "\\nexit / " + EscapeLabel(act))));
             }
 
-            stateRepresentationString = "\n"
-                + $"subgraph \"cluster{EscapeLabel(stateInfo.NodeName)}\"" + "\n"
-                + "\t{" + "\n"
-                + $"\tlabel = \"{label}\"" + "\n";
+            sb.AppendLine()
+                .AppendLine($"subgraph \"cluster{EscapeLabel(stateInfo.NodeName)}\"")
+                .AppendLine("\t{")
+                .AppendLine($"\tlabel = \"{label.ToString()}\"");
 
             foreach (var subState in stateInfo.SubStates)
             {
-                stateRepresentationString += FormatOneState(subState);
+                sb.Append(FormatOneState(subState));
             }
 
-            stateRepresentationString += "}\n";
+            sb.AppendLine("}");
 
-            return stateRepresentationString;
+            return sb.ToString();
         }
 
         /// <summary>
@@ -64,7 +68,7 @@ namespace Stateless.Graph
             var escapedStateName = EscapeLabel(state.StateName);
 
             if (state.EntryActions.Count == 0 && state.ExitActions.Count == 0)
-                return $"\"{escapedStateName}\" [label=\"{escapedStateName}\"];\n";
+                return $"\"{escapedStateName}\" [label=\"{escapedStateName}\"];{Environment.NewLine}";
 
             string f = $"\"{escapedStateName}\" [label=\"{escapedStateName}|";
 
@@ -74,7 +78,7 @@ namespace Stateless.Graph
 
             f += string.Join("\\n", es);
 
-            f += "\"];\n";
+            f += $"\"];{Environment.NewLine}";
 
             return f;
         }
@@ -105,13 +109,13 @@ namespace Stateless.Graph
         }
 
         /// <summary>
-        /// Generate the text for a single decision node.
+        /// Generate the text for a single decision node
         /// </summary>
         /// <returns>A DOT graph representation of the decision node for a dynamic transition.</returns>
         /// <inheritdoc/>
         public override string FormatOneDecisionNode(string nodeName, string label)
         {
-            return $"\"{EscapeLabel(nodeName)}\" [shape = \"diamond\", label = \"{EscapeLabel(label)}\"];\n";
+            return $"\"{EscapeLabel(nodeName)}\" [shape = \"diamond\", label = \"{EscapeLabel(label)}\"];{Environment.NewLine}";
         }
 
         /// <summary>

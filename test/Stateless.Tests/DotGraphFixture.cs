@@ -332,7 +332,7 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
             var trigger = sm.SetTriggerParameters<int>(Trigger.X);
             sm.Configure(State.A)
-                .PermitDynamicAsync(trigger, i =>Task.FromResult(i == 1 ? State.B : State.C));
+                .PermitDynamicAsync(trigger, i => Task.FromResult(i == 1 ? State.B : State.C));
 
             string dotGraph = UmlDotGraph.Format(sm.GetInfo());
 
