@@ -41,6 +41,7 @@ Some useful extensions are also provided:
  * Parameterised triggers
  * Reentrant states
  * Export to DOT graph
+ * Export to mermaid graph
 
 ### Hierarchical States
 
@@ -143,7 +144,7 @@ Trigger parameters can be used to dynamically select the destination state using
 
 ### Ignored Transitions and Reentrant States
 
-Firing a trigger that does not have an allowed transition associated with it will cause an exception to be thrown.
+In Stateless, firing a trigger that does not have an allowed transition associated with it will cause an exception to be thrown. This ensures that all transitions are explicitly defined, preventing unintended state changes.
 
 To ignore triggers within certain states, use the `Ignore(TTrigger)` directive:
 
@@ -152,7 +153,7 @@ phoneCall.Configure(State.Connected)
     .Ignore(Trigger.CallDialled);
 ```
 
-Alternatively, a state can be marked reentrant so its entry and exit actions will fire even when transitioning from/to itself:
+Alternatively, a state can be marked reentrant. A reentrant state is one that can transition back into itself. In such cases, the state's exit and entry actions will be executed, providing a way to handle events that require the state to reset or reinitialize.
 
 ```csharp
 stateMachine.Configure(State.Assigned)
@@ -164,6 +165,23 @@ By default, triggers must be ignored explicitly. To override Stateless's default
 
 ```csharp
 stateMachine.OnUnhandledTrigger((state, trigger) => { });
+```
+
+### Dynamic State Transitions and State Re-entry
+
+Dynamic state transitions allow the destination state to be determined at runtime based on trigger parameters or other logic.
+
+```csharp
+stateMachine.Configure(State.Start)
+    .PermitDynamic(Trigger.CheckScore, () => score < 10 ? State.LowScore : State.HighScore);
+```
+
+When a dynamic transition results in the same state as the current state, it effectively becomes a reentrant transition, causing the state's exit and entry actions to execute. This can be useful for scenarios where the state needs to refresh or reset based on certain triggers.
+
+```csharp
+stateMachine.Configure(State.Waiting)
+    .OnEntry(() => Console.WriteLine($"Elapsed time: {elapsed} seconds..."))
+    .PermitDynamic(Trigger.CheckStatus, () => ready ? State.Done : State.Waiting);
 ```
 
 ### State change notifications (events)
@@ -182,7 +200,7 @@ This event will be invoked every time the state machine changes state.
 ```csharp
 stateMachine.OnTransitionCompleted((transition) => { });
 ```
-This event will be invoked at the very end of the trigger handling, after the last  entry action has been executed.
+This event will be invoked at the very end of the trigger handling, after the last entry action has been executed.
 
 ### Export to DOT graph
 
@@ -205,6 +223,33 @@ digraph {
 
 This can then be rendered by tools that support the DOT graph language, such as the [dot command line tool](http://www.graphviz.org/doc/info/command.html) from [graphviz.org](http://www.graphviz.org) or [viz.js](https://github.com/mdaines/viz.js). See http://www.webgraphviz.com for instant gratification.
 Command line example: `dot -T pdf -o phoneCall.pdf phoneCall.dot` to generate a PDF file.
+
+### Export to Mermaid graph
+
+Mermaid graphs can also be generated from state machines.
+ 
+```csharp
+phoneCall.Configure(State.OffHook)
+    .PermitIf(Trigger.CallDialled, State.Ringing);
+    
+string graph = MermaidGraph.Format(phoneCall.GetInfo());
+```
+
+The `MermaidGraph.Format()` method returns a string representation of the state machine in the [Mermaid](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/creating-diagrams#creating-mermaid-diagrams), e.g.:
+
+```
+stateDiagram-v2
+     [*] --> OffHook
+    OffHook --> Ringing : CallDialled
+```
+
+This can be rendered by GitHub markdown or an engine such as [Obsidian](https://github.com/obsidianmd).
+
+``` mermaid
+stateDiagram-v2
+     [*] --> OffHook
+    OffHook --> Ringing : CallDialled
+```
 
 ### Async triggers
 

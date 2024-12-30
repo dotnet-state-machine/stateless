@@ -383,12 +383,79 @@ namespace Stateless.Tests
         }
 
         [Fact]
+        public void DestinationStateIsDynamicAsync_Binding()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            sm.Configure(State.A)
+                .PermitDynamicAsync(Trigger.X, () => Task.FromResult(State.B));
+
+            StateMachineInfo inf = sm.GetInfo();
+
+            Assert.True(inf.StateType == typeof(State));
+            Assert.Equal(inf.TriggerType, typeof(Trigger));
+            Assert.Equal(inf.States.Count(), 1);
+            var binding = inf.States.Single(s => (State)s.UnderlyingState == State.A);
+
+            Assert.True(binding.UnderlyingState is State);
+            Assert.Equal(State.A, (State)binding.UnderlyingState);
+            //
+            Assert.Equal(0, binding.Substates.Count());
+            Assert.Equal(null, binding.Superstate);
+            Assert.Equal(0, binding.EntryActions.Count());
+            Assert.Equal(0, binding.ExitActions.Count());
+            //
+            Assert.Equal(0, binding.FixedTransitions.Count()); // Binding transition count mismatch
+            Assert.Equal(0, binding.IgnoredTriggers.Count());
+            Assert.Equal(1, binding.DynamicTransitions.Count()); // Dynamic transition count mismatch
+            foreach (DynamicTransitionInfo trans in binding.DynamicTransitions)
+            {
+                Assert.True(trans.Trigger.UnderlyingTrigger is Trigger);
+                Assert.Equal(Trigger.X, (Trigger)trans.Trigger.UnderlyingTrigger);
+                Assert.Equal(0, trans.GuardConditionsMethodDescriptions.Count());
+            }
+        }
+
+        [Fact]
         public void DestinationStateIsCalculatedBasedOnTriggerParameters_Binding()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
             var trigger = sm.SetTriggerParameters<int>(Trigger.X);
             sm.Configure(State.A)
                 .PermitDynamic(trigger, i => i == 1 ? State.B : State.C);
+
+            StateMachineInfo inf = sm.GetInfo();
+
+            Assert.True(inf.StateType == typeof(State));
+            Assert.Equal(inf.TriggerType, typeof(Trigger));
+            Assert.Equal(inf.States.Count(), 1);
+            var binding = inf.States.Single(s => (State)s.UnderlyingState == State.A);
+
+            Assert.True(binding.UnderlyingState is State);
+            Assert.Equal(State.A, (State)binding.UnderlyingState);
+            //
+            Assert.Equal(0, binding.Substates.Count());
+            Assert.Equal(null, binding.Superstate);
+            Assert.Equal(0, binding.EntryActions.Count());
+            Assert.Equal(0, binding.ExitActions.Count());
+            //
+            Assert.Equal(0, binding.FixedTransitions.Count()); // Binding transition count mismatch"
+            Assert.Equal(0, binding.IgnoredTriggers.Count());
+            Assert.Equal(1, binding.DynamicTransitions.Count()); // Dynamic transition count mismatch
+            foreach (DynamicTransitionInfo trans in binding.DynamicTransitions)
+            {
+                Assert.True(trans.Trigger.UnderlyingTrigger is Trigger);
+                Assert.Equal(Trigger.X, (Trigger)trans.Trigger.UnderlyingTrigger);
+                Assert.Equal(0, trans.GuardConditionsMethodDescriptions.Count());
+            }
+        }
+
+        [Fact]
+        public void DestinationStateIsCalculatedBasedOnTriggerParameters_BindingAsync()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var trigger = sm.SetTriggerParameters<int>(Trigger.X);
+            sm.Configure(State.A)
+                .PermitDynamicAsync(trigger, i => Task.FromResult(i == 1 ? State.B : State.C));
 
             StateMachineInfo inf = sm.GetInfo();
 
@@ -892,6 +959,74 @@ namespace Stateless.Tests
             StateConfiguration InternalPermitDynamic(TTrigger trigger, Func<object[], TState> destinationStateSelector, string guardDescription)
              */
         }
+
+        [Fact]
+        public void TransitionGuardNamesAsync()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .PermitIf(Trigger.X, State.B, Permit);
+            sm.Configure(State.B)
+                .PermitIf(Trigger.X, State.C, Permit, UserDescription + "B-Permit");
+            sm.Configure(State.C)
+                .PermitIf(Trigger.X, State.B, () => Permit());
+            sm.Configure(State.D)
+                .PermitIf(Trigger.X, State.C, () => Permit(), UserDescription + "D-Permit");
+
+            StateMachineInfo inf = sm.GetInfo();
+
+            foreach (StateInfo stateInfo in inf.States)
+            {
+                Assert.Equal(1, stateInfo.Transitions.Count());
+                TransitionInfo transInfo = stateInfo.Transitions.First();
+                Assert.Equal(1, transInfo.GuardConditionsMethodDescriptions.Count());
+                VerifyMethodNames(transInfo.GuardConditionsMethodDescriptions, "", "Permit", (State)stateInfo.UnderlyingState, InvocationInfo.Timing.Synchronous);
+            }
+
+
+            // --------------------------------------------------------
+
+            sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .PermitDynamicIfAsync(Trigger.X, () => Task.FromResult(NextState()), Permit);
+            sm.Configure(State.B)
+                .PermitDynamicIfAsync(Trigger.X, () => Task.FromResult(NextState()), Permit, UserDescription + "B-Permit");
+            sm.Configure(State.C)
+                .PermitDynamicIfAsync(Trigger.X, () => Task.FromResult(NextState()), () => Permit());
+            sm.Configure(State.D)
+                .PermitDynamicIfAsync(Trigger.X, () => Task.FromResult(NextState()), () => Permit(), UserDescription + "D-Permit");
+
+            inf = sm.GetInfo();
+
+            foreach (StateInfo stateInfo in inf.States)
+            {
+                Assert.Equal(1, stateInfo.Transitions.Count());
+                TransitionInfo transInfo = stateInfo.Transitions.First();
+                Assert.Equal(1, transInfo.GuardConditionsMethodDescriptions.Count());
+                VerifyMethodNames(transInfo.GuardConditionsMethodDescriptions, "", "Permit", (State)stateInfo.UnderlyingState, InvocationInfo.Timing.Synchronous);
+            }
+
+            /*
+           public IgnoredTriggerBehaviour(TTrigger trigger, Func<bool> guard, string description = null)
+               : base(trigger, new TransitionGuard(guard, description))
+            public InternalTriggerBehaviour(TTrigger trigger, Func<bool> guard)
+                : base(trigger, new TransitionGuard(guard, "Internal Transition"))
+            public TransitioningTriggerBehaviour(TTrigger trigger, TState destination, Func<bool> guard = null, string guardDescription = null)
+                : base(trigger, new TransitionGuard(guard, guardDescription))
+
+            public StateConfiguration PermitReentryIf(TTrigger trigger, Func<bool> guard, string guardDescription = null)
+
+            public StateConfiguration PermitDynamicIf<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, TState> destinationStateSelector, Func<bool> guard, string guardDescription = null)
+            public StateConfiguration PermitDynamicIf<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, TState> destinationStateSelector, Func<bool> guard, string guardDescription = null)
+            public StateConfiguration PermitDynamicIf<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, TState> destinationStateSelector, Func<bool> guard, string guardDescription = null)
+
+            StateConfiguration InternalPermit(TTrigger trigger, TState destinationState, string guardDescription)
+            StateConfiguration InternalPermitDynamic(TTrigger trigger, Func<object[], TState> destinationStateSelector, string guardDescription)
+             */
+        }
+
 
         [Fact]
         public void InvocationInfo_Description_Property_When_Method_Name_Is_Null_Returns_String_Literal_Null()
