@@ -68,16 +68,7 @@ namespace Stateless.Reflection
         /// </summary>
         public DynamicStateInfos PossibleDestinationStates { get; private set; }
 
-        /// <summary>
-        /// Creates a new instance of <see cref="DynamicTransitionInfo"/>.
-        /// </summary>
-        /// <typeparam name="TTrigger">The trigger type.</typeparam>
-        /// <param name="trigger">The trigger associated with this transition.</param>
-        /// <param name="guards">The guard conditions associated with this transition.</param>
-        /// <param name="selector">The destination selector associated with this transition.</param>
-        /// <param name="possibleStates">The possible destination states.</param>
-        /// <returns></returns>
-        public static DynamicTransitionInfo Create<TTrigger>(TTrigger trigger, IEnumerable<InvocationInfo> guards,
+        internal static DynamicTransitionInfo Create<TTrigger>(TTrigger trigger, IEnumerable<InvocationInfo> guards,
             InvocationInfo selector, DynamicStateInfos possibleStates)
         {
             var transition = new DynamicTransitionInfo
