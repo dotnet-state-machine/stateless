@@ -118,5 +118,39 @@ namespace Stateless.Tests
             Assert.Equal(typeof(string), args[1]);
             Assert.Equal(typeof(List<bool>), args[2]);
         }
+
+        [Fact]
+        public void GetPermittedTriggersShouldAcceptStronglyTypedTriggersWithConditionalGuardsConfigurations()
+        {
+            var stateMachine = new StateMachine<State, Trigger>(State.A);
+            var firstTrigger = new StateMachine<State, Trigger>.TriggerWithParameters<FirstFakeTrigger>(Trigger.X);
+            var secondTrigger = new StateMachine<State, Trigger>.TriggerWithParameters<SecondFakeTrigger>(Trigger.Y);
+
+            stateMachine.Configure(State.A)
+                .PermitIf(firstTrigger, State.B, trigger => trigger.IsAllowed)
+                .PermitIf(secondTrigger, State.C, trigger => trigger.IsOk);
+
+            var fakeTriggers = new List<object>()
+            {
+                new FirstFakeTrigger
+                {
+                    IsAllowed = true
+                },
+                new SecondFakeTrigger
+                {
+                    IsOk = false
+                },
+            };
+
+            var availableTriggers = new List<Trigger>();
+            foreach (var fakeTrigger in fakeTriggers)
+            {
+                var temp = stateMachine.GetPermittedTriggers(fakeTrigger);
+                availableTriggers.AddRange(temp);
+            }
+
+            Assert.Contains(Trigger.X, availableTriggers);
+            Assert.DoesNotContain(Trigger.Y, availableTriggers);
+        }
     }
 }
