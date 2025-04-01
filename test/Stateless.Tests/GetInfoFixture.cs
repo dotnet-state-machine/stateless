@@ -22,6 +22,7 @@ namespace Stateless.Tests
             Assert.Equal(Trigger.X.ToString(), entryActionInfo.FromTrigger);
         }
     
+#if TASKS
         [Fact]
         public void GetInfo_should_return_async_Entry_action_with_trigger_name()
         {
@@ -38,5 +39,6 @@ namespace Stateless.Tests
             var entryActionInfo = Assert.Single(stateInfo.EntryActions);
             Assert.Equal(Trigger.X.ToString(), entryActionInfo.FromTrigger);
         }
+#endif
     }
 }

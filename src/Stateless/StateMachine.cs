@@ -422,6 +422,7 @@ namespace Stateless
                         HandleReentryTrigger(args, representativeState, transition);
                         break;
                     }
+#if TASKS
                 case DynamicTriggerBehaviourAsync asyncHandler:
                     {
                         asyncHandler.GetDestinationState(source, args)
@@ -434,6 +435,7 @@ namespace Stateless
                             });
                         break;
                     }
+#endif
                 case DynamicTriggerBehaviour handler:
                     {
                         handler.GetDestinationState(source, args, out var destination);

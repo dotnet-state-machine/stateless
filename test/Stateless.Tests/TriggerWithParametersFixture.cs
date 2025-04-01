@@ -63,6 +63,8 @@ namespace Stateless.Tests
                 .PermitDynamicIf(pressTrigger, state => state);
         }
 
+#if TASKS
+
         /// <summary>
         /// issue #380 - default params on PermitIfDynamic lead to ambiguity at compile time... explicits work properly.
         /// </summary>
@@ -75,6 +77,7 @@ namespace Stateless.Tests
             fsm.Configure(State.A)
                 .PermitDynamicIfAsync(pressTrigger, state => Task.FromResult(state));
         }
+#endif
 
         [Fact]
         public void IncompatibleParameterListIsNotValid()

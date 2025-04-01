@@ -1,3 +1,4 @@
+#if TASKS
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -360,3 +361,4 @@ namespace Stateless.Tests
         }
     }
 }
+#endif
