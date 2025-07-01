@@ -121,6 +121,24 @@ namespace Stateless.Tests
         }
 
         [Fact]
+        public async Task CanFireAsyncEntryActionPermitIfAsync()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .PermitIfAsync(Trigger.X, State.B, async () => await Task.FromResult(true));
+
+            var test = "";
+            sm.Configure(State.B)
+                .OnEntryAsync(() => Task.Run(() => test = "foo"));
+
+            await sm.FireAsync(Trigger.X).ConfigureAwait(false);
+
+            Assert.Equal("foo", test); // Should await action
+            Assert.Equal(State.B, sm.State); // Should transition to destination state
+        }
+
+        [Fact]
         public void WhenSyncFireAsyncEntryAction()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -387,6 +405,32 @@ namespace Stateless.Tests
             sm.Configure(State.B)
                 .OnEntryAsync(t => Task.Run(() => onEntryStateBfired = true))
                 .PermitReentry(Trigger.X)
+                .OnExitAsync(t => Task.Run(() => onExitStateBfired = true));
+
+            sm.Configure(State.A)
+                .SubstateOf(State.B)
+                .OnExitAsync(t => Task.Run(() => onExitStateAfired = true));
+
+            await sm.FireAsync(Trigger.X).ConfigureAwait(false);
+
+            Assert.Equal(State.B, sm.State);
+            Assert.True(onExitStateAfired);
+            Assert.True(onExitStateBfired);
+            Assert.True(onEntryStateBfired);
+        }
+
+        [Fact]
+        public async void IfSelfTransitionPermittedAsync_ActionsFire_InSubstate_async()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            bool onEntryStateBfired = false;
+            bool onExitStateBfired = false;
+            bool onExitStateAfired = false;
+
+            sm.Configure(State.B)
+                .OnEntryAsync(t => Task.Run(() => onEntryStateBfired = true))
+                .PermitReentryIfAsync(Trigger.X, async () => await Task.FromResult(true))
                 .OnExitAsync(t => Task.Run(() => onExitStateBfired = true));
 
             sm.Configure(State.A)
