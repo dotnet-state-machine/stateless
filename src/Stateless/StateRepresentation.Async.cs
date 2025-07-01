@@ -1,6 +1,8 @@
 #if TASKS
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Stateless
@@ -9,6 +11,7 @@ namespace Stateless
     {
         internal partial class StateRepresentation
         {
+            internal IDictionary<TTrigger, ICollection<TriggerBehaviourAsync>> TriggerBehavioursAsync { get; } = new Dictionary<TTrigger, ICollection<TriggerBehaviourAsync>>();
             public void AddActivateAction(Func<Task> action, Reflection.InvocationInfo activateActionDescription)
             {
                 ActivateActions.Add(new ActivateActionBehaviour.Async(_state, action, activateActionDescription));
@@ -129,6 +132,104 @@ namespace Stateless
             {
                 foreach (var action in ExitActions)
                     await action.ExecuteAsync(transition).ConfigureAwait(_retainSynchronizationContext);
+            }
+
+            public void AddTriggerBehaviourAsync(TriggerBehaviourAsync triggerBehaviour)
+            {
+                if (!TriggerBehavioursAsync.TryGetValue(triggerBehaviour.Trigger, out ICollection<TriggerBehaviourAsync> allowed))
+                {
+                    allowed = new List<TriggerBehaviourAsync>();
+                    TriggerBehavioursAsync.Add(triggerBehaviour.Trigger, allowed);
+                }
+                allowed.Add(triggerBehaviour);
+            }
+
+            public async Task<List<TTrigger>> GetAsyncTriggers(params object[] args)
+            {
+                var syncResult = new List<TTrigger>();
+
+                foreach (var triggerBehaviour in TriggerBehavioursAsync)
+                {
+                    foreach (var value in triggerBehaviour.Value)
+                    {
+                        if (!(await value.UnmetGuardConditions(args)).Any())
+                        {
+                            syncResult.Add(triggerBehaviour.Key);
+                            break; // Exit inner loop once a match is found
+                        }
+                    }
+                }
+
+                return syncResult;
+            }
+
+
+            public async Task<List<TTrigger>> GetPermittedTriggersAsync(params object[] args)
+            {
+                var resultList = new List<TTrigger>();
+
+                var syncResult = TriggerBehaviours
+                    .Where(t => t.Value.Any(a => !a.UnmetGuardConditions(args).Any()))
+                    .Select(t => t.Key);
+
+                resultList.AddRange(syncResult);
+
+                var asyncTriggers = await GetAsyncTriggers(args);
+                resultList.AddRange(asyncTriggers);
+
+                
+                if (Superstate != null)
+                {
+                    var superStatePermittedTriggers = await Superstate.GetPermittedTriggersAsync(args);
+                    resultList = resultList.Union(superStatePermittedTriggers).ToList();
+                }
+
+                return resultList;
+            }
+
+            public async Task<TriggerBehaviourResult> TryFindHandlerAsync(TTrigger trigger, object[] args)
+            {
+                var localHandlerFound = await TryFindLocalHandlerAsync(trigger, args);
+
+                var superstateHandlerFound = Superstate != null
+                    ? await Superstate.TryFindHandlerAsync(trigger, args)
+                    : null;
+
+                return superstateHandlerFound ?? localHandlerFound;
+            }
+
+            private async Task<TriggerBehaviourResult> TryFindLocalHandlerAsync(TTrigger trigger, object[] args)
+            {
+                // Get list of candidate trigger handlers
+                var syncTriggerNotFound = !TriggerBehaviours.TryGetValue(trigger, out var syncTriggers);
+                var asyncTriggerNotFound = !TriggerBehavioursAsync.TryGetValue(trigger, out var asyncTriggers);
+
+                if (syncTriggerNotFound && asyncTriggerNotFound) return null;
+
+                // Guard functions are executed here
+                var actualSync = syncTriggers?
+                    .Select(h => new TriggerBehaviourResult(h, h.UnmetGuardConditions(args)))
+                    .ToArray();
+
+                var handleResultSync = actualSync != null ? TryFindLocalHandlerResult(trigger, actualSync) ?? TryFindLocalHandlerResultWithUnmetGuardConditions(actualSync) : null;
+
+                var asyncTriggerBehaviourResult = new List<TriggerBehaviourResult>();
+
+                TriggerBehaviourResult handleResultAsync = null;
+
+                if (asyncTriggers != null)
+                {
+                    foreach (var asyncTrigger in asyncTriggers)
+                    {
+                        var unmetGuardConditions = await asyncTrigger.UnmetGuardConditions(args);
+                        asyncTriggerBehaviourResult.Add(new TriggerBehaviourResult(asyncTrigger, unmetGuardConditions));
+                    }
+
+                    handleResultAsync = TryFindLocalHandlerResult(trigger, asyncTriggerBehaviourResult) ?? TryFindLocalHandlerResultWithUnmetGuardConditions(asyncTriggerBehaviourResult);
+                }
+               
+
+                return handleResultSync ?? handleResultAsync;
             }
         }
     }

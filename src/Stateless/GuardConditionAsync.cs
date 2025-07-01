@@ -1,0 +1,40 @@
+﻿using System;
+using System.Threading.Tasks;
+
+namespace Stateless
+{
+    public partial class StateMachine<TState, TTrigger>
+    {
+        internal class GuardConditionAsync
+        {
+            Reflection.InvocationInfo _methodDescription;
+
+            /// <summary>
+            /// Constructor that takes in a guard with no argument.
+            /// This is needed because we wrap the no-arg guard with a lambda and therefore method description won't match what was originally passed in.
+            /// We need to preserve the method description before wrapping so Reflection methods will work.
+            /// </summary>
+            /// <param name="guard">No Argument Guard Condition</param>
+            /// <param name="description"></param>
+            internal GuardConditionAsync(Func<Task<bool>> guard, Reflection.InvocationInfo description)
+                : this(args => guard(), description)
+            {
+            }
+
+            internal GuardConditionAsync(Func<object[], Task<bool>> guard, Reflection.InvocationInfo description)
+            {
+                GuardAsync = guard ?? throw new ArgumentNullException(nameof(guard));
+                _methodDescription = description ?? throw new ArgumentNullException(nameof(description));
+            }
+
+            internal Func<object[], Task<bool>> GuardAsync { get; }
+
+            // Return the description of the guard method: the caller-defined description if one
+            // was provided, else the name of the method itself
+            internal string Description => _methodDescription.Description;
+
+            // Return a more complete description of the guard method
+            internal Reflection.InvocationInfo MethodDescription => _methodDescription;
+        }
+    }
+}

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Stateless
 {
@@ -122,7 +123,7 @@ namespace Stateless
         /// <summary>
         /// The currently-permissible trigger values.
         /// </summary>
-        public IEnumerable<TTrigger> PermittedTriggers
+        public Task<IEnumerable<TTrigger>> PermittedTriggers
         {
             get
             {
@@ -133,17 +134,17 @@ namespace Stateless
         /// <summary>
         /// The currently-permissible trigger values.
         /// </summary>
-        public IEnumerable<TTrigger> GetPermittedTriggers(params object[] args)
+        public async Task<IEnumerable<TTrigger>> GetPermittedTriggers(params object[] args)
         {
-            return CurrentRepresentation.GetPermittedTriggers(args);
+            return await CurrentRepresentation.GetPermittedTriggersAsync(args);
         }
 
         /// <summary>
         /// Gets the currently-permissible triggers with any configured parameters.
         /// </summary>
-        public IEnumerable<TriggerDetails<TState, TTrigger>> GetDetailedPermittedTriggers(params object[] args)
+        public async Task<IEnumerable<TriggerDetails<TState, TTrigger>>> GetDetailedPermittedTriggers(params object[] args)
         {
-            return CurrentRepresentation.GetPermittedTriggers(args)
+            return (await CurrentRepresentation.GetPermittedTriggersAsync(args))
                 .Select(trigger => new TriggerDetails<TState, TTrigger>(trigger, _triggerConfiguration));
         }
 
@@ -729,7 +730,7 @@ namespace Stateless
             return string.Format(
                 "StateMachine {{ State = {0}, PermittedTriggers = {{ {1} }}}}",
                 State,
-                string.Join(", ", GetPermittedTriggers().Select(t => t.ToString()).ToArray()));
+                string.Join(", ", GetPermittedTriggers().GetAwaiter().GetResult().Select(t => t.ToString()).ToArray()));
         }
 
         /// <summary>

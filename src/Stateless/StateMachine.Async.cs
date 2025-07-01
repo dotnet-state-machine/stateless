@@ -199,13 +199,34 @@ namespace Stateless
             var representativeState = GetRepresentation(source);
 
             // Try to find a trigger handler, either in the current state or a super state.
-            if (!representativeState.TryFindHandler(trigger, args, out TriggerBehaviourResult result))
+            var foundHandler = await representativeState.TryFindHandlerAsync(trigger, args);
+
+            if (foundHandler == null || foundHandler.UnmetGuardConditions.Any())
             {
-                await _unhandledTriggerAction.ExecuteAsync(representativeState.UnderlyingState, trigger, result?.UnmetGuardConditions);
+                await _unhandledTriggerAction.ExecuteAsync(representativeState.UnderlyingState, trigger, null);
                 return;
             }
 
-            switch (result.Handler)
+            if (foundHandler.Handler != null)
+            {
+                await ProcessHandler(foundHandler.Handler, trigger, args);
+            }
+            else if (foundHandler.HandlerAsync != null)
+            {
+                await ProcessHandler(foundHandler.HandlerAsync, trigger, args);
+            }
+            else
+            {
+                throw new InvalidOperationException("TriggerBehaviourResult found, but no suitable Handler");
+            }
+        }
+
+        private async Task ProcessHandler<TTriggerBehaviour>(TTriggerBehaviour triggerBehaviour, TTrigger trigger, object[] args) where TTriggerBehaviour : TriggerBehaviourBase
+        {
+            var source = State;
+            var representativeState = GetRepresentation(source);
+
+            switch (triggerBehaviour)
             {
                 // Check if this trigger should be ignored
                 case IgnoredTriggerBehaviour _:
@@ -219,6 +240,13 @@ namespace Stateless
                         await HandleReentryTriggerAsync(args, representativeState, transition);
                         break;
                     }
+                case ReentryTriggerBehaviourAsync handler:
+                {
+                    // Handle transition, and set new state
+                    var transition = new Transition(source, handler.Destination, trigger, args);
+                    await HandleReentryTriggerAsync(args, representativeState, transition);
+                    break;
+                }
                 case DynamicTriggerBehaviourAsync asyncHandler:
                     {
                         var destination = await asyncHandler.GetDestinationState(source, args);
@@ -249,6 +277,18 @@ namespace Stateless
 
                         break;
                     }
+                case TransitioningTriggerBehaviourAsync handler:
+                {
+                    // If a trigger was found on a superstate that would cause unintended reentry, don't trigger.
+                    if (source.Equals(handler.Destination))
+                        break;
+
+                    // Handle transition, and set new state
+                    var transition = new Transition(source, handler.Destination, trigger, args);
+                    await HandleTransitioningTriggerAsync(args, representativeState, transition);
+
+                    break;
+                }
                 case InternalTriggerBehaviour itb:
                     {
                         // Internal transitions does not update the current state, but must execute the associated action.
@@ -258,10 +298,10 @@ namespace Stateless
                             await ita.ExecuteAsync(transition, args);
                         else
                             if (RetainSynchronizationContext)
-                                await Task.Factory.StartNew(() => itb.Execute(transition, args),
-                                    CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.FromCurrentSynchronizationContext());
-                            else
-                                await Task.Run(() => itb.Execute(transition, args));
+                            await Task.Factory.StartNew(() => itb.Execute(transition, args),
+                                CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.FromCurrentSynchronizationContext());
+                        else
+                            await Task.Run(() => itb.Execute(transition, args));
                         break;
                     }
                 default:
@@ -303,7 +343,7 @@ namespace Stateless
 
             //Alert all listeners of state transition
             await _onTransitionedEvent.InvokeAsync(transition, RetainSynchronizationContext);
-            var representation =await EnterStateAsync(newRepresentation, transition, args);
+            var representation = await EnterStateAsync(newRepresentation, transition, args);
 
             // Check if state has changed by entering new state (by firing triggers in OnEntry or such)
             if (!representation.UnderlyingState.Equals(State))

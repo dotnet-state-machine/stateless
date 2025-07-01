@@ -204,16 +204,16 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        public void ConditionalInternalTransition_ShouldBeReflectedInPermittedTriggers()
+        public async Task ConditionalInternalTransition_ShouldBeReflectedInPermittedTriggers()
         {
             var isPermitted = true;
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.A)
                 .InternalTransitionIf(Trigger.X, u => isPermitted, t => { });
 
-            Assert.Equal(1, sm.GetPermittedTriggers().ToArray().Length);
+            Assert.Equal(1, (await sm.GetPermittedTriggers()).ToArray().Length);
             isPermitted = false;
-            Assert.Equal(0, sm.GetPermittedTriggers().ToArray().Length);
+            Assert.Equal(0, (await sm.GetPermittedTriggers()).ToArray().Length);
         }
 
         [Fact]
