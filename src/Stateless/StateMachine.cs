@@ -123,20 +123,16 @@ namespace Stateless
         /// <summary>
         /// The currently-permissible trigger values.
         /// </summary>
-        public Task<IEnumerable<TTrigger>> PermittedTriggers
-        {
-            get
-            {
-                return GetPermittedTriggers();
-            }
-        }
+        [Obsolete("Kept for compatibility purposes. Recommended to use PermittedTriggersAsync instead")]
+        public IEnumerable<TTrigger> PermittedTriggers => GetPermittedTriggers();
 
         /// <summary>
         /// The currently-permissible trigger values.
         /// </summary>
-        public async Task<IEnumerable<TTrigger>> GetPermittedTriggers(params object[] args)
+        [Obsolete("Kept for compatibility purposes. Recommended to use GetPermittedTriggersAsync instead")]
+        public IEnumerable<TTrigger> GetPermittedTriggers(params object[] args)
         {
-            return await CurrentRepresentation.GetPermittedTriggersAsync(args);
+            return Task.Run(() => CurrentRepresentation.GetPermittedTriggersAsync(args)).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -730,7 +726,7 @@ namespace Stateless
             return string.Format(
                 "StateMachine {{ State = {0}, PermittedTriggers = {{ {1} }}}}",
                 State,
-                string.Join(", ", GetPermittedTriggers().GetAwaiter().GetResult().Select(t => t.ToString()).ToArray()));
+                string.Join(", ", Task.Run(() => GetPermittedTriggersAsync()).GetAwaiter().GetResult().Select(t => t.ToString()).ToArray()));
         }
 
         /// <summary>

@@ -33,6 +33,19 @@ namespace Stateless
         }
 
         /// <summary>
+        /// The currently-permissible trigger values.
+        /// </summary>
+        public Task<IEnumerable<TTrigger>> PermittedTriggersAsync => GetPermittedTriggersAsync();
+
+        /// <summary>
+        /// The currently-permissible trigger values.
+        /// </summary>
+        public async Task<IEnumerable<TTrigger>> GetPermittedTriggersAsync(params object[] args)
+        {
+            return await CurrentRepresentation.GetPermittedTriggersAsync(args);
+        }
+
+        /// <summary>
         /// Transition from the current state via the specified trigger in async fashion.
         /// The target state is determined by the configuration of the current state.
         /// Actions associated with leaving the current state and entering the new one
