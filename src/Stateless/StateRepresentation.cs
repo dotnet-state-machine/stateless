@@ -309,27 +309,7 @@ namespace Stateless
                     _state.Equals(state) ||
                     (_superstate != null && _superstate.IsIncludedIn(state));
             }
-
-			public IEnumerable<TTrigger> PermittedTriggers
-			{
-				get
-				{
-					return GetPermittedTriggers();
-				}
-			}
-
-            public IEnumerable<TTrigger> GetPermittedTriggers(params object[] args)
-            {
-                var result = TriggerBehaviours
-                    .Where(t => t.Value.Any(a => !a.UnmetGuardConditions(args).Any()))
-                    .Select(t => t.Key);
-
-                if (Superstate != null)
-                    result = result.Union(Superstate.GetPermittedTriggers(args));
-
-                return result;
-            }
-
+            
             internal void SetInitialTransition(TState state)
             {
                 InitialTransitionTarget = state;

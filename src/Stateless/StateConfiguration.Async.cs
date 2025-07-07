@@ -1062,6 +1062,362 @@ namespace Stateless
                     new TransitionGuard(TransitionGuard.ToPackedGuards(guards)),
                     possibleDestinationStates);
             }
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationState">The state that the trigger will cause a
+            /// transition to.</param>
+            /// <param name="guard">Function that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <param name="guardDescription">Guard description</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration PermitIfAsync(TTrigger trigger, TState destinationState, Func<Task<bool>> guard, string guardDescription = null)
+            {
+                EnforceNotIdentityTransition(destinationState);
+
+                return InternalPermitIfAsync(
+                    trigger,
+                    destinationState,
+                    new TransitionGuardAsync(guard, guardDescription));
+            }
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="guards">Functions and their descriptions that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <param name="destinationState">State of the destination.</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration PermitIfAsync(TTrigger trigger, TState destinationState, params Tuple<Func<Task<bool>>, string>[] guards)
+            {
+                EnforceNotIdentityTransition(destinationState);
+
+                return InternalPermitIfAsync(
+                    trigger,
+                    destinationState,
+                    new TransitionGuardAsync(guards));
+            }
+
+            /// <summary>
+            ///  Accept the specified trigger, transition to the destination state, and guard condition. 
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationState">The state that the trigger will cause a
+            /// transition to.</param>
+            /// <param name="guard">Function that must return true in order for the
+            /// trigger to be accepted. Takes a single argument of type TArg0</param>
+            /// <param name="guardDescription">Guard description</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration PermitIfAsync<TArg0>(TriggerWithParameters<TArg0> trigger, TState destinationState, Func<TArg0, Task<bool>> guard, string guardDescription = null)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                EnforceNotIdentityTransition(destinationState);
+
+                return InternalPermitIfAsync(
+                    trigger.Trigger,
+                    destinationState,
+                    new TransitionGuardAsync(TransitionGuardAsync.ToPackedGuard(guard), guardDescription));
+            }
+
+            /// <summary>
+            /// Accept the specified trigger, transition to the destination state, and guard conditions.
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="guards">Functions and their descriptions that must return true in order for the
+            /// trigger to be accepted. Functions take a single argument of type TArg0.</param>
+            /// <param name="destinationState">State of the destination.</param>
+            /// <returns>The receiver.</returns>
+            /// <returns></returns>
+            public StateConfiguration PermitIfAsync<TArg0>(TriggerWithParameters<TArg0> trigger, TState destinationState, params Tuple<Func<TArg0, Task<bool>>, string>[] guards)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                EnforceNotIdentityTransition(destinationState);
+
+                return InternalPermitIfAsync(
+                    trigger.Trigger,
+                    destinationState,
+                    new TransitionGuardAsync(TransitionGuardAsync.ToPackedGuards(guards))
+                );
+            }
+
+            /// <summary>
+            ///  Accept the specified trigger, transition to the destination state, and guard condition. 
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <typeparam name="TArg1"></typeparam>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationState">The state that the trigger will cause a
+            /// transition to.</param>
+            /// <param name="guard">Function that must return true in order for the
+            /// trigger to be accepted. Takes a single argument of type TArg0</param>
+            /// <param name="guardDescription">Guard description</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration PermitIfAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, TState destinationState, Func<TArg0, TArg1, Task<bool>> guard, string guardDescription = null)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                EnforceNotIdentityTransition(destinationState);
+
+                return InternalPermitIfAsync(
+                    trigger.Trigger,
+                    destinationState,
+                    new TransitionGuardAsync(TransitionGuardAsync.ToPackedGuard(guard), guardDescription));
+            }
+
+            /// <summary>
+            ///  Accept the specified trigger, transition to the destination state, and guard condition. 
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <typeparam name="TArg1"></typeparam>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="guards">Functions and their descriptions that must return true in order for the
+            /// trigger to be accepted. Functions take a single argument of type TArg0.</param>
+            /// <param name="destinationState">State of the destination.</param>
+            /// <returns>The receiver.</returns>
+            /// <returns></returns>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration PermitIfAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, TState destinationState, params Tuple<Func<TArg0, TArg1, Task<bool>>, string>[] guards)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                EnforceNotIdentityTransition(destinationState);
+
+                return InternalPermitIfAsync(
+                    trigger.Trigger,
+                    destinationState,
+                    new TransitionGuardAsync(TransitionGuardAsync.ToPackedGuards(guards))
+                );
+            }
+
+            /// <summary>
+            ///  Accept the specified trigger, transition to the destination state, and guard condition. 
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <typeparam name="TArg1"></typeparam>
+            /// <typeparam name="TArg2"></typeparam>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationState">The state that the trigger will cause a
+            /// transition to.</param>
+            /// <param name="guard">Function that must return true in order for the
+            /// trigger to be accepted. Takes a single argument of type TArg0</param>
+            /// <param name="guardDescription">Guard description</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration PermitIfAsync<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, TState destinationState, Func<TArg0, TArg1, TArg2, Task<bool>> guard, string guardDescription = null)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                EnforceNotIdentityTransition(destinationState);
+
+                return InternalPermitIfAsync(
+                    trigger.Trigger,
+                    destinationState,
+                    new TransitionGuardAsync(TransitionGuardAsync.ToPackedGuard(guard), guardDescription));
+            }
+
+            /// <summary>
+            ///  Accept the specified trigger, transition to the destination state, and guard condition. 
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <typeparam name="TArg1"></typeparam>
+            /// <typeparam name="TArg2"></typeparam>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="guards">Functions and their descriptions that must return true in order for the
+            /// trigger to be accepted. Functions take a single argument of type TArg0.</param>
+            /// <param name="destinationState">State of the destination.</param>
+            /// <returns>The receiver.</returns>
+            /// <returns></returns>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration PermitIfAsync<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, TState destinationState, params Tuple<Func<TArg0, TArg1, TArg2, Task<bool>>, string>[] guards)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+                EnforceNotIdentityTransition(destinationState);
+
+                return InternalPermitIfAsync(
+                    trigger.Trigger,
+                    destinationState,
+                    new TransitionGuardAsync(TransitionGuardAsync.ToPackedGuards(guards))
+                );
+            }
+
+            /// <summary>
+            /// Accept the specified trigger, execute exit actions and re-execute entry actions.
+            /// Reentry behaves as though the configured state transitions to an identical sibling state.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="guard">Function that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <param name="guardDescription">Guard description</param>
+            /// <returns>The receiver.</returns>
+            /// <remarks>
+            /// Applies to the current state only. Will not re-execute superstate actions, or
+            /// cause actions to execute transitioning between super- and sub-states.
+            /// </remarks>
+            public StateConfiguration PermitReentryIfAsync(TTrigger trigger, Func<Task<bool>> guard, string guardDescription = null)
+            {
+                return InternalPermitReentryIfAsync(
+                    trigger,
+                    _representation.UnderlyingState,
+                    new TransitionGuardAsync(guard, guardDescription));
+            }
+
+            /// <summary>
+            /// Accept the specified trigger, execute exit actions and re-execute entry actions.
+            /// Reentry behaves as though the configured state transitions to an identical sibling state.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="guards">Functions and their descriptions that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <returns>The receiver.</returns>
+            /// <remarks>
+            /// Applies to the current state only. Will not re-execute superstate actions, or
+            /// cause actions to execute transitioning between super- and sub-states.
+            /// </remarks>
+            public StateConfiguration PermitReentryIfAsync(TTrigger trigger, params Tuple<Func<Task<bool>>, string>[] guards)
+            {
+                return InternalPermitReentryIfAsync(
+                    trigger,
+                    _representation.UnderlyingState,
+                    new TransitionGuardAsync(guards));
+            }
+
+            /// <summary>
+            ///  Accept the specified trigger, transition to the destination state, and guard condition. 
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="guard">Function that must return true in order for the
+            /// trigger to be accepted. Takes a single argument of type TArg0</param>
+            /// <param name="guardDescription">Guard description</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration PermitReentryIfAsync<TArg0>(TriggerWithParameters<TArg0> trigger, Func<TArg0, Task<bool>> guard, string guardDescription = null)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+
+                return InternalPermitReentryIfAsync(
+                    trigger.Trigger,
+                    _representation.UnderlyingState,
+                    new TransitionGuardAsync(TransitionGuardAsync.ToPackedGuard(guard), guardDescription)
+                );
+            }
+
+            /// <summary>
+            /// Accept the specified trigger, transition to the destination state, and guard conditions.
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="guards">Functions and their descriptions that must return true in order for the
+            /// trigger to be accepted. Functions take a single argument of type TArg0.</param>
+            /// <returns>The receiver.</returns>
+            /// <returns></returns>
+            public StateConfiguration PermitReentryIfAsync<TArg0>(TriggerWithParameters<TArg0> trigger, params Tuple<Func<TArg0, Task<bool>>, string>[] guards)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+
+                return InternalPermitReentryIfAsync(
+                    trigger.Trigger,
+                    _representation.UnderlyingState,
+                    new TransitionGuardAsync(TransitionGuardAsync.ToPackedGuards(guards))
+                );
+            }
+
+            /// <summary>
+            ///  Accept the specified trigger, transition to the destination state, and guard condition. 
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <typeparam name="TArg1"></typeparam>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="guard">Function that must return true in order for the
+            /// trigger to be accepted. Takes a single argument of type TArg0</param>
+            /// <param name="guardDescription">Guard description</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration PermitReentryIfAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, Func<TArg0, TArg1, Task<bool>> guard, string guardDescription = null)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+
+                return InternalPermitReentryIfAsync(
+                    trigger.Trigger,
+                    _representation.UnderlyingState,
+                    new TransitionGuardAsync(TransitionGuardAsync.ToPackedGuard(guard), guardDescription)
+                );
+            }
+
+            /// <summary>
+            ///  Accept the specified trigger, transition to the destination state, and guard condition. 
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <typeparam name="TArg1"></typeparam>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="guards">Functions and their descriptions that must return true in order for the
+            /// trigger to be accepted. Functions take a single argument of type TArg0.</param>
+            /// <returns>The receiver.</returns>
+            /// <returns></returns>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration PermitReentryIfAsync<TArg0, TArg1>(TriggerWithParameters<TArg0, TArg1> trigger, params Tuple<Func<TArg0, TArg1, Task<bool>>, string>[] guards)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+
+                return InternalPermitReentryIfAsync(
+                    trigger.Trigger,
+                    _representation.UnderlyingState,
+                    new TransitionGuardAsync(TransitionGuardAsync.ToPackedGuards(guards))
+                );
+            }
+
+            /// <summary>
+            ///  Accept the specified trigger, transition to the destination state, and guard condition. 
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <typeparam name="TArg1"></typeparam>
+            /// <typeparam name="TArg2"></typeparam>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="guard">Function that must return true in order for the
+            /// trigger to be accepted. Takes a single argument of type TArg0</param>
+            /// <param name="guardDescription">Guard description</param>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration PermitReentryIfAsync<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, Task<bool>> guard, string guardDescription = null)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+
+                return InternalPermitReentryIfAsync(
+                    trigger.Trigger,
+                    _representation.UnderlyingState,
+                    new TransitionGuardAsync(TransitionGuardAsync.ToPackedGuard(guard), guardDescription)
+                );
+            }
+
+            /// <summary>
+            ///  Accept the specified trigger, transition to the destination state, and guard condition. 
+            /// </summary>
+            /// <typeparam name="TArg0"></typeparam>
+            /// <typeparam name="TArg1"></typeparam>
+            /// <typeparam name="TArg2"></typeparam>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="guards">Functions and their descriptions that must return true in order for the
+            /// trigger to be accepted. Functions take a single argument of type TArg0.</param>
+            /// <returns>The receiver.</returns>
+            /// <returns></returns>
+            /// <returns>The receiver.</returns>
+            public StateConfiguration PermitReentryIfAsync<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, params Tuple<Func<TArg0, TArg1, TArg2, Task<bool>>, string>[] guards)
+            {
+                if (trigger == null) throw new ArgumentNullException(nameof(trigger));
+
+                return InternalPermitReentryIfAsync(
+                    trigger.Trigger,
+                    _representation.UnderlyingState,
+                    new TransitionGuardAsync(TransitionGuardAsync.ToPackedGuards(guards))
+                );
+            }
+
+            StateConfiguration InternalPermitIfAsync(TTrigger trigger, TState destinationState, TransitionGuardAsync transitionGuard)
+            {
+                _representation.AddTriggerBehaviourAsync(new TransitioningTriggerBehaviourAsync(trigger, destinationState, transitionGuard));
+                return this;
+            }
+            StateConfiguration InternalPermitReentryIfAsync(TTrigger trigger, TState destinationState, TransitionGuardAsync transitionGuard)
+            {
+                _representation.AddTriggerBehaviourAsync(new ReentryTriggerBehaviourAsync(trigger, destinationState, transitionGuard));
+                return this;
+            }
             StateConfiguration InternalPermitDynamicIfAsync(TTrigger trigger, Func<object[],Task<TState>> destinationStateSelector,
                 string destinationStateSelectorDescription, TransitionGuard transitionGuard, Reflection.DynamicStateInfos possibleDestinationStates)
             {

@@ -123,6 +123,12 @@ phoneCall.Configure(State.OffHook)
     .PermitIf(Trigger.CallDialled, State.Beeping, () => !IsValidNumber);
 ```
 
+```csharp
+phoneCall.Configure(State.OffHook)
+    .PermitIfAsync(Trigger.CallDialled, State.Ringing, async () => await IsValidNumber())
+    .PermitIfAsync(Trigger.CallDialled, State.Beeping, async () => !await IsValidNumber());
+```
+
 Guard clauses within a state must be mutually exclusive (multiple guard clauses cannot be valid at the same time.) Substates can override transitions by respecifying them, however substates cannot disallow transitions that are allowed by the superstate.
 
 The guard clauses will be evaluated whenever a trigger is fired. Guards should therefore be made side effect free.
@@ -158,6 +164,20 @@ Alternatively, a state can be marked reentrant. A reentrant state is one that ca
 ```csharp
 stateMachine.Configure(State.Assigned)
     .PermitReentry(Trigger.Assigned)
+    .OnEntry(() => SendEmailToAssignee());
+```
+
+A state can also have a conditional reentrant, both synchronous and asynchronous.
+
+```csharp
+stateMachine.Configure(State.Assigned)
+    .PermitReentryIf(Trigger.Assigned, () => ShouldSendEmailAgain())
+    .OnEntry(() => SendEmailToAssignee());
+```
+
+```csharp
+stateMachine.Configure(State.Assigned)
+    .PermitReentryIfAsync(Trigger.Assigned, async () => await ShouldSendEmailAgain())
     .OnEntry(() => SendEmailToAssignee());
 ```
 
