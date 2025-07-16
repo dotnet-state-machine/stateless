@@ -143,5 +143,20 @@ namespace Stateless.Graph
         {
             return label.Replace("\\", "\\\\").Replace("\"", "\\\"");
         }
+
+        /// <summary>
+        /// Generate the text for a initial state
+        /// </summary>
+        /// <param name="initialStateName">Name of state</param>
+        /// <returns></returns>
+        public override string FormatInitialState(string initialStateName)
+        {
+            string f = System.Environment.NewLine + $" init [label=\"\", shape=point];";
+            f += System.Environment.NewLine + $" init -> \"{initialStateName}\"[style = \"solid\"]";
+
+            f += System.Environment.NewLine + "}";
+
+            return f;
+        }
     }
 }

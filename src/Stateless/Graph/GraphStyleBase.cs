@@ -56,6 +56,13 @@ namespace Stateless.Graph
         public abstract string FormatOneDecisionNode(string nodeName, string label);
 
         /// <summary>
+        /// Returns the formatted text for a initial state.
+        /// </summary>
+        /// <param name="initialStateName"></param>
+        /// <returns></returns>
+        public abstract string FormatInitialState(string initialStateName);
+
+        /// <summary>
         /// Returns the formatted text for all the transitions found in the state graph.
         /// This form, which can be overridden, determines the type of each transition and passes the appropriate
         /// parameters to the virtual FormatOneTransition() function.
