@@ -7,9 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## 5.18.0 - 2025.08.02
 ### Added
  - Added support for `PermitIfAsync` and `PermitReentryIfAsync` methods to allow async guard conditions [#618], [#189]
- - Added `GetPermittedTriggersAsync` method as async alternative to `GetPermittedTriggers` [#618], [#189]
+ - Added `GetPermittedTriggersAsync` method as async alternative to `GetPermittedTriggers` [#618]
 ### Changed
- - Marked `PermittedTriggers`, `GetPermittedTriggers`, and `GetDetailedPermittedTriggers` as obsolete in favour of async versions [#618], [#189]
+ - Marked `PermittedTriggers`, `GetPermittedTriggers`, and `GetDetailedPermittedTriggers` as obsolete in favour of async versions [#618]
 
 ## 5.17.0 - 2024.12.30
 ### Changed
