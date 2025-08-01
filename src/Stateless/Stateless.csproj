@@ -8,7 +8,7 @@
     <Description>Create state machines and lightweight state machine-based workflows directly in .NET code</Description>
     <Copyright>Copyright © Stateless Contributors 2009-$([System.DateTime]::Now.ToString(yyyy))</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <VersionPrefix>5.17.0</VersionPrefix>
+    <VersionPrefix>5.18.0</VersionPrefix>
     <Authors>Stateless Contributors</Authors>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
