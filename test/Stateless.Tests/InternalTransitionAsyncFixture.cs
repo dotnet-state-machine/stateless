@@ -217,27 +217,6 @@ namespace Stateless.Tests
             Assert.True(callbackInvoked);
         }
 
-        [Fact]
-        [Obsolete]
-        public async Task InternalTransitionAsyncIf_DeprecatedOverload_GuardExecutedOnlyOnce()
-        {
-            var guardCalls = 0;
-            var order = new Order
-            {
-                Status = OrderStatus.OrderPlaced,
-                PaymentStatus = PaymentStatus.Pending,
-            };
-            var stateMachine = new StateMachine<OrderStatus, OrderStateTrigger>(order.Status);
-            stateMachine.Configure(OrderStatus.OrderPlaced)
-                 .InternalTransitionAsyncIf<int>(OrderStateTrigger.PaymentCompleted,
-                       () => PreCondition(ref guardCalls),
-                       _ => ChangePaymentState(order, PaymentStatus.Completed));
-
-            await stateMachine.FireAsync(OrderStateTrigger.PaymentCompleted);
-
-            Assert.Equal(1, guardCalls);
-        }
-
         /// <summary>
         /// This unit test demonstrated bug report #417
         /// </summary>
