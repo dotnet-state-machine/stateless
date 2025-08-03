@@ -11,7 +11,13 @@ namespace Stateless
                 Handler = handler;
                 UnmetGuardConditions = unmetGuardConditions;
             }
+            public TriggerBehaviourResult(TriggerBehaviourAsync handler, ICollection<string> unmetGuardConditions)
+            {
+                HandlerAsync = handler;
+                UnmetGuardConditions = unmetGuardConditions;
+            }
             public TriggerBehaviour Handler { get; }
+            public TriggerBehaviourAsync HandlerAsync { get; }
             public ICollection<string> UnmetGuardConditions { get; }
         }
     }

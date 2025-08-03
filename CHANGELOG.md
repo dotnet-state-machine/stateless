@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 5.18.0 - 2025.08.02
+### Added
+ - Added support for `PermitIfAsync` and `PermitReentryIfAsync` methods to allow async guard conditions [#618], [#189]
+ - Added `GetPermittedTriggersAsync` method as async alternative to `GetPermittedTriggers` [#618]
+### Changed
+ - Marked `PermittedTriggers`, `GetPermittedTriggers`, and `GetDetailedPermittedTriggers` as obsolete in favour of async versions [#618]
+
 ## 5.17.0 - 2024.12.30
 ### Changed
  - Use `PackageLicenseExpression` in csproj file [#583], [#584]
@@ -234,6 +241,7 @@ Version 5.10.0 is now listed as the newest, since it has the highest version num
 ### Removed
 ### Fixed
 
+[#618]: https://github.com/dotnet-state-machine/stateless/pull/618
 [#610]: https://github.com/dotnet-state-machine/stateless/pull/610
 [#604]: https://github.com/dotnet-state-machine/stateless/issues/604
 [#597]: https://github.com/dotnet-state-machine/stateless/pull/597
@@ -291,6 +299,7 @@ Version 5.10.0 is now listed as the newest, since it has the highest version num
 [#275]: https://github.com/dotnet-state-machine/stateless/issues/275
 [#267]: https://github.com/dotnet-state-machine/stateless/issues/267
 [#305]: https://github.com/dotnet-state-machine/stateless/issues/305
+[#189]: https://github.com/dotnet-state-machine/stateless/issues/189
 [4.2.0]: https://github.com/dotnet-state-machine/stateless/commit/8933fe58a3d2ab63bdf47f523df0b9639cd65c97
 [4.1.0]: https://github.com/dotnet-state-machine/stateless/compare/bb742e8d40ceaacb219695875dfe38670ac77e28...daef9cb2897e18f25e85dd27fb80e549369bdfac
 [4.0.0]: https://github.com/dotnet-state-machine/stateless/compare/23624d88e684d9984e5b5fdbc3d4aba601bdd1a4...bb742e8d40ceaacb219695875dfe38670ac77e28
