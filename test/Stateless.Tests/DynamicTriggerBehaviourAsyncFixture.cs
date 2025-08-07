@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if TASKS
+using System;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -166,3 +167,4 @@ namespace Stateless.Tests
         }
     }
 }
+#endif

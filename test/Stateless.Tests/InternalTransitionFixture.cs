@@ -288,6 +288,7 @@ namespace Stateless.Tests
 
             Assert.Equal(2, handled);
         }
+#if Task
         [Fact]
         public async Task AsyncHandlesNonAsyndActionAsync()
         {
@@ -302,5 +303,6 @@ namespace Stateless.Tests
 
             Assert.True(handled);
         }
+#endif
     }
 }
