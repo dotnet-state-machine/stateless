@@ -20,7 +20,7 @@
         /// </summary>
         public override string ToString()
         {
-            return UnderlyingTrigger?.ToString() ?? "<null>";
+            return UnderlyingTrigger?.ToString() ?? SpecialConstants.NullString;
         }
     }
 }
