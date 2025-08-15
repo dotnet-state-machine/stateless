@@ -66,18 +66,21 @@ namespace Stateless.Graph
         public override string GetPrefix()
         {
             BuildSanitizedNamedStateMap();
-            string prefix = "stateDiagram-v2";
+
+            StringBuilder sb = new StringBuilder("stateDiagram-v2");
             if (_direction.HasValue)
             {
-                prefix += $"{Environment.NewLine}\tdirection {GetDirectionCode(_direction.Value)}";
+                sb.AppendLine();
+                sb.Append($"\tdirection {GetDirectionCode(_direction.Value)}");
             }
 
             foreach (var state in _stateMap.Where(x => !x.Key.Equals(x.Value.StateName, StringComparison.Ordinal)))
             {
-                prefix += $"{Environment.NewLine}\t{state.Key} : {state.Value.StateName}";
+                sb.AppendLine();
+                sb.Append($"\t{state.Key} : {state.Value.StateName}");
             }
 
-            return prefix;
+            return sb.ToString();
         }
 
         /// <inheritdoc/>
@@ -91,25 +94,29 @@ namespace Stateless.Graph
         /// <inheritdoc/>
         public override string FormatOneTransition(string sourceNodeName, string trigger, IEnumerable<string> actions, string destinationNodeName, IEnumerable<string> guards)
         {
-            string label = trigger ?? "";
+            StringBuilder sb = new StringBuilder(trigger ?? string.Empty);
 
             if (actions?.Count() > 0)
-                label += " / " + string.Join(", ", actions);
+            {
+                sb.Append(" / ");
+                sb.Append(string.Join(", ", actions));
+            }
 
             if (guards.Any())
             {
                 foreach (var info in guards)
                 {
-                    if (label.Length > 0)
-                        label += " ";
-                    label += "[" + info + "]";
+                    if (sb.Length > 0)
+                        sb.Append(" ");
+
+                    sb.Append("[" + info + "]");
                 }
             }
 
             var sanitizedSourceNodeName = GetSanitizedStateName(sourceNodeName);
             var sanitizedDestinationNodeName = GetSanitizedStateName(destinationNodeName);
 
-            return FormatOneLine(sanitizedSourceNodeName, sanitizedDestinationNodeName, label);
+            return FormatOneLine(sanitizedSourceNodeName, sanitizedDestinationNodeName, sb.ToString());
         }
 
         internal string FormatOneLine(string fromNodeName, string toNodeName, string label)
