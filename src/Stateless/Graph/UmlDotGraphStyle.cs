@@ -76,7 +76,7 @@ namespace Stateless.Graph
             es.AddRange(state.EntryActions.Select(act => "entry / " + EscapeLabel(act)));
             es.AddRange(state.ExitActions.Select(act => "exit / " + EscapeLabel(act)));
 
-            sb.Append(string.Join("\\", es));
+            sb.Append(string.Join("\\n", es));
             sb.Append($"\"];{Environment.NewLine}");
 
             return sb.ToString();
@@ -89,7 +89,7 @@ namespace Stateless.Graph
         /// <inheritdoc/>
         public override string FormatOneTransition(string sourceNodeName, string trigger, IEnumerable<string> actions, string destinationNodeName, IEnumerable<string> guards)
         {
-            StringBuilder sb = new StringBuilder(trigger ?? "");
+            StringBuilder sb = new StringBuilder(trigger ?? string.Empty);
 
             if (actions?.Count() > 0)
             {
@@ -131,11 +131,11 @@ namespace Stateless.Graph
             var initialStateName = initialState.UnderlyingState.ToString();
 
             StringBuilder sb = new StringBuilder();
-            sb.Append(Environment.NewLine);
+            sb.AppendLine();
             sb.Append($" init [label=\"\", shape=point];");
-            sb.Append(Environment.NewLine);
+            sb.AppendLine();
             sb.Append($" init -> \"{EscapeLabel(initialStateName)}\"[style = \"solid\"]");
-            sb.Append(Environment.NewLine);
+            sb.AppendLine();
             sb.Append("}");
 
             return sb.ToString();
