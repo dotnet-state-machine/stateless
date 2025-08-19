@@ -33,12 +33,37 @@ namespace Stateless
 
             public void Register(Action<Transition> action)
             {
+                // Prevent double subscription from happening on the same action callback.
+                _onTransitioned -= action;
                 _onTransitioned += action;
             }
 
             public void Register(Func<Transition, Task> action)
             {
                 _onTransitionedAsync.Add(action);
+            }
+
+            public void Unregister(Action<Transition> action)
+            {
+                _onTransitioned -= action;
+            }
+
+            public void Unregister(Func<Transition, Task> action)
+            {
+                _onTransitionedAsync.Remove(action);
+            }
+
+            public void UnregisterAll()
+            {
+                if (_onTransitioned != null)
+                {
+                    foreach (Delegate eventHandler in _onTransitioned.GetInvocationList())
+                    {
+                        _onTransitioned -= (Action<Transition>)eventHandler;
+                    }
+                }
+
+                _onTransitionedAsync.Clear();
             }
         }
     }
