@@ -6,11 +6,11 @@ namespace Stateless
 {
     public partial class StateMachine<TState, TTrigger>
     {
-        class OnTransitionedEvent
+        internal class OnTransitionedEvent
         {
             event Action<Transition> _onTransitioned;
             readonly List<Func<Transition, Task>> _onTransitionedAsync = new List<Func<Transition, Task>>();
-            
+
             public void Invoke(Transition transition)
             {
                 if (_onTransitionedAsync.Count != 0)
@@ -33,19 +33,22 @@ namespace Stateless
 
             public void Register(Action<Transition> action)
             {
-                // Prevent double subscription from happening on the same action callback.
                 _onTransitioned -= action;
                 _onTransitioned += action;
             }
 
             public void Register(Func<Transition, Task> action)
             {
+                _onTransitionedAsync.Remove(action);
                 _onTransitionedAsync.Add(action);
             }
 
             public void Unregister(Action<Transition> action)
             {
-                _onTransitioned -= action;
+                if (_onTransitioned != null)
+                {
+                    _onTransitioned -= action;
+                }
             }
 
             public void Unregister(Func<Transition, Task> action)
