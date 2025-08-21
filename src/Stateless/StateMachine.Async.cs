@@ -202,7 +202,7 @@ namespace Stateless
             }
         }
 
-        async Task InternalFireOneAsync(TTrigger trigger, params object[] args)
+        private async Task InternalFireOneAsync(TTrigger trigger, params object[] args)
         {
             // If this is a trigger with parameters, we must validate the parameter(s)
             if (_triggerConfiguration.TryGetValue(trigger, out TriggerWithParameters configuration))
