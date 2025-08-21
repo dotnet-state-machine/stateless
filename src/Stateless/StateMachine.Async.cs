@@ -468,7 +468,7 @@ namespace Stateless
         /// </summary>
         /// <param name="onTransitionAction"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public void OnTransitionCompletedUnregister(Func<Transition, Task> onTransitionAction)
+        public void OnTransitionCompletedAsyncUnregister(Func<Transition, Task> onTransitionAction)
         {
             if (onTransitionAction == null) throw new ArgumentNullException(nameof(onTransitionAction));
             _onTransitionCompletedEvent.Unregister(onTransitionAction);
