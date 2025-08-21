@@ -8,7 +8,7 @@ using static Stateless.StateMachine<object, object>;
 
 namespace Stateless.Tests
 {
-    public class OnTransitionedEventTest : IDisposable
+    public class OnTransitionedEventTests : IDisposable
     {
         private readonly OnTransitionedEvent subject;
 
@@ -20,7 +20,7 @@ namespace Stateless.Tests
 
         private int transitionCounter = 0;
 
-        public OnTransitionedEventTest()
+        public OnTransitionedEventTests()
         {
             subject = new OnTransitionedEvent();
 
