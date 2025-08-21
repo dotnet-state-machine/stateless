@@ -64,8 +64,11 @@ namespace Stateless.Graph
         /// <returns>Description of all transitions, in the desired format.</returns>
         public virtual List<string> FormatAllTransitions(List<Transition> transitions)
         {
-            List<string> lines = new List<string>();
-            if (transitions == null) return lines;
+            if (transitions == null)
+                return new List<string>();
+
+            // Eagerly set the initial capacity to minimize re-allocation of internal array.
+            List<string> lines = new List<string>(transitions.Count);
 
             foreach (var transit in transitions)
             {
@@ -84,26 +87,23 @@ namespace Stateless.Graph
                             stay.SourceState.NodeName, stay.Guards.Select(x => x.Description));
                     }
                 }
-                else
+                else if (transit is FixedTransition fix)
                 {
-                    if (transit is FixedTransition fix)
-                    {
-                        line = FormatOneTransition(fix.SourceState.NodeName, fix.Trigger.UnderlyingTrigger.ToString(),
+                    line = FormatOneTransition(fix.SourceState.NodeName, fix.Trigger.UnderlyingTrigger.ToString(),
                             fix.DestinationEntryActions.Select(x => x.Method.Description),
                             fix.DestinationState.NodeName, fix.Guards.Select(x => x.Description));
-                    }
-                    else
-                    {
-                        if (transit is DynamicTransition dyn)
-                        {
-                            line = FormatOneTransition(dyn.SourceState.NodeName, dyn.Trigger.UnderlyingTrigger.ToString(),
+                }
+                else if (transit is DynamicTransition dyn)
+                {
+                    line = FormatOneTransition(dyn.SourceState.NodeName, dyn.Trigger.UnderlyingTrigger.ToString(),
                                 dyn.DestinationEntryActions.Select(x => x.Method.Description),
                                 dyn.DestinationState.NodeName, new List<string> { dyn.Criterion });
-                        }
-                        else
-                            throw new ArgumentException("Unexpected transition type");
-                    }
                 }
+                else
+                {
+                    throw new ArgumentException("Unexpected transition type");
+                }
+
                 if (line != null)
                     lines.Add(line);
             }

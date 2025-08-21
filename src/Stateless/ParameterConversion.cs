@@ -11,7 +11,7 @@ namespace Stateless
             if (args.Length == 0)
                 return null;
             
-            if (args.Length <= index)
+            if (args.Length <= index || index < 0)
                 throw new ArgumentException(
                     string.Format(ParameterConversionResources.ArgOfTypeRequiredInPosition, argType, index));
 
