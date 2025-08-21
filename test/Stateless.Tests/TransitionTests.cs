@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Stateless.Tests
 {
-    public class TransitionFixture
+    public class TransitionTests
     {
         [Fact]
         public void IsReentry_ShouldBeTrue_WhenSourceAndDestinationAreEqual()
