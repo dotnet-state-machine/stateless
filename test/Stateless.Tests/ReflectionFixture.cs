@@ -1033,7 +1033,7 @@ namespace Stateless.Tests
         {
             var invocationInfo = new InvocationInfo(null, null, InvocationInfo.Timing.Synchronous);
 
-            Assert.Equal("<null>", invocationInfo.Description);
+            Assert.Equal(SpecialConstants.NullString, invocationInfo.Description);
         }
     }
 }

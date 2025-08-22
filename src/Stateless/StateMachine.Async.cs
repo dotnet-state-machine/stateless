@@ -202,7 +202,7 @@ namespace Stateless
             }
         }
 
-        async Task InternalFireOneAsync(TTrigger trigger, params object[] args)
+        private async Task InternalFireOneAsync(TTrigger trigger, params object[] args)
         {
             // If this is a trigger with parameters, we must validate the parameter(s)
             if (_triggerConfiguration.TryGetValue(trigger, out TriggerWithParameters configuration))
@@ -448,6 +448,30 @@ namespace Stateless
         {
             if (onTransitionAction == null) throw new ArgumentNullException(nameof(onTransitionAction));
             _onTransitionCompletedEvent.Register(onTransitionAction);
+        }
+
+        /// <summary>
+        /// Unregisters a previously registered callback to prevent further events from
+        /// being raised when the state machine transitions from one state into another.
+        /// </summary>
+        /// <param name="onTransitionAction"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public void OnTransitionedAsyncUnregister(Func<Transition, Task> onTransitionAction)
+        {
+            if (onTransitionAction == null) throw new ArgumentNullException(nameof(onTransitionAction));
+            _onTransitionedEvent.Unregister(onTransitionAction);
+        }
+
+        /// <summary>
+        /// Unregisters a previously registered callback to prevent further events from
+        /// being raised when the state machine has completed its state transition.
+        /// </summary>
+        /// <param name="onTransitionAction"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public void OnTransitionCompletedAsyncUnregister(Func<Transition, Task> onTransitionAction)
+        {
+            if (onTransitionAction == null) throw new ArgumentNullException(nameof(onTransitionAction));
+            _onTransitionCompletedEvent.Unregister(onTransitionAction);
         }
     }
 }

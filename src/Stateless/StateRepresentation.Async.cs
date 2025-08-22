@@ -189,13 +189,17 @@ namespace Stateless
 
             public async Task<TriggerBehaviourResult> TryFindHandlerAsync(TTrigger trigger, object[] args)
             {
-                var localHandlerFound = await TryFindLocalHandlerAsync(trigger, args);
+                TriggerBehaviourResult superstateHandler = null;
 
-                var superstateHandlerFound = Superstate != null
-                    ? await Superstate.TryFindHandlerAsync(trigger, args)
-                    : null;
+                var localHandler = await TryFindLocalHandlerAsync(trigger, args);
+                if (localHandler == null)
+                {
+                    superstateHandler = Superstate != null
+                        ? await Superstate.TryFindHandlerAsync(trigger, args)
+                        : null;
+                }
 
-                return superstateHandlerFound ?? localHandlerFound;
+                return superstateHandler ?? localHandler;
             }
 
             private async Task<TriggerBehaviourResult> TryFindLocalHandlerAsync(TTrigger trigger, object[] args)

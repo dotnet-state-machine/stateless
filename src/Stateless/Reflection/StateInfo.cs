@@ -176,7 +176,7 @@ namespace Stateless.Reflection
         /// </summary>
         public override string ToString()
         {
-            return UnderlyingState?.ToString() ?? "<null>";
+            return UnderlyingState?.ToString() ?? SpecialConstants.NullString;
         }
     }
 }

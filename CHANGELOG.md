@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 5.19.0 - 2025.08.22
+### Added
+ - Added methods to unregister from state machine events [#625]
+   - `OnTransitionedUnregister` and `OnTransitionedAsyncUnregister` for transition events
+   - `OnTransitionCompletedUnregister` and `OnTransitionCompletedAsyncUnregister` for transition completed events
+   - `UnregisterAllCallbacks` to unregister all callbacks at once
+### Fixed
+ - Fixed transition precedence issue where substate transitions were not given priority over parent state transitions [#626]
+### Changed
+ - Improved performance by replacing string concatenations with `StringBuilder` in graph generation [#622]
+ - Moved repeated string literal into `internal const string` for better maintainability [#622]
+ - Refactored reflection classes for better code organization and consistency [#623]
+ - Enhanced parameter conversion with additional test coverage [#623]
+
 ## 5.18.0 - 2025.08.02
 ### Added
  - Added support for `PermitIfAsync` and `PermitReentryIfAsync` methods to allow async guard conditions [#618], [#189]
@@ -241,6 +255,10 @@ Version 5.10.0 is now listed as the newest, since it has the highest version num
 ### Removed
 ### Fixed
 
+[#626]: https://github.com/dotnet-state-machine/stateless/pull/626
+[#625]: https://github.com/dotnet-state-machine/stateless/pull/625
+[#623]: https://github.com/dotnet-state-machine/stateless/pull/623
+[#622]: https://github.com/dotnet-state-machine/stateless/pull/622
 [#618]: https://github.com/dotnet-state-machine/stateless/pull/618
 [#610]: https://github.com/dotnet-state-machine/stateless/pull/610
 [#604]: https://github.com/dotnet-state-machine/stateless/issues/604

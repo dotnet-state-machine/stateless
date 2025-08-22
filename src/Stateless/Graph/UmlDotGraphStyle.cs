@@ -70,17 +70,16 @@ namespace Stateless.Graph
             if (state.EntryActions.Count == 0 && state.ExitActions.Count == 0)
                 return $"\"{escapedStateName}\" [label=\"{escapedStateName}\"];{Environment.NewLine}";
 
-            string f = $"\"{escapedStateName}\" [label=\"{escapedStateName}|";
+            StringBuilder sb = new StringBuilder($"\"{escapedStateName}\" [label=\"{escapedStateName}|");
 
             List<string> es = new List<string>();
             es.AddRange(state.EntryActions.Select(act => "entry / " + EscapeLabel(act)));
             es.AddRange(state.ExitActions.Select(act => "exit / " + EscapeLabel(act)));
 
-            f += string.Join("\\n", es);
+            sb.Append(string.Join("\\n", es));
+            sb.Append($"\"];{Environment.NewLine}");
 
-            f += $"\"];{Environment.NewLine}";
-
-            return f;
+            return sb.ToString();
         }
 
         /// <summary>
@@ -90,22 +89,26 @@ namespace Stateless.Graph
         /// <inheritdoc/>
         public override string FormatOneTransition(string sourceNodeName, string trigger, IEnumerable<string> actions, string destinationNodeName, IEnumerable<string> guards)
         {
-            string label = trigger ?? "";
+            StringBuilder sb = new StringBuilder(trigger ?? string.Empty);
 
             if (actions?.Count() > 0)
-                label += " / " + string.Join(", ", actions);
+            {
+                sb.Append(" / ");
+                sb.Append(string.Join(", ", actions));
+            }
 
             if (guards.Any())
             {
                 foreach (var info in guards)
                 {
-                    if (label.Length > 0)
-                        label += " ";
-                    label += "[" + info + "]";
+                    if (sb.Length > 0)
+                        sb.Append(" ");
+
+                    sb.Append("[" + info + "]");
                 }
             }
 
-            return FormatOneLine(sourceNodeName, destinationNodeName, label);
+            return FormatOneLine(sourceNodeName, destinationNodeName, sb.ToString());
         }
 
         /// <summary>
@@ -126,15 +129,19 @@ namespace Stateless.Graph
         public override string GetInitialTransition(StateInfo initialState)
         {
             var initialStateName = initialState.UnderlyingState.ToString();
-            string dirgraphText = Environment.NewLine + $" init [label=\"\", shape=point];";
-            dirgraphText += Environment.NewLine + $" init -> \"{EscapeLabel(initialStateName)}\"[style = \"solid\"]";
 
-            dirgraphText += Environment.NewLine + "}";
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine();
+            sb.Append($" init [label=\"\", shape=point];");
+            sb.AppendLine();
+            sb.Append($" init -> \"{EscapeLabel(initialStateName)}\"[style = \"solid\"]");
+            sb.AppendLine();
+            sb.Append("}");
 
-            return dirgraphText;
+            return sb.ToString();
         }
 
-        internal string FormatOneLine(string fromNodeName, string toNodeName, string label)
+        internal static string FormatOneLine(string fromNodeName, string toNodeName, string label)
         {
             return $"\"{EscapeLabel(fromNodeName)}\" -> \"{EscapeLabel(toNodeName)}\" [style=\"solid\", label=\"{EscapeLabel(label)}\"];";
         }
