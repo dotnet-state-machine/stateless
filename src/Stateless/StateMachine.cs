@@ -821,5 +821,39 @@ namespace Stateless
             if (onTransitionAction == null) throw new ArgumentNullException(nameof(onTransitionAction));
             _onTransitionCompletedEvent.Register(onTransitionAction);
         }
+
+        /// <summary>
+        /// Unregisters a previously registered callback to prevent further events from
+        /// being raised when the state machine transitions from one state into another.
+        /// </summary>
+        /// <param name="onTransitionAction"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public void OnTransitionedUnregister(Action<Transition> onTransitionAction)
+        {
+            if (onTransitionAction == null) throw new ArgumentNullException(nameof(onTransitionAction));
+            _onTransitionedEvent.Unregister(onTransitionAction);
+        }
+
+        /// <summary>
+        /// Unregisters a previously registered callback to prevent further events from
+        /// being raised when the state machine has completed its state transition.
+        /// </summary>
+        /// <param name="onTransitionAction"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public void OnTransitionCompletedUnregister(Action<Transition> onTransitionAction)
+        {
+            if (onTransitionAction == null) throw new ArgumentNullException(nameof(onTransitionAction));
+            _onTransitionCompletedEvent.Unregister(onTransitionAction);
+        }
+
+        /// <summary>
+        /// Unregisters all callbacks currently registered with the state machine for
+        /// both "transitioned" and "transition completed" events.
+        /// </summary>
+        public void UnregisterAllCallbacks()
+        {
+            _onTransitionedEvent.UnregisterAll();
+            _onTransitionCompletedEvent.UnregisterAll();
+        }
     }
 }
