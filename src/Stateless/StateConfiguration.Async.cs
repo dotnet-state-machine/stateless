@@ -1,6 +1,4 @@
-﻿#if TASKS
-
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -1437,4 +1435,3 @@ namespace Stateless
         }
     }
 }
-#endif
