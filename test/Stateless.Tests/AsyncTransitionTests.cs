@@ -62,5 +62,41 @@ namespace Stateless.Tests
             await sm.FireAsync(Trigger.X);
             Assert.Equal(State.C, sm.State);
         }
+
+
+        [Theory]
+        [InlineData(false, false, true, "D")]
+        [InlineData(false, true, false, "E")]
+        [InlineData(false, true, true, "D")]
+        [InlineData(true, false, false, "F")]
+        [InlineData(true, false, true, "D")]
+        [InlineData(true, true, false, "E")]
+        [InlineData(true, true, true, "D")]
+        public async Task GivenMultiLayerSubstates_AndGuardConditionIsClosed_OpenTransitionOnClosestAncestorIsUsedAsync(
+            bool parentGuardConditionValue,
+            bool childGuardConditionValue,
+            bool grandchildGuardConditionValue,
+            string expectedState
+        )
+        {
+            var sm = new StateMachine<string, Trigger>("C");
+
+            sm
+                .Configure("A")
+                .PermitIf(Trigger.X, "F", () => parentGuardConditionValue);
+
+            sm
+                .Configure("B")
+                .SubstateOf("A")
+                .PermitIf(Trigger.X, "E", () => childGuardConditionValue);
+
+            sm
+                .Configure("C")
+                .SubstateOf("B")
+                .PermitIf(Trigger.X, "D", () => grandchildGuardConditionValue);
+
+            await sm.FireAsync(Trigger.X);
+            Assert.Equal(expectedState, sm.State);
+        }
     }
 }
