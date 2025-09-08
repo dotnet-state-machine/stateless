@@ -1,4 +1,3 @@
-﻿using System.Threading.Tasks;
 using Xunit;
 
 namespace Stateless.Tests
@@ -66,22 +65,40 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        public async Task GivenTriggerHandledOnSuperStateAndSubState_WhenTriggerFiredAsync_ThenShouldUseSubstateTransitionAsync()
+        public void GivenTriggerHandledOnSuperStateAndSubState_WhenSubstateTransitionGuardBlocked_ThenShouldUseSuperstateTransition()
         {
-            var sm = new StateMachine<State, Trigger>(State.A);
+            var guardConditionValue = false;
+            var sm = new StateMachine<State, Trigger>(State.B);
+
             sm
                 .Configure(State.A)
-                .Permit(Trigger.X, State.B);
+                .PermitIf(Trigger.X, State.D);
 
             sm
                 .Configure(State.B)
                 .SubstateOf(State.A)
-                .Permit(Trigger.X, State.C);
+                .PermitIf(Trigger.X, State.C, () => guardConditionValue);
 
-            await sm.FireAsync(Trigger.X);
-            Assert.Equal(State.B, sm.State);
+            sm.Fire(Trigger.X);
+            Assert.Equal(State.D, sm.State);
+        }
 
-            await sm.FireAsync(Trigger.X);
+        [Fact]
+        public void GivenTriggerHandledOnSuperStateAndSubState_WhenSubstateTransitionGuardOpen_ThenShouldUseSubstateTransition()
+        {
+            var guardConditionValue = true;
+            var sm = new StateMachine<State, Trigger>(State.B);
+
+            sm
+                .Configure(State.A)
+                .PermitIf(Trigger.X, State.D);
+
+            sm
+                .Configure(State.B)
+                .SubstateOf(State.A)
+                .PermitIf(Trigger.X, State.C, () => guardConditionValue);
+
+            sm.Fire(Trigger.X);
             Assert.Equal(State.C, sm.State);
         }
     }

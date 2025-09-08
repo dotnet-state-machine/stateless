@@ -163,7 +163,6 @@ namespace Stateless
                 return syncResult;
             }
 
-
             public async Task<List<TTrigger>> GetPermittedTriggersAsync(params object[] args)
             {
                 var resultList = new List<TTrigger>();
@@ -192,7 +191,9 @@ namespace Stateless
                 TriggerBehaviourResult superstateHandler = null;
 
                 var localHandler = await TryFindLocalHandlerAsync(trigger, args);
-                if (localHandler == null)
+                bool localHandlerFound = localHandler != null && !localHandler.UnmetGuardConditions.Any();
+                
+                if (!localHandlerFound)
                 {
                     superstateHandler = Superstate != null
                         ? await Superstate.TryFindHandlerAsync(trigger, args)
@@ -231,7 +232,6 @@ namespace Stateless
 
                     handleResultAsync = TryFindLocalHandlerResult(trigger, asyncTriggerBehaviourResult) ?? TryFindLocalHandlerResultWithUnmetGuardConditions(asyncTriggerBehaviourResult);
                 }
-               
 
                 return handleResultSync ?? handleResultAsync;
             }

@@ -15,7 +15,7 @@ namespace Stateless.Tests
         /// Check that the immediate Firing modes executes entry/exit out of order.
         /// </summary>
         [Fact]
-        public void ImmediateEntryAProcessedBeforeEnterB()
+        public async Task ImmediateEntryAProcessedBeforeEnterB()
         {
             var record = new List<string>();
             var sm = new StateMachine<State, Trigger>(State.A, FiringMode.Immediate);
@@ -35,7 +35,7 @@ namespace Stateless.Tests
                 .Permit(Trigger.Y, State.A)
                 .OnExit(() => record.Add("ExitB"));
 
-            sm.FireAsync(Trigger.X);
+            await sm.FireAsync(Trigger.X);
 
             // Expected sequence of events: Exit A -> Exit B -> Enter A -> Enter B
             Assert.Equal("ExitA", record[0]);
@@ -49,7 +49,7 @@ namespace Stateless.Tests
         /// Checks that queued Firing mode executes triggers in order
         /// </summary>
         [Fact]
-        public void ImmediateEntryAProcessedBeforeEterB()
+        public async Task QueuedEntryAProcessedAfterEnterB()
         {
             var record = new List<string>();
             var sm = new StateMachine<State, Trigger>(State.A, FiringMode.Queued);
@@ -69,7 +69,7 @@ namespace Stateless.Tests
                 .Permit(Trigger.Y, State.A)
                 .OnExit(() => record.Add("ExitB"));
 
-            sm.FireAsync(Trigger.X);
+            await sm.FireAsync(Trigger.X);
 
             // Expected sequence of events: Exit A -> Enter B -> Exit B -> Enter A
             Assert.Equal("ExitA", record[0]);
@@ -82,7 +82,7 @@ namespace Stateless.Tests
         /// Check that the immediate Firing modes executes entry/exit out of order.
         /// </summary>
         [Fact]
-        public void ImmediateFiringOnEntryEndsUpInCorrectState()
+        public async Task ImmediateFiringOnEntryEndsUpInCorrectState()
         {
             var record = new List<string>();
             var sm = new StateMachine<State, Trigger>(State.A, FiringMode.Immediate);
@@ -107,7 +107,7 @@ namespace Stateless.Tests
                 .Permit(Trigger.X, State.A)
                 .OnExit(() => record.Add("ExitC"));
 
-            sm.FireAsync(Trigger.X);
+            await sm.FireAsync(Trigger.X);
 
             // Expected sequence of events: Exit A -> Exit B -> Enter A -> Enter B
             Assert.Equal("ExitA", record[0]);
