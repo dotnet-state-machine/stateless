@@ -65,13 +65,13 @@ namespace Stateless.Tests
 
 
         [Theory]
-        [InlineData(false, false, true, "D")]
-        [InlineData(false, true, false, "E")]
-        [InlineData(false, true, true, "D")]
-        [InlineData(true, false, false, "F")]
-        [InlineData(true, false, true, "D")]
-        [InlineData(true, true, false, "E")]
-        [InlineData(true, true, true, "D")]
+        [InlineData(false, false, true, "GrandchildStateTarget")]
+        [InlineData(false, true, false, "ChildStateTarget")]
+        [InlineData(false, true, true, "GrandchildStateTarget")]
+        [InlineData(true, false, false, "ParentStateTarget")]
+        [InlineData(true, false, true, "GrandchildStateTarget")]
+        [InlineData(true, true, false, "ChildStateTarget")]
+        [InlineData(true, true, true, "GrandchildStateTarget")]
         public async Task GivenMultiLayerSubstates_AndGuardConditionIsClosed_OpenTransitionOnClosestAncestorIsUsedAsync(
             bool parentGuardConditionValue,
             bool childGuardConditionValue,
@@ -79,21 +79,21 @@ namespace Stateless.Tests
             string expectedState
         )
         {
-            var sm = new StateMachine<string, Trigger>("C");
+            var sm = new StateMachine<string, Trigger>("GrandchildState");
 
             sm
-                .Configure("A")
-                .PermitIf(Trigger.X, "F", () => parentGuardConditionValue);
+                .Configure("ParentState")
+                .PermitIf(Trigger.X, "ParentStateTarget", () => parentGuardConditionValue);
 
             sm
-                .Configure("B")
-                .SubstateOf("A")
-                .PermitIf(Trigger.X, "E", () => childGuardConditionValue);
+                .Configure("ChildState")
+                .SubstateOf("ParentState")
+                .PermitIf(Trigger.X, "ChildStateTarget", () => childGuardConditionValue);
 
             sm
-                .Configure("C")
-                .SubstateOf("B")
-                .PermitIf(Trigger.X, "D", () => grandchildGuardConditionValue);
+                .Configure("GrandchildState")
+                .SubstateOf("ChildState")
+                .PermitIf(Trigger.X, "GrandchildStateTarget", () => grandchildGuardConditionValue);
 
             await sm.FireAsync(Trigger.X);
             Assert.Equal(expectedState, sm.State);
