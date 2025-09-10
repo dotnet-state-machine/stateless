@@ -21,7 +21,6 @@ namespace Stateless
                 _onTransitioned?.Invoke(transition);
             }
 
-#if TASKS
             public async Task InvokeAsync(Transition transition, bool retainSynchronizationContext)
             {
                 _onTransitioned?.Invoke(transition);
@@ -29,7 +28,6 @@ namespace Stateless
                 foreach (var callback in _onTransitionedAsync)
                     await callback(transition).ConfigureAwait(retainSynchronizationContext);
             }
-#endif
 
             public void Register(Action<Transition> action)
             {
