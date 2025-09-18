@@ -1,5 +1,3 @@
-#if TASKS
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -206,7 +204,9 @@ namespace Stateless
         {
             // If this is a trigger with parameters, we must validate the parameter(s)
             if (_triggerConfiguration.TryGetValue(trigger, out TriggerWithParameters configuration))
+            {
                 configuration.ValidateParameters(args);
+            }
 
             var source = State;
             var representativeState = GetRepresentation(source);
@@ -475,5 +475,3 @@ namespace Stateless
         }
     }
 }
-
-#endif
