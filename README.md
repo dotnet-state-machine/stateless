@@ -360,7 +360,7 @@ Setting this is vital within a Microsoft Orleans Grain for example, which requir
 
 ## Building
 
-Stateless runs on .NET runtime version 4+ and practically all modern .NET platforms by targeting .NET Framework 4.6.2, .NET Standard 2.0 and .NET 8.0. Visual Studio 2017 or later is required to build the solution.
+Stateless runs on .NET runtime version 4+ and practically all modern .NET platforms by targeting .NET Framework 4.6.2, .NET Standard 2.0, and .NET 8.0, 9.0 and 10.0. Visual Studio 2017 or later is required to build the solution.
 
 
 ## Contributing
