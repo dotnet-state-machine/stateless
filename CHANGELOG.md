@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## 5.20.1 - 2025.11.16
 ### Added
- - Included dotnet 10 in targets [#631]
+ - Included dotnet 10 in targets [#636]
 
 ## 5.20.0 - 2025.09.18
 ### Fixed
@@ -263,6 +263,7 @@ Version 5.10.0 is now listed as the newest, since it has the highest version num
 ### Removed
 ### Fixed
 
+[#636]: https://github.com/dotnet-state-machine/stateless/issues/636
 [#631]: https://github.com/dotnet-state-machine/stateless/pull/631
 [#626]: https://github.com/dotnet-state-machine/stateless/pull/626
 [#625]: https://github.com/dotnet-state-machine/stateless/pull/625
