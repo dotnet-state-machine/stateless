@@ -1051,6 +1051,7 @@ namespace Stateless.Tests
             Assert.Equal(sm.State, State.B);
         }
 
+#if Task
         [Fact]
         public async void TransitionWhenPermitDyanmicIfAsyncHasMultipleExclusiveGuards()
         {
@@ -1062,6 +1063,7 @@ namespace Stateless.Tests
             await sm.FireAsync(x, 3);
             Assert.Equal(sm.State, State.B);
         }
+#endif
 
         [Fact]
         public void ExceptionWhenPermitDyanmicIfHasMultipleNonExclusiveGuards()
@@ -1073,6 +1075,8 @@ namespace Stateless.Tests
 
             Assert.Throws<InvalidOperationException>(() => sm.Fire(x, 2));
         }
+        
+#if Task
         [Fact]
         public void ExceptionWhenPermitDyanmicIfAsyncHasMultipleNonExclusiveGuards()
         {
@@ -1083,6 +1087,7 @@ namespace Stateless.Tests
 
             Assert.Throws<InvalidOperationException>(() => sm.Fire(x, 2));
         }
+#endif
 
         [Fact]
         public void TransitionWhenPermitIfHasMultipleExclusiveGuardsWithSuperStateTrue()

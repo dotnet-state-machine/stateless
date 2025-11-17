@@ -381,7 +381,7 @@ namespace Stateless.Tests
                 Assert.Equal(0, trans.GuardConditionsMethodDescriptions.Count());
             }
         }
-
+#if Task
         [Fact]
         public void DestinationStateIsDynamicAsync_Binding()
         {
@@ -414,7 +414,8 @@ namespace Stateless.Tests
                 Assert.Equal(0, trans.GuardConditionsMethodDescriptions.Count());
             }
         }
-
+#endif
+        
         [Fact]
         public void DestinationStateIsCalculatedBasedOnTriggerParameters_Binding()
         {
@@ -449,6 +450,7 @@ namespace Stateless.Tests
             }
         }
 
+#if Task
         [Fact]
         public void DestinationStateIsCalculatedBasedOnTriggerParameters_BindingAsync()
         {
@@ -482,7 +484,8 @@ namespace Stateless.Tests
                 Assert.Equal(0, trans.GuardConditionsMethodDescriptions.Count());
             }
         }
-
+#endif
+        
         [Fact]
         public void OnEntryWithAnonymousActionAndDescription_Binding()
         {
@@ -816,7 +819,7 @@ namespace Stateless.Tests
             public StateConfiguration OnEntryFrom<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Action<TArg0, TArg1, TArg2, Transition> entryAction, string entryActionDescription = null)
              */
         }
-
+#if Task
         [Fact]
         public void ReflectionMethodNamesAsync()
         {
@@ -887,7 +890,7 @@ namespace Stateless.Tests
             public StateConfiguration OnEntryFromAsync<TArg0, TArg1, TArg2>(TriggerWithParameters<TArg0, TArg1, TArg2> trigger, Func<TArg0, TArg1, TArg2, Transition, Task> entryAction, string entryActionDescription = null)
             */
         }
-
+#endif
         State NextState()
         {
             return State.D;
@@ -959,7 +962,7 @@ namespace Stateless.Tests
             StateConfiguration InternalPermitDynamic(TTrigger trigger, Func<object[], TState> destinationStateSelector, string guardDescription)
              */
         }
-
+#if Task
         [Fact]
         public void TransitionGuardNamesAsync()
         {
@@ -1026,7 +1029,7 @@ namespace Stateless.Tests
             StateConfiguration InternalPermitDynamic(TTrigger trigger, Func<object[], TState> destinationStateSelector, string guardDescription)
              */
         }
-
+#endif
 
         [Fact]
         public void InvocationInfo_Description_Property_When_Method_Name_Is_Null_Returns_String_Literal_Null()

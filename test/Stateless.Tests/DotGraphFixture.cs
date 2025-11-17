@@ -278,7 +278,7 @@ namespace Stateless.Tests
 
             Assert.Equal(expected, dotGraph);
         }
-
+#if TASKS
         [Fact]
         public void DestinationStateIsDynamicAsync()
         {
@@ -299,7 +299,7 @@ namespace Stateless.Tests
 
             Assert.Equal(expected, dotGraph);
         }
-
+#endif
         [Fact]
         public void DestinationStateIsCalculatedBasedOnTriggerParameters()
         {
@@ -321,6 +321,7 @@ namespace Stateless.Tests
             Assert.Equal(expected, dotGraph);
         }
 
+#if TASKS
         [Fact]
         public void DestinationStateIsCalculatedBasedOnTriggerParametersAsync()
         {
@@ -341,6 +342,7 @@ namespace Stateless.Tests
 #endif
             Assert.Equal(expected, dotGraph);
         }
+#endif
 
         [Fact]
         public void OnEntryWithAnonymousActionAndDescription()
@@ -565,7 +567,7 @@ namespace Stateless.Tests
 
             Assert.Equal(expected, dotGraph);
         }
-
+#if TASKS
         [Fact]
         public void UmlWithDynamicAsync()
         {
@@ -594,7 +596,7 @@ namespace Stateless.Tests
 
             Assert.Equal(expected, dotGraph);
         }
-
+#endif
         [Fact]
         public void TransitionWithIgnoreAndEntry()
         {
