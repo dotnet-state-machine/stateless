@@ -162,9 +162,71 @@ namespace Stateless
                 case FiringMode.Queued:
                     await InternalFireQueuedAsync(trigger, args);
                     break;
+                case FiringMode.Serial:
+                    await InternalFireSerialAsync(trigger, args);
+                    break;
                 default:
                     // If something is completely messed up we let the user know ;-)
                     throw new InvalidOperationException("The firing mode has not been configured!");
+            }
+        }
+
+        /// <summary>
+        /// Queue events and then fire in order.
+        /// If only one event is queued, this behaves identically to the non-queued version.
+        /// </summary>
+        /// <param name="trigger">  The trigger. </param>
+        /// <param name="args">     A variable-length parameters list containing arguments. </param>
+        async Task InternalFireSerialAsync(TTrigger trigger, params object[] args) {
+
+            lock (_serialModeLock) 
+            {
+                // Add trigger to queue
+                _eventQueue.Enqueue(new QueuedTrigger { Trigger = trigger, Args = args });
+
+                // If a trigger is already being handled then the trigger will be queued (FIFO) and processed later.
+                if (_firing)
+                    return;
+
+                _firing = true;
+            }
+
+            try 
+            {
+
+                // Empty queue for triggers
+                while (true)
+                {
+
+                    QueuedTrigger queuedEvent;
+
+                    lock (_serialModeLock)
+                    {
+
+                        if (_eventQueue.Count == 0) 
+                        {
+                            _firing = false;
+                            break;
+                        }
+
+                        queuedEvent = _eventQueue.Dequeue();
+                    }
+
+                    await InternalFireOneAsync(queuedEvent.Trigger, queuedEvent.Args).ConfigureAwait(RetainSynchronizationContext);
+                }
+            } 
+            catch
+            {
+
+                lock (_serialModeLock)
+                {
+                    if (DropUnprocessedEventsOnErrorInSerialMode)
+                        _eventQueue.Clear();
+
+                    _firing = false;
+                }
+
+                throw;
             }
         }
 
