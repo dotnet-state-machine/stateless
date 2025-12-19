@@ -360,11 +360,11 @@ Setting this is vital within a Microsoft Orleans Grain for example, which requir
 
 ### Thread safety
 By default, Stateless is **NOT** thread-safe.
-`FiringMode.Sequential` ensures thread-safety for Fire(), however reading the State Machine's state from multiple threads may still be unsafe and require aditional locks.
+`FiringMode.Serial` ensures thread-safety for Fire(), however reading the State Machine's state from multiple threads may still be unsafe and require aditional locks.
 
 Stateless processes triggers sequentially, and as a result there can only be one thread "driving" the processing at a time.
 
-In `FiringMode.Sequential`, if the main processing thread throws an error, unprocessed triggers should be removed from the queue in order to ensure consistency. Otherwise the event queue may still hold unprocessed triggers which would require another Fire() call to resume processing.  
+In `FiringMode.Serial`, if the main processing thread throws an error, unprocessed triggers should be removed from the queue in order to ensure consistency. Otherwise the event queue may still hold unprocessed triggers which would require another Fire() call to resume processing.  
 Set `DropUnprocessedEventsOnErrorInSerialMode` to true if you need consistent behaviour.  
 Set `DropUnprocessedEventsOnErrorInSerialMode` to false if you don't want triggers to be dropped (default).
 
