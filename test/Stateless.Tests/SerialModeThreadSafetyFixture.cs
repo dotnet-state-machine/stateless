@@ -41,6 +41,8 @@ namespace Stateless.Tests {
             await stateMachine.GetSerialEventsWorkerTask();
 
             Assert.Equal(160_000, counter);
+
+            stateMachine.Dispose();
         }
 
         [Fact(Timeout = 60 * 1000)]
@@ -61,7 +63,7 @@ namespace Stateless.Tests {
                 Task.Run(async () => {
                     startGate.Wait();
                     for (int i = 0; i < 1_000; i++) {
-                        var forget = stateMachine.FireAsync(Trigger.X);
+                        await stateMachine.FireAsync(Trigger.X);
                     }
                 })
             ).ToArray();
@@ -73,6 +75,8 @@ namespace Stateless.Tests {
             await stateMachine.GetSerialEventsWorkerTask();
 
             Assert.Equal(16_000, counter);
+
+            stateMachine.Dispose();
         }
 
         [Fact(Timeout = 60 * 1000)]
@@ -102,6 +106,8 @@ namespace Stateless.Tests {
             await stateMachine.GetSerialEventsWorkerTask();
 
             Assert.Equal(State.C, stateMachine.State);
+
+            stateMachine.Dispose();
         }
 
         [Fact(Timeout = 60*1000)]
@@ -131,6 +137,8 @@ namespace Stateless.Tests {
             await stateMachine.GetSerialEventsWorkerTask();
 
             Assert.Equal(State.C, stateMachine.State);
+
+            stateMachine.Dispose();
         }
 
     }
