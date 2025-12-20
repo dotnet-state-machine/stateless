@@ -358,15 +358,19 @@ var stateMachine = new StateMachine<State, Trigger>(initialState)
 
 Setting this is vital within a Microsoft Orleans Grain for example, which requires the `SynchronizationContext` in order to make calls to other Grains.
 
-### Thread safety
+### FiringMode.Serial
 By default, Stateless is **NOT** thread-safe.
-`FiringMode.Serial` ensures thread-safety for Fire(), however reading the State Machine's state from multiple threads may still be unsafe and require aditional locks.
+`FiringMode.Serial` ensures thread-safety for Fire()/FireAsync(), however reading the State Machine's state from multiple threads may still be unsafe and require aditional locks.
 
-Stateless processes triggers sequentially, and as a result there can only be one thread "driving" the processing at a time.
+In `FiringMode.Serial` triggers are sequentially ran on a separate worker task. So all calls to Fire / FireAsync return as soon as the trigger is enqueued. 
 
-In `FiringMode.Serial`, if the main processing thread throws an error, unprocessed triggers should be removed from the queue in order to ensure consistency. Otherwise the event queue may still hold unprocessed triggers which would require another Fire() call to resume processing.  
-Set `DropUnprocessedEventsOnErrorInSerialMode` to true if you need consistent behaviour.  
-Set `DropUnprocessedEventsOnErrorInSerialMode` to false if you don't want triggers to be dropped (default).
+If you need to wait for the trigger to be ran or catch its specific exceptions, use `await FireAndWaitAsync(trigger)`. Warning, if you call and await `FireAndWaitAsync` inside a state transition event, you risk deadlocking (because the current transition now waits for a future transition to be completed).
+
+If you need to await the triggers processing task or catch exceptions, you can use `await GetSerialEventsWorkerTask()`.
+
+**Important**: If an unexpected exception is thrown durring the processing of triggers, the faulting trigger is dequeued and the worker task halts (possibly locking tasks waiting via `await FireAndWaitAsync(trigger)`).  
+If you need to resume execution, you can call the parameterless Fire method.  
+If you need to cancel all the unexecuted triggers still pending, you can call `CancelPendingTriggers()`.
 
 ## Building
 
