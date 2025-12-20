@@ -6,8 +6,20 @@ using System.Threading.Tasks;
 
 namespace Stateless
 {
-    public partial class StateMachine<TState, TTrigger>
+    public partial class StateMachine<TState, TTrigger> : IDisposable
     {
+
+        private bool _disposing;
+
+        private class QueuedSerialTrigger : QueuedTrigger {
+            public TaskCompletionSource<bool> TaskCompletionSource { get; set; }
+        }
+
+        private readonly Queue<QueuedSerialTrigger> _serialEventQueue = new Queue<QueuedSerialTrigger>();
+
+        private Task _serialEventQueueProcessingTask;
+        private CancellationTokenSource _serialEventQueueCancellationToken;
+
         /// <summary>
         /// Activates current state in asynchronous fashion. Actions associated with activating the current state
         /// will be invoked. The activation is idempotent and subsequent activation of the same current state 
@@ -41,6 +53,16 @@ namespace Stateless
         public async Task<IEnumerable<TTrigger>> GetPermittedTriggersAsync(params object[] args)
         {
             return await CurrentRepresentation.GetPermittedTriggersAsync(args);
+        }
+
+        /// <summary> Obtains the curent serial events worker task. </summary>
+        public Task GetSerialEventsWorkerTask() {
+            return _serialEventQueueProcessingTask ?? Task.CompletedTask;
+        }
+
+        /// <summary> Resumes the execution of the event processing queue if not empty. </summary>
+        public Task FireAsync() {
+            return InternalFireAsync();
         }
 
         /// <summary>
@@ -147,24 +169,21 @@ namespace Stateless
             return InternalFireAsync(trigger.Trigger, arg0, arg1, arg2);
         }
 
+
         /// <summary>
-        /// Determine how to Fire the trigger
+        /// Fires the trigger and waits for the trigger to be processed.
+        /// Relevant for FiringMode.Serial.
         /// </summary>
-        /// <param name="trigger">The trigger. </param>
+        /// <param name="trigger">The trigger to fire.</param>
         /// <param name="args">A variable-length parameters list containing arguments. </param>
-        async Task InternalFireAsync(TTrigger trigger, params object[] args)
-        {
-            switch (_firingMode)
-            {
+        public Task FireAndWaitAsync(TTrigger trigger, params object[] args) {
+            switch (_firingMode) {
                 case FiringMode.Immediate:
-                    await InternalFireOneAsync(trigger, args);
-                    break;
+                    return InternalFireOneAsync(trigger, args);
                 case FiringMode.Queued:
-                    await InternalFireQueuedAsync(trigger, args);
-                    break;
+                    return InternalFireQueuedAsync(trigger, args);
                 case FiringMode.Serial:
-                    await InternalFireSerialAsync(trigger, args);
-                    break;
+                    return InternalFireSerialAsync(trigger, getTriggerCompletionTask: true, args);
                 default:
                     // If something is completely messed up we let the user know ;-)
                     throw new InvalidOperationException("The firing mode has not been configured!");
@@ -172,62 +191,155 @@ namespace Stateless
         }
 
         /// <summary>
-        /// Queue events and then fire in order.
-        /// If only one event is queued, this behaves identically to the non-queued version.
+        /// Determine how to Fire the trigger
+        /// </summary>
+        /// <param name="trigger">The trigger. </param>
+        /// <param name="args">A variable-length parameters list containing arguments. </param>
+        Task InternalFireAsync(TTrigger trigger, params object[] args)
+        {
+            switch (_firingMode)
+            {
+                case FiringMode.Immediate:
+                    return InternalFireOneAsync(trigger, args);
+                case FiringMode.Queued:
+                    return InternalFireQueuedAsync(trigger, args);
+                case FiringMode.Serial:
+                    return InternalFireSerialAsync(trigger, getTriggerCompletionTask: false, args);
+                default:
+                    // If something is completely messed up we let the user know ;-)
+                    throw new InvalidOperationException("The firing mode has not been configured!");
+            }
+        }
+
+
+        /// <summary> Resumes the execution of the event processing queue if not empty. </summary>
+        Task InternalFireAsync() {
+            switch (_firingMode) {
+                case FiringMode.Immediate:
+                    return Task.CompletedTask;
+                case FiringMode.Queued:
+                    return InternalFireQueuedAsync();
+                case FiringMode.Serial:
+                    return InternalFireSerialAsync();
+                default:
+                    // If something is completely messed up we let the user know ;-)
+                    throw new InvalidOperationException("The firing mode has not been configured!");
+            }
+        }
+
+        /// <summary>
+        /// Queue events and then fire in order on a separate worker thread.
+        /// This returns immediately after queueing the trigger.
+        /// This method is thread-safe.
         /// </summary>
         /// <param name="trigger">  The trigger. </param>
+        /// <param name="getTriggerCompletionTask">  If true, returns the task associated with the processing of the trigger. </param>
         /// <param name="args">     A variable-length parameters list containing arguments. </param>
-        async Task InternalFireSerialAsync(TTrigger trigger, params object[] args) {
+        Task InternalFireSerialAsync(TTrigger trigger, bool getTriggerCompletionTask, params object[] args)
+        {
+
+            if (_disposing)
+                throw new ObjectDisposedException("State machine");
+
+            var taskCompletionSource = new TaskCompletionSource<bool>();
 
             lock (_serialModeLock) 
             {
-                // Add trigger to queue
-                _eventQueue.Enqueue(new QueuedTrigger { Trigger = trigger, Args = args });
+                _serialEventQueue.Enqueue(new QueuedSerialTrigger { Trigger = trigger, Args = args, TaskCompletionSource = taskCompletionSource });
 
-                // If a trigger is already being handled then the trigger will be queued (FIFO) and processed later.
-                if (_firing)
-                    return;
+                if (_firing) 
+                    return getTriggerCompletionTask ? taskCompletionSource.Task : Task.CompletedTask;
 
                 _firing = true;
             }
 
-            try 
-            {
+            _serialEventQueueProcessingTask = InternalFireSerialAsync_RunProcessingQueue();
 
-                // Empty queue for triggers
-                while (true)
+            return getTriggerCompletionTask ? taskCompletionSource.Task : Task.CompletedTask;
+        }
+
+        /// <summary> Resumes the execution if the event queue is not empty </summary>
+        Task InternalFireSerialAsync()
+        {
+            lock (_serialModeLock)
+            {
+                if (_firing || _serialEventQueue.Count == 0)
+                    return Task.CompletedTask;
+
+                _firing = true;
+            }
+
+            _serialEventQueueProcessingTask = InternalFireSerialAsync_RunProcessingQueue();
+
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Starts a serial event processing thread.
+        /// Only call if you aquired "_firing = true" inside a lock.
+        /// </summary>
+        Task InternalFireSerialAsync_RunProcessingQueue()
+        {
+
+            _serialEventQueueCancellationToken = new CancellationTokenSource();
+
+            return Task.Run(
+                async () => 
                 {
 
-                    QueuedTrigger queuedEvent;
+                    QueuedSerialTrigger queuedEvent = null;
+                    Task currentTask = null;
 
-                    lock (_serialModeLock)
+                    try 
+                    {
+                        if (_disposing)
+                            throw new ObjectDisposedException("State machine");
+
+                        while (true) 
+                        {
+
+                            lock (_serialModeLock)
+                            {
+
+                                if (_serialEventQueue.Count == 0)
+                                {
+                                    _firing = false;
+                                    break;
+                                }
+
+                                queuedEvent = _serialEventQueue.Dequeue();
+                            }
+
+                            currentTask = InternalFireOneAsync(queuedEvent.Trigger, queuedEvent.Args);
+
+                            await currentTask;
+
+                            queuedEvent.TaskCompletionSource.SetResult(true);
+
+                            _serialEventQueueCancellationToken.Token.ThrowIfCancellationRequested();
+                        }
+                    } 
+                    catch
                     {
 
-                        if (_eventQueue.Count == 0) 
+                        lock (_serialModeLock)
                         {
                             _firing = false;
-                            break;
                         }
 
-                        queuedEvent = _eventQueue.Dequeue();
+                        if (currentTask?.IsCanceled == true)
+                        {
+                            queuedEvent?.TaskCompletionSource.SetCanceled();
+                        } 
+                        else if (currentTask?.IsFaulted == true) 
+                        {
+                            queuedEvent?.TaskCompletionSource.SetException(currentTask.Exception);
+                        }
+
+                        throw;
                     }
-
-                    await InternalFireOneAsync(queuedEvent.Trigger, queuedEvent.Args).ConfigureAwait(RetainSynchronizationContext);
                 }
-            } 
-            catch
-            {
-
-                lock (_serialModeLock)
-                {
-                    if (DropUnprocessedEventsOnErrorInSerialMode)
-                        _eventQueue.Clear();
-
-                    _firing = false;
-                }
-
-                throw;
-            }
+            );
         }
 
         /// <summary>
@@ -236,28 +348,29 @@ namespace Stateless
         /// </summary>
         /// <param name="trigger">  The trigger. </param>
         /// <param name="args">     A variable-length parameters list containing arguments. </param>
-        async Task InternalFireQueuedAsync(TTrigger trigger, params object[] args)
+        Task InternalFireQueuedAsync(TTrigger trigger, params object[] args)
         {
-            if (_firing)
-            {
-                _eventQueue.Enqueue(new QueuedTrigger { Trigger = trigger, Args = args });
+
+            _eventQueue.Enqueue(new QueuedTrigger { Trigger = trigger, Args = args });
+
+            return InternalFireQueuedAsync();
+        }
+
+        /// <summary> Processes the event queue </summary>
+        async Task InternalFireQueuedAsync() {
+
+            if (_firing) {
                 return;
             }
 
-            try
-            {
+            try {
                 _firing = true;
 
-                await InternalFireOneAsync(trigger, args).ConfigureAwait(RetainSynchronizationContext);
-
-                while (_eventQueue.Count != 0)
-                {
+                while (_eventQueue.Count != 0) {
                     var queuedEvent = _eventQueue.Dequeue();
                     await InternalFireOneAsync(queuedEvent.Trigger, queuedEvent.Args).ConfigureAwait(RetainSynchronizationContext);
                 }
-            }
-            finally
-            {
+            } finally {
                 _firing = false;
             }
         }
@@ -534,6 +647,28 @@ namespace Stateless
         {
             if (onTransitionAction == null) throw new ArgumentNullException(nameof(onTransitionAction));
             _onTransitionCompletedEvent.Unregister(onTransitionAction);
+        }
+
+        /// <summary>
+        /// Dispose the state machine
+        /// </summary>
+        public void Dispose()
+        {
+            _disposing = true;
+
+            if (_firingMode == FiringMode.Serial)
+            {
+                _serialEventQueueCancellationToken?.Cancel();
+
+                if (!_serialEventQueueProcessingTask?.IsCompleted == true)
+                {
+                    try {
+                        _serialEventQueueProcessingTask.Wait();
+                    } catch {
+                        //Since we are disposing, ignore any errors
+                    }
+                }
+            }
         }
     }
 }

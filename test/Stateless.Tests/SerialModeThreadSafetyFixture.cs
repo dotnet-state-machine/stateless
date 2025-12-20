@@ -11,7 +11,7 @@ namespace Stateless.Tests {
     [CollectionDefinition("SerialModeThreadSafetyFixture", DisableParallelization = true)]
     public class SerialModeThreadSafetyFixture {
 
-        [Fact]
+        [Fact(Timeout = 60 * 1000)]
         public async Task IncrementIsThreadSafeUnderContentionSync() {
 
             var stateMachine = new StateMachine<State, Trigger>(State.A, FiringMode.Serial);
@@ -37,10 +37,13 @@ namespace Stateless.Tests {
             startGate.Set();
             await Task.WhenAll(tasks);
 
+            // Wait for the tasks to be done processing
+            await stateMachine.GetSerialEventsWorkerTask();
+
             Assert.Equal(160_000, counter);
         }
 
-        [Fact]
+        [Fact(Timeout = 60 * 1000)]
         public async Task IncrementIsThreadSafeUnderContentionAsync() {
 
             var stateMachine = new StateMachine<State, Trigger>(State.A, FiringMode.Serial);
@@ -50,7 +53,6 @@ namespace Stateless.Tests {
 
             stateMachine.Configure(State.A)
                 .OnEntryAsync(async () => {
-                    await Task.Yield();
                     counter = counter + 1;
                 })
                 .PermitReentry(Trigger.X);
@@ -59,7 +61,7 @@ namespace Stateless.Tests {
                 Task.Run(async () => {
                     startGate.Wait();
                     for (int i = 0; i < 1_000; i++) {
-                        await stateMachine.FireAsync(Trigger.X);
+                        var forget = stateMachine.FireAsync(Trigger.X);
                     }
                 })
             ).ToArray();
@@ -67,10 +69,13 @@ namespace Stateless.Tests {
             startGate.Set();
             await Task.WhenAll(tasks);
 
+            // Wait for the tasks to be done processing
+            await stateMachine.GetSerialEventsWorkerTask();
+
             Assert.Equal(16_000, counter);
         }
 
-        [Fact]
+        [Fact(Timeout = 60 * 1000)]
         public async Task RecursiveFireDoesNotDeadlockSync() {
 
             var stateMachine = new StateMachine<State, Trigger>(State.A, FiringMode.Serial);
@@ -93,10 +98,13 @@ namespace Stateless.Tests {
 
             stateMachine.Fire(Trigger.X);
 
+            // Wait for the tasks to be done processing
+            await stateMachine.GetSerialEventsWorkerTask();
+
             Assert.Equal(State.C, stateMachine.State);
         }
 
-        [Fact]
+        [Fact(Timeout = 60*1000)]
         public async Task RecursiveFireDoesNotDeadlockAsync() {
 
             var stateMachine = new StateMachine<State, Trigger>(State.A, FiringMode.Serial);
@@ -118,6 +126,9 @@ namespace Stateless.Tests {
             stateMachine.Configure(State.C);
 
             await stateMachine.FireAsync(Trigger.X);
+
+            // Wait for the tasks to be done processing
+            await stateMachine.GetSerialEventsWorkerTask();
 
             Assert.Equal(State.C, stateMachine.State);
         }

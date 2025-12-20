@@ -47,16 +47,6 @@ namespace Stateless
         private bool _firing;
 
         /// <summary>
-        /// If the main processing thread throws an error, unprocessed triggers should be removed from
-        /// the queue in order to ensure consistency. Otherwise the event queue
-        /// may still hold unprocessed triggers which would require another
-        /// Fire() call to resume processing.
-        /// Set this to true if you need consistent behaviour.
-        /// Set this to false if you don't want triggers to be dropped.
-        /// </summary>
-        public bool DropUnprocessedEventsOnErrorInSerialMode { get; set; } = false;
-
-        /// <summary>
         /// Construct a state machine with external state storage.
         /// </summary>
         /// <param name="stateAccessor">A function that will be called to read the current state value.</param>
@@ -216,6 +206,11 @@ namespace Stateless
             return new StateConfiguration(this, GetRepresentation(state), GetRepresentation);
         }
 
+        /// <summary> Resumes the execution of the event processing queue if not empty. </summary>
+        public void Fire() {
+            InternalFire();
+        }
+
         /// <summary>
         /// Transition from the current state via the specified trigger.
         /// The target state is determined by the configuration of the current state.
@@ -363,67 +358,39 @@ namespace Stateless
             }
         }
 
+        /// <summary> Resumes the execution of the event processing queue if not empty. </summary>
+        void InternalFire() {
+            switch (_firingMode) {
+                case FiringMode.Immediate:
+                    break;
+                case FiringMode.Queued:
+                    InternalFireQueued();
+                    break;
+                case FiringMode.Serial:
+                    InternalFireSerial();
+                    break;
+                default:
+                    // If something is completely messed up we let the user know ;-)
+                    throw new InvalidOperationException("The firing mode has not been configured!");
+            }
+        }
+
         /// <summary>
-        /// Queue events and then fire in order.
-        /// If only one event is queued, this behaves identically to the non-queued version.
-        /// This method is almost equivalent to InternalFireQueued, but it employs simple locks 
-        /// in order to ensure thread-safety.
-        /// Warning! If processing a trigger throws an unexpected error, unprocessed events will be dropped
-        /// if DropUnprocessedEventsOnErrorInSerialMode is set to true.
+        /// Queue events and then fire in order on a separate worker thread.
+        /// This returns immediately after queueing the trigger.
+        /// This method is thread-safe.
         /// </summary>
         /// <param name="trigger">  The trigger. </param>
         /// <param name="args">     A variable-length parameters list containing arguments. </param>
         private void InternalFireSerial(TTrigger trigger, params object[] args) {
+            // Since the processing happens on a separate task, we re-use the async method
+            _ = InternalFireSerialAsync(trigger, getTriggerCompletionTask: false, args);
+        }
 
-            lock (_serialModeLock) 
-            {
-                // Add trigger to queue
-                _eventQueue.Enqueue(new QueuedTrigger { Trigger = trigger, Args = args });
-
-                // If a trigger is already being handled then the trigger will be queued (FIFO) and processed later.
-                if (_firing)
-                    return;
-
-                _firing = true;
-            }
-
-            try 
-            {
-
-                // Empty queue for triggers
-                while (true)
-                {
-
-                    QueuedTrigger queuedEvent;
-
-                    lock (_serialModeLock)
-                    {
-
-                        if (_eventQueue.Count == 0) 
-                        {
-                            _firing = false;
-                            break;
-                        }
-
-                        queuedEvent = _eventQueue.Dequeue();
-                    }
-
-                    InternalFireOne(queuedEvent.Trigger, queuedEvent.Args);
-                }
-            } 
-            catch
-            {
-
-                lock (_serialModeLock)
-                {
-                    if (DropUnprocessedEventsOnErrorInSerialMode)
-                        _eventQueue.Clear();
-
-                    _firing = false;
-                }
-
-                throw;
-            }
+        /// <summary> Resumes the execution if the event queue is not empty </summary>
+        private void InternalFireSerial() {
+            // Since the processing happens on a separate task, we re-use the async method
+            _ = InternalFireSerialAsync();
         }
 
         /// <summary>
@@ -437,26 +404,48 @@ namespace Stateless
             // Add trigger to queue
             _eventQueue.Enqueue(new QueuedTrigger { Trigger = trigger, Args = args });
 
+            InternalFireQueued();
+        }
+
+        /// <summary> Processes the event queue </summary>
+        private void InternalFireQueued() {
+
             // If a trigger is already being handled then the trigger will be queued (FIFO) and processed later.
-            if (_firing)
-            {
+            if (_firing) {
                 return;
             }
 
-            try
-            {
+            try {
                 _firing = true;
 
                 // Empty queue for triggers
-                while (_eventQueue.Any())
-                {
+                while (_eventQueue.Any()) {
                     var queuedEvent = _eventQueue.Dequeue();
                     InternalFireOne(queuedEvent.Trigger, queuedEvent.Args);
                 }
-            }
-            finally
-            {
+            } finally {
                 _firing = false;
+            }
+        }
+
+        /// <summary>
+        /// Cancel unprocessed triggers that are still waiting in the queue.
+        /// Applies only to FiringMode.Queued and FiringMode.Serial.
+        /// </summary>
+        public void CancelPendingTriggers() {
+            if (_firingMode == FiringMode.Queued)
+            {
+                _eventQueue.Clear();
+            }
+            else if (_firingMode == FiringMode.Serial) 
+            {
+                lock (_serialModeLock)
+                {
+                    while (_serialEventQueue.Count > 0) {
+                        var queuedEvent = _serialEventQueue.Dequeue();
+                        queuedEvent.TaskCompletionSource.SetCanceled();
+                    }
+                }
             }
         }
 
