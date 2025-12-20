@@ -55,6 +55,7 @@ namespace Stateless.Tests {
 
             stateMachine.Configure(State.A)
                 .OnEntryAsync(async () => {
+                    await Task.Yield();
                     counter = counter + 1;
                 })
                 .PermitReentry(Trigger.X);
