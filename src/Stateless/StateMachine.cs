@@ -163,6 +163,8 @@ namespace Stateless
 
             var behaviours = _stateConfiguration.SelectMany(kvp => kvp.Value.TriggerBehaviours.SelectMany(b => b.Value.OfType<TransitioningTriggerBehaviour>().Select(tb => tb.Destination))).ToList();
             behaviours.AddRange(_stateConfiguration.SelectMany(kvp => kvp.Value.TriggerBehaviours.SelectMany(b => b.Value.OfType<ReentryTriggerBehaviour>().Select(tb => tb.Destination))).ToList());
+            behaviours.AddRange(_stateConfiguration.SelectMany(kvp => kvp.Value.TriggerBehavioursAsync.SelectMany(b => b.Value.OfType<TransitioningTriggerBehaviourAsync>().Select(tb => tb.Destination))).ToList());
+            behaviours.AddRange(_stateConfiguration.SelectMany(kvp => kvp.Value.TriggerBehavioursAsync.SelectMany(b => b.Value.OfType<ReentryTriggerBehaviourAsync>().Select(tb => tb.Destination))).ToList());
 
             var reachable = behaviours
                 .Distinct()

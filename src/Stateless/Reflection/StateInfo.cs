@@ -48,6 +48,7 @@ namespace Stateless.Reflection
             var fixedTransitions = new List<FixedTransitionInfo>();
             var dynamicTransitions = new List<DynamicTransitionInfo>();
 
+            // Sync triggers
             foreach (var triggerBehaviours in stateRepresentation.TriggerBehaviours)
             {
                 // First add all the deterministic transitions
@@ -75,6 +76,21 @@ namespace Stateless.Reflection
                 foreach (var item in triggerBehaviours.Value.Where(behaviour => behaviour is StateMachine<TState, TTrigger>.DynamicTriggerBehaviourAsync))
                 {
                     dynamicTransitions.Add(((StateMachine<TState, TTrigger>.DynamicTriggerBehaviourAsync)item).TransitionInfo);
+                }
+            }
+
+            // Async triggers
+            foreach (var triggerBehaviour in stateRepresentation.TriggerBehavioursAsync.Values.SelectMany(x => x))
+            {
+                if (triggerBehaviour is StateMachine<TState, TTrigger>.TransitioningTriggerBehaviourAsync transitioningTriggerBehaviourAsync)
+                {
+                    var destinationInfo = lookupState(transitioningTriggerBehaviourAsync.Destination);
+                    fixedTransitions.Add(FixedTransitionInfo.Create(transitioningTriggerBehaviourAsync, destinationInfo));
+                }
+                else if (triggerBehaviour is StateMachine<TState, TTrigger>.ReentryTriggerBehaviourAsync reentryTriggerBehaviourAsync)
+                {
+                    var destinationInfo = lookupState(reentryTriggerBehaviourAsync.Destination);
+                    fixedTransitions.Add(FixedTransitionInfo.Create(reentryTriggerBehaviourAsync, destinationInfo));
                 }
             }
 
