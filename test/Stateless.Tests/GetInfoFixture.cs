@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Stateless.Tests
@@ -12,16 +13,16 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.B)
                 .OnEntryFrom(Trigger.X, () => { });
-        
+
             // ACT
             var stateMachineInfo = sm.GetInfo();
-        
+
             // ASSERT
             var stateInfo = Assert.Single(stateMachineInfo.States);
             var entryActionInfo = Assert.Single(stateInfo.EntryActions);
             Assert.Equal(Trigger.X.ToString(), entryActionInfo.FromTrigger);
         }
-    
+
         [Fact]
         public void GetInfo_should_return_async_Entry_action_with_trigger_name()
         {
@@ -29,14 +30,31 @@ namespace Stateless.Tests
             var sm = new StateMachine<State, Trigger>(State.A);
             sm.Configure(State.B)
                 .OnEntryFromAsync(Trigger.X, () => Task.CompletedTask);
-        
+
             // ACT
             var stateMachineInfo = sm.GetInfo();
-        
+
             // ASSERT
             var stateInfo = Assert.Single(stateMachineInfo.States);
             var entryActionInfo = Assert.Single(stateInfo.EntryActions);
             Assert.Equal(Trigger.X.ToString(), entryActionInfo.FromTrigger);
+        }
+
+        [Fact]
+        public void GetInfo_should_include_async_Trigger()
+        {
+            // ARRANGE
+            var sm = new StateMachine<State, Trigger>(State.A);
+            sm.Configure(State.A)
+                .PermitIfAsync(Trigger.X, State.B, () => Task.FromResult(true));
+
+            // ACT
+            var stateMachineInfo = sm.GetInfo();
+
+            // ASSERT
+            var stateInfo = Assert.Single(stateMachineInfo.States.Where(x => x.UnderlyingState.Equals(State.A)));
+            var transitionInfo = Assert.Single(stateInfo.Transitions);
+            Assert.Equal(Trigger.X, transitionInfo.Trigger.UnderlyingTrigger);
         }
     }
 }
