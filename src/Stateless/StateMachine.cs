@@ -123,16 +123,14 @@ namespace Stateless
         /// <summary>
         /// The currently-permissible trigger values.
         /// </summary>
-        [Obsolete("Kept for compatibility purposes. Recommended to use PermittedTriggersAsync instead")]
         public IEnumerable<TTrigger> PermittedTriggers => GetPermittedTriggers();
 
         /// <summary>
         /// The currently-permissible trigger values.
         /// </summary>
-        [Obsolete("Kept for compatibility purposes. Recommended to use GetPermittedTriggersAsync instead")]
         public IEnumerable<TTrigger> GetPermittedTriggers(params object[] args)
         {
-            return Task.Run(() => CurrentRepresentation.GetPermittedTriggersAsync(args)).GetAwaiter().GetResult();
+            return CurrentRepresentation.GetPermittedTriggers(args);
         }
 
         /// <summary>
@@ -723,10 +721,14 @@ namespace Stateless
         /// <returns>A description of the current state and permitted triggers.</returns>
         public override string ToString()
         {
+            var permittedTriggers = CurrentRepresentation.RequiresAsyncPermittedTriggersEvaluation
+                ? string.Join(", ", Task.Run(() => GetPermittedTriggersAsync()).GetAwaiter().GetResult().Select(t => t.ToString()).ToArray())
+                : string.Join(", ", GetPermittedTriggers().Select(t => t.ToString()).ToArray());
+
             return string.Format(
                 "StateMachine {{ State = {0}, PermittedTriggers = {{ {1} }}}}",
                 State,
-                string.Join(", ", Task.Run(() => GetPermittedTriggersAsync()).GetAwaiter().GetResult().Select(t => t.ToString()).ToArray()));
+                permittedTriggers);
         }
 
         /// <summary>
