@@ -20,6 +20,18 @@ namespace Stateless.Reflection
             };
         }
 
+        internal static FixedTransitionInfo Create<TState, TTrigger>(StateMachine<TState, TTrigger>.TriggerBehaviourAsync behaviour, StateInfo destinationStateInfo)
+        {
+            return new FixedTransitionInfo
+            {
+                Trigger = new TriggerInfo(behaviour.Trigger),
+                DestinationState = destinationStateInfo,
+                GuardConditionsMethodDescriptions = behaviour.Guard == null
+                    ? Array.Empty<InvocationInfo>() : behaviour.Guard.Conditions.Select(c => c.MethodDescription),
+                IsInternalTransition = behaviour is StateMachine<TState, TTrigger>.InternalTriggerBehaviour
+            };
+        }
+
         private FixedTransitionInfo() { }
 
         /// <summary>
