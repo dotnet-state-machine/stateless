@@ -358,6 +358,20 @@ var stateMachine = new StateMachine<State, Trigger>(initialState)
 
 Setting this is vital within a Microsoft Orleans Grain for example, which requires the `SynchronizationContext` in order to make calls to other Grains.
 
+### FiringMode.Serial
+By default, Stateless is **NOT** thread-safe.
+`FiringMode.Serial` ensures thread-safety for Fire()/FireAsync(), however reading the State Machine's state from multiple threads may still be unsafe and require aditional locks.
+
+In `FiringMode.Serial` triggers are sequentially ran on a separate worker task. So all calls to Fire / FireAsync return as soon as the trigger is enqueued. 
+
+If you need to wait for the trigger to be ran or catch its specific exceptions, use `await FireAndWaitAsync(trigger)`. Warning, if you call and await `FireAndWaitAsync` inside a state transition event, you risk deadlocking (because the current transition now waits for a future transition to be completed).
+
+If you need to await the triggers processing task or catch exceptions, you can use `await GetSerialEventsWorkerTask()`.
+
+**Important**: If an unexpected exception is thrown durring the processing of triggers, the faulting trigger is dequeued and the worker task halts (possibly locking tasks waiting via `await FireAndWaitAsync(trigger)`).  
+If you need to resume execution, you can call the parameterless Fire method.  
+If you need to cancel all the unexecuted triggers still pending, you can call `CancelPendingTriggers()`.
+
 ## Building
 
 Stateless runs on .NET runtime version 4+ and practically all modern .NET platforms by targeting .NET Framework 4.6.2, .NET Standard 2.0, and .NET 8.0, 9.0 and 10.0. Visual Studio 2017 or later is required to build the solution.
