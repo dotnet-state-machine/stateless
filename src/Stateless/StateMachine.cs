@@ -14,7 +14,9 @@ namespace Stateless
         /// <summary> Use immediate mode when the queuing of trigger events are not needed. Care must be taken when using this mode, as there is no run-to-completion guaranteed.</summary>
         Immediate,
         /// <summary> Use the queued <c>Fire</c>ing mode when run-to-completion is required. This is the recommended mode.</summary>
-        Queued
+        Queued,
+        /// <summary> Equivalent to Queued mode, but thread-safe for Fire.</summary>
+        Serial
     }
 
     /// <summary>
@@ -40,8 +42,19 @@ namespace Stateless
             public object[] Args { get; set; }
         }
 
+        private object _serialModeLock = new object();
         private readonly Queue<QueuedTrigger> _eventQueue = new Queue<QueuedTrigger>();
         private bool _firing;
+
+        /// <summary>
+        /// If the main processing thread throws an error, unprocessed triggers should be removed from
+        /// the queue in order to ensure consistency. Otherwise the event queue
+        /// may still hold unprocessed triggers which would require another
+        /// Fire() call to resume processing.
+        /// Set this to true if you need consistent behaviour.
+        /// Set this to false if you don't want triggers to be dropped.
+        /// </summary>
+        public bool DropUnprocessedEventsOnErrorInSerialMode { get; set; } = false;
 
         /// <summary>
         /// Construct a state machine with external state storage.
@@ -343,9 +356,75 @@ namespace Stateless
                 case FiringMode.Queued:
                     InternalFireQueued(trigger, args);
                     break;
+                case FiringMode.Serial:
+                    InternalFireSerial(trigger, args);
+                    break;
                 default:
                     // If something is completely messed up we let the user know ;-)
                     throw new InvalidOperationException("The firing mode has not been configured!");
+            }
+        }
+
+        /// <summary>
+        /// Queue events and then fire in order.
+        /// If only one event is queued, this behaves identically to the non-queued version.
+        /// This method is almost equivalent to InternalFireQueued, but it employs simple locks 
+        /// in order to ensure thread-safety.
+        /// Warning! If processing a trigger throws an unexpected error, unprocessed events will be dropped
+        /// if DropUnprocessedEventsOnErrorInSerialMode is set to true.
+        /// </summary>
+        /// <param name="trigger">  The trigger. </param>
+        /// <param name="args">     A variable-length parameters list containing arguments. </param>
+        private void InternalFireSerial(TTrigger trigger, params object[] args) {
+
+            lock (_serialModeLock) 
+            {
+                // Add trigger to queue
+                _eventQueue.Enqueue(new QueuedTrigger { Trigger = trigger, Args = args });
+
+                // If a trigger is already being handled then the trigger will be queued (FIFO) and processed later.
+                if (_firing)
+                    return;
+
+                _firing = true;
+            }
+
+            try 
+            {
+
+                // Empty queue for triggers
+                while (true)
+                {
+
+                    QueuedTrigger queuedEvent;
+
+                    lock (_serialModeLock)
+                    {
+
+                        if (_eventQueue.Count == 0) 
+                        {
+                            _firing = false;
+                            break;
+                        }
+
+                        queuedEvent = _eventQueue.Dequeue();
+                    }
+
+                    InternalFireOne(queuedEvent.Trigger, queuedEvent.Args);
+                }
+            } 
+            catch
+            {
+
+                lock (_serialModeLock)
+                {
+                    if (DropUnprocessedEventsOnErrorInSerialMode)
+                        _eventQueue.Clear();
+
+                    _firing = false;
+                }
+
+                throw;
             }
         }
 

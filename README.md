@@ -358,6 +358,16 @@ var stateMachine = new StateMachine<State, Trigger>(initialState)
 
 Setting this is vital within a Microsoft Orleans Grain for example, which requires the `SynchronizationContext` in order to make calls to other Grains.
 
+### Thread safety
+By default, Stateless is **NOT** thread-safe.
+`FiringMode.Serial` ensures thread-safety for Fire(), however reading the State Machine's state from multiple threads may still be unsafe and require aditional locks.
+
+Stateless processes triggers sequentially, and as a result there can only be one thread "driving" the processing at a time.
+
+In `FiringMode.Serial`, if the main processing thread throws an error, unprocessed triggers should be removed from the queue in order to ensure consistency. Otherwise the event queue may still hold unprocessed triggers which would require another Fire() call to resume processing.  
+Set `DropUnprocessedEventsOnErrorInSerialMode` to true if you need consistent behaviour.  
+Set `DropUnprocessedEventsOnErrorInSerialMode` to false if you don't want triggers to be dropped (default).
+
 ## Building
 
 Stateless runs on .NET runtime version 4+ and practically all modern .NET platforms by targeting .NET Framework 4.6.2, .NET Standard 2.0, and .NET 8.0, 9.0 and 10.0. Visual Studio 2017 or later is required to build the solution.
