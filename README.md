@@ -249,7 +249,7 @@ This method will unregister the specified action callback from the transition ev
 #### State machine transition unregister (asynchronous)
 ```csharp
 // Keep a reference to the asynchronous callback function we want to unregister later.
-Func<Transition, Task> transitionAsyncCallback => (transition) => { return Task.FromResult(0); };
+Func<Transition, Task> transitionAsyncCallback = (transition) => { return Task.FromResult(0); };
 stateMachine.OnTransitionedAsyncUnregister(transitionAsyncCallback);
 ````
 This method will unregister the specified async function callback from the transition event.
@@ -257,7 +257,7 @@ This method will unregister the specified async function callback from the trans
 #### State machine transition completed unregister (synchronous)
 ```csharp
 // Keep a reference to the synchronous callback action we want to unregister later.
-Action transitionCompletedCallbackAction = (transition) => { });
+Action transitionCompletedCallbackAction = (transition) => { };
 stateMachine.OnTransitionCompletedUnregister(transitionCompletedCallbackAction);
 ```
 This method will unregister the specified action callback from the transition completed event.
@@ -265,7 +265,7 @@ This method will unregister the specified action callback from the transition co
 #### State machine transition completed unregister (asynchronous)
 ```csharp
 // Keep a reference to to the asynchronous callback function we want to unregister later.
-Func<Transition, Task> transitionCompletedAsyncCallback => (transition) => { return Task.FromResult(0); });
+Func<Transition, Task> transitionCompletedAsyncCallback = (transition) => { return Task.FromResult(0); };
 stateMachine.OnTransitionCompletedAsyncUnregister(transitionCompletedAsyncCallback);
 ```
 This method will unregister the specified async function callback from the transition completed event.
