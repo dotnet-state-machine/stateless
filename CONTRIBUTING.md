@@ -14,7 +14,7 @@ For anyone new to contributing to open source, there are some great guides to he
 
 It's best to start by discussing a proposed change in an [issue](https://github.com/dotnet-state-machine/stateless/issues), be it a new issue you've created or an existing issue you're willing to help with. Let others know you're working on it.
 
-Check that your [fork is synced with the upsream repo](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork) before you start working on a change, then create a branch from it and commit your changes to that branch. When you're ready for the change to be reviewed, create a pull request to merge your change back to the upstream `dotnet-state-machine:dev` branch.
+Check that your [fork is synced with the upstream repo](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork) before you start working on a change, then create a branch from it and commit your changes to that branch. When you're ready for the change to be reviewed, create a pull request to merge your change back to the upstream `dotnet-state-machine:dev` branch.
 
 Please make sure your change meets the following criteria before raising a pull request:
 
