@@ -67,6 +67,15 @@ namespace Stateless {
                 return ResourceManager.GetString("CannotReconfigureParameters", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///    Looks up a localized string similar to Cannot synchronously enumerate permitted triggers from state &apos;{0}&apos; because the current state or one of its superstates has asynchronous guard conditions. Use GetPermittedTriggersAsync instead..
+        /// </summary>
+        public static string CannotGetPermittedTriggersSynchronously {
+            get {
+                return ResourceManager.GetString("CannotGetPermittedTriggersSynchronously", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///    Looks up a localized string similar to No valid leaving transitions are permitted from state &apos;{1}&apos; for trigger &apos;{0}&apos;. Consider ignoring the trigger..
