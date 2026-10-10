@@ -314,6 +314,46 @@ namespace Stateless.Tests
 
             Assert.Equal("foo", test); // Should await action
         }
+
+        [Fact]
+        public async Task CanInvokeOnUnhandledTriggerAsyncActionWithUnmetGuardDescriptions()
+        {
+            const string guardDescription = "Guard failed";
+            ICollection<string> guardDescriptions = null;
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .PermitIfAsync(Trigger.X, State.B, async () => await Task.FromResult(false), guardDescription);
+
+            sm.OnUnhandledTriggerAsync((s, t, u) =>
+            {
+                guardDescriptions = u;
+                return TaskResult.Done;
+            });
+
+            await sm.FireAsync(Trigger.X).ConfigureAwait(false);
+
+            Assert.Equal(State.A, sm.State);
+            Assert.NotNull(guardDescriptions);
+            Assert.Single(guardDescriptions);
+            Assert.Contains(guardDescription, guardDescriptions);
+        }
+
+        [Fact]
+        public async Task FireAsyncThrowsGuardDescriptionsWhenGuardFails()
+        {
+            const string guardDescription = "Guard failed";
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .PermitIfAsync(Trigger.X, State.B, async () => await Task.FromResult(false), guardDescription);
+
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+                () => sm.FireAsync(Trigger.X)).ConfigureAwait(false);
+
+            Assert.Contains(guardDescription, exception.Message);
+        }
+
         [Fact]
         public void WhenSyncFireOnUnhandledTriggerAsyncTask()
         {
