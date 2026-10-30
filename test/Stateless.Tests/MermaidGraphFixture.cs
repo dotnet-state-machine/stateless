@@ -387,6 +387,47 @@ namespace Stateless.Tests
             Assert.Equal(expected, result);
         }
 
+        [Fact]
+        public void StateNamesWithColonsAreEscaped()
+        {
+            var expected = new StringBuilder()
+                .AppendLine("stateDiagram-v2")
+                .AppendLine("	Doneok : Done#58; ok")
+                .AppendLine("	A --> Doneok : X")
+                .AppendLine("[*] --> A")
+                .ToString().TrimEnd();
+
+            var sm = new StateMachine<string, Trigger>("A");
+
+            sm.Configure("A").Permit(Trigger.X, "Done: ok");
+
+            var result = Graph.MermaidGraph.Format(sm.GetInfo());
+
+            WriteToFile(nameof(StateNamesWithColonsAreEscaped), result);
+
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void TransitionLabelsWithColonsAreEscaped()
+        {
+            var expected = new StringBuilder()
+                .AppendLine("stateDiagram-v2")
+                .AppendLine("	A --> B : Pay#58; now [Limit#58; 100]")
+                .AppendLine("[*] --> A")
+                .ToString().TrimEnd();
+
+            var sm = new StateMachine<State, string>(State.A);
+
+            sm.Configure(State.A).PermitIf("Pay: now", State.B, () => true, "Limit: 100");
+
+            var result = Graph.MermaidGraph.Format(sm.GetInfo());
+
+            WriteToFile(nameof(TransitionLabelsWithColonsAreEscaped), result);
+
+            Assert.Equal(expected, result);
+        }
+
         private bool IsTrue()
         {
             return true;

@@ -77,7 +77,7 @@ namespace Stateless.Graph
             foreach (var state in _stateMap.Where(x => !x.Key.Equals(x.Value.StateName, StringComparison.Ordinal)))
             {
                 sb.AppendLine();
-                sb.Append($"\t{state.Key} : {state.Value.StateName}");
+                sb.Append($"\t{state.Key} : {EscapeLabel(state.Value.StateName)}");
             }
 
             return sb.ToString();
@@ -121,7 +121,13 @@ namespace Stateless.Graph
 
         internal string FormatOneLine(string fromNodeName, string toNodeName, string label)
         {
-            return $"\t{fromNodeName} --> {toNodeName} : {label}";
+            return $"\t{fromNodeName} --> {toNodeName} : {EscapeLabel(label)}";
+        }
+
+        // A colon separates a node from its label, so a literal one in the label must be written as an entity code.
+        private static string EscapeLabel(string label)
+        {
+            return label.Replace(":", "#58;");
         }
 
         private static string GetDirectionCode(MermaidGraphDirection direction)
