@@ -257,7 +257,7 @@ This method will unregister the specified async function callback from the trans
 #### State machine transition completed unregister (synchronous)
 ```csharp
 // Keep a reference to the synchronous callback action we want to unregister later.
-Action transitionCompletedCallbackAction = (transition) => { };
+Action<Transition> transitionCompletedCallbackAction = (transition) => { };
 stateMachine.OnTransitionCompletedUnregister(transitionCompletedCallbackAction);
 ```
 This method will unregister the specified action callback from the transition completed event.
