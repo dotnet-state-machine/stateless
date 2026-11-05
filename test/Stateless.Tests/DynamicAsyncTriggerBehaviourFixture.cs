@@ -164,5 +164,75 @@ namespace Stateless.Tests
             Assert.True(onEntryFromInvoked, "Expected OnEntryFrom to be invoked");
             Assert.Equal(State.A, sm.State);
         }
+
+        [Fact]
+        public void SyncFire_WithPermitDynamicAsync_Throws_WithoutInvokingSelectorOrTransitioning()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var selectorInvoked = false;
+            var onExitInvoked = false;
+            var transitioned = false;
+
+            sm.Configure(State.A)
+                .PermitDynamicAsync(Trigger.X, () =>
+                {
+                    selectorInvoked = true;
+                    return Task.FromResult(State.B);
+                })
+                .OnExit(() => onExitInvoked = true);
+
+            sm.OnTransitioned(_ => transitioned = true);
+
+            var exception = Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
+
+            Assert.Contains("FireAsync", exception.Message);
+            Assert.False(selectorInvoked, "Expected the async destination selector not to be invoked");
+            Assert.False(onExitInvoked, "Expected OnExit not to be invoked");
+            Assert.False(transitioned, "Expected no transition to occur");
+            Assert.Equal(State.A, sm.State);
+        }
+
+        [Fact]
+        public void SyncFire_WithPermitDynamicAsync_DoesNotSwallowSelectorFaults()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .PermitDynamicAsync(Trigger.X, () => Task.FromException<State>(new ArgumentException("selector failed")));
+
+            // Previously the faulted selector task was dropped by ContinueWith and Fire() returned normally.
+            Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
+            Assert.Equal(State.A, sm.State);
+        }
+
+        [Fact]
+        public void SyncFire_WithParameterisedPermitDynamicIfAsync_Throws_WhenGuardMet()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var trigger = sm.SetTriggerParameters<int>(Trigger.X);
+
+            sm.Configure(State.A)
+                .PermitDynamicIfAsync(trigger, i => Task.FromResult(i == 1 ? State.B : State.C), i => i == 1);
+
+            Assert.Throws<InvalidOperationException>(() => sm.Fire(trigger, 1));
+            Assert.Equal(State.A, sm.State);
+        }
+
+        [Fact]
+        public async Task FireAsync_WithPermitDynamicAsync_StillTransitions()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .PermitDynamicAsync(Trigger.X, async () =>
+                {
+                    await Task.Yield();
+                    return State.B;
+                });
+
+            await sm.FireAsync(Trigger.X);
+
+            Assert.Equal(State.B, sm.State);
+        }
     }
 }
