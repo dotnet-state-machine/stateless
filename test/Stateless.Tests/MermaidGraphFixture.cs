@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using Xunit;
 
 namespace Stateless.Tests
@@ -63,6 +64,40 @@ namespace Stateless.Tests
             WriteToFile(nameof(SimpleTransition_LeftToRight), result);
 
             Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData(Graph.MermaidGraphDirection.RightToLeft, "RL")]
+        [InlineData(Graph.MermaidGraphDirection.TopToBottom, "TB")]
+        [InlineData(Graph.MermaidGraphDirection.BottomToTop, "BT")]
+        public void SimpleTransition_WithDirection_IncludesDirectionCode(Graph.MermaidGraphDirection direction, string directionCode)
+        {
+            var expected = new StringBuilder()
+                .AppendLine("stateDiagram-v2")
+                .AppendLine($"	direction {directionCode}")
+                .AppendLine("	A --> B : X")
+                .AppendLine("[*] --> A")
+                .ToString().TrimEnd();
+
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .Permit(Trigger.X, State.B);
+
+            var result = Graph.MermaidGraph.Format(sm.GetInfo(), direction);
+
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void Format_WithUnsupportedDirection_ThrowsArgumentOutOfRangeException()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            var exception = Assert.Throws<ArgumentOutOfRangeException>(() =>
+                Graph.MermaidGraph.Format(sm.GetInfo(), (Graph.MermaidGraphDirection)999));
+
+            Assert.Equal("direction", exception.ParamName);
         }
 
         [Fact]
@@ -407,6 +442,94 @@ namespace Stateless.Tests
 
             Assert.Equal(expected, result);
         }
+        
+        [Fact]
+        public void MermaidGraph_EscapesLabelsAndGuardDescriptions()
+        {
+            var unsafeState = "B\n%% injected state";
+            var unsafeTrigger = "X\n%% injected trigger";
+            var unsafeGuardDescription = "guard\n%% injected guard";
+            var sm = new StateMachine<string, string>("A");
+
+            sm.Configure("A")
+                .PermitIf(unsafeTrigger, unsafeState, () => true, unsafeGuardDescription);
+            sm.Configure(unsafeState);
+
+            var expected = new StringBuilder()
+                .AppendLine("stateDiagram-v2")
+                .AppendLine("\tBinjectedstate : B<br/>#37;#37; injected state")
+                .AppendLine("\tA --> Binjectedstate : X<br/>#37;#37; injected trigger [guard<br/>#37;#37; injected guard]")
+                .AppendLine("[*] --> A")
+                .ToString().TrimEnd();
+
+            var graph = Graph.MermaidGraph.Format(sm.GetInfo());
+
+            // No line may be a Mermaid comment, which is what a smuggled newline followed by %% would create.
+            Assert.DoesNotContain(graph.Split('\n'), line => line.TrimStart().StartsWith("%%"));
+            Assert.DoesNotContain("\n%% injected state", graph);
+            Assert.DoesNotContain("\n%% injected trigger", graph);
+            Assert.DoesNotContain("\n%% injected guard", graph);
+            Assert.Equal(expected, graph);
+        }
+
+        [Fact]
+        public void MermaidGraph_EscapesDynamicTransitionsAndClusters()
+        {
+            var sm = new StateMachine<string, string>("A");
+
+            sm.Configure("A")
+                .PermitDynamic("X\n%% injected trigger", () => "B\n%% injected state",
+                    null, new Stateless.Reflection.DynamicStateInfos { { "B\n%% injected state", "crit\n%% injected criterion" } });
+            sm.Configure("B\n%% injected state")
+                .SubstateOf("Parent\n%% injected parent");
+            sm.Configure("Parent\n%% injected parent");
+
+            var expected = new StringBuilder()
+                .AppendLine("stateDiagram-v2")
+                .AppendLine("\tParentinjectedparent : Parent<br/>#37;#37; injected parent")
+                .AppendLine("\tBinjectedstate : B<br/>#37;#37; injected state")
+                .AppendLine("\tstate Parentinjectedparent {")
+                .AppendLine("\t\tBinjectedstate")
+                .AppendLine("\t}")
+                .AppendLine("\tstate Decision1 <<choice>>")
+                .AppendLine("\tA --> Decision1 : X<br/>#37;#37; injected trigger")
+                .AppendLine("\tDecision1 --> Binjectedstate : X<br/>#37;#37; injected trigger [crit<br/>#37;#37; injected criterion]")
+                .AppendLine("[*] --> A")
+                .ToString().TrimEnd();
+
+            var graph = Graph.MermaidGraph.Format(sm.GetInfo());
+
+            Assert.DoesNotContain(graph.Split('\n'), line => line.TrimStart().StartsWith("%%"));
+            Assert.Equal(expected, graph);
+        }
+
+        [Fact]
+        public void MermaidGraph_NewlineHandlingDefaultsToHtml()
+        {
+            var info = GetMachineWithLineBreaks();
+
+            var graph = Graph.MermaidGraph.Format(info);
+
+            Assert.Contains("\tA --> B : X<br/>Y<br/>Z<br/>W [g<br/>h]", graph);
+            Assert.Equal(Graph.MermaidGraph.Format(info, null, Graph.MermaidNewlineHandling.Html), graph);
+        }
+
+        [Fact]
+        public void MermaidGraph_NewlineHandlingSpace_ReplacesEachLineBreakWithOneSpace()
+        {
+            var graph = Graph.MermaidGraph.Format(GetMachineWithLineBreaks(), null, Graph.MermaidNewlineHandling.Space);
+
+            Assert.Contains("\tA --> B : X Y Z W [g h]", graph);
+        }
+
+        [Fact]
+        public void MermaidGraph_UnsupportedNewlineHandling_ThrowsArgumentOutOfRangeException()
+        {
+            var info = GetMachineWithLineBreaks();
+
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+                Graph.MermaidGraph.Format(info, null, (Graph.MermaidNewlineHandling)999));
+        }
 
         [Fact]
         public void TransitionLabelsWithColonsAreEscaped()
@@ -426,6 +549,16 @@ namespace Stateless.Tests
             WriteToFile(nameof(TransitionLabelsWithColonsAreEscaped), result);
 
             Assert.Equal(expected, result);
+        }
+
+        private static Stateless.Reflection.StateMachineInfo GetMachineWithLineBreaks()
+        {
+            var sm = new StateMachine<string, string>("A");
+
+            sm.Configure("A")
+                .PermitIf("X\nY\r\nZ\rW", "B", () => true, "g\nh");
+
+            return sm.GetInfo();
         }
 
         private bool IsTrue()

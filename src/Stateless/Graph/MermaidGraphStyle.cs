@@ -13,6 +13,7 @@ namespace Stateless.Graph
     {
         private readonly StateGraph _graph;
         private readonly MermaidGraphDirection? _direction;
+        private readonly MermaidNewlineHandling _newlineHandling;
         private readonly Dictionary<string, State> _stateMap = new Dictionary<string, State>();
         private bool _stateMapInitialized = false;
 
@@ -21,11 +22,23 @@ namespace Stateless.Graph
         /// </summary>
         /// <param name="graph">The state graph</param>
         /// <param name="direction">When non-null, sets the flow direction in the output.</param>
-        public MermaidGraphStyle(StateGraph graph, MermaidGraphDirection? direction) 
+        public MermaidGraphStyle(StateGraph graph, MermaidGraphDirection? direction)
+            : this(graph, direction, MermaidNewlineHandling.Html)
+        {
+        }
+
+        /// <summary>
+        /// Create a new instance of <see cref="MermaidGraphStyle"/>
+        /// </summary>
+        /// <param name="graph">The state graph</param>
+        /// <param name="direction">When non-null, sets the flow direction in the output.</param>
+        /// <param name="newlineHandling">How line breaks in names, triggers and guard descriptions are written.</param>
+        public MermaidGraphStyle(StateGraph graph, MermaidGraphDirection? direction, MermaidNewlineHandling newlineHandling)
             : base()
         {
             _graph = graph;
             _direction = direction;
+            _newlineHandling = newlineHandling;
         }
 
         /// <inheritdoc/>
@@ -125,9 +138,34 @@ namespace Stateless.Graph
         }
 
         // A colon separates a node from its label, so a literal one in the label must be written as an entity code.
-        private static string EscapeLabel(string label)
+        // A line break would end the label and let the rest start a new statement, and %% starts a comment, so
+        // line breaks are replaced as chosen by the caller and percent signs become entity codes.
+        private string EscapeLabel(string label)
         {
-            return label.Replace(":", "#58;");
+            return EscapeNewlines(label, _newlineHandling)
+                .Replace(":", "#58;")
+                .Replace("%", "#37;");
+        }
+
+        private static string EscapeNewlines(string label, MermaidNewlineHandling newlineHandling)
+        {
+            string replacement;
+            switch (newlineHandling)
+            {
+                case MermaidNewlineHandling.Html:
+                    replacement = "<br/>";
+                    break;
+                case MermaidNewlineHandling.Space:
+                    replacement = " ";
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(newlineHandling), newlineHandling, $"Unsupported {nameof(MermaidNewlineHandling)}: {newlineHandling}.");
+            }
+
+            return label
+                .Replace("\r\n", replacement)
+                .Replace("\n", replacement)
+                .Replace("\r", replacement);
         }
 
         private static string GetDirectionCode(MermaidGraphDirection direction)
@@ -158,7 +196,7 @@ namespace Stateless.Graph
             var uniqueAliases = new HashSet<string>();
             foreach (var state in _graph.States)
             {
-                var sanitizedStateName = string.Concat(state.Value.StateName.Where(c => !(char.IsWhiteSpace(c) || c == ':' || c == '-')));
+                var sanitizedStateName = string.Concat(state.Value.StateName.Where(c => !(char.IsWhiteSpace(c) || c == ':' || c == '-' || c == '%')));
                 if (!sanitizedStateName.Equals(state.Value.StateName, StringComparison.Ordinal))
                 {
                     int count = 1;
