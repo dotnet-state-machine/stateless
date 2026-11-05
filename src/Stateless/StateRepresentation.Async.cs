@@ -10,6 +10,9 @@ namespace Stateless
         internal partial class StateRepresentation
         {
             internal IDictionary<TTrigger, ICollection<TriggerBehaviourAsync>> TriggerBehavioursAsync { get; } = new Dictionary<TTrigger, ICollection<TriggerBehaviourAsync>>();
+            internal bool RequiresAsyncPermittedTriggersEvaluation =>
+                TriggerBehavioursAsync.Count != 0 || (Superstate?.RequiresAsyncPermittedTriggersEvaluation ?? false);
+
             public void AddActivateAction(Func<Task> action, Reflection.InvocationInfo activateActionDescription)
             {
                 ActivateActions.Add(new ActivateActionBehaviour.Async(_state, action, activateActionDescription));
@@ -165,11 +168,7 @@ namespace Stateless
             {
                 var resultList = new List<TTrigger>();
 
-                var syncResult = TriggerBehaviours
-                    .Where(t => t.Value.Any(a => !a.UnmetGuardConditions(args).Any()))
-                    .Select(t => t.Key);
-
-                resultList.AddRange(syncResult);
+                resultList.AddRange(GetPermittedTriggersForCurrentState(args));
 
                 var asyncTriggers = await GetAsyncTriggers(args);
                 resultList.AddRange(asyncTriggers);

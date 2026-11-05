@@ -38,6 +38,34 @@ namespace Stateless
                 return TryFindHandler(trigger, args, out TriggerBehaviourResult _);
             }
 
+            IEnumerable<TTrigger> GetPermittedTriggersForCurrentState(object[] args)
+            {
+                return TriggerBehaviours
+                    .Where(t => t.Value.Any(a => !a.UnmetGuardConditions(args).Any()))
+                    .Select(t => t.Key);
+            }
+
+            public List<TTrigger> GetPermittedTriggers(params object[] args)
+            {
+                if (RequiresAsyncPermittedTriggersEvaluation)
+                {
+                    throw new InvalidOperationException(
+                        string.Format(
+                            StateMachineResources.CannotGetPermittedTriggersSynchronously,
+                            _state));
+                }
+
+                var resultList = GetPermittedTriggersForCurrentState(args).ToList();
+
+                if (Superstate != null)
+                {
+                    var superStatePermittedTriggers = Superstate.GetPermittedTriggers(args);
+                    resultList = resultList.Union(superStatePermittedTriggers).ToList();
+                }
+
+                return resultList;
+            }
+
             public bool CanHandle(TTrigger trigger, object[] args, out ICollection<string> unmetGuards)
             {
                 bool handlerFound = TryFindHandler(trigger, args, out TriggerBehaviourResult result);

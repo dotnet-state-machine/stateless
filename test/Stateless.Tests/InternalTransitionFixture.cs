@@ -205,7 +205,6 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        [Obsolete]
         public void ConditionalInternalTransition_ShouldBeReflectedInPermittedTriggersLegacy()
         {
             var isPermitted = true;
