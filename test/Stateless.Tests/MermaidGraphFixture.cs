@@ -503,16 +503,6 @@ namespace Stateless.Tests
             Assert.Equal(expected, graph);
         }
 
-        private static Stateless.Reflection.StateMachineInfo GetMachineWithLineBreaks()
-        {
-            var sm = new StateMachine<string, string>("A");
-
-            sm.Configure("A")
-                .PermitIf("X\nY\r\nZ\rW", "B", () => true, "g\nh");
-
-            return sm.GetInfo();
-        }
-
         [Fact]
         public void MermaidGraph_NewlineHandlingDefaultsToHtml()
         {
@@ -559,6 +549,16 @@ namespace Stateless.Tests
             WriteToFile(nameof(TransitionLabelsWithColonsAreEscaped), result);
 
             Assert.Equal(expected, result);
+        }
+
+        private static Stateless.Reflection.StateMachineInfo GetMachineWithLineBreaks()
+        {
+            var sm = new StateMachine<string, string>("A");
+
+            sm.Configure("A")
+                .PermitIf("X\nY\r\nZ\rW", "B", () => true, "g\nh");
+
+            return sm.GetInfo();
         }
 
         private bool IsTrue()
