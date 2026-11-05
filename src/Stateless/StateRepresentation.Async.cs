@@ -209,29 +209,26 @@ namespace Stateless
 
                 if (syncTriggerNotFound && asyncTriggerNotFound) return null;
 
-                // Guard functions are executed here
-                var actualSync = syncTriggers?
-                    .Select(h => new TriggerBehaviourResult(h, h.UnmetGuardConditions(args)))
-                    .ToArray();
+                // Guard functions are executed here. Sync and async candidates are evaluated as a single set so that
+                // an open handler from either set is preferred over a closed one, and ambiguity across sets is detected.
+                var candidates = new List<TriggerBehaviourResult>();
 
-                var handleResultSync = actualSync != null ? TryFindLocalHandlerResult(trigger, actualSync) ?? TryFindLocalHandlerResultWithUnmetGuardConditions(actualSync) : null;
-
-                var asyncTriggerBehaviourResult = new List<TriggerBehaviourResult>();
-
-                TriggerBehaviourResult handleResultAsync = null;
+                if (syncTriggers != null)
+                {
+                    candidates.AddRange(syncTriggers.Select(h => new TriggerBehaviourResult(h, h.UnmetGuardConditions(args))));
+                }
 
                 if (asyncTriggers != null)
                 {
                     foreach (var asyncTrigger in asyncTriggers)
                     {
                         var unmetGuardConditions = await asyncTrigger.UnmetGuardConditions(args);
-                        asyncTriggerBehaviourResult.Add(new TriggerBehaviourResult(asyncTrigger, unmetGuardConditions));
+                        candidates.Add(new TriggerBehaviourResult(asyncTrigger, unmetGuardConditions));
                     }
-
-                    handleResultAsync = TryFindLocalHandlerResult(trigger, asyncTriggerBehaviourResult) ?? TryFindLocalHandlerResultWithUnmetGuardConditions(asyncTriggerBehaviourResult);
                 }
 
-                return handleResultSync ?? handleResultAsync;
+                return TryFindLocalHandlerResult(trigger, candidates)
+                    ?? TryFindLocalHandlerResultWithUnmetGuardConditions(candidates);
             }
         }
     }
