@@ -216,7 +216,7 @@ namespace Stateless
 
             if (foundHandler == null || foundHandler.UnmetGuardConditions.Any())
             {
-                await _unhandledTriggerAction.ExecuteAsync(representativeState.UnderlyingState, trigger, null);
+                await _unhandledTriggerAction.ExecuteAsync(representativeState.UnderlyingState, trigger, foundHandler?.UnmetGuardConditions);
                 return;
             }
 
