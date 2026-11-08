@@ -340,6 +340,55 @@ namespace Stateless.Tests
         }
 
         [Fact]
+        public async Task OnUnhandledTriggerAsync_ReceivesUnmetGuardDescriptions_WhenSyncGuardFails()
+        {
+            const string guardDescription = "Sync guard failed";
+            ICollection<string> unmetGuards = null;
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .PermitIf(Trigger.X, State.B, () => false, guardDescription);
+
+            sm.OnUnhandledTriggerAsync((s, t, u) =>
+            {
+                unmetGuards = u;
+                return TaskResult.Done;
+            });
+
+            await sm.FireAsync(Trigger.X).ConfigureAwait(false);
+
+            Assert.Equal(State.A, sm.State);
+            Assert.NotNull(unmetGuards);
+            Assert.Equal(new[] { guardDescription }, unmetGuards);
+        }
+
+        [Fact]
+        public async Task OnUnhandledTriggerAsync_ReceivesUnmetGuardDescriptions_FromSuperstate()
+        {
+            const string guardDescription = "Superstate guard failed";
+            ICollection<string> unmetGuards = null;
+            var sm = new StateMachine<State, Trigger>(State.B);
+
+            sm.Configure(State.A)
+                .PermitIfAsync(Trigger.X, State.C, () => Task.FromResult(false), guardDescription);
+
+            sm.Configure(State.B)
+                .SubstateOf(State.A);
+
+            sm.OnUnhandledTriggerAsync((s, t, u) =>
+            {
+                unmetGuards = u;
+                return TaskResult.Done;
+            });
+
+            await sm.FireAsync(Trigger.X).ConfigureAwait(false);
+
+            Assert.Equal(State.B, sm.State);
+            Assert.NotNull(unmetGuards);
+            Assert.Contains(guardDescription, unmetGuards);
+        }
+
+        [Fact]
         public async Task FireAsyncThrowsGuardDescriptionsWhenGuardFails()
         {
             const string guardDescription = "Guard failed";
