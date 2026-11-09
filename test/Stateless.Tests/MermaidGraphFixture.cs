@@ -504,31 +504,11 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        public void MermaidGraph_NewlineHandlingDefaultsToHtml()
+        public void MermaidGraph_LineBreaksBecomeHtmlBreaks()
         {
-            var info = GetMachineWithLineBreaks();
-
-            var graph = Graph.MermaidGraph.Format(info);
+            var graph = Graph.MermaidGraph.Format(GetMachineWithLineBreaks());
 
             Assert.Contains("\tA --> B : X<br/>Y<br/>Z<br/>W [g<br/>h]", graph);
-            Assert.Equal(Graph.MermaidGraph.Format(info, null, Graph.MermaidNewlineHandling.Html), graph);
-        }
-
-        [Fact]
-        public void MermaidGraph_NewlineHandlingSpace_ReplacesEachLineBreakWithOneSpace()
-        {
-            var graph = Graph.MermaidGraph.Format(GetMachineWithLineBreaks(), null, Graph.MermaidNewlineHandling.Space);
-
-            Assert.Contains("\tA --> B : X Y Z W [g h]", graph);
-        }
-
-        [Fact]
-        public void MermaidGraph_UnsupportedNewlineHandling_ThrowsArgumentOutOfRangeException()
-        {
-            var info = GetMachineWithLineBreaks();
-
-            Assert.Throws<ArgumentOutOfRangeException>(() =>
-                Graph.MermaidGraph.Format(info, null, (Graph.MermaidNewlineHandling)999));
         }
 
         [Fact]
