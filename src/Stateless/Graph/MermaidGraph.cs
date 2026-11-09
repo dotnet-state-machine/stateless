@@ -2,7 +2,7 @@
 using System.Collections;
 
 namespace Stateless.Graph
-{
+        {
     /// <summary>
     /// Class to generate a MermaidGraph
     /// </summary>

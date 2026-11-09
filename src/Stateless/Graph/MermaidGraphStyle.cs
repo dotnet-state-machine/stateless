@@ -21,7 +21,7 @@ namespace Stateless.Graph
         /// </summary>
         /// <param name="graph">The state graph</param>
         /// <param name="direction">When non-null, sets the flow direction in the output.</param>
-        public MermaidGraphStyle(StateGraph graph, MermaidGraphDirection? direction) 
+        public MermaidGraphStyle(StateGraph graph, MermaidGraphDirection? direction)
             : base()
         {
             _graph = graph;
@@ -125,9 +125,21 @@ namespace Stateless.Graph
         }
 
         // A colon separates a node from its label, so a literal one in the label must be written as an entity code.
+        // A line break would end the label and let the rest start a new statement, and %% starts a comment, so
+        // line breaks become <br/> and percent signs become entity codes.
         private static string EscapeLabel(string label)
         {
-            return label.Replace(":", "#58;");
+            return EscapeNewlines(label)
+                .Replace(":", "#58;")
+                .Replace("%", "#37;");
+        }
+
+        private static string EscapeNewlines(string label)
+        {
+            return label
+                .Replace("\r\n", "<br/>")
+                .Replace("\n", "<br/>")
+                .Replace("\r", "<br/>");
         }
 
         private static string GetDirectionCode(MermaidGraphDirection direction)
@@ -158,7 +170,7 @@ namespace Stateless.Graph
             var uniqueAliases = new HashSet<string>();
             foreach (var state in _graph.States)
             {
-                var sanitizedStateName = string.Concat(state.Value.StateName.Where(c => !(char.IsWhiteSpace(c) || c == ':' || c == '-')));
+                var sanitizedStateName = string.Concat(state.Value.StateName.Where(c => !(char.IsWhiteSpace(c) || c == ':' || c == '-' || c == '%')));
                 if (!sanitizedStateName.Equals(state.Value.StateName, StringComparison.Ordinal))
                 {
                     int count = 1;
