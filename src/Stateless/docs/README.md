@@ -48,9 +48,9 @@ Some useful extensions are also provided:
 For guidance on how to use Stateles, the 
 [project README file](https://github.com/dotnet-state-machine/stateless?tab=readme-ov-file#stateless----) 
 contains documentation and code examples. The source repository also includes a few 
-[example projects](https://github.com/dotnet-state-machine/stateless/tree/dev/example).
+[example projects](https://github.com/dotnet-state-machine/stateless/tree/main/example).
 
 ## Contributing
 
 We welcome contributions to this project. Check 
-[CONTRIBUTING.md](https://github.com/dotnet-state-machine/stateless/blob/dev/CONTRIBUTING.md) for more info.
+[CONTRIBUTING.md](https://github.com/dotnet-state-machine/stateless/blob/main/CONTRIBUTING.md) for more info.

@@ -1,0 +1,66 @@
+name: Release
+
+on:
+  push:
+    tags: [ 'v*' ]
+
+permissions:
+  contents: write
+
+jobs:
+  Release:
+    if: github.repository == 'dotnet-state-machine/stateless'
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v5
+      with:
+        fetch-depth: 0 # MinVer needs tag history to calculate the version
+
+    - name: Extract release notes from CHANGELOG
+      shell: bash
+      run: |
+        version="${GITHUB_REF_NAME#v}"
+        awk -v v="$version" '
+          $0 ~ "^## " && found { exit }
+          index($0, "## " v " ") == 1 || $0 == "## " v { found = 1; next }
+          found { print }
+        ' CHANGELOG.md | sed -E 's/\[#([0-9]+)\]/#\1/g' > release-notes.md
+        if [ ! -s release-notes.md ]; then
+          echo "::error::No '## $version' section found in CHANGELOG.md"
+          exit 1
+        fi
+        cat release-notes.md
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: |
+          8.0.x
+          9.0.x
+          10.0.x
+          11.0.x
+
+    - name: Install dependencies
+      run: dotnet restore
+
+    - name: Build Stateless solution
+      run: dotnet build Stateless.sln --configuration Release --no-restore
+
+    - name: Test Stateless
+      run: dotnet test --no-restore --no-build --configuration Release
+
+    - name: Pack release version
+      run: dotnet pack src\Stateless\Stateless.csproj --configuration Release --no-build --output out
+
+    - name: Publish to NuGet
+      run: dotnet nuget push out\*.nupkg -s nuget.org --api-key ${{ secrets.NUGETAPIKEY }}
+
+    - name: Create GitHub Release
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        prerelease=""
+        [[ "$GITHUB_REF_NAME" == *-* ]] && prerelease="--prerelease"
+        gh release create "$GITHUB_REF_NAME" out/*.nupkg out/*.snupkg \
+          --verify-tag --title "$GITHUB_REF_NAME" --notes-file release-notes.md $prerelease

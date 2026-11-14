@@ -5,14 +5,24 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
-### Fixed
- - Synchronous `Fire` with an async dynamic destination selector (`PermitDynamicAsync`, `PermitDynamicIfAsync`) that has already completed now finishes the transition before `Fire` returns. Exceptions thrown by such a selector now propagate to the caller [#658]
- - `FireAsync` now uses an async handler whose guard passes when a sync handler for the same trigger has a failing guard. Unmet guard descriptions from both sync and async handlers are reported [#658]
+### Added
+ - Added .NET 11 to build targets [#660]
+ - Marked .NET 8+ targets as Native AOT compatible [#656]
+### Changed
+ - Package versions are now derived from git tags; releases are published from `vX.Y.Z` tags
 ### Deprecated
  - The following behaviours are kept for compatibility in 5.x and will change in 6.0.0 [#658]:
    - Synchronous `Fire` with an async dynamic destination selector that is still running returns before the transition happens, and exceptions from the selector or the transition are not observed. In 6.0.0 this will throw `InvalidOperationException`; use `FireAsync` instead.
    - Synchronous `Fire` with an async dynamic destination selector runs async entry/exit actions and async transition callbacks (`OnEntryAsync`, `OnExitAsync`, `OnTransitionedAsync`, `OnTransitionCompletedAsync`). If one is still running when `Fire` returns, it finishes in the background and its exceptions are not observed. In 6.0.0 this will throw `InvalidOperationException`; use `FireAsync` instead.
    - If a sync handler and an async handler for the same trigger both have passing guards, `FireAsync` uses the sync handler. In 6.0.0 this will throw `InvalidOperationException` (multiple transitions permitted).
+### Fixed
+ - Synchronous `Fire` with an async dynamic destination selector (`PermitDynamicAsync`, `PermitDynamicIfAsync`) that has already completed now finishes the transition before `Fire` returns. Exceptions thrown by such a selector now propagate to the caller [#658]
+ - `FireAsync` now uses an async handler whose guard passes when a sync handler for the same trigger has a failing guard. Unmet guard descriptions from both sync and async handlers are reported [#658]
+ - Async triggers are now included in state info returned by `GetInfo` [#644]
+ - Restored synchronous `PermittedTriggers` for sync-only state machines [#647], [#634]
+ - Async guard conditions were ignored in some cases [#646], [#645]
+ - Mermaid graph labels now escape `:`, `%`, `#`, `&`, `<`, `>` and newlines, and state aliases avoid reserved words and special characters [#655], [#657]
+ - Corrected callback unregister examples in the README [#652], [#654]
 
 ## 5.20.1 - 2025.11.16
 ### Added
@@ -273,6 +283,18 @@ Version 5.10.0 is now listed as the newest, since it has the highest version num
 ### Removed
 ### Fixed
 
+[#660]: https://github.com/dotnet-state-machine/stateless/pull/660
+[#658]: https://github.com/dotnet-state-machine/stateless/pull/658
+[#657]: https://github.com/dotnet-state-machine/stateless/pull/657
+[#656]: https://github.com/dotnet-state-machine/stateless/pull/656
+[#655]: https://github.com/dotnet-state-machine/stateless/pull/655
+[#654]: https://github.com/dotnet-state-machine/stateless/pull/654
+[#652]: https://github.com/dotnet-state-machine/stateless/pull/652
+[#647]: https://github.com/dotnet-state-machine/stateless/pull/647
+[#646]: https://github.com/dotnet-state-machine/stateless/pull/646
+[#645]: https://github.com/dotnet-state-machine/stateless/issues/645
+[#644]: https://github.com/dotnet-state-machine/stateless/pull/644
+[#634]: https://github.com/dotnet-state-machine/stateless/issues/634
 [#636]: https://github.com/dotnet-state-machine/stateless/issues/636
 [#631]: https://github.com/dotnet-state-machine/stateless/pull/631
 [#626]: https://github.com/dotnet-state-machine/stateless/pull/626
