@@ -193,24 +193,154 @@ namespace Stateless.Tests
             // with no exit or transition.
             var sm = new StateMachine<State, Trigger>(State.A);
             var pending = new TaskCompletionSource<State>(TaskCreationOptions.RunContinuationsAsynchronously);
-            var transitioned = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var completedTransition = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var onEntryAsyncInvoked = false;
 
             sm.Configure(State.A)
                 .PermitDynamicAsync(Trigger.X, () => pending.Task);
 
-            sm.OnTransitioned(_ => transitioned.TrySetResult(true));
+            sm.Configure(State.B)
+                .OnEntryAsync(async () =>
+                {
+                    await Task.Yield();
+                    onEntryAsyncInvoked = true;
+                });
+
+            // OnTransitionCompleted fires after entry actions, so it proves the whole transition finished.
+            sm.OnTransitionCompleted(_ => completedTransition.TrySetResult(true));
 
             sm.Fire(Trigger.X);
 
             // Fire() returns before the selector completes, so nothing has happened yet.
             Assert.Equal(State.A, sm.State);
-            Assert.False(transitioned.Task.IsCompleted, "Expected no transition before the selector completes");
+            Assert.False(completedTransition.Task.IsCompleted, "Expected no transition before the selector completes");
 
             pending.SetResult(State.B);
 
-            var completed = await Task.WhenAny(transitioned.Task, Task.Delay(TimeSpan.FromSeconds(5)));
-            Assert.Same(transitioned.Task, completed);
+            var completed = await Task.WhenAny(completedTransition.Task, Task.Delay(TimeSpan.FromSeconds(5)));
+            Assert.Same(completedTransition.Task, completed);
+            Assert.True(onEntryAsyncInvoked, "Expected the async entry action to run");
             Assert.Equal(State.B, sm.State);
+        }
+
+        [Fact]
+        public void SyncFire_WithPermitDynamicAsync_RunsAsyncEntryAction_WhenSelectorAlreadyCompleted()
+        {
+            // v5 compatibility (#658): in v6.0.0 Fire() throws InvalidOperationException ("use FireAsync") instead.
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var onEntryAsyncInvoked = false;
+            var transitionCompleted = false;
+
+            sm.Configure(State.A)
+                .PermitDynamicAsync(Trigger.X, () => Task.FromResult(State.B));
+
+            sm.Configure(State.B)
+                .OnEntryAsync(() =>
+                {
+                    onEntryAsyncInvoked = true;
+                    return Task.CompletedTask;
+                });
+
+            sm.OnTransitionCompleted(_ => transitionCompleted = true);
+
+            sm.Fire(Trigger.X);
+
+            Assert.True(onEntryAsyncInvoked, "Expected the async entry action to run before Fire() returns");
+            Assert.True(transitionCompleted, "Expected the transition to complete before Fire() returns");
+            Assert.Equal(State.B, sm.State);
+        }
+
+        [Fact]
+        public void SyncFire_WithPermitDynamicAsync_RunsAsyncExitAction_WhenSelectorAlreadyCompleted()
+        {
+            // v5 compatibility (#658): in v6.0.0 Fire() throws InvalidOperationException ("use FireAsync") instead.
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var onExitAsyncInvoked = false;
+
+            sm.Configure(State.A)
+                .PermitDynamicAsync(Trigger.X, () => Task.FromResult(State.B))
+                .OnExitAsync(() =>
+                {
+                    onExitAsyncInvoked = true;
+                    return Task.CompletedTask;
+                });
+
+            sm.Fire(Trigger.X);
+
+            Assert.True(onExitAsyncInvoked, "Expected the async exit action to run before Fire() returns");
+            Assert.Equal(State.B, sm.State);
+        }
+
+        [Fact]
+        public void SyncFire_WithPermitDynamicAsync_RunsAsyncTransitionCallbacks_WhenSelectorAlreadyCompleted()
+        {
+            // v5 compatibility (#658): in v6.0.0 Fire() throws InvalidOperationException ("use FireAsync") instead.
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var onTransitionedAsyncInvoked = false;
+            var onTransitionCompletedAsyncInvoked = false;
+
+            sm.Configure(State.A)
+                .PermitDynamicAsync(Trigger.X, () => Task.FromResult(State.B));
+
+            sm.OnTransitionedAsync(_ =>
+            {
+                onTransitionedAsyncInvoked = true;
+                return Task.CompletedTask;
+            });
+            sm.OnTransitionCompletedAsync(_ =>
+            {
+                onTransitionCompletedAsyncInvoked = true;
+                return Task.CompletedTask;
+            });
+
+            sm.Fire(Trigger.X);
+
+            Assert.True(onTransitionedAsyncInvoked, "Expected OnTransitionedAsync to run before Fire() returns");
+            Assert.True(onTransitionCompletedAsyncInvoked, "Expected OnTransitionCompletedAsync to run before Fire() returns");
+            Assert.Equal(State.B, sm.State);
+        }
+
+        [Fact]
+        public async Task SyncFire_WithPermitDynamicAsync_FinishesRunningAsyncEntryActionLater_WhenSelectorAlreadyCompleted()
+        {
+            // v5 compatibility (#658): in v6.0.0 Fire() throws InvalidOperationException ("use FireAsync") instead.
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var entryGate = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var completedTransition = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            sm.Configure(State.A)
+                .PermitDynamicAsync(Trigger.X, () => Task.FromResult(State.B));
+
+            sm.Configure(State.B)
+                .OnEntryAsync(() => entryGate.Task);
+
+            sm.OnTransitionCompleted(_ => completedTransition.TrySetResult(true));
+
+            sm.Fire(Trigger.X);
+
+            // The entry action is still running, so Fire() has returned before the transition completed.
+            Assert.False(completedTransition.Task.IsCompleted, "Expected the transition not to complete while the entry action is running");
+
+            entryGate.SetResult(true);
+
+            var completed = await Task.WhenAny(completedTransition.Task, Task.Delay(TimeSpan.FromSeconds(5)));
+            Assert.Same(completedTransition.Task, completed);
+            Assert.Equal(State.B, sm.State);
+        }
+
+        [Fact]
+        public void SyncFire_WithPermitDynamicAsync_RethrowsSyncEntryActionException_WhenSelectorAlreadyCompleted()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .PermitDynamicAsync(Trigger.X, () => Task.FromResult(State.B));
+
+            sm.Configure(State.B)
+                .OnEntry(() => throw new ArgumentException("entry failed"));
+
+            var exception = Assert.Throws<ArgumentException>(() => sm.Fire(Trigger.X));
+            Assert.Equal("entry failed", exception.Message);
         }
 
         [Fact]

@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Deprecated
  - The following behaviours are kept for compatibility in 5.x and will change in 6.0.0 [#658]:
    - Synchronous `Fire` with an async dynamic destination selector that is still running returns before the transition happens, and exceptions from the selector or the transition are not observed. In 6.0.0 this will throw `InvalidOperationException`; use `FireAsync` instead.
+   - Synchronous `Fire` with an async dynamic destination selector runs async entry/exit actions and async transition callbacks (`OnEntryAsync`, `OnExitAsync`, `OnTransitionedAsync`, `OnTransitionCompletedAsync`). If one is still running when `Fire` returns, it finishes in the background and its exceptions are not observed. In 6.0.0 this will throw `InvalidOperationException`; use `FireAsync` instead.
    - If a sync handler and an async handler for the same trigger both have passing guards, `FireAsync` uses the sync handler. In 6.0.0 this will throw `InvalidOperationException` (multiple transitions permitted).
 
 ## 5.20.1 - 2025.11.16
