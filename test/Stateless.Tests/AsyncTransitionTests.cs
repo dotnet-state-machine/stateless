@@ -148,13 +148,29 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        public async Task FireAsync_Throws_WhenSyncAndAsyncHandlersAreBothOpen()
+        public async Task FireAsync_UsesSyncHandler_WhenSyncAndAsyncHandlersAreBothOpen()
         {
+            // v5 compatibility (#658): in v6.0.0 this throws InvalidOperationException and the state stays A.
             var sm = new StateMachine<State, Trigger>(State.A);
 
             sm.Configure(State.A)
                 .PermitIf(Trigger.X, State.B, () => true, "sync path open")
                 .PermitIfAsync(Trigger.X, State.C, () => Task.FromResult(true), "async path open");
+
+            await sm.FireAsync(Trigger.X);
+
+            Assert.Equal(State.B, sm.State);
+        }
+
+        [Fact]
+        public async Task FireAsync_Throws_WhenTwoSyncHandlersAreOpen_EvenWithAsyncHandlerPresent()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .PermitIf(Trigger.X, State.B, () => true, "sync path 1 open")
+                .PermitIf(Trigger.X, State.C, () => true, "sync path 2 open")
+                .PermitIfAsync(Trigger.X, State.D, () => Task.FromResult(false), "async path closed");
 
             await Assert.ThrowsAsync<InvalidOperationException>(() => sm.FireAsync(Trigger.X));
 

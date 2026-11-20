@@ -217,6 +217,12 @@ namespace Stateless
                     candidates.AddRange(syncTriggers.Select(h => new TriggerBehaviourResult(h, h.UnmetGuardConditions(args))));
                 }
 
+                // v5 compatibility (#658): REMOVE IN v6.0.0.
+                // Preserves the pre-#658 rule that an open sync handler wins over open async handlers, instead of
+                // throwing "multiple transitions permitted". Async guards are still evaluated, as they were before.
+                var syncCandidateCount = candidates.Count;
+                // End v5 compatibility.
+
                 if (asyncTriggers != null)
                 {
                     foreach (var asyncTrigger in asyncTriggers)
@@ -225,6 +231,12 @@ namespace Stateless
                         candidates.Add(new TriggerBehaviourResult(asyncTrigger, unmetGuardConditions));
                     }
                 }
+
+                // v5 compatibility (#658): REMOVE IN v6.0.0.
+                var openSyncHandler = TryFindLocalHandlerResult(trigger, candidates.Take(syncCandidateCount));
+                if (openSyncHandler != null)
+                    return openSyncHandler;
+                // End v5 compatibility.
 
                 return TryFindLocalHandlerResult(trigger, candidates)
                     ?? TryFindLocalHandlerResultWithUnmetGuardConditions(candidates);

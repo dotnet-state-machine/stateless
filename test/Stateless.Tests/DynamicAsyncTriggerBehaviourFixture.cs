@@ -187,25 +187,30 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        public void SyncFire_WithPermitDynamicAsync_Throws_WithoutTransitioning_WhenSelectorStillRunning()
+        public async Task SyncFire_WithPermitDynamicAsync_TransitionsLater_WhenSelectorStillRunning()
         {
+            // v5 compatibility (#658): in v6.0.0 Fire() throws InvalidOperationException ("use FireAsync") instead,
+            // with no exit or transition.
             var sm = new StateMachine<State, Trigger>(State.A);
-            var pending = new TaskCompletionSource<State>();
-            var onExitInvoked = false;
-            var transitioned = false;
+            var pending = new TaskCompletionSource<State>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var transitioned = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
             sm.Configure(State.A)
-                .PermitDynamicAsync(Trigger.X, () => pending.Task)
-                .OnExit(() => onExitInvoked = true);
+                .PermitDynamicAsync(Trigger.X, () => pending.Task);
 
-            sm.OnTransitioned(_ => transitioned = true);
+            sm.OnTransitioned(_ => transitioned.TrySetResult(true));
 
-            var exception = Assert.Throws<InvalidOperationException>(() => sm.Fire(Trigger.X));
+            sm.Fire(Trigger.X);
 
-            Assert.Contains("FireAsync", exception.Message);
-            Assert.False(onExitInvoked, "Expected OnExit not to be invoked");
-            Assert.False(transitioned, "Expected no transition to occur");
+            // Fire() returns before the selector completes, so nothing has happened yet.
             Assert.Equal(State.A, sm.State);
+            Assert.False(transitioned.Task.IsCompleted, "Expected no transition before the selector completes");
+
+            pending.SetResult(State.B);
+
+            var completed = await Task.WhenAny(transitioned.Task, Task.Delay(TimeSpan.FromSeconds(5)));
+            Assert.Same(transitioned.Task, completed);
+            Assert.Equal(State.B, sm.State);
         }
 
         [Fact]

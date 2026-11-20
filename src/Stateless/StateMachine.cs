@@ -423,6 +423,20 @@ namespace Stateless
                     {
                         var destinationTask = asyncHandler.GetDestinationState(source, args);
 
+                        // v5 compatibility (#658): REMOVE IN v6.0.0 and restore the throw below.
+                        // Preserves the pre-#658 fire-and-forget behaviour for a selector that is still running:
+                        // Fire() returns before the transition happens, and exceptions are not observed.
+                        if (!destinationTask.IsCompleted)
+                        {
+                            destinationTask.ContinueWith(t =>
+                            {
+                                var pendingTransition = new Transition(source, t.Result, trigger, args);
+                                return HandleTransitioningTriggerAsync(args, representativeState, pendingTransition);
+                            });
+                            break;
+                        }
+                        // End v5 compatibility.
+
                         // If the selector has not completed, the transition cannot finish before Fire() returns.
                         if (!destinationTask.IsCompleted)
                             throw new InvalidOperationException(
