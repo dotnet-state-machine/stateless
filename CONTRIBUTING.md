@@ -30,13 +30,21 @@ Package versions are calculated by [MinVer](https://github.com/adamralph/minver)
 Contributors should add a line describing their change to the `## Unreleased` section of [CHANGELOG.md](CHANGELOG.md). To publish a release:
 
 1. In a pull request to `main`, rename `## Unreleased` in the CHANGELOG to `## X.Y.Z - YYYY.MM.DD` (following [Semantic Versioning](https://semver.org/)), and add a new empty `## Unreleased` section above it.
-2. Once merged, tag the merge commit and push the tag:
+2. Once merged, update your local `main` and review any workflow changes since the previous release. The release runs the workflow files from the tagged commit, so check nothing unexpected has changed under `.github/`:
    ```
    git checkout main && git pull
+   git log <previous tag>..HEAD -- .github/
+   ```
+3. Tag the merge commit and push the tag:
+   ```
    git tag vX.Y.Z
    git push origin vX.Y.Z
    ```
-3. The [Release workflow](.github/workflows/Release.yml) builds, tests and publishes the package to NuGet, then creates a GitHub Release using the CHANGELOG section as release notes. It fails if the CHANGELOG has no section for the tagged version.
+4. The [Release workflow](.github/workflows/Release.yml) builds, tests and publishes the package to NuGet, then creates a GitHub Release using the CHANGELOG section as release notes. It fails before publishing anything if the tag isn't a valid `vX.Y.Z` or `vX.Y.Z-prerelease` version, if the tagged commit isn't on `main`, or if the CHANGELOG has no section for the tagged version.
+
+Fixes are made on `main` and released from there; there are no release or maintenance branches, and the Release workflow only accepts tags on `main`. If a critical fix ever needs backporting to an earlier version, support for maintenance branches will be added then.
+
+Releases are immutable, and NuGet packages can't be deleted. If a release is bad, don't delete it: fix the problem on `main` and release a new patch version. A bad package can also be [unlisted](https://learn.microsoft.com/nuget/nuget-org/policies/deleting-packages) on NuGet.
 
 ## Other Ways to Contribute
 

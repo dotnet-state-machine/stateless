@@ -1,13 +1,18 @@
 name: CI for Pull Requests
 
 # Build and test run on every branch, in forks as well as upstream.
-# Publishing is restricted to main in the upstream repo by the step conditions below.
+# Pre-release publishing runs only on pushes to main in the upstream repo (publish-alpha job).
 on:
   push:
     branches: [ '**' ] # all branches, but not tags (tags are handled by Release.yml)
   pull_request:
+    branches: [ dev, main ] # TODO: remove dev once it has been renamed to main
+
+permissions:
+  contents: read
 
 jobs:
+  # The job ID is the required status check name; renaming it means updating the main ruleset.
   Build_Stateless_solution:
     runs-on: windows-latest
     steps:
@@ -33,12 +38,39 @@ jobs:
     - name: Test Stateless
       run: dotnet test --no-restore --no-build --configuration Release
 
-    # Pre-release version (e.g. 5.21.1-alpha.0.3) is calculated by MinVer from the latest vX.Y.Z tag
-    - name: Pack pre-release version
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push' && github.repository == 'dotnet-state-machine/stateless'
-      run: dotnet pack src\Stateless\Stateless.csproj --configuration Release --no-build
-    - name: Publish pre-release version
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push' && github.repository == 'dotnet-state-machine/stateless'
-      run: dotnet nuget push src\Stateless\bin\Release\*.nupkg -s nuget.org --api-key ${{ secrets.NUGETAPIKEY }}
+  # Pre-release version (e.g. 5.21.1-alpha.0.3) is calculated by MinVer from the latest vX.Y.Z tag.
+  # Stable releases are published by Release.yml when a vX.Y.Z tag is pushed.
+  publish-alpha:
+    needs: Build_Stateless_solution
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'dotnet-state-machine/stateless'
+    runs-on: windows-latest
+    environment: nuget-prerelease # must match the nuget.org Trusted Publishing policy
+    permissions:
+      contents: read
+      id-token: write # required for NuGet Trusted Publishing
+    steps:
+    - uses: actions/checkout@v5
+      with:
+        fetch-depth: 0 # MinVer needs tag history to calculate the version
 
-    # Stable releases are published by Release.yml when a vX.Y.Z tag is pushed
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: |
+          8.0.x
+          9.0.x
+          10.0.x
+          11.0.x
+
+    - name: Pack pre-release version
+      run: dotnet pack src\Stateless\Stateless.csproj --configuration Release --output out
+
+    # Short-lived API key; keep this immediately before the push
+    - name: NuGet login
+      uses: NuGet/login@v1
+      id: nuget-login
+      with:
+        user: ${{ secrets.NUGET_USER }}
+
+    - name: Publish pre-release version
+      run: dotnet nuget push out\*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ steps.nuget-login.outputs.NUGET_API_KEY }} --skip-duplicate

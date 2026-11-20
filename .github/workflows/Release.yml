@@ -4,17 +4,40 @@ on:
   push:
     tags: [ 'v*' ]
 
-permissions:
-  contents: write
-
 jobs:
   Release:
     if: github.repository == 'dotnet-state-machine/stateless'
     runs-on: windows-latest
+    environment: nuget-release # must match the nuget.org Trusted Publishing policy
+    permissions:
+      contents: write # create the GitHub Release
+      id-token: write # required for NuGet Trusted Publishing
     steps:
     - uses: actions/checkout@v5
       with:
-        fetch-depth: 0 # MinVer needs tag history to calculate the version
+        fetch-depth: 0 # MinVer needs tag history; also fetches origin/main for the ancestry check
+
+    - name: Validate tag
+      shell: bash
+      run: |
+        tag="$GITHUB_REF_NAME"
+        # vX.Y.Z or vX.Y.Z-prerelease (SemVer 2.0.0, no build metadata)
+        id='(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)'
+        re="^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-${id}(\.${id})*)?$"
+        if ! [[ "$tag" =~ $re ]]; then
+          echo "::error::Tag '$tag' is not a valid SemVer release tag (vX.Y.Z or vX.Y.Z-prerelease)"
+          exit 1
+        fi
+        if ! git rev-parse --verify --quiet origin/main > /dev/null; then
+          echo "::error::origin/main not found"
+          exit 1
+        fi
+        commit=$(git rev-parse "refs/tags/$tag^{commit}")
+        if ! git merge-base --is-ancestor "$commit" origin/main; then
+          echo "::error::Tagged commit $commit is not on main"
+          exit 1
+        fi
+        echo "Tag $tag ($commit) is valid and on main"
 
     - name: Extract release notes from CHANGELOG
       shell: bash
@@ -52,9 +75,29 @@ jobs:
     - name: Pack release version
       run: dotnet pack src\Stateless\Stateless.csproj --configuration Release --no-build --output out
 
-    - name: Publish to NuGet
-      run: dotnet nuget push out\*.nupkg -s nuget.org --api-key ${{ secrets.NUGETAPIKEY }}
+    # MinVer uses the highest version tag on a commit, so a second tag (or a missing one) could produce a different version
+    - name: Check package version matches tag
+      shell: bash
+      run: |
+        expected="Stateless.${GITHUB_REF_NAME#v}.nupkg"
+        actual=$(cd out && ls *.nupkg)
+        if [ "$actual" != "$expected" ]; then
+          echo "::error::Expected $expected for tag $GITHUB_REF_NAME, but packed: $actual"
+          exit 1
+        fi
+        echo "Packed $actual"
 
+    # Short-lived API key; keep this immediately before the push
+    - name: NuGet login
+      uses: NuGet/login@v1
+      id: nuget-login
+      with:
+        user: ${{ secrets.NUGET_USER }}
+
+    - name: Publish to NuGet
+      run: dotnet nuget push out\*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ steps.nuget-login.outputs.NUGET_API_KEY }} --skip-duplicate
+
+    # Must stay the last step: with immutable releases enabled, a published release can't be changed
     - name: Create GitHub Release
       shell: bash
       env:
