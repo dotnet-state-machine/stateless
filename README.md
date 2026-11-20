@@ -42,6 +42,7 @@ Some useful extensions are also provided:
  * Reentrant states
  * Export to DOT graph
  * Export to mermaid graph
+ * Export to PlantUML graph
 
 ### Hierarchical States
 
@@ -324,6 +325,34 @@ stateDiagram-v2
      [*] --> OffHook
     OffHook --> Ringing : CallDialled
 ```
+
+### Export to PlantUML graph
+
+[PlantUML](https://plantuml.com/state-diagram) state diagrams can also be generated from state machines.
+
+```csharp
+phoneCall.Configure(State.OffHook)
+    .PermitIf(Trigger.CallDialled, State.Ringing, IsValidNumber);
+
+string graph = PlantUmlGraph.Format(phoneCall.GetInfo());
+```
+
+The `PlantUmlGraph.Format()` method returns a string representation of the state machine as a PlantUML state diagram, e.g.:
+
+```plantuml
+@startuml
+state OffHook
+state Ringing
+OffHook --> Ringing : CallDialled [IsValidNumber]
+[*] --> OffHook
+@enduml
+```
+
+Superstates are written as composite states (including nested ones), `PermitDynamic()` transitions as `<<choice>>` nodes, and entry/exit actions as state descriptions (`OffHook : entry / StartTimer`). States whose names are not valid PlantUML identifiers (for example, names containing spaces) are given an alias and declared with their original name, e.g. `state "Off Hook" as OffHook`.
+
+An optional direction can be passed: `PlantUmlGraph.Format(phoneCall.GetInfo(), PlantUmlGraphDirection.LeftToRight)`.
+
+The output can be rendered with the [PlantUML command line tool](https://plantuml.com/command-line) (e.g. `java -jar plantuml.jar phoneCall.puml` to generate a PNG file), a PlantUML server, or PlantUML plugins for IDEs and wikis.
 
 ### Async triggers
 

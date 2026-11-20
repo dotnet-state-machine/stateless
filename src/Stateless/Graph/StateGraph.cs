@@ -95,6 +95,9 @@ namespace Stateless.Graph
             // Add initial transition if present
             sb.Append(style.GetInitialTransition(initialState));
 
+            // Add closing text if required by the format
+            sb.Append(style.GetSuffix());
+
             return sb.ToString();
         }
 
