@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## 5.21.0 - 2026.11.21
 ### Added
  - Added .NET 11 to build targets [#660]
  - Marked .NET 8+ targets as Native AOT compatible [#656]
@@ -23,6 +25,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  - Async guard conditions were ignored in some cases [#646], [#645]
  - Mermaid graph labels now escape `:`, `%`, `#`, `&`, `<`, `>` and newlines, and state aliases avoid reserved words and special characters [#655], [#657]
  - Corrected callback unregister examples in the README [#652], [#654]
+ - Fixed flaky test [#666]
 
 ## 5.20.1 - 2025.11.16
 ### Added
@@ -187,7 +190,7 @@ Version 5.10.0 is now listed as the newest, since it has the highest version num
 
 ### Fixed
 - Fixed trigger execution order issue if there are uncaught exceptions. Ref issue [#267]
-- Fixed issue #272 and #275. Triggers with no parameters threw exceptions when checking if they could be fired, or retrieved with GetPermittedTriggers.
+- Fixed issue [#272] and [#275]. Triggers with no parameters threw exceptions when checking if they could be fired, or retrieved with GetPermittedTriggers.
 
 ## [5.0.1] - 2020.03.13
 ### Fixed
@@ -283,6 +286,7 @@ Version 5.10.0 is now listed as the newest, since it has the highest version num
 ### Removed
 ### Fixed
 
+[#666]: https://github.com/dotnet-state-machine/stateless/pull/666
 [#660]: https://github.com/dotnet-state-machine/stateless/pull/660
 [#658]: https://github.com/dotnet-state-machine/stateless/pull/658
 [#657]: https://github.com/dotnet-state-machine/stateless/pull/657
@@ -294,8 +298,8 @@ Version 5.10.0 is now listed as the newest, since it has the highest version num
 [#646]: https://github.com/dotnet-state-machine/stateless/pull/646
 [#645]: https://github.com/dotnet-state-machine/stateless/issues/645
 [#644]: https://github.com/dotnet-state-machine/stateless/pull/644
-[#634]: https://github.com/dotnet-state-machine/stateless/issues/634
 [#636]: https://github.com/dotnet-state-machine/stateless/issues/636
+[#634]: https://github.com/dotnet-state-machine/stateless/issues/634
 [#631]: https://github.com/dotnet-state-machine/stateless/pull/631
 [#626]: https://github.com/dotnet-state-machine/stateless/pull/626
 [#625]: https://github.com/dotnet-state-machine/stateless/pull/625
@@ -306,7 +310,7 @@ Version 5.10.0 is now listed as the newest, since it has the highest version num
 [#604]: https://github.com/dotnet-state-machine/stateless/issues/604
 [#597]: https://github.com/dotnet-state-machine/stateless/pull/597
 [#595]: https://github.com/dotnet-state-machine/stateless/pull/595
-[#587]: https://github.com/dotnet-state-machine/stateless/pull/589
+[#587]: https://github.com/dotnet-state-machine/stateless/issues/587
 [#585]: https://github.com/dotnet-state-machine/stateless/issues/585
 [#584]: https://github.com/dotnet-state-machine/stateless/pull/584
 [#583]: https://github.com/dotnet-state-machine/stateless/pull/583
@@ -315,50 +319,50 @@ Version 5.10.0 is now listed as the newest, since it has the highest version num
 [#570]: https://github.com/dotnet-state-machine/stateless/pull/570
 [#566]: https://github.com/dotnet-state-machine/stateless/pull/566
 [#565]: https://github.com/dotnet-state-machine/stateless/issues/565
-[#551]: https://github.com/dotnet-state-machine/stateless/pull/551
 [#557]: https://github.com/dotnet-state-machine/stateless/issues/557
 [#553]: https://github.com/dotnet-state-machine/stateless/issues/553
+[#551]: https://github.com/dotnet-state-machine/stateless/pull/551
+[#544]: https://github.com/dotnet-state-machine/stateless/pull/544
 [#539]: https://github.com/dotnet-state-machine/stateless/issues/539
-[#501]: https://github.com/dotnet-state-machine/stateless/pull/501
-[#519]: https://github.com/dotnet-state-machine/stateless/pull/519
-[#520]: https://github.com/dotnet-state-machine/stateless/pull/520
-[#526]: https://github.com/dotnet-state-machine/stateless/pull/526
-[#524]: https://github.com/dotnet-state-machine/stateless/pull/524
 [#536]: https://github.com/dotnet-state-machine/stateless/pull/536
-[#514]: https://github.com/dotnet-state-machine/stateless/pull/514
-[#511]: https://github.com/dotnet-state-machine/stateless/pull/511
-[#522]: https://github.com/dotnet-state-machine/stateless/pull/522
-[#521]: https://github.com/dotnet-state-machine/stateless/pull/521
-[#512]: https://github.com/dotnet-state-machine/stateless/pull/512
-[#528]: https://github.com/dotnet-state-machine/stateless/pull/528
 [#532]: https://github.com/dotnet-state-machine/stateless/pull/532
 [#530]: https://github.com/dotnet-state-machine/stateless/pull/530
-[#544]: https://github.com/dotnet-state-machine/stateless/pull/544
-[#494]: https://github.com/dotnet-state-machine/stateless/pull/494
+[#528]: https://github.com/dotnet-state-machine/stateless/pull/528
+[#526]: https://github.com/dotnet-state-machine/stateless/pull/526
+[#524]: https://github.com/dotnet-state-machine/stateless/pull/524
+[#522]: https://github.com/dotnet-state-machine/stateless/pull/522
+[#521]: https://github.com/dotnet-state-machine/stateless/pull/521
+[#520]: https://github.com/dotnet-state-machine/stateless/pull/520
+[#519]: https://github.com/dotnet-state-machine/stateless/pull/519
+[#514]: https://github.com/dotnet-state-machine/stateless/pull/514
+[#512]: https://github.com/dotnet-state-machine/stateless/pull/512
+[#511]: https://github.com/dotnet-state-machine/stateless/pull/511
+[#501]: https://github.com/dotnet-state-machine/stateless/pull/501
 [#495]: https://github.com/dotnet-state-machine/stateless/pull/495
-[#479]: https://github.com/dotnet-state-machine/stateless/pull/479
-[#484]: https://github.com/dotnet-state-machine/stateless/pull/484
+[#494]: https://github.com/dotnet-state-machine/stateless/pull/494
 [#488]: https://github.com/dotnet-state-machine/stateless/pull/488
-[#471]: https://github.com/dotnet-state-machine/stateless/pull/471
-[#478]: https://github.com/dotnet-state-machine/stateless/pull/478
-[#480]: https://github.com/dotnet-state-machine/stateless/pull/480
 [#487]: https://github.com/dotnet-state-machine/stateless/pull/487
-[#443]: https://github.com/dotnet-state-machine/stateless/pull/443
-[#444]: https://github.com/dotnet-state-machine/stateless/issues/444
+[#484]: https://github.com/dotnet-state-machine/stateless/pull/484
+[#480]: https://github.com/dotnet-state-machine/stateless/pull/480
+[#479]: https://github.com/dotnet-state-machine/stateless/pull/479
+[#478]: https://github.com/dotnet-state-machine/stateless/pull/478
+[#471]: https://github.com/dotnet-state-machine/stateless/pull/471
 [#447]: https://github.com/dotnet-state-machine/stateless/pull/447
+[#444]: https://github.com/dotnet-state-machine/stateless/issues/444
+[#443]: https://github.com/dotnet-state-machine/stateless/pull/443
 [#422]: https://github.com/dotnet-state-machine/stateless/issues/422
 [#416]: https://github.com/dotnet-state-machine/stateless/issues/416
 [#413]: https://github.com/dotnet-state-machine/stateless/issues/413
-[#394]: https://github.com/dotnet-state-machine/stateless/issues/394
 [#401]: https://github.com/dotnet-state-machine/stateless/issues/401
 [#398]: https://github.com/dotnet-state-machine/stateless/issues/398
+[#394]: https://github.com/dotnet-state-machine/stateless/issues/394
 [#380]: https://github.com/dotnet-state-machine/stateless/issues/380
-[#373]: https://github.com/dotnet-state-machine/stateless/issues/372
+[#372]: https://github.com/dotnet-state-machine/stateless/issues/372
 [#365]: https://github.com/dotnet-state-machine/stateless/pull/365
-[#272]: https://github.com/dotnet-state-machine/stateless/issues/272
-[#275]: https://github.com/dotnet-state-machine/stateless/issues/275
-[#267]: https://github.com/dotnet-state-machine/stateless/issues/267
 [#305]: https://github.com/dotnet-state-machine/stateless/issues/305
+[#275]: https://github.com/dotnet-state-machine/stateless/issues/275
+[#272]: https://github.com/dotnet-state-machine/stateless/issues/272
+[#267]: https://github.com/dotnet-state-machine/stateless/issues/267
 [#189]: https://github.com/dotnet-state-machine/stateless/issues/189
 [4.2.0]: https://github.com/dotnet-state-machine/stateless/commit/8933fe58a3d2ab63bdf47f523df0b9639cd65c97
 [4.1.0]: https://github.com/dotnet-state-machine/stateless/compare/bb742e8d40ceaacb219695875dfe38670ac77e28...daef9cb2897e18f25e85dd27fb80e549369bdfac
