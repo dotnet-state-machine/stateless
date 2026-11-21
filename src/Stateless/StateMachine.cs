@@ -423,6 +423,20 @@ namespace Stateless
                     {
                         var destinationTask = asyncHandler.GetDestinationState(source, args);
 
+                        // v5 compatibility (#658): REMOVE IN v6.0.0 and restore the throw below.
+                        // Preserves the pre-#658 fire-and-forget behaviour for a selector that is still running:
+                        // Fire() returns before the transition happens, and exceptions are not observed.
+                        if (!destinationTask.IsCompleted)
+                        {
+                            destinationTask.ContinueWith(t =>
+                            {
+                                var pendingTransition = new Transition(source, t.Result, trigger, args);
+                                return HandleTransitioningTriggerAsync(args, representativeState, pendingTransition);
+                            });
+                            break;
+                        }
+                        // End v5 compatibility.
+
                         // If the selector has not completed, the transition cannot finish before Fire() returns.
                         if (!destinationTask.IsCompleted)
                             throw new InvalidOperationException(
@@ -433,7 +447,17 @@ namespace Stateless
                         var destination = destinationTask.GetAwaiter().GetResult();
                         // Handle transition, and set new state; reentry is permitted from dynamic trigger behaviours.
                         var transition = new Transition(source, destination, trigger, args);
-                        HandleTransitioningTrigger(args, representativeState, transition);
+
+                        // v5 compatibility (#658): REMOVE IN v6.0.0 and restore:
+                        //     HandleTransitioningTrigger(args, representativeState, transition);
+                        // Uses the async transition path so async entry/exit actions and transition callbacks still run
+                        // from Fire(), as they did before #658. If they all complete synchronously, the transition is
+                        // finished (and any exception rethrown) before Fire() returns. If an async action is still
+                        // running, it finishes in the background and its exceptions are not observed, as before #658.
+                        var transitionTask = HandleTransitioningTriggerAsync(args, representativeState, transition);
+                        if (transitionTask.IsCompleted)
+                            transitionTask.GetAwaiter().GetResult();
+                        // End v5 compatibility.
 
                         break;
                     }

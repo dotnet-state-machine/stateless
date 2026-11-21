@@ -6,10 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 ### Fixed
- - Synchronous `Fire` with an async dynamic destination selector (`PermitDynamicAsync`, `PermitDynamicIfAsync`) no longer fires and forgets the transition. If the selector has already completed, the transition completes before `Fire` returns. If it is still running, `Fire` throws `InvalidOperationException` (use `FireAsync`). Exceptions thrown by the selector now propagate to the caller [#658]
+ - Synchronous `Fire` with an async dynamic destination selector (`PermitDynamicAsync`, `PermitDynamicIfAsync`) that has already completed now finishes the transition before `Fire` returns. Exceptions thrown by such a selector now propagate to the caller [#658]
  - `FireAsync` now uses an async handler whose guard passes when a sync handler for the same trigger has a failing guard. Unmet guard descriptions from both sync and async handlers are reported [#658]
-### Changed
- - If a sync handler and an async handler for the same trigger both have passing guards, `FireAsync` now throws `InvalidOperationException` (multiple transitions permitted). Previously the sync handler was silently chosen [#658]
+### Deprecated
+ - The following behaviours are kept for compatibility in 5.x and will change in 6.0.0 [#658]:
+   - Synchronous `Fire` with an async dynamic destination selector that is still running returns before the transition happens, and exceptions from the selector or the transition are not observed. In 6.0.0 this will throw `InvalidOperationException`; use `FireAsync` instead.
+   - Synchronous `Fire` with an async dynamic destination selector runs async entry/exit actions and async transition callbacks (`OnEntryAsync`, `OnExitAsync`, `OnTransitionedAsync`, `OnTransitionCompletedAsync`). If one is still running when `Fire` returns, it finishes in the background and its exceptions are not observed. In 6.0.0 this will throw `InvalidOperationException`; use `FireAsync` instead.
+   - If a sync handler and an async handler for the same trigger both have passing guards, `FireAsync` uses the sync handler. In 6.0.0 this will throw `InvalidOperationException` (multiple transitions permitted).
 
 ## 5.20.1 - 2025.11.16
 ### Added
