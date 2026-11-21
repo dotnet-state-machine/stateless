@@ -6,7 +6,7 @@ on:
   push:
     branches: [ '**' ] # all branches, but not tags (tags are handled by Release.yml)
   pull_request:
-    branches: [ dev, main ] # TODO: remove dev once it has been renamed to main
+    branches: [ main ]
 
 permissions:
   contents: read
