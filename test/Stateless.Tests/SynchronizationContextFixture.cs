@@ -70,16 +70,17 @@ namespace Stateless.Tests
             CaptureSyncContext();
             AssertSyncContextAlwaysRetained(1);
         }
-    
+
         /// <summary>
-        /// SynchronizationContext are funny things. The way that they are lost varies depending on their implementation.
-        /// This test ensures that our mechanism for losing the SynchronizationContext works.
+        /// Checks that the test helper reliably moves execution off the custom SynchronizationContext.
+        /// It awaits the custom awaitable directly rather than a Task. The awaitable's IsCompleted is
+        /// always false, so the await always suspends and resumes on a thread-pool thread, which has no context.
         /// </summary>
         [Fact]
-        public async Task Ensure_XUnit_can_lose_sync_context()
+        public async Task CompletesOnDifferentThreadAwaitable_loses_sync_context()
         {
             SetSyncContext();
-            await LoseSyncContext().ConfigureAwait(false);
+            await new CompletesOnDifferentThreadAwaitable();
             Assert.NotEqual(_customSynchronizationContext, SynchronizationContext.Current);
         }
 
