@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using Xunit;
 
 namespace Stateless.Tests
@@ -63,6 +64,40 @@ namespace Stateless.Tests
             WriteToFile(nameof(SimpleTransition_LeftToRight), result);
 
             Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData(Graph.MermaidGraphDirection.RightToLeft, "RL")]
+        [InlineData(Graph.MermaidGraphDirection.TopToBottom, "TB")]
+        [InlineData(Graph.MermaidGraphDirection.BottomToTop, "BT")]
+        public void SimpleTransition_WithDirection_IncludesDirectionCode(Graph.MermaidGraphDirection direction, string directionCode)
+        {
+            var expected = new StringBuilder()
+                .AppendLine("stateDiagram-v2")
+                .AppendLine($"	direction {directionCode}")
+                .AppendLine("	A --> B : X")
+                .AppendLine("[*] --> A")
+                .ToString().TrimEnd();
+
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .Permit(Trigger.X, State.B);
+
+            var result = Graph.MermaidGraph.Format(sm.GetInfo(), direction);
+
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void Format_WithUnsupportedDirection_ThrowsArgumentOutOfRangeException()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            var exception = Assert.Throws<ArgumentOutOfRangeException>(() =>
+                Graph.MermaidGraph.Format(sm.GetInfo(), (Graph.MermaidGraphDirection)999));
+
+            Assert.Equal("direction", exception.ParamName);
         }
 
         [Fact]
@@ -409,6 +444,219 @@ namespace Stateless.Tests
         }
 
         [Fact]
+        public void StateNameStartingWithHashIsAliased()
+        {
+            var expected = new StringBuilder()
+                .AppendLine("stateDiagram-v2")
+                .AppendLine("\tA : #35;A")
+                .AppendLine("\tA --> B : go")
+                .AppendLine("[*] --> A")
+                .ToString().TrimEnd();
+
+            var sm = new StateMachine<string, string>("#A");
+
+            sm.Configure("#A").Permit("go", "B");
+            sm.Configure("B");
+
+            var result = Graph.MermaidGraph.Format(sm.GetInfo());
+
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData("%", "#37;")]
+        [InlineData("%%", "#37;#37;")]
+        public void StateNameMadeOnlyOfSyntaxCharactersUsesNonEmptyAlias(string stateName, string escapedStateName)
+        {
+            var expected = new StringBuilder()
+                .AppendLine("stateDiagram-v2")
+                .AppendLine($"\tStateAlias_1 : {escapedStateName}")
+                .AppendLine("\tStateAlias_1 --> StateAlias : go")
+                .AppendLine("[*] --> StateAlias_1")
+                .ToString().TrimEnd();
+
+            var sm = new StateMachine<string, string>(stateName);
+
+            sm.Configure(stateName).Permit("go", "StateAlias");
+            sm.Configure("StateAlias");
+
+            var result = Graph.MermaidGraph.Format(sm.GetInfo());
+
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void StateNameMadeOnlyOfSyntaxCharactersUsesFallbackAlias()
+        {
+            var expected = new StringBuilder()
+                .AppendLine("stateDiagram-v2")
+                .AppendLine("\tStateAlias : #37;")
+                .AppendLine("\tStateAlias --> B : go")
+                .AppendLine("[*] --> StateAlias")
+                .ToString().TrimEnd();
+
+            var sm = new StateMachine<string, string>("%");
+
+            sm.Configure("%").Permit("go", "B");
+            sm.Configure("B");
+
+            var result = Graph.MermaidGraph.Format(sm.GetInfo());
+
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void StateNamesMadeOnlyOfSyntaxCharactersGetDistinctFallbackAliases()
+        {
+            var sm = new StateMachine<string, string>("%");
+
+            sm.Configure("%").Permit("go", "%%");
+            sm.Configure("%%");
+
+            var result = Graph.MermaidGraph.Format(sm.GetInfo());
+
+            Assert.Contains("\tStateAlias : #37;" + Environment.NewLine, result);
+            Assert.Contains("\tStateAlias_1 : #37;#37;", result);
+            Assert.Contains("\tStateAlias --> StateAlias_1 : go", result);
+        }
+
+        [Fact]
+        public void StateNameDifferingOnlyByHashDoesNotCollideWithExistingState()
+        {
+            var expected = new StringBuilder()
+                .AppendLine("stateDiagram-v2")
+                .AppendLine("\tC_1 : C#35;")
+                .AppendLine("\tC_1 --> C : go")
+                .AppendLine("[*] --> C_1")
+                .ToString().TrimEnd();
+
+            var sm = new StateMachine<string, string>("C#");
+
+            sm.Configure("C#").Permit("go", "C");
+            sm.Configure("C");
+
+            var result = Graph.MermaidGraph.Format(sm.GetInfo());
+
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData("a;b", "ab", "a#59;b")]
+        [InlineData("a{b}", "ab", "a{b}")]
+        [InlineData("a[1]", "a1", "a[1]")]
+        [InlineData("a\"b\"", "ab", "a\"b\"")]
+        [InlineData("a<b>", "ab", "a#lt;b#gt;")]
+        [InlineData("a&b", "ab", "a#amp;b")]
+        public void StateNamesWithOtherSyntaxCharactersAreAliased(string stateName, string alias, string escapedStateName)
+        {
+            var expected = new StringBuilder()
+                .AppendLine("stateDiagram-v2")
+                .AppendLine($"\t{alias} : {escapedStateName}")
+                .AppendLine($"\t{alias} --> B : go")
+                .AppendLine($"[*] --> {alias}")
+                .ToString().TrimEnd();
+
+            var sm = new StateMachine<string, string>(stateName);
+
+            sm.Configure(stateName).Permit("go", "B");
+            sm.Configure("B");
+
+            var result = Graph.MermaidGraph.Format(sm.GetInfo());
+
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData("sta#te", "state_1", "sta#35;te")]
+        [InlineData("class", "class_1", "class")]
+        public void StateNamesProducingReservedAliasesAreRenamed(string stateName, string alias, string escapedStateName)
+        {
+            var expected = new StringBuilder()
+                .AppendLine("stateDiagram-v2")
+                .AppendLine($"\t{alias} : {escapedStateName}")
+                .AppendLine($"\t{alias} --> B : go")
+                .AppendLine($"[*] --> {alias}")
+                .ToString().TrimEnd();
+
+            var sm = new StateMachine<string, string>(stateName);
+
+            sm.Configure(stateName).Permit("go", "B");
+            sm.Configure("B");
+
+            var result = Graph.MermaidGraph.Format(sm.GetInfo());
+
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void MermaidGraph_EscapesLabelsAndGuardDescriptions()
+        {
+            var unsafeState = "B\n%% injected state";
+            var unsafeTrigger = "X\n%% injected trigger";
+            var unsafeGuardDescription = "guard\n%% injected guard";
+            var sm = new StateMachine<string, string>("A");
+
+            sm.Configure("A")
+                .PermitIf(unsafeTrigger, unsafeState, () => true, unsafeGuardDescription);
+            sm.Configure(unsafeState);
+
+            var expected = new StringBuilder()
+                .AppendLine("stateDiagram-v2")
+                .AppendLine("\tBinjectedstate : B<br/>#37;#37; injected state")
+                .AppendLine("\tA --> Binjectedstate : X<br/>#37;#37; injected trigger [guard<br/>#37;#37; injected guard]")
+                .AppendLine("[*] --> A")
+                .ToString().TrimEnd();
+
+            var graph = Graph.MermaidGraph.Format(sm.GetInfo());
+
+            // No line may be a Mermaid comment, which is what a smuggled newline followed by %% would create.
+            Assert.DoesNotContain(graph.Split('\n'), line => line.TrimStart().StartsWith("%%"));
+            Assert.DoesNotContain("\n%% injected state", graph);
+            Assert.DoesNotContain("\n%% injected trigger", graph);
+            Assert.DoesNotContain("\n%% injected guard", graph);
+            Assert.Equal(expected, graph);
+        }
+
+        [Fact]
+        public void MermaidGraph_EscapesDynamicTransitionsAndClusters()
+        {
+            var sm = new StateMachine<string, string>("A");
+
+            sm.Configure("A")
+                .PermitDynamic("X\n%% injected trigger", () => "B\n%% injected state",
+                    null, new Stateless.Reflection.DynamicStateInfos { { "B\n%% injected state", "crit\n%% injected criterion" } });
+            sm.Configure("B\n%% injected state")
+                .SubstateOf("Parent\n%% injected parent");
+            sm.Configure("Parent\n%% injected parent");
+
+            var expected = new StringBuilder()
+                .AppendLine("stateDiagram-v2")
+                .AppendLine("\tParentinjectedparent : Parent<br/>#37;#37; injected parent")
+                .AppendLine("\tBinjectedstate : B<br/>#37;#37; injected state")
+                .AppendLine("\tstate Parentinjectedparent {")
+                .AppendLine("\t\tBinjectedstate")
+                .AppendLine("\t}")
+                .AppendLine("\tstate Decision1 <<choice>>")
+                .AppendLine("\tA --> Decision1 : X<br/>#37;#37; injected trigger")
+                .AppendLine("\tDecision1 --> Binjectedstate : X<br/>#37;#37; injected trigger [crit<br/>#37;#37; injected criterion]")
+                .AppendLine("[*] --> A")
+                .ToString().TrimEnd();
+
+            var graph = Graph.MermaidGraph.Format(sm.GetInfo());
+
+            Assert.DoesNotContain(graph.Split('\n'), line => line.TrimStart().StartsWith("%%"));
+            Assert.Equal(expected, graph);
+        }
+
+        [Fact]
+        public void MermaidGraph_LineBreaksBecomeHtmlBreaks()
+        {
+            var graph = Graph.MermaidGraph.Format(GetMachineWithLineBreaks());
+
+            Assert.Contains("\tA --> B : X<br/>Y<br/>Z<br/>W [g<br/>h]", graph);
+        }
+
+        [Fact]
         public void TransitionLabelsWithColonsAreEscaped()
         {
             var expected = new StringBuilder()
@@ -426,6 +674,65 @@ namespace Stateless.Tests
             WriteToFile(nameof(TransitionLabelsWithColonsAreEscaped), result);
 
             Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void TransitionLabelsWithHtmlCharactersAreEscaped()
+        {
+            var expected = new StringBuilder()
+                .AppendLine("stateDiagram-v2")
+                .AppendLine("	A --> B : Add#lt;List#lt;int#gt;#gt; [x #lt; 5 #amp;#amp; y #gt; 2]")
+                .AppendLine("[*] --> A")
+                .ToString().TrimEnd();
+
+            var sm = new StateMachine<State, string>(State.A);
+
+            sm.Configure(State.A).PermitIf("Add<List<int>>", State.B, () => true, "x < 5 && y > 2");
+
+            var result = Graph.MermaidGraph.Format(sm.GetInfo());
+
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void LiteralEntityCodesInLabelsAreNotDecoded()
+        {
+            var expected = new StringBuilder()
+                .AppendLine("stateDiagram-v2")
+                .AppendLine("	A --> B : #35;58#59; #35;lt#59; #35;1 [#35;#35;]")
+                .AppendLine("[*] --> A")
+                .ToString().TrimEnd();
+
+            var sm = new StateMachine<State, string>(State.A);
+
+            sm.Configure(State.A).PermitIf("#58; #lt; #1", State.B, () => true, "##");
+
+            var result = Graph.MermaidGraph.Format(sm.GetInfo());
+
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void HtmlCharactersAndLineBreaksInLabels_KeepBreakTokens()
+        {
+            var sm = new StateMachine<State, string>(State.A);
+
+            sm.Configure(State.A).PermitIf("a<b\nc>d", State.B, () => true, "<br/>");
+
+            var result = Graph.MermaidGraph.Format(sm.GetInfo());
+
+            // Only the real line break becomes a <br/> token; a literal "<br/>" in the input is escaped.
+            Assert.Contains("\tA --> B : a#lt;b<br/>c#gt;d [#lt;br/#gt;]", result);
+        }
+
+        private static Stateless.Reflection.StateMachineInfo GetMachineWithLineBreaks()
+        {
+            var sm = new StateMachine<string, string>("A");
+
+            sm.Configure("A")
+                .PermitIf("X\nY\r\nZ\rW", "B", () => true, "g\nh");
+
+            return sm.GetInfo();
         }
 
         private bool IsTrue()

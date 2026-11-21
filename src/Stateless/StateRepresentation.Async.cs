@@ -10,6 +10,9 @@ namespace Stateless
         internal partial class StateRepresentation
         {
             internal IDictionary<TTrigger, ICollection<TriggerBehaviourAsync>> TriggerBehavioursAsync { get; } = new Dictionary<TTrigger, ICollection<TriggerBehaviourAsync>>();
+            internal bool RequiresAsyncPermittedTriggersEvaluation =>
+                TriggerBehavioursAsync.Count != 0 || (Superstate?.RequiresAsyncPermittedTriggersEvaluation ?? false);
+
             public void AddActivateAction(Func<Task> action, Reflection.InvocationInfo activateActionDescription)
             {
                 ActivateActions.Add(new ActivateActionBehaviour.Async(_state, action, activateActionDescription));
@@ -165,11 +168,7 @@ namespace Stateless
             {
                 var resultList = new List<TTrigger>();
 
-                var syncResult = TriggerBehaviours
-                    .Where(t => t.Value.Any(a => !a.UnmetGuardConditions(args).Any()))
-                    .Select(t => t.Key);
-
-                resultList.AddRange(syncResult);
+                resultList.AddRange(GetPermittedTriggersForCurrentState(args));
 
                 var asyncTriggers = await GetAsyncTriggers(args);
                 resultList.AddRange(asyncTriggers);
@@ -209,29 +208,38 @@ namespace Stateless
 
                 if (syncTriggerNotFound && asyncTriggerNotFound) return null;
 
-                // Guard functions are executed here
-                var actualSync = syncTriggers?
-                    .Select(h => new TriggerBehaviourResult(h, h.UnmetGuardConditions(args)))
-                    .ToArray();
+                // Guard functions are executed here. Sync and async candidates are evaluated as a single set so that
+                // an open handler from either set is preferred over a closed one, and ambiguity across sets is detected.
+                var candidates = new List<TriggerBehaviourResult>();
 
-                var handleResultSync = actualSync != null ? TryFindLocalHandlerResult(trigger, actualSync) ?? TryFindLocalHandlerResultWithUnmetGuardConditions(actualSync) : null;
+                if (syncTriggers != null)
+                {
+                    candidates.AddRange(syncTriggers.Select(h => new TriggerBehaviourResult(h, h.UnmetGuardConditions(args))));
+                }
 
-                var asyncTriggerBehaviourResult = new List<TriggerBehaviourResult>();
-
-                TriggerBehaviourResult handleResultAsync = null;
+                // v5 compatibility (#658): REMOVE IN v6.0.0.
+                // Preserves the pre-#658 rule that an open sync handler wins over open async handlers, instead of
+                // throwing "multiple transitions permitted". Async guards are still evaluated, as they were before.
+                var syncCandidateCount = candidates.Count;
+                // End v5 compatibility.
 
                 if (asyncTriggers != null)
                 {
                     foreach (var asyncTrigger in asyncTriggers)
                     {
                         var unmetGuardConditions = await asyncTrigger.UnmetGuardConditions(args);
-                        asyncTriggerBehaviourResult.Add(new TriggerBehaviourResult(asyncTrigger, unmetGuardConditions));
+                        candidates.Add(new TriggerBehaviourResult(asyncTrigger, unmetGuardConditions));
                     }
-
-                    handleResultAsync = TryFindLocalHandlerResult(trigger, asyncTriggerBehaviourResult) ?? TryFindLocalHandlerResultWithUnmetGuardConditions(asyncTriggerBehaviourResult);
                 }
 
-                return handleResultSync ?? handleResultAsync;
+                // v5 compatibility (#658): REMOVE IN v6.0.0.
+                var openSyncHandler = TryFindLocalHandlerResult(trigger, candidates.Take(syncCandidateCount));
+                if (openSyncHandler != null)
+                    return openSyncHandler;
+                // End v5 compatibility.
+
+                return TryFindLocalHandlerResult(trigger, candidates)
+                    ?? TryFindLocalHandlerResultWithUnmetGuardConditions(candidates);
             }
         }
     }

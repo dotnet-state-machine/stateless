@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -97,6 +99,106 @@ namespace Stateless.Tests
 
             await sm.FireAsync(Trigger.X);
             Assert.Equal(expectedState, sm.State);
+        }
+
+        [Fact]
+        public async Task FireAsync_UsesOpenAsyncHandler_WhenSyncHandlerGuardFails()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .PermitIf(Trigger.X, State.B, () => false, "sync path closed")
+                .PermitIfAsync(Trigger.X, State.C, () => Task.FromResult(true), "async path open");
+
+            await sm.FireAsync(Trigger.X);
+
+            Assert.Equal(State.C, sm.State);
+        }
+
+        [Fact]
+        public async Task FireAsync_UsesOpenSyncHandler_WhenAsyncHandlerGuardFails()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .PermitIf(Trigger.X, State.B, () => true, "sync path open")
+                .PermitIfAsync(Trigger.X, State.C, () => Task.FromResult(false), "async path closed");
+
+            await sm.FireAsync(Trigger.X);
+
+            Assert.Equal(State.B, sm.State);
+        }
+
+        [Fact]
+        public async Task FireAsync_OpenLocalAsyncHandler_TakesPrecedenceOverSuperstate_WhenLocalSyncHandlerGuardFails()
+        {
+            var sm = new StateMachine<State, Trigger>(State.B);
+
+            sm.Configure(State.A)
+                .Permit(Trigger.X, State.D);
+
+            sm.Configure(State.B)
+                .SubstateOf(State.A)
+                .PermitIf(Trigger.X, State.A, () => false, "sync path closed")
+                .PermitIfAsync(Trigger.X, State.C, () => Task.FromResult(true), "async path open");
+
+            await sm.FireAsync(Trigger.X);
+
+            Assert.Equal(State.C, sm.State);
+        }
+
+        [Fact]
+        public async Task FireAsync_UsesSyncHandler_WhenSyncAndAsyncHandlersAreBothOpen()
+        {
+            // v5 compatibility (#658): in v6.0.0 this throws InvalidOperationException and the state stays A.
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .PermitIf(Trigger.X, State.B, () => true, "sync path open")
+                .PermitIfAsync(Trigger.X, State.C, () => Task.FromResult(true), "async path open");
+
+            await sm.FireAsync(Trigger.X);
+
+            Assert.Equal(State.B, sm.State);
+        }
+
+        [Fact]
+        public async Task FireAsync_Throws_WhenTwoSyncHandlersAreOpen_EvenWithAsyncHandlerPresent()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .PermitIf(Trigger.X, State.B, () => true, "sync path 1 open")
+                .PermitIf(Trigger.X, State.C, () => true, "sync path 2 open")
+                .PermitIfAsync(Trigger.X, State.D, () => Task.FromResult(false), "async path closed");
+
+            await Assert.ThrowsAsync<InvalidOperationException>(() => sm.FireAsync(Trigger.X));
+
+            Assert.Equal(State.A, sm.State);
+        }
+
+        [Fact]
+        public async Task FireAsync_ReportsUnmetGuardDescriptionsFromSyncAndAsyncHandlers_WhenAllGuardsFail()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            ICollection<string> unmetGuards = null;
+
+            sm.Configure(State.A)
+                .PermitIf(Trigger.X, State.B, () => false, "sync path closed")
+                .PermitIfAsync(Trigger.X, State.C, () => Task.FromResult(false), "async path closed");
+
+            sm.OnUnhandledTriggerAsync((s, t, u) =>
+            {
+                unmetGuards = u;
+                return Task.CompletedTask;
+            });
+
+            await sm.FireAsync(Trigger.X);
+
+            Assert.Equal(State.A, sm.State);
+            Assert.NotNull(unmetGuards);
+            Assert.Contains("sync path closed", unmetGuards);
+            Assert.Contains("async path closed", unmetGuards);
         }
     }
 }

@@ -10,3 +10,6 @@ project.lock.json
 artifacts/
 TestResult.xml
 *.orig
+.dotnet/
+.idea/
+.DS_STORE

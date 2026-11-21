@@ -13,6 +13,25 @@ namespace Stateless.Graph
     {
         private readonly StateGraph _graph;
         private readonly MermaidGraphDirection? _direction;
+        // Characters that Mermaid treats as syntax (separators, comments, entity codes, quoting, brackets and markup)
+        // and which therefore cannot appear in a state alias.
+        private const string AliasExcludedCharacters = ":-%#;\"{}[]<>&";
+        private static readonly HashSet<string> MermaidReservedAliases = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "accDescr",
+            "accTitle",
+            "class",
+            "classDef",
+            "click",
+            "default",
+            "href",
+            "note",
+            "scale",
+            "state",
+            "stateDiagram",
+            "style"
+        };
+
         private readonly Dictionary<string, State> _stateMap = new Dictionary<string, State>();
         private bool _stateMapInitialized = false;
 
@@ -21,7 +40,7 @@ namespace Stateless.Graph
         /// </summary>
         /// <param name="graph">The state graph</param>
         /// <param name="direction">When non-null, sets the flow direction in the output.</param>
-        public MermaidGraphStyle(StateGraph graph, MermaidGraphDirection? direction) 
+        public MermaidGraphStyle(StateGraph graph, MermaidGraphDirection? direction)
             : base()
         {
             _graph = graph;
@@ -124,10 +143,58 @@ namespace Stateless.Graph
             return $"\t{fromNodeName} --> {toNodeName} : {EscapeLabel(label)}";
         }
 
-        // A colon separates a node from its label, so a literal one in the label must be written as an entity code.
+        // Mermaid decodes #name; and #123; sequences in labels as entity codes, so literal '#' characters are encoded.
+        // Each input character is handled once so that the entity codes emitted here are not themselves re-encoded.
+        // Mermaid passes label text through an HTML sanitiser, so '&', '<' and '>' become entity codes. Line breaks
+        // are written directly as <br/>, Mermaid's line break token, so that the token itself is kept.
+        // A line break would otherwise end the label and let the rest start a new statement.
+        // Colons and semicolons delimit Mermaid syntax, and %% starts a comment, so these are written as entity codes.
         private static string EscapeLabel(string label)
         {
-            return label.Replace(":", "#58;");
+            var escaped = new StringBuilder(label.Length);
+            for (var index = 0; index < label.Length; index++)
+            {
+                switch (label[index])
+                {
+                    case '\r':
+                        if (index + 1 < label.Length && label[index + 1] == '\n')
+                        {
+                            index++;
+                        }
+
+                        escaped.Append("<br/>");
+                        break;
+                    case '\n':
+                        escaped.Append("<br/>");
+                        break;
+                    case '#':
+                        escaped.Append("#35;");
+                        break;
+                    case '&':
+                        escaped.Append("#amp;");
+                        break;
+                    case '<':
+                        escaped.Append("#lt;");
+                        break;
+                    case '>':
+                        escaped.Append("#gt;");
+                        break;
+                    case ':':
+                        escaped.Append("#58;");
+                        break;
+                    case '%':
+                        escaped.Append("#37;");
+                        break;
+                    case ';':
+                        escaped.Append("#59;");
+                        break;
+                    default:
+                        escaped.Append(label[index]);
+                        break;
+                }
+            }
+
+            return escaped.ToString();
         }
 
         private static string GetDirectionCode(MermaidGraphDirection direction)
@@ -158,14 +225,20 @@ namespace Stateless.Graph
             var uniqueAliases = new HashSet<string>();
             foreach (var state in _graph.States)
             {
-                var sanitizedStateName = string.Concat(state.Value.StateName.Where(c => !(char.IsWhiteSpace(c) || c == ':' || c == '-')));
-                if (!sanitizedStateName.Equals(state.Value.StateName, StringComparison.Ordinal))
+                var sanitizedStateName = string.Concat(state.Value.StateName.Where(c =>
+                    !char.IsWhiteSpace(c) && AliasExcludedCharacters.IndexOf(c) < 0));
+                if (sanitizedStateName.Length == 0 ||
+                    !sanitizedStateName.Equals(state.Value.StateName, StringComparison.Ordinal) ||
+                    MermaidReservedAliases.Contains(sanitizedStateName))
                 {
                     int count = 1;
-                    var tempName = sanitizedStateName;
-                    while (uniqueAliases.Contains(tempName) || _graph.States.ContainsKey(tempName))
+                    var aliasRoot = sanitizedStateName.Length == 0 ? "StateAlias" : sanitizedStateName;
+                    var tempName = aliasRoot;
+                    while (MermaidReservedAliases.Contains(tempName) ||
+                           uniqueAliases.Contains(tempName) ||
+                           _graph.States.ContainsKey(tempName))
                     {
-                        tempName = $"{sanitizedStateName}_{count++}";
+                        tempName = $"{aliasRoot}_{count++}";
                     }
 
                     sanitizedStateName = tempName;

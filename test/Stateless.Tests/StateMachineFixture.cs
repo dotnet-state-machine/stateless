@@ -155,7 +155,6 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        [Obsolete]
         public void PermittedTriggersIncludeSuperstatePermittedTriggersLegacy()
         {
             var sm = new StateMachine<State, Trigger>(State.B);
@@ -195,7 +194,6 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        [Obsolete]
         public void PermittedTriggersAreDistinctValuesLegacy()
         {
             var sm = new StateMachine<State, Trigger>(State.B);
@@ -224,7 +222,6 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        [Obsolete]
         public void AcceptedTriggersRespectGuardsLegacy()
         {
             var sm = new StateMachine<State, Trigger>(State.B);
@@ -247,7 +244,6 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        [Obsolete]
         public void AcceptedAsyncTriggersRespectGuardsLegacy()
         {
             var sm = new StateMachine<State, Trigger>(State.B);
@@ -255,7 +251,8 @@ namespace Stateless.Tests
             sm.Configure(State.B)
                 .PermitIfAsync(Trigger.X, State.A, async () => await Task.FromResult(false));
 
-            Assert.Equal(0, sm.GetPermittedTriggers().Count());
+            var exception = Assert.Throws<InvalidOperationException>(() => sm.GetPermittedTriggers().Count());
+            Assert.Contains("GetPermittedTriggersAsync", exception.Message);
         }
 
         [Fact]
@@ -270,7 +267,6 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        [Obsolete]
         public void AcceptedValidAsyncTriggersRespectGuardsLegacy()
         {
             var sm = new StateMachine<State, Trigger>(State.B);
@@ -278,7 +274,8 @@ namespace Stateless.Tests
             sm.Configure(State.B)
                 .PermitIfAsync(Trigger.X, State.A, async () => await Task.FromResult(true));
 
-            Assert.Equal(1, sm.GetPermittedTriggers().Count());
+            var exception = Assert.Throws<InvalidOperationException>(() => sm.GetPermittedTriggers().Count());
+            Assert.Contains("GetPermittedTriggersAsync", exception.Message);
         }
 
         [Fact]
@@ -294,7 +291,6 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        [Obsolete]
         public void AcceptedOneValidAsyncAndSyncTriggersRespectGuardsLegacy()
         {
             var sm = new StateMachine<State, Trigger>(State.B);
@@ -303,7 +299,8 @@ namespace Stateless.Tests
                 .PermitIfAsync(Trigger.X, State.A, async () => await Task.FromResult(true))
                 .PermitIf(Trigger.Y, State.C, () => false);
 
-            Assert.Equal(1, sm.GetPermittedTriggers().Count());
+            var exception = Assert.Throws<InvalidOperationException>(() => sm.GetPermittedTriggers().Count());
+            Assert.Contains("GetPermittedTriggersAsync", exception.Message);
         }
 
         [Fact]
@@ -320,7 +317,6 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        [Obsolete]
         public void AcceptedTriggersRespectMultipleGuardsLegacy()
         {
             var sm = new StateMachine<State, Trigger>(State.B);
@@ -1260,7 +1256,6 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        [Obsolete]
         public void WhenConfigurePermittedTransitionOnTriggerWithoutParameters_ThenStateMachineCanEnumeratePermittedTriggersLegacy()
         {
             var trigger = Trigger.X;
@@ -1290,7 +1285,6 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        [Obsolete]
         public void WhenConfigurePermittedTransitionOnTriggerWithParameters_ThenStateMachineCanEnumeratePermittedTriggersLegacy()
         {
             var trigger = Trigger.X;
@@ -1319,7 +1313,6 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        [Obsolete]
         public void WhenConfigureInternalTransitionOnTriggerWithoutParameters_ThenStateMachineCanEnumeratePermittedTriggersLegacy()
         {
             var trigger = Trigger.X;
@@ -1347,7 +1340,6 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        [Obsolete]
         public void WhenConfigureInternalTransitionOnTriggerWithParameters_ThenStateMachineCanEnumeratePermittedTriggersLegacy()
         {
             var trigger = Trigger.X;
@@ -1375,7 +1367,6 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        [Obsolete]
         public void WhenConfigureConditionallyPermittedTransitionOnTriggerWithParameters_ThenStateMachineCanEnumeratePermittedTriggersLegacy()
         {
             var trigger = Trigger.X;
@@ -1398,7 +1389,6 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        [Obsolete]
         public void PermittedTriggersIncludeAllDefinedTriggersLegacy()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -1422,7 +1412,6 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        [Obsolete]
         public void PermittedTriggersExcludeAllUndefinedTriggersLegacy()
         {
             var sm = new StateMachine<State, Trigger>(State.A);
@@ -1464,7 +1453,6 @@ namespace Stateless.Tests
         }
 
         [Fact]
-        [Obsolete]
         public void PermittedTriggersIncludeAllInheritedTriggersLegacy()
         {
             State superState = State.A,
@@ -1493,6 +1481,61 @@ namespace Stateless.Tests
             Assert.Contains(superStateTrigger, superPermittedTriggers);
             Assert.Contains(subStateTrigger, subPermittedTriggers);
             Assert.DoesNotContain(subStateTrigger, superPermittedTriggers);
+        }
+
+        [Fact]
+        public void PermittedTriggersWithAsyncGuardsInSuperstateThrowSynchronously()
+        {
+            var sm = new StateMachine<State, Trigger>(State.B);
+
+            sm.Configure(State.B)
+                .SubstateOf(State.C)
+                .Permit(Trigger.Y, State.A);
+
+            sm.Configure(State.C)
+                .PermitIfAsync(Trigger.X, State.A, async () => await Task.FromResult(true));
+
+            var exception = Assert.Throws<InvalidOperationException>(() => sm.GetPermittedTriggers().Count());
+            Assert.Contains("state 'B'", exception.Message);
+            Assert.Contains("GetPermittedTriggersAsync", exception.Message);
+        }
+
+        [Fact]
+        public void PermittedTriggersIgnoreAsyncGuardsOutsideCurrentStateHierarchy()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .Permit(Trigger.X, State.B);
+
+            sm.Configure(State.B)
+                .PermitIfAsync(Trigger.Y, State.C, async () => await Task.FromResult(true));
+
+            Assert.Single(sm.GetPermittedTriggers(), Trigger.X);
+        }
+
+        [Fact]
+        public void PermittedTriggersSupportAsyncDynamicDestinationsWithSynchronousGuards()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .PermitDynamicAsync(Trigger.X, () => Task.FromResult(State.B));
+
+            Assert.Single(sm.GetPermittedTriggers(), Trigger.X);
+        }
+
+        [Fact]
+        public void ToString_WhenAsyncGuardsArePresent_DoesNotThrow()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+
+            sm.Configure(State.A)
+                .PermitIfAsync(Trigger.X, State.B, async () => await Task.FromResult(true));
+
+            var description = sm.ToString();
+
+            Assert.Equal("StateMachine { State = A, PermittedTriggers = { X }}", description);
         }
 
         [Fact]
