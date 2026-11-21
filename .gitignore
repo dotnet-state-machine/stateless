@@ -12,3 +12,4 @@ TestResult.xml
 *.orig
 .dotnet/
 .idea/
+.DS_STORE
