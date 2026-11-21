@@ -26,6 +26,17 @@ namespace Stateless.Graph
         public abstract string GetInitialTransition(Reflection.StateInfo initialState);
 
         /// <summary>
+        /// Get the text that must be present at the end of a state graph file.
+        /// For example, for PlantUML files the suffix text would be
+        /// @enduml
+        /// </summary>
+        /// <returns>Suffix text. The default implementation returns an empty string.</returns>
+        public virtual string GetSuffix()
+        {
+            return string.Empty;
+        }
+
+        /// <summary>
         /// Returns the formatted text for a single state.
         /// For example, for DOT files this would be the description of a single node:
         /// nodename [label="statename"];

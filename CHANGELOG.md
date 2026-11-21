@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+ - Added `PlantUmlGraph.Format()` to export a state machine as a PlantUML state diagram, with optional `PlantUmlGraphDirection`. Added the virtual `GraphStyleBase.GetSuffix()` method, which lets a graph style write closing text after the graph
 ### Fixed
  - Synchronous `Fire` with an async dynamic destination selector (`PermitDynamicAsync`, `PermitDynamicIfAsync`) that has already completed now finishes the transition before `Fire` returns. Exceptions thrown by such a selector now propagate to the caller [#658]
  - `FireAsync` now uses an async handler whose guard passes when a sync handler for the same trigger has a failing guard. Unmet guard descriptions from both sync and async handlers are reported [#658]
