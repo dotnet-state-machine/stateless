@@ -427,7 +427,8 @@ namespace Stateless
 
         /// <summary>
         /// Registers an asynchronous callback that will be invoked every time the statemachine
-        /// transitions from one state into another.
+        /// transitions from one state into another. The callback is invoked after
+        /// <see cref="State"/> has been updated and before entry actions are invoked.
         /// </summary>
         /// <param name="onTransitionAction">The asynchronous action to execute, accepting the details
         /// of the transition.</param>
@@ -440,7 +441,8 @@ namespace Stateless
         /// <summary>
         /// Registers a callback that will be invoked every time the statemachine
         /// transitions from one state into another and all the OnEntryFrom etc methods
-        /// have been invoked
+        /// have been invoked. The callback is not invoked if an action or callback throws
+        /// during the transition.
         /// </summary>
         /// <param name="onTransitionAction">The asynchronous action to execute, accepting the details
         /// of the transition.</param>
