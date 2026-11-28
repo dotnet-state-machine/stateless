@@ -850,6 +850,12 @@ namespace Stateless
             /// Specify an action that will execute when transitioning into
             /// the configured state.
             /// </summary>
+            /// <remarks>
+            /// Entry actions run after <see cref="StateMachine{TState, TTrigger}.State"/> has been updated
+            /// to the destination state. Keep them lightweight and don't throw exceptions from them:
+            /// an exception propagates to the caller of <c>Fire</c> or <c>FireAsync</c>, and the
+            /// transition is not rolled back.
+            /// </remarks>
             /// <param name="entryAction">Action to execute.</param>
             /// <param name="entryActionDescription">Action description.</param>
             /// <returns>The receiver.</returns>
@@ -868,6 +874,12 @@ namespace Stateless
             /// Specify an action that will execute when transitioning into
             /// the configured state.
             /// </summary>
+            /// <remarks>
+            /// Entry actions run after <see cref="StateMachine{TState, TTrigger}.State"/> has been updated
+            /// to the destination state. Keep them lightweight and don't throw exceptions from them:
+            /// an exception propagates to the caller of <c>Fire</c> or <c>FireAsync</c>, and the
+            /// transition is not rolled back.
+            /// </remarks>
             /// <param name="entryAction">Action to execute, providing details of the transition.</param>
             /// <param name="entryActionDescription">Action description.</param>
             /// <returns>The receiver.</returns>
@@ -885,6 +897,12 @@ namespace Stateless
             /// Specify an action that will execute when transitioning into
             /// the configured state.
             /// </summary>
+            /// <remarks>
+            /// Entry actions run after <see cref="StateMachine{TState, TTrigger}.State"/> has been updated
+            /// to the destination state. Keep them lightweight and don't throw exceptions from them:
+            /// an exception propagates to the caller of <c>Fire</c> or <c>FireAsync</c>, and the
+            /// transition is not rolled back.
+            /// </remarks>
             /// <param name="entryAction">Action to execute.</param>
             /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
             /// <param name="entryActionDescription">Action description.</param>
@@ -905,6 +923,12 @@ namespace Stateless
             /// Specify an action that will execute when transitioning into
             /// the configured state.
             /// </summary>
+            /// <remarks>
+            /// Entry actions run after <see cref="StateMachine{TState, TTrigger}.State"/> has been updated
+            /// to the destination state. Keep them lightweight and don't throw exceptions from them:
+            /// an exception propagates to the caller of <c>Fire</c> or <c>FireAsync</c>, and the
+            /// transition is not rolled back.
+            /// </remarks>
             /// <param name="entryAction">Action to execute, providing details of the transition.</param>
             /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
             /// <param name="entryActionDescription">Action description.</param>
@@ -924,6 +948,12 @@ namespace Stateless
             /// Specify an action that will execute when transitioning into
             /// the configured state.
             /// </summary>
+            /// <remarks>
+            /// Entry actions run after <see cref="StateMachine{TState, TTrigger}.State"/> has been updated
+            /// to the destination state. Keep them lightweight and don't throw exceptions from them:
+            /// an exception propagates to the caller of <c>Fire</c> or <c>FireAsync</c>, and the
+            /// transition is not rolled back.
+            /// </remarks>
             /// <param name="entryAction">Action to execute, providing details of the transition.</param>
             /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
             /// <param name="entryActionDescription">Action description.</param>
@@ -945,6 +975,12 @@ namespace Stateless
             /// Specify an action that will execute when transitioning into
             /// the configured state.
             /// </summary>
+            /// <remarks>
+            /// Entry actions run after <see cref="StateMachine{TState, TTrigger}.State"/> has been updated
+            /// to the destination state. Keep them lightweight and don't throw exceptions from them:
+            /// an exception propagates to the caller of <c>Fire</c> or <c>FireAsync</c>, and the
+            /// transition is not rolled back.
+            /// </remarks>
             /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
             /// <param name="entryAction">Action to execute, providing details of the transition.</param>
             /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
@@ -968,6 +1004,12 @@ namespace Stateless
             /// Specify an action that will execute when transitioning into
             /// the configured state.
             /// </summary>
+            /// <remarks>
+            /// Entry actions run after <see cref="StateMachine{TState, TTrigger}.State"/> has been updated
+            /// to the destination state. Keep them lightweight and don't throw exceptions from them:
+            /// an exception propagates to the caller of <c>Fire</c> or <c>FireAsync</c>, and the
+            /// transition is not rolled back.
+            /// </remarks>
             /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
             /// <param name="entryAction">Action to execute, providing details of the transition.</param>
             /// <param name="trigger">The trigger by which the state must be entered in order for the action to execute.</param>
@@ -990,6 +1032,12 @@ namespace Stateless
             /// Specify an action that will execute when transitioning into
             /// the configured state.
             /// </summary>
+            /// <remarks>
+            /// Entry actions run after <see cref="StateMachine{TState, TTrigger}.State"/> has been updated
+            /// to the destination state. Keep them lightweight and don't throw exceptions from them:
+            /// an exception propagates to the caller of <c>Fire</c> or <c>FireAsync</c>, and the
+            /// transition is not rolled back.
+            /// </remarks>
             /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
             /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
             /// <param name="entryAction">Action to execute, providing details of the transition.</param>
@@ -1014,6 +1062,12 @@ namespace Stateless
             /// Specify an action that will execute when transitioning into
             /// the configured state.
             /// </summary>
+            /// <remarks>
+            /// Entry actions run after <see cref="StateMachine{TState, TTrigger}.State"/> has been updated
+            /// to the destination state. Keep them lightweight and don't throw exceptions from them:
+            /// an exception propagates to the caller of <c>Fire</c> or <c>FireAsync</c>, and the
+            /// transition is not rolled back.
+            /// </remarks>
             /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
             /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
             /// <param name="entryAction">Action to execute, providing details of the transition.</param>
@@ -1036,6 +1090,12 @@ namespace Stateless
             /// Specify an action that will execute when transitioning into
             /// the configured state.
             /// </summary>
+            /// <remarks>
+            /// Entry actions run after <see cref="StateMachine{TState, TTrigger}.State"/> has been updated
+            /// to the destination state. Keep them lightweight and don't throw exceptions from them:
+            /// an exception propagates to the caller of <c>Fire</c> or <c>FireAsync</c>, and the
+            /// transition is not rolled back.
+            /// </remarks>
             /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
             /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
             /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
@@ -1061,6 +1121,12 @@ namespace Stateless
             /// Specify an action that will execute when transitioning into
             /// the configured state.
             /// </summary>
+            /// <remarks>
+            /// Entry actions run after <see cref="StateMachine{TState, TTrigger}.State"/> has been updated
+            /// to the destination state. Keep them lightweight and don't throw exceptions from them:
+            /// an exception propagates to the caller of <c>Fire</c> or <c>FireAsync</c>, and the
+            /// transition is not rolled back.
+            /// </remarks>
             /// <typeparam name="TArg0">Type of the first trigger argument.</typeparam>
             /// <typeparam name="TArg1">Type of the second trigger argument.</typeparam>
             /// <typeparam name="TArg2">Type of the third trigger argument.</typeparam>
@@ -1085,6 +1151,12 @@ namespace Stateless
             /// Specify an action that will execute when transitioning from
             /// the configured state.
             /// </summary>
+            /// <remarks>
+            /// Exit actions run before <see cref="StateMachine{TState, TTrigger}.State"/> is updated.
+            /// Keep them lightweight and don't throw exceptions from them: an exception propagates to
+            /// the caller of <c>Fire</c> or <c>FireAsync</c>, and exit actions that already ran are
+            /// not undone.
+            /// </remarks>
             /// <param name="exitAction">Action to execute.</param>
             /// <param name="exitActionDescription">Action description.</param>
             /// <returns>The receiver.</returns>
@@ -1102,6 +1174,12 @@ namespace Stateless
             /// Specify an action that will execute when transitioning from
             /// the configured state.
             /// </summary>
+            /// <remarks>
+            /// Exit actions run before <see cref="StateMachine{TState, TTrigger}.State"/> is updated.
+            /// Keep them lightweight and don't throw exceptions from them: an exception propagates to
+            /// the caller of <c>Fire</c> or <c>FireAsync</c>, and exit actions that already ran are
+            /// not undone.
+            /// </remarks>
             /// <param name="exitAction">Action to execute, providing details of the transition.</param>
             /// <param name="exitActionDescription">Action description.</param>
             /// <returns>The receiver.</returns>

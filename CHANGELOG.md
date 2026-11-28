@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Fixed
+ - Documented when `State` is updated during a transition and that transitions are not rolled back when an action throws. Entry and exit actions should be kept lightweight and should not throw (thanks to Remi Testa for highlighting this).
 
 ## 5.21.0 - 2026.11.21
 ### Added

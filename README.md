@@ -65,6 +65,23 @@ The call can move between the `Connected` and `OnHold` states without the `Start
 
 Entry/Exit action handlers can be supplied with a parameter of type `Transition` that describes the trigger, source and destination states.
 
+### Transition order and exceptions
+
+When a trigger moves the state machine to a different state, Stateless:
+
+1. Evaluates guard clauses and selects the transition.
+2. Runs the exit actions of the states being left.
+3. Updates `State` (calling the state mutator, if [external state storage](#external-state-storage) is used).
+4. Raises `OnTransitioned`.
+5. Runs the entry actions of the states being entered, including any initial transitions.
+6. Raises `OnTransitionCompleted`.
+
+Entry actions therefore run when `State` already reports the destination state.
+
+Transitions are not rolled back. If an action or event handler throws, the exception propagates to the caller of `Fire`/`FireAsync` and `State` stays as it was at that point: the source state if the exception came from steps 1-2, or the destination state if it came from steps 4-5, even though the remaining entry actions did not run and `OnTransitionCompleted` is not raised.
+
+Keep entry and exit actions lightweight, and don't throw exceptions from them. Use a [guard clause](#guard-clauses) to decide whether a transition is allowed, and model operations that can fail as states (for example, `Provisioning` transitioning to `Provisioned` or `ProvisioningFailed`).
+
 ### Internal transitions
 
 Sometimes a trigger needs to be handled, but the state shouldn't change. This is an internal transition. Use `InternalTransition` for this.
@@ -100,7 +117,7 @@ var stateMachine = new StateMachine<State, Trigger>(
     s => myState.Value = s);
 ```
 
-In this example the state machine will use the `myState` object for state storage.
+In this example the state machine will use the `myState` object for state storage. The state mutator is called before the destination state's entry actions run (see [Transition order and exceptions](#transition-order-and-exceptions)).
 
 Another example can be found in the JsonExample solution, located in the example folder. 
 
@@ -218,7 +235,7 @@ stateMachine.OnTransitioned((transition) => { });
 // Asynchronously
 stateMachine.OnTransitionedAsync((transition) => { return Task.FromResult(0); });
 ```
-This event will be invoked every time the state machine changes state.
+This event will be invoked every time the state machine changes state, after `State` has been updated and before entry actions run.
 
 #### State machine transition completed
 ```csharp
@@ -228,7 +245,7 @@ stateMachine.OnTransitionCompleted((transition) => { });
 // Asynchronously
 stateMachine.OnTransitionCompletedAsync((transition) => { return Task.FromResult(0); });
 ```
-This event will be invoked at the very end of the trigger handling, after the last entry action has been executed.
+This event will be invoked at the very end of the trigger handling, after the last entry action has been executed. It is not invoked if an action or event handler throws during the transition.
 
 ---
 
